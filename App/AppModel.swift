@@ -241,10 +241,37 @@ final class AppModel: ObservableObject {
             isRefreshing = false
         }
 
-        // The CLI is reconciled before every poll: that is how an account the
-        // user has just signed into gets picked up, and how the copy of its
-        // refresh token stays current while it is still active.
-        await syncWithCLI()
+        // The CLI is reconciled before a poll only while something still depends
+        // on it: that is how an account just signed into gets picked up, and how
+        // the copy of its refresh token stays current while it is still active.
+        //
+        // Once every account carries a grant of this app's own there is nothing
+        // in Claude Code's keychain item the app does not already have, and
+        // opening it is all cost. macOS checks a foreign item against its access
+        // list on every read, and the grant that check looks for does not survive
+        // the item's owner rewriting it — which Claude Code does each time it
+        // refreshes, about every eight hours. Skipping the read is what turns
+        // "allow once at setup" into something that is actually true.
+        //
+        // A person who asked is the exception: they may be importing the CLI's
+        // account for the first time, and the dialog lands while they are
+        // watching for it.
+        //
+        // Both conditions are read before the test rather than inside it: `||`
+        // takes its right side as an autoclosure, which cannot be awaited in.
+        let somethingStillNeedsTheCLI = await store.dependsOnCLI()
+        let personAsked = await store.isPromptAllowed
+        if somethingStillNeedsTheCLI || personAsked {
+            await syncWithCLI()
+        } else {
+            // Nothing depends on Claude Code's item any more, so nothing is
+            // blocked on it. `cliAccessBlocked` is only ever assigned inside
+            // `syncWithCLI`, so skipping that call would freeze the flag at
+            // whatever the last poll left — and a reader who fixed the problem by
+            // signing every account in would go on being told, by the Accounts
+            // screen and the empty state both, that credentials cannot be read.
+            cliAccessBlocked = false
+        }
         await rebuildPoller()
         await importCodexHistoryOnce()
 

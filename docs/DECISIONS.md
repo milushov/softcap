@@ -6597,3 +6597,73 @@ lost.
 the reason behind a line has to be found here rather than beside it. Bisecting is
 gone. The order in which things were learnt survives only as the order of these
 entries — which is the standing reason they are never rewritten.
+
+## The account carries its own credential, and the prompt stops coming back
+
+**Decision.** An account signed in through the browser keeps the grant that
+sign-in gave it and is read from that alone. Its token is refreshed directly,
+the keychain item belonging to Claude Code is never opened on its behalf, and
+`syncWithCLI` will not overwrite it with a copy of the CLI's token. The poll
+opens that item only while something still depends on it — an account still
+living off a copy, or an empty list with the CLI's account yet to be discovered
+— which is what `CredentialStore.dependsOnCLI()` answers. An account left with
+no credential at all now reports `.needsLogin` rather than `.needsPermission`.
+
+This reverses two earlier entries. *Subscriptions accumulate through a token
+copy, not a separate sign-in* made the copy the primary path because the browser
+sign-in could not be made to work at the time; it works now, and the copy is the
+fallback rather than the design. *The refusal had the wrong number, so nothing
+built on it ever ran* ended with a credential-less account reporting the keychain
+refusal, on the reasoning that signing in could not help it. Signing in is now
+exactly what helps.
+
+**Why.** Two Claude accounts sat on "Allow keychain access" while the two
+subscriptions actually being spent were the ones that could not be read — the
+window showed 0% for an account nobody was using. The advice in that row cannot
+be taken, because the grant it asks for does not last.
+
+The signature was never the cause, which is worth writing down because
+*Signed with Apple Development, not ad-hoc* points at it. The designated
+requirement of this build carries no binary hash and survives a rebuild
+unchanged. What the grant does not survive is the item's **owner** rewriting it,
+and Claude Code rewrites `Claude Code-credentials` every time it refreshes its
+token — roughly every eight hours, and far more often on a machine running many
+sessions at once. "Always Allow" is an answer with a shelf life, and the dialog
+comes back for as long as the app keeps reading that item.
+
+A grant of the app's own has none of that shape. It is a separate authorisation:
+refreshing it rotates this app's token and nobody else's, so it cannot sign the
+CLI out, and no access list stands between the app and its own keychain item.
+The one prompt left is the useful one — at setup, to discover the account Claude
+Code is already signed into — and once every account has been signed into,
+`dependsOnCLI()` answers false for good.
+
+It also settles a failure recorded in *The page promised a sign-in that sticks*:
+Anthropic rotates a refresh token on every use, so a copy taken from the CLI is
+invalidated whenever the CLI later refreshes that same account. A separate grant
+is not in that race at all.
+
+**What it nearly cost.** Recording the origin opened two ways to break the very
+thing it protects, both caught by tests written before the code.
+
+`syncWithCLI` copies the CLI's token onto every account it recognises. Applied to
+an account that had its own grant, it left that account holding Claude Code's own
+refresh token while still marked independent — and the next poll would have sent
+that token to be rotated, signing the CLI out. That is the exact harm the
+read-only rule in *The active Claude account is read-only* exists to prevent,
+reintroduced by the change meant to make accounts safer.
+
+And `tokenOrigin` had to be optional. `StoredAccount` decodes through the
+synthesised `Codable`, which refuses a blob missing a non-optional field, and
+`load` treats an undecodable item as present-but-unreadable and then refuses
+every write to protect it — see *An unreadable account list must not be written
+over*. Made required, the field would have emptied the account list of every
+existing install and left no way to add one. Confirmed by making it required on
+purpose and watching all three migration tests fail with exactly that.
+
+**Cost.** An account whose only credential is a copy from the CLI still depends
+on that item, so a reader who never signs in through the browser sees no change
+at all. And discovery stops being automatic once every account has its own
+grant: an account newly signed into with `/login` then needs the `Allow access…`
+button to be noticed. That is a person asking, which is the only time the dialog
+was ever welcome.

@@ -393,7 +393,14 @@ private func makeStore(
 
     /// An account with no copy of its own is one the app only ever saw through
     /// the CLI — which is exactly the item it is now refused.
-    @Test func anAccountWithoutOneGetsTheRefusal() async {
+    ///
+    /// It used to report that refusal, so the row read "Allow keychain access".
+    /// It now asks for a sign-in instead — see "The account carries its own
+    /// credential, and the prompt stops coming back" in the decision log.
+    /// Granting access to the CLI item holds only until Claude Code next
+    /// rewrites it and the access list goes with it; a grant of the account's
+    /// own does not expire that way.
+    @Test func anAccountWithoutOneIsAskedToSignIn() async {
         let keychain = RefusingKeychain()
         let store = CredentialStore(keychain: keychain, refresher: SpyRefresher(), cacheWindow: 0)
         try? await store.addLoggedInAccount(
@@ -405,8 +412,8 @@ private func makeStore(
             _ = try await store.accessToken(for: "u-1")
             Issue.record("no failure at all")
         } catch let failure as ProviderFailure {
-            #expect(failure.kind == .needsPermission,
-                    "reported \(failure.kind) — signing in again cannot help here")
+            #expect(failure.kind == .needsLogin,
+                    "reported \(failure.kind) — that asks for a grant that cannot hold")
         } catch {
             Issue.record("unexpected \(type(of: error))")
         }

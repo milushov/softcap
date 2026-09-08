@@ -135,21 +135,33 @@ than retrying a dead credential, and the row says the same thing.
 An account can also be added straight from settings with "Add account…": a
 browser opens and the password is typed only there.
 
-### The one permission it needs
+### The one permission it needs, and how to stop needing it
 
 Reading the account Claude Code is signed into means reading a keychain item
-another app owns, and macOS asks once before allowing that. The app will not
-raise the dialog by itself: `SecItemCopyMatching` blocks until it is answered,
-and a dialog raised by a five-minute timer is one nobody is looking for — an
+another app owns, and macOS asks before allowing that. The app will not raise
+the dialog by itself: `SecItemCopyMatching` blocks until it is answered, and a
+dialog raised by a five-minute timer is one nobody is looking for — an
 unanswered one froze the app for eighty-four minutes while this was being built.
 
-So a poll asks for no dialog and reports the refusal instead. The row says
-"Allow keychain access" and the Accounts screen offers a button that asks
-properly, with somebody watching. Choose "Always Allow" and it is not asked
-again.
+So a poll asks for no dialog, and the Accounts screen offers a button that asks
+properly, with somebody watching.
 
-Until it is granted, accounts added through the browser still work: they carry
-their own tokens and do not need the CLI's item at all.
+"Always Allow" is worth choosing, and worth knowing the shape of. macOS ties the
+grant to the item, and Claude Code rewrites that item every time it refreshes its
+token — about every eight hours, and more often on a machine running several
+sessions at once. The grant goes with it and the dialog comes back. That is not a
+fault in either program; it is what reading another app's keychain item costs.
+
+An account added through the browser with "Add account…" does not pay that cost.
+It holds a grant of its own: the token is refreshed directly, Claude Code's item
+is never opened on its behalf, and signing into that account with `/login` will
+not quietly replace its credential with a copy of the CLI's. No dialog can appear
+for such an account again.
+
+Once every account has been added that way, the app stops opening Claude Code's
+item at all — `CredentialStore.dependsOnCLI()` is what decides. Before that it
+still asks at setup, where the prompt buys something real: the account you are
+already signed into, without signing in a second time.
 
 ## Settings
 
