@@ -28,6 +28,22 @@ import Foundation
     /// live in `.entitlements`, `.plist` and `.xcconfig`, and none of those were
     /// read. `.sh` was missing too — a shell script is where a host address or a
     /// token gets pasted.
+    /// Addresses in examples belong to the ranges reserved for documentation
+    /// (RFC 5737) or to the private ones; anything else routes somewhere real.
+    /// Shared, because the history is scanned for the same shape as the files.
+    private static func isReservedAddress(_ address: String) -> Bool {
+        let o = address.split(separator: ".").compactMap { Int($0) }
+        guard o.count == 4, o.allSatisfy({ (0...255).contains($0) }) else { return true }
+        switch (o[0], o[1], o[2]) {
+        case (0, _, _), (10, _, _), (127, _, _):            return true  // this host, private
+        case (169, 254, _), (192, 168, _):                  return true  // link-local, private
+        case (172, 16...31, _):                             return true  // private
+        case (192, 0, 2), (198, 51, 100), (203, 0, 113):    return true  // RFC 5737 docs
+        case (224...255, _, _):                             return true  // multicast, broadcast
+        default:                                            return false
+        }
+    }
+
     private static let extensions = [
         "swift", "py", "md", "strings", "yml", "json", "html",
         "sh", "plist", "entitlements", "xcconfig", "xml", "txt", "svg",
@@ -192,19 +208,6 @@ import Foundation
         let regex = try NSRegularExpression(
             pattern: "(?<![0-9.])((?:[0-9]{1,3}\\.){3}[0-9]{1,3})(?![0-9.])")
 
-        func isReserved(_ address: String) -> Bool {
-            let o = address.split(separator: ".").compactMap { Int($0) }
-            guard o.count == 4, o.allSatisfy({ (0...255).contains($0) }) else { return true }
-            switch (o[0], o[1], o[2]) {
-            case (0, _, _), (10, _, _), (127, _, _):            return true  // this host, private
-            case (169, 254, _), (192, 168, _):                  return true  // link-local, private
-            case (172, 16...31, _):                             return true  // private
-            case (192, 0, 2), (198, 51, 100), (203, 0, 113):    return true  // RFC 5737 docs
-            case (224...255, _, _):                             return true  // multicast, broadcast
-            default:                                            return false
-            }
-        }
-
         var offenders: [String] = []
         for file in try Self.textFiles() {
             let text = try String(contentsOf: file, encoding: .utf8)
@@ -212,7 +215,7 @@ import Foundation
             for match in regex.matches(in: text, range: range) {
                 guard let found = Range(match.range(at: 1), in: text) else { continue }
                 let address = String(text[found])
-                if !isReserved(address) {
+                if !Self.isReservedAddress(address) {
                     offenders.append("\(file.lastPathComponent): \(address)")
                 }
             }
@@ -299,6 +302,37 @@ import Foundation
             """)
     }
 
+    // MARK: - the history, which the walk above cannot see
+
+    /// The nine checks above read files. A value that reached a commit message
+    /// is in none of them.
+    ///
+    /// The bundle prefix this project used before it was renamed was built from
+    /// a personal domain. A rewrite of the whole history replaced it 1450 times,
+    /// and it is described here rather than written out, for the reason this
+    /// check exists. It came back twice in the week after that rewrite: once
+    /// into an entry quoting
+    /// `pluginkit` output verbatim, and once into the body of a merge commit
+    /// describing what the rename had broken. The entry was fixed the same day
+    /// and every check above went quiet again. The message was not, because
+    /// nothing here had ever read one — and a message cannot be fixed forward,
+    /// since editing it rewrites every commit after it.
+    ///
+    /// Asked of git rather than of the working tree, so this sees what a clone
+    /// sees rather than what happens to be checked out.
+    @Test func noPersonalDataInCommitMessages() throws {
+        var offenders: [String] = []
+        for commit in try Self.commitMessages() {
+            for finding in try Self.privateShapes(in: commit.body) {
+                offenders.append("\(commit.name.prefix(9)): \(finding)")
+            }
+        }
+        #expect(offenders.isEmpty, """
+            personal data in commit messages, which no later commit can remove: \
+            \(offenders.sorted().joined(separator: "; "))
+            """)
+    }
+
     // MARK: - walking the repository
 
     /// Every text file in the repository, skipping what is not committed:
@@ -324,8 +358,13 @@ import Foundation
 
     enum ScanFailed: Error, CustomStringConvertible {
         case tooFewFiles(found: Int, expected: Int)
+        case noHistory
         var description: String {
             switch self {
+            case .noHistory:
+                "the personal-data scan read no commit message at all — git answered with "
+                + "nothing, and the check on the history would otherwise have passed having "
+                + "read none"
             case let .tooFewFiles(found, expected):
                 "the personal-data scan found \(found) files, fewer than the \(expected) "
                 + "this repository has — it is looking in the wrong place, and every check "
@@ -374,5 +413,110 @@ import Foundation
             .deletingLastPathComponent()      // …/Core
             .deletingLastPathComponent()      // …/Packages
             .deletingLastPathComponent()      // repository root
+    }
+
+    // MARK: - reading the history
+
+    /// Every commit message in the repository, with the commit it belongs to.
+    ///
+    /// The floor is the same idea as `fewestPlausibleFiles` above: git answering
+    /// with nothing — run outside a checkout, or in one with no commits yet —
+    /// would let the check pass having read no message at all.
+    private static func commitMessages() throws -> [(name: String, body: String)] {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = [
+            "-C", repositoryRoot.path, "log", "--all", "--format=%H%x1f%B%x1e",
+        ]
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = FileHandle.nullDevice
+        try process.run()
+        // Read before waiting: a history larger than the pipe buffer would
+        // otherwise block git on a write nobody is draining.
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+
+        guard process.terminationStatus == 0,
+              let text = String(data: data, encoding: .utf8)
+        else { throw ScanFailed.noHistory }
+
+        let found: [(name: String, body: String)] = text
+            .components(separatedBy: "\u{1e}")
+            .compactMap { record in
+                let parts = record.components(separatedBy: "\u{1f}")
+                guard parts.count == 2 else { return nil }
+                let name = parts[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !name.isEmpty else { return nil }
+                return (name: name, body: parts[1])
+            }
+        guard !found.isEmpty else { throw ScanFailed.noHistory }
+        return found
+    }
+
+    /// The shapes the checks above look for, asked of one piece of text rather
+    /// than of a file — so the history can be held to the same rules.
+    private static func privateShapes(in text: String) throws -> [String] {
+        let range = NSRange(text.startIndex..., in: text)
+        func matches(_ pattern: String, _ group: Int = 0) throws -> [String] {
+            try NSRegularExpression(pattern: pattern)
+                .matches(in: text, range: range)
+                .compactMap { Range($0.range(at: group), in: text).map { String(text[$0]) } }
+        }
+        var found: [String] = []
+
+        for address in try matches("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}") {
+            let host = address.split(separator: "@").last.map(String.init) ?? ""
+            if !reserved.contains(where: { host == $0 || host.hasSuffix($0) }) {
+                found.append("mail address \(address)")
+            }
+        }
+
+        for id in try matches(
+            "(?:claude|codex)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+        ) {
+            found.append("account identifier \(id)")
+        }
+
+        for pattern in ["sk-ant-[A-Za-z0-9_-]{10,}", "eyJ[A-Za-z0-9_-]{30,}"] {
+            let hits = try matches(pattern)
+            if !hits.isEmpty { found.append("a credential shape") }
+        }
+
+        // A home directory names its owner. An elided one — `/Users/…/` — is how
+        // such a path gets written down on purpose, and names nobody.
+        for name in try matches("/Users/([^/\\s]+)/", 1)
+        where name.contains(where: { $0.isLetter || $0.isNumber }) {
+            found.append("home directory /Users/\(name)/")
+        }
+
+        let machine = ProcessInfo.processInfo.hostName
+            .replacingOccurrences(of: ".local", with: "")
+        let lowered = text.lowercased()
+        for name in [machine, NSUserName()].map({ $0.lowercased() })
+        where name.count > 3 && lowered.contains(name) {
+            found.append("this machine's name or login")
+        }
+
+        for id in try matches(
+            #"[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+\.(?:Softcap|StatusChecker)\b"#
+        ) {
+            let bare = id.hasPrefix("group.") ? String(id.dropFirst("group.".count)) : id
+            if !["app.softcap", "dev.example"].contains(where: { bare.hasPrefix($0 + ".") }) {
+                found.append("bundle identifier \(id)")
+            }
+        }
+
+        for team in try matches("\\b([A-Z0-9]{10})\\.group\\.", 1)
+        where !["ABCDE12345", "YYYYYYYYYY"].contains(team) {
+            found.append("team identifier \(team)")
+        }
+
+        for address in try matches("(?<![0-9.])((?:[0-9]{1,3}\\.){3}[0-9]{1,3})(?![0-9.])", 1)
+        where !isReservedAddress(address) {
+            found.append("host address \(address)")
+        }
+
+        return found
     }
 }

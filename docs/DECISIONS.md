@@ -6667,3 +6667,99 @@ at all. And discovery stops being automatic once every account has its own
 grant: an account newly signed into with `/login` then needs the `Allow access…`
 button to be noticed. That is a person asking, which is the only time the dialog
 was ever welcome.
+
+---
+
+## 2026-09-09 · Failures are described to a collector, and the page stops saying otherwise
+
+**Decision.** When something fails the app posts a description to a
+Sentry-compatible collector at `sentry.softcap.app`. It is on by default,
+switchable off in *About and data*, and never compiled into a debug build.
+The landing's "No telemetry" sentence was replaced in the same commit by the
+narrower claim that is true: a description is sent, stripped of paths, addresses
+and anything token-shaped, and it can be switched off.
+
+**Why.** Nothing was known about failures on anybody else's Mac. The one live
+request the app already makes had made "nothing else leaves your Mac" untrue once
+before, and the answer then was the same as now: change the sentence rather than
+keep a promise the code no longer makes. `NothingElseLeavesYourMac` requires
+both halves to move together — the page still has to claim what the code still
+does, and changing either alone fails.
+
+**Why not the vendor SDK.** The obvious route was `sentry-cocoa`, which is what
+the author's other projects use. Two rules refuse it. `oneTypeBuildsEveryRequest`
+holds that exactly one file turns a URL into traffic, and an SDK builds its own —
+the host list beside that rule is only worth reading while it stays true. And the
+landing claims "Dependencies — None. Every import is either Apple's own framework
+or a module of this project," which an SPM package would falsify. A hand-written
+event through the existing `HTTPClient` keeps both. It cost the ability to catch a
+crash: signal and Mach-exception handling is what the SDK is actually for, so what
+arrives is handled failures — a sign-in, an update check, an install — and not a
+segmentation fault.
+
+**Why a hostname of its own.** The collector is one the author runs for several
+projects and answers to another name elsewhere. This repository is public, so a
+hostname committed here is published with it, and the association between this
+project and the rest is the private part. `sentry.softcap.app` is a second name
+on the same route.
+
+**Cost.** The key ships in every copy and authorises writing an event, so anyone
+who reads the source can post junk; the throttle for that is on the collector,
+not in the app. Reports are on by default, which is a decision about other
+people's machines and is why the page had to change rather than the setting.
+`Scrubber` is written to over-redact, so a report can arrive missing the detail
+that would have explained it. And the reporter is the app's only outbound
+request that is not the user asking for something.
+
+---
+
+## 2026-09-09 · Test fixtures assemble the shapes the repository forbids
+
+**Decision.** A test needing a credential shape or a home path builds it at
+runtime — `"/Users/" + "someone"` — rather than writing it out.
+
+**Why.** `NoPersonalDataInTheRepository` forbids those shapes anywhere in the
+tree, and it does not exempt tests. Writing the module above, its first draft put
+a real mail address, a real home directory and a key-shaped literal into the
+fixtures for the scrubber; the guard caught all three on the first full run. The
+rule was working, not getting in the way — the fixtures for the code that removes
+private data are exactly where somebody reaches for a realistic value.
+
+**Cost.** The fixtures read less directly than a literal would, so each one
+carries a line saying why it is assembled.
+
+## The tenth check reads the history, because the other nine cannot
+
+**Decision.** `NoPersonalDataInTheRepository` has a tenth check. It asks git for
+every commit message and holds each one to the same rules the other nine hold
+files to. `isReserved` for host addresses moved out of the check that had it as a
+nested function and became a static one, so the file scan and the history scan
+share a single table of the ranges reserved for documentation.
+
+**Why.** The bundle prefix this project used before it was renamed was built
+from a personal domain; a rewrite of the whole history replaced it 1450 times. It
+was still in the repository a week after that rewrite, in two places these checks are blind to by
+construction: the body of a merge commit, and an entry that had since been fixed,
+which leaves the value in the diff and nowhere else. Every check here reads files.
+A value that reaches a message is in no file, so the suite stayed green over it
+for as long as it sat there.
+
+A message is also the one place that cannot be fixed forward: editing one rewrites
+every commit after it. That is the argument the hook already makes for this suite,
+and it applies hardest to the part of the repository the suite could not see.
+
+**Proved.** In a clone, a commit whose message carried two of the forbidden
+shapes — a bundle identifier belonging to another project, and a home directory
+naming its owner — turned the check red, naming both and the commit that carried
+them; without that commit the check is green. Neither shape is reproduced here,
+because this file is one of those the other nine walk, and an entry proving a
+guard cannot contain what the guard forbids. The check has a floor for the same
+reason the file walk has `fewestPlausibleFiles` — git answering with nothing,
+outside a checkout, would let it pass having read no message at all — and an
+elided path is not a finding, because that is how such a path gets written down on
+purpose and it names nobody.
+
+**Cost.** The suite now runs a subprocess, which the other nine do not, and reads
+the whole history on every commit. At this size that is milliseconds, and it grows
+with the log rather than the tree. It also cannot run where git cannot: a source
+drop with no `.git` fails rather than passing quietly, which is the side to fail on.

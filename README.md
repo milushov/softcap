@@ -85,6 +85,8 @@ iOS unchanged. The app in `App/` is a thin SwiftUI layer on top of it.
 | `Monitoring` | polling, ordering, threshold notifications |
 | `Preferences` | settings and their defaults |
 | `StatusUI` | shared views and translations, used by window and widget alike |
+| `Updates` | the release feed, the download and the bundle swap |
+| `Diagnostics` | describing a failure, scrubbed, to the collector |
 
 **`Core` carries no text meant to be read.** Models return identifiers and
 numbers; labels are assembled by the UI layer. `ProviderFailure.diagnostic` is
@@ -112,6 +114,32 @@ Polling Codex over the network is deliberately avoided: the rate limit headers
 only arrive on a *successful* request, so polling every five minutes would spend
 the very quota the app is watching. Instead the app watches the session files
 and updates the reading the moment Codex writes one.
+
+## What the app sends back
+
+When something fails — a sign-in, an update check, an install — the app posts a
+description of the failure to a collector the author runs at
+`sentry.softcap.app`. It is on by default and switched off in **About and data**.
+Nothing is sent from a debug build: `startReporting` is not compiled into one, so
+there is no reporter to enable rather than a flag holding one back.
+
+What leaves is a level, a category, one English sentence and the failure's type.
+No screenshot, no view hierarchy, no request log, no device identifier; the
+collector drops the reporting address at ingest rather than storing it.
+
+Every string first passes `Scrubber`, which removes home directories, mail
+addresses, anything matching a key's prefix, JSON web tokens, and any value
+whose neighbouring word calls it a token, a secret, a password or a key. It is
+written to over-redact — a report missing a detail is a nuisance, a report
+carrying a refresh token is an incident — and `ScrubberRemovesWhatItMustNotSend`
+tests it against the exact shapes that would break it, assembling its fixtures at
+runtime because `NoPersonalDataInTheRepository` forbids writing a credential
+shape or a home path into this repository even as test data.
+
+The reporter builds no request of its own. It goes through `HTTPClient` like
+every provider does, because `NothingElseLeavesYourMac` holds that exactly one
+file in this project turns a URL into traffic — and the list of hosts beside that
+rule is only worth reading while that stays true.
 
 ## Several Claude subscriptions
 
@@ -340,7 +368,7 @@ up if anyone wants to look.
     tools/install-hooks.sh    # once per clone
 
 That points git at `tools/hooks`, which runs the whole suite before every commit
-— about four seconds. The nine checks in `NoPersonalDataInTheRepository` get
+— about four seconds. The ten checks in `NoPersonalDataInTheRepository` get
 their own message, because theirs is the one failure that cannot be fixed
 forward: the value is in the history from the moment it lands. They read every text file kind the repository
 has, which they did not: the list was the seven a leak had happened in, and left
@@ -350,7 +378,9 @@ their subject. They refuse a mail address outside the reserved example domains, 
 account identifier from a running instance, anything shaped like a credential, an
 absolute path from one machine, that machine's own name or login, a path into a
 neighbouring checkout, a routable host address, the Apple team identifier, and a
-bundle identifier that is not this project's.
+bundle identifier that is not this project's. The tenth reads none of those
+files: it asks git for every commit message and holds the history to the same
+rules, because a value written into a message is in no file the other nine walk.
 
 It began as those nine alone and ran one suite out of sixty-eight, which is how a
 commit went out with two tests failing in another. It runs everything now, and
@@ -361,7 +391,9 @@ late twice — both leaks were prose describing a live run, committed before the
 next `make test` saw them — and the four beyond the first four were added after a
 rewrite of the whole history found what the first four had no opinion about. The
 ninth came after an entry describing that rewrite quoted the old bundle prefix
-back into the repository the rewrite had just removed it from.
+back into the repository the rewrite had just removed it from. The tenth came
+after the same prefix was found still sitting in a commit message from that
+week, where the entry had been fixed and no check had ever looked.
 
 ## Proving a guard
 

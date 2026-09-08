@@ -163,6 +163,10 @@ import Foundation
     /// it omitted were the ones added after a rewrite of the whole history found
     /// what the first four had no opinion about, which makes them the four worth
     /// naming most.
+    ///
+    /// The count has earned this check twice since: a ninth check made it fail
+    /// the day after it was written, and a tenth — the one that reads commit
+    /// messages rather than files — made it fail again.
     @Test func theReadmeCountsTheChecksTheHookRuns() throws {
         let guards = try String(
             contentsOf: Self.root.appendingPathComponent(
@@ -171,8 +175,8 @@ import Foundation
             encoding: .utf8
         )
         let count = guards.components(separatedBy: "@Test func").count - 1
-        #expect(count == 9, "the personal-data suite has \(count) checks, not nine")
-        #expect(try Self.readmeSays("nine checks"),
+        #expect(count == 10, "the personal-data suite has \(count) checks, not ten")
+        #expect(try Self.readmeSays("ten checks"),
                 "the README no longer counts the checks the hook runs")
 
         // The hook filters on the suite's name, and a filter matching nothing
