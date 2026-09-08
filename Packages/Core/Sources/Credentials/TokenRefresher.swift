@@ -37,7 +37,8 @@ public struct AnthropicTokenRefresher: TokenRefreshing {
             throw ProviderFailure(kind: .needsLogin, diagnostic: "refresh failed, HTTP \(code)")
         }
         return RefreshedTokens(
-            accessToken: access, refreshToken: root?["refresh_token"] as? String
+            accessToken: access, refreshToken: root?["refresh_token"] as? String,
+            expiresIn: (root?["expires_in"] as? NSNumber)?.doubleValue
         )
     }
 }

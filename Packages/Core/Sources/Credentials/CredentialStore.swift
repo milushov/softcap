@@ -2,23 +2,6 @@ import Foundation
 import ProviderKit
 import ClaudeProvider
 
-/// The server has finished with this refresh token: expired, revoked, or rotated
-/// away by another client. Distinct from any other refresh failure because the
-/// answer will not change — a network error is worth retrying in five minutes and
-/// this is not, and a client that asks forever with a credential it has been told
-/// is dead is a badly behaved one.
-public struct RefreshRejected: Error, Sendable, Equatable {
-    public init() {}
-}
-
-/// Thrown rather than writing over an account list that could not be read.
-public struct WouldOverwriteUnreadableAccounts: Error, CustomStringConvertible {
-    public var description: String {
-        "the stored account list could not be read, and writing would replace the "
-        + "only copy of every inactive account's refresh token"
-    }
-}
-
 /// The account list and token vending.
 ///
 /// The account currently active in the CLI is read-only: refreshing may rotate
@@ -42,14 +25,34 @@ public actor CredentialStore: ClaudeTokenSource {
     private var accounts: [StoredAccount] = []
     private var cliCache: (oauth: [String: Any], readAt: Date)?
 
+    /// Access tokens already fetched, by account handle, with the moment each
+    /// stops being usable.
+    ///
+    /// Memory only. Writing them beside the refresh tokens would put a second
+    /// kind of credential in the keychain to no purpose: an access token is
+    /// cheap to obtain again, and a relaunch simply fetches one.
+    private var accessCache: [String: (token: String, goodUntil: Date)] = [:]
+
+    /// Refresh this long before the server's own deadline.
+    ///
+    /// Without a margin a token could pass the check with a second to live and
+    /// expire inside the request it was fetched for — a failure that would
+    /// appear at random and never in a test.
+    private static let expiryMargin: TimeInterval = 60
+
+    /// Reading the clock, so a test can move it.
+    private let now: @Sendable () -> Date
+
     public init(
         keychain: any KeychainAccess,
         refresher: any TokenRefreshing,
-        cacheWindow: TimeInterval = 10
+        cacheWindow: TimeInterval = 10,
+        now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.keychain = keychain
         self.refresher = refresher
         self.cacheWindow = cacheWindow
+        self.now = now
     }
 
     /// Set when the item was read and could not be understood — as opposed to
@@ -187,6 +190,16 @@ public actor CredentialStore: ClaudeTokenSource {
     /// Trades a refresh token for an access token, keeping whatever the server
     /// hands back for next time.
     private func refreshing(at index: Int, with refresh: String) async throws -> String {
+        // A token already in hand and not yet near its deadline serves this poll
+        // as well as a new one would. Every refresh spends the refresh token —
+        // the server rotates it on use — so a refresh made for no reason is a
+        // rotation made for no reason, and each rotation is a chance for the
+        // reply to be lost and the account left holding a retired credential.
+        let handle = accounts[index].handle
+        if let held = accessCache[handle], held.goodUntil > now() {
+            return held.token
+        }
+
         let fresh: RefreshedTokens
         do {
             fresh = try await refresher.refresh(refreshToken: refresh)
@@ -208,6 +221,15 @@ public actor CredentialStore: ClaudeTokenSource {
         if let rotated = fresh.refreshToken {
             accounts[index].refreshToken = rotated
             try? await persist()
+        }
+        // Held only when the server said how long for. Absent that, nothing is
+        // assumed and every poll fetches its own, as before.
+        if let life = fresh.expiresIn, life > Self.expiryMargin {
+            accessCache[handle] = (
+                fresh.accessToken, now().addingTimeInterval(life - Self.expiryMargin)
+            )
+        } else {
+            accessCache[handle] = nil
         }
         return fresh.accessToken
     }
@@ -268,7 +290,7 @@ public actor CredentialStore: ClaudeTokenSource {
     /// separately, so without a cache the app would bother the system three
     /// times as often for nothing: the contents do not change within seconds.
     private func cliOAuth() async throws -> [String: Any] {
-        if let cached = cliCache, Date().timeIntervalSince(cached.readAt) < cacheWindow {
+        if let cached = cliCache, now().timeIntervalSince(cached.readAt) < cacheWindow {
             return cached.oauth
         }
 
@@ -280,17 +302,8 @@ public actor CredentialStore: ClaudeTokenSource {
             throw ProviderFailure(kind: .needsLogin, diagnostic: "claude code not signed in")
         }
 
-        cliCache = (oauth, Date())
+        cliCache = (oauth, now())
         return oauth
-    }
-
-    /// How the app obtains a token for this account right now.
-    /// Computed rather than stored: the state depends on who the user is signed
-    /// in as in the CLI, not on our records.
-    public enum AccountState: Sendable, Hashable {
-        case activeInCLI   // token read from the CLI keychain, never refreshed
-        case refreshed     // lives on its own refresh token copy
-        case needsLogin    // no copy, nothing to refresh with
     }
 
     public func accountStates() async -> [(account: StoredAccount, state: AccountState)] {
@@ -321,20 +334,17 @@ public actor CredentialStore: ClaudeTokenSource {
         try await changing { $0.removeAll { $0.handle == handle } }
     }
 
-    /// Drops an account's own copy while keeping the account. Exists for the
-    /// tests: the same thing happens in life when the server rejects a token,
-    /// and there is no other way to reach that state from outside.
-    public func forgetCopyForTesting(handle: String) {
-        guard let index = accounts.firstIndex(where: { $0.handle == handle }) else { return }
-        accounts[index].refreshToken = nil
-    }
-
     /// Saves an account added through browser sign-in.
     /// It has its own token pair, unconnected to the CLI session, so it starts
     /// out in the "refreshed" state.
     public func addLoggedInAccount(
         uuid: String, displayName: String, refreshToken: String
     ) async throws {
+        // A new grant supersedes whatever was held for this account. Without
+        // this, re-signing-in would leave the app serving the previous grant's
+        // token until it expired — the sign-in would look done and change
+        // nothing for an hour.
+        accessCache[uuid] = nil
         try await changing {
             $0.removeAll { $0.handle == uuid }
             $0.append(StoredAccount(
@@ -361,6 +371,12 @@ public actor CredentialStore: ClaudeTokenSource {
             accounts = previous
             throw error
         }
+        // Nothing is kept on behalf of an account that is no longer listed. The
+        // held token is in memory rather than the keychain, but "not written
+        // down" is not "let go of", and a token that outlives the account it
+        // belongs to is a credential nobody is watching any more.
+        let present = Set(accounts.map(\.handle))
+        accessCache = accessCache.filter { present.contains($0.key) }
     }
 
     /// Refuses to write when the item held something this build could not read.

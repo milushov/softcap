@@ -137,13 +137,17 @@ private func cliCredentials(token: String, refresh: String) -> Data {
     }
 
     @Test func itSaysSignIn() async throws {
+        let refresher = RejectingRefresher()
+        await refresher.setRejects(true)
         let store = CredentialStore(
-            keychain: RefusingKeychain(), refresher: StubRefresher(), cacheWindow: 0
+            keychain: RefusingKeychain(), refresher: refresher, cacheWindow: 0
         )
         try await store.addLoggedInAccount(
             uuid: "u-1", displayName: "sam@example.com", refreshToken: "copy"
         )
-        await store.forgetCopyForTesting(handle: "u-1")
+        // The server finishes with the credential: this attempt drops it, which
+        // is how an account comes to have nothing of its own.
+        _ = try? await store.accessToken(for: "u-1")
 
         do {
             _ = try await store.accessToken(for: "u-1")

@@ -401,13 +401,17 @@ private func makeStore(
     /// rewrites it and the access list goes with it; a grant of the account's
     /// own does not expire that way.
     @Test func anAccountWithoutOneIsAskedToSignIn() async {
-        let keychain = RefusingKeychain()
-        let store = CredentialStore(keychain: keychain, refresher: SpyRefresher(), cacheWindow: 0)
+        let refresher = SpyRefresher()
+        await refresher.setRejects(true)
+        let store = CredentialStore(
+            keychain: RefusingKeychain(), refresher: refresher, cacheWindow: 0
+        )
         try? await store.addLoggedInAccount(
             uuid: "u-1", displayName: "sam@example.com", refreshToken: "copy"
         )
-        // The server finishes with the copy, so the account has none left.
-        await (store as CredentialStore).forgetCopyForTesting(handle: "u-1")
+        // The server finishes with the copy: this attempt is what drops it, and
+        // leaves the account with nothing of its own — the state under test.
+        _ = try? await store.accessToken(for: "u-1")
         do {
             _ = try await store.accessToken(for: "u-1")
             Issue.record("no failure at all")

@@ -6763,3 +6763,42 @@ purpose and it names nobody.
 the whole history on every commit. At this size that is milliseconds, and it grows
 with the log rather than the tree. It also cannot run where git cannot: a source
 drop with no `.git` fails rather than passing quietly, which is the side to fail on.
+
+## An access token is held until it is nearly spent
+
+**Decision.** The access token a refresh returns is kept in memory, per account,
+and reused until a minute before the deadline the server named. Only then is
+another refresh made. A reply that does not say `expires_in` is not held at all —
+the previous behaviour stands for it. The held token is dropped when the account
+is forgotten and when it is signed into again.
+
+**Why.** Refreshing was happening on every poll, which at the default five-minute
+interval is roughly 288 times a day per account. Each one spends the credential:
+Anthropic rotates the refresh token on use, and the replacement is only ours once
+it reaches the keychain — a write whose failure `refreshing` swallows with `try?`.
+So each refresh was a window in which a lost reply, a failed write, or a process
+killed at the wrong moment leaves the app holding a token the server has already
+retired. The next poll gets `invalid_grant` and the account is stranded until
+somebody signs in again, which is the failure recorded in *The page promised a
+sign-in that sticks* arriving by a different road.
+
+Holding the token collapses that count to one refresh per token lifetime. It also
+removes the hundreds of pointless requests a day that produced it.
+
+The margin is a minute so a token cannot pass the check with a second to live and
+expire inside the request it was fetched for — a failure that would appear at
+random and never in a test.
+
+**Cost, and what is not known.** How much this actually saves depends on the
+lifetime Anthropic reports, which this project has never looked at: the field was
+read and discarded until now. With a one-hour token it is twelve refreshes a day
+instead of 288; the tests use that figure because it is plausible, not because it
+was measured. The window is narrowed, not closed — a rotation whose write fails
+still strands the account, just far less often. And the cache is memory only, so
+a relaunch spends one refresh; putting access tokens in the keychain would add a
+second kind of credential to protect for no gain.
+
+**A test hook left with it.** `forgetCopyForTesting` existed because there was no
+other way to reach "an account with no credential of its own" from outside. There
+is now — a refresher that rejects, which is also how it happens in life — so the
+hook is gone and the two tests that used it go through the real path instead.
