@@ -1,0 +1,69 @@
+# Static file server for the Softcap landing page. kamal-proxy terminates TLS and forwards plain
+# HTTP here on :80, so there is no TLS config in this file.
+:80 {
+	root * /srv
+	encode zstd gzip
+
+	# The page is one document with its styles inline; only the icon is a separate file, and it
+	# changes about as often as the logo does.
+	header /icon.svg Cache-Control "public, max-age=604800"
+	header /og.png Cache-Control "public, max-age=604800"
+	header /favicon.ico Cache-Control "public, max-age=604800"
+	# Both spellings of the page. A `header` matcher tests the request path, and
+	# everybody arrives at `/` — so writing only `/index.html` left the one
+	# document that changes as the one with no Cache-Control at all, falling back
+	# to the browser's heuristic: a fraction of the time since Last-Modified,
+	# which grows as the page gets older. Verified against the live site.
+	@page path / /index.html
+	header @page Cache-Control "no-cache"
+
+	# The page runs no JavaScript, loads no font, embeds no frame and posts no form, so the policy
+	# can say exactly that instead of leaving room it does not use. `unsafe-inline` for styles is
+	# unavoidable while the CSS lives in the document — which is the point of a single file — and
+	# with `script-src` denied outright there is nothing for an injected style to cooperate with.
+	header {
+		Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+		X-Frame-Options "DENY"
+		-Server
+	}
+
+	# HSTS is deliberately absent. It is the one header a browser remembers, and it would commit
+	# this domain to HTTPS for everyone who has visited — a promise to make on purpose, not as a
+	# side effect of hardening a landing page. The HTTP→HTTPS redirect already covers the ordinary
+	# case.
+
+	# No fallback to index.html: this is one page, not a single-page application.
+	# Falling back would answer every unknown path with 200 and the landing page —
+	# a soft 404, which search engines treat as a page that exists and a reader
+	# treats as a site that lost their link silently.
+	file_server
+
+	# A miss used to answer with nothing at all: status 404, zero bytes, none of
+	# the headers above, and `Server: Caddy` announced despite the `-Server` four
+	# lines up. The header block never reaches a response `file_server` produces
+	# by not finding a file, so the hardening applied to every path that exists
+	# and to no path that does not — the same shape as the caching rule that was
+	# written for `/index.html` while everybody arrives at `/`.
+	#
+	# `handle_errors` is a route of its own, so the headers have to be repeated
+	# here. Kept to the four that mean something on a page with no content of its
+	# own, plus the sign-off.
+	handle_errors {
+		header {
+			Content-Security-Policy "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+			X-Content-Type-Options "nosniff"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			X-Frame-Options "DENY"
+			-Server
+		}
+		respond "{err.status_code} {err.status_text} — softcap.app has one page, and this is not it." {err.status_code}
+	}
+
+	log {
+		output stderr
+		format console
+	}
+}

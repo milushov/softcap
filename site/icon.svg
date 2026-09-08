@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <style>
+    /* The rule `make-favicon.sh` applies when it bakes the .ico, applied here
+       too — because this file is what a browser actually uses. Declared first in
+       the page's head, it wins over the .ico everywhere SVG favicons are
+       supported, which is everywhere, so the carefully thinned 16 px bitmap next
+       to it was never being shown. Two concentric strokes a few pixels apart
+       merge into a smudge rather than reading as two rings.
+
+       The query measures this file's own viewport: a browser drawing it into a
+       16 px tab applies it, one drawing it large does not. */
+    @media (max-width: 39px) {
+      .inner { display: none }
+      .outer { stroke-width: 7 }
+    }
+  </style>
+  <rect width="64" height="64" rx="14.3" fill="#1c1c22"/>
+  <circle cx="32" cy="32" class="outer" r="21" fill="none" stroke="#ffffff" stroke-opacity=".12" stroke-width="5"/>
+  <circle cx="32" cy="32" class="outer" r="21" fill="none" stroke="#34c759" stroke-width="5"
+          stroke-linecap="round" stroke-dasharray="85.8 131.9" transform="rotate(-90 32 32)"/>
+  <circle cx="32" cy="32" class="inner" r="11.5" fill="none" stroke="#ffffff" stroke-opacity=".12" stroke-width="3.6"/>
+  <circle cx="32" cy="32" class="inner" r="11.5" fill="none" stroke="#ffffff" stroke-width="3.6"
+          stroke-linecap="round" stroke-dasharray="21.7 50.5" transform="rotate(-90 32 32)"/>
+</svg>

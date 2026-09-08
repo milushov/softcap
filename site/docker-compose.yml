@@ -1,0 +1,17 @@
+# Stock Caddy serving the landing page — bind-mounted, no custom image, matching the other static
+# sites on this host. Joins the external `kamal` network so kamal-proxy can reach it by container
+# name and terminate TLS for softcap.app.
+services:
+  web:
+    image: caddy:2-alpine
+    container_name: softcap-site
+    restart: unless-stopped
+    volumes:
+      - ./dist:/srv:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      - kamal
+
+networks:
+  kamal:
+    external: true

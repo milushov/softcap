@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Softcap — every AI subscription limit in one place</title>
+<meta name="description" content="A macOS menu bar app showing what is left of your Claude Code and OpenAI Codex subscriptions. All accounts at once, without spending the quota it measures.">
+<link rel="canonical" href="https://softcap.app/">
+<meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e0e12" media="(prefers-color-scheme: dark)">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Softcap">
+<meta property="og:description" content="Every AI subscription limit, in one place. Without spending the quota it measures.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://softcap.app/">
+<meta property="og:site_name" content="Softcap">
+<meta property="og:image" content="https://softcap.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Softcap window listing three accounts with their five-hour and weekly limits.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Softcap">
+<meta name="twitter:description" content="Every AI subscription limit, in one place. Without spending the quota it measures.">
+<meta name="twitter:image" content="https://softcap.app/og.png">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<style>
+:root{
+  /* One definition per colour, both values side by side. `light-dark()` picks by
+     the used `color-scheme`, so the three-way switch below is a single property
+     rather than three copies of the palette — and no script, which is what keeps
+     the Content-Security-Policy at `default-src 'none'`. */
+  color-scheme:light dark;
+
+  --ink:      light-dark(#fbfbfd, #0e0e12);
+  --ink-2:    light-dark(#f3f3f7, #15151b);
+  --card:     light-dark(#ffffff, #1a1a21);
+  --line:     light-dark(#e3e3ea, #26262f);
+  --edge:     light-dark(#d9d9e2, #2b2b35);
+  --divider:  light-dark(#ececf1, #23232c);
+  --track:    light-dark(#e6e6ec, #2c2c36);
+  --hair:     light-dark(#dedee6, #33333e);
+  --code-bg:  light-dark(#f2f2f6, #1e1e26);
+  --code-line:light-dark(#e4e4ec, #292933);
+  --strip:    light-dark(rgba(0,0,0,.035), rgba(255,255,255,.055));
+  --strip-on: light-dark(rgba(0,0,0,.075), rgba(255,255,255,.09));
+  --strip-line:light-dark(rgba(0,0,0,.055), rgba(255,255,255,.05));
+  --cast:     light-dark(rgba(0,0,0,.16), rgba(0,0,0,.75));
+  --glow:     light-dark(rgba(52,199,89,.05), rgba(52,199,89,.055));
+
+  /* Contrast against the page, the card and the chart panel is 5.09, 4.57 and
+     4.81 to one in the dark palette — all above the 4.5 that small text needs.
+     The light values were measured the same way against #fbfbfd: 12.9, 7.4 and
+     5.1. The muted grey this replaced measured 3.67, and it was carrying the
+     section labels, the footer and every caption: exactly the small text where
+     it matters most. */
+  --fg:   light-dark(#16161c, #e9e9ee);
+  --fg-2: light-dark(#4a4a56, #9a9aa6);
+  --fg-3: light-dark(#6b6b79, #828291);
+
+  /* Severity doubles as fill and as text, so the light values are the darker
+     ones a white background needs: #34c759 on white is 2.3 to one and would be
+     unreadable as a percentage. */
+  --accent:light-dark(#1a7f37, #34c759);
+  --ok:    light-dark(#1a7f37, #34c759);
+  --warn:  light-dark(#946400, #e5c04b);
+  --hot:   light-dark(#a8500b, #e8963c);
+  --crit:  light-dark(#c32b1f, #e8574a);
+
+  /* Identity, for the chart. Cool on purpose: load is warm everywhere else and
+     the two scales must not borrow from each other. */
+  --id-1:light-dark(#3b5fa8, #5c8cd9);
+  --id-2:light-dark(#6b4fa8, #8c73cc);
+  --id-3:light-dark(#2c7883, #4da1ae);
+  --id-4:light-dark(#96477f, #b873a6);
+
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
+}
+/* The switch. `color-scheme` is the only thing that changes; every token follows
+   it. Checked state lives on a radio, so this needs no script and survives the
+   policy that forbids one. It does not survive a reload — a landing page has no
+   business writing storage, and the third choice is the reader's own setting. */
+html:has(#t-light:checked){color-scheme:light}
+html:has(#t-dark:checked){color-scheme:dark}
+
+*{box-sizing:border-box}
+/* `color-scheme` on :root above lets the browser paint the scrollbar, the
+   selection and any native control to match whichever palette is in use. */
+html{-webkit-text-size-adjust:100%}
+::selection{background:rgba(52,199,89,.28)}
+body{
+  margin:0;background:var(--ink);color:var(--fg);font-family:var(--sans);
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+/* No `a` rule, because there is not a link on this page. The app is not released,
+   the source is not public, and a button that goes nowhere is worse here than a
+   plain sentence saying so. Deliberate, not an oversight. */
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+.rule{height:1px;background:var(--line);border:0;margin:0}
+
+/* ---------- header ---------- */
+header{padding:34px 0 0}
+/* Wraps rather than overflowing. At the default size the two sit on one line
+   with room to spare; a reader who has set a larger minimum font size in the
+   browser makes the three labels grow, and on a 320 px screen the switch ran
+   87 px past the edge and the whole page scrolled sideways. Nothing saw it,
+   because the width check renders at the default size. */
+.head-row{display:flex;align-items:center;justify-content:space-between;
+  gap:12px 16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;font-weight:600;letter-spacing:-.01em}
+.brand svg{display:block}
+.brand span{font-size:16.5px}
+
+/* ---------- hero ---------- */
+.hero{padding:76px 0 64px}
+h1{
+  font-size:clamp(34px,6.2vw,58px);line-height:1.08;letter-spacing:-.032em;
+  font-weight:640;margin:0 0 22px;max-width:22ch;
+}
+/* The second phrase is its own line by construction, not by luck. Sized in `ch`
+   the headline breaks wherever the reader's font happens to run out of room —
+   in a wider fallback than SF it split "on one / screen." across two lines and
+   lost the rhythm the two halves are written for. */
+h1 em{display:block;font-style:normal;color:var(--fg-3)}
+.lede{font-size:clamp(16.5px,2.1vw,19px);color:var(--fg-2);max-width:58ch;margin:0 0 8px;line-height:1.62}
+.note{margin-top:30px;font-family:var(--mono);font-size:12.5px;color:var(--fg-3);letter-spacing:.01em}
+.note b{color:var(--accent);font-weight:500}
+
+/* ---------- the window mock ---------- */
+.stage{
+  margin:56px 0 0;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  background:
+    radial-gradient(120% 90% at 50% 0%,var(--glow),transparent 62%),
+    var(--ink-2);
+}
+/* The menu bar is what you actually look at all day — the window only opens when
+   you ask it to. Showing the strip says "this lives up there" faster than the
+   sentence above it does. */
+.menubar{
+  display:flex;align-items:center;justify-content:flex-end;gap:17px;
+  height:26px;padding:0 14px;background:var(--strip);
+  border-bottom:1px solid var(--strip-line);
+  font-size:11.5px;color:var(--fg-2);
+}
+.menubar .item{display:flex;align-items:center;gap:5px;opacity:.5}
+/* How far the status item's centre sits from the right edge — measured in the
+   browser, not guessed. The pointer is placed from it; the window is not.
+   macOS does the same thing: a popover whose item is near the screen edge slides
+   inwards to fit and leaves the pointer behind on the item. */
+.stage{--anchor:160px}
+.menubar .self{
+  display:inline-flex;align-items:center;gap:5px;
+  opacity:1;color:var(--fg);font-variant-numeric:tabular-nums;
+  padding:2px 7px;border-radius:5px;background:var(--strip-on);
+}
+.menubar svg{display:block}
+.desk{
+  padding:0 24px 44px 0;display:flex;flex-direction:column;align-items:flex-end;
+  position:relative;
+}
+/* The stage is a desktop, and two thirds of it were empty at desktop widths —
+   a flat grey rectangle reading as something that failed to load rather than as
+   a desk. A desk is where the widget lives, and the page describes one in words
+   without ever showing it. Same account and same figures as the window beside
+   it: the busiest is what the small size shows. */
+.widget{
+  position:absolute;left:74px;top:50%;transform:translateY(-54%);
+  width:156px;height:156px;
+  border-radius:19px;background:var(--card);border:1px solid var(--edge);
+  box-shadow:0 18px 40px -16px var(--cast);
+  padding:13px;display:flex;flex-direction:column;
+}
+.widget .cap{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--fg-3)}
+.widget .cap svg{display:block;flex:none}
+.widget .big{
+  margin-top:auto;font-size:30px;font-weight:600;letter-spacing:-.02em;
+  line-height:1.05;font-variant-numeric:tabular-nums;color:var(--crit);
+}
+.widget .who2{font-size:10px;color:var(--fg-3);margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.widget .left{font-size:10px;color:var(--fg-3);font-variant-numeric:tabular-nums}
+.pointer{
+  width:0;height:0;margin-right:calc(var(--anchor) - 24px - 8px);
+  border-left:8px solid transparent;border-right:8px solid transparent;
+  border-bottom:8px solid var(--edge);
+}
+/* Too narrow to hang the window off a point: centre it and drop the pointer,
+   which would otherwise aim at nothing. */
+@media(max-width:760px){
+  .desk{align-items:center;padding-right:0;padding-left:0}
+  .pointer{display:none}
+  .widget{display:none}
+}
+.win{
+  width:322px;max-width:100%;background:var(--card);border:1px solid var(--edge);border-radius:13px;
+  /* A picture of a window 322 px across cannot also be legible at a 32 px
+     minimum font size — the badge and the footer run past its edge and take the
+     page sideways with them. Clipped rather than allowed to do that: the mock is
+     decorative, it carries an `aria-label` sentence, and nothing is clipped at
+     any size where it still reads as a window. */
+  overflow:hidden;
+  box-shadow:0 26px 60px -18px var(--cast);
+  overflow:hidden;font-size:13px;
+}
+.win-head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:12px 13px 10px;font-size:12.5px;font-weight:600;letter-spacing:-.005em;
+}
+.win-head span{font-weight:400;color:var(--fg-3);font-size:11px;font-variant-numeric:tabular-nums}
+.row{padding:9px 13px 11px;border-top:1px solid var(--divider)}
+.row-top{display:flex;align-items:center;gap:9px}
+.badge{
+  width:20px;height:20px;border-radius:5px;border:1px solid var(--hair);
+  display:grid;place-items:center;flex:none;color:var(--fg-3);
+}
+.badge svg{display:block}
+.who{min-width:0;flex:1}
+.who b{display:block;font-size:12.5px;font-weight:600;letter-spacing:-.005em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who i{display:block;font-style:normal;font-size:10.5px;color:var(--fg-3);margin-top:1px}
+.tag{
+  font-size:9.5px;font-weight:600;padding:2px 5px;border-radius:4px;flex:none;
+  background:rgba(232,150,60,.16);color:var(--hot);
+}
+.meter{display:flex;align-items:center;gap:8px;margin-top:6px;font-variant-numeric:tabular-nums}
+.meter .k{width:34px;font-size:10.5px;color:var(--fg-3)}
+.bar{flex:1;height:4px;border-radius:2px;background:var(--track);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:2px}
+.meter .v{width:38px;text-align:right;font-size:11px}
+.meter .t{width:62px;text-align:right;font-size:11px;color:var(--fg-3)}
+.win-foot{
+  display:flex;justify-content:space-between;padding:9px 13px 11px;
+  border-top:1px solid var(--divider);font-size:11.5px;color:var(--fg-3);
+}
+.win-foot b{font-weight:400;color:var(--fg-2)}
+
+/* ---------- sections ---------- */
+section{padding:66px 0}
+.eyebrow{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--fg-3);margin:0 0 14px;
+}
+h2{font-size:clamp(23px,3.4vw,31px);line-height:1.2;letter-spacing:-.024em;font-weight:620;margin:0 0 16px;max-width:22ch}
+section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
+section p:last-child{margin-bottom:0}
+strong{color:var(--fg);font-weight:600}
+code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
+  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
+     minimum font size in the browser gets 340 px of it on a 320 px screen. */
+  overflow-wrap:anywhere}
+
+.grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
+@media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
+.cell{background:var(--ink);padding:24px 22px}
+.cell h3{margin:0 0 8px;font-size:15px;font-weight:600;letter-spacing:-.01em}
+.cell p{font-size:14.5px;margin:0;color:var(--fg-2)}
+
+/* ---------- chart ---------- */
+.chart{margin-top:34px;border:1px solid var(--line);border-radius:12px;background:var(--ink-2);padding:22px}
+.chart svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font-size:12px;color:var(--fg-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;display:block}
+
+/* ---------- facts ---------- */
+.facts{margin-top:30px;border-top:1px solid var(--line)}
+.fact{display:grid;gap:4px;padding:15px 0;border-bottom:1px solid var(--line)}
+@media(min-width:720px){.fact{grid-template-columns:210px 1fr;gap:26px;align-items:baseline}}
+.fact dt{font-family:var(--mono);font-size:12px;color:var(--fg-3);letter-spacing:.01em}
+.fact dd{margin:0;color:var(--fg-2);font-size:14.5px}
+
+footer{padding:52px 0 64px;color:var(--fg-3);font-size:13px}
+
+/* On a phone the window mock plus two sets of padding is wider than the screen:
+   322 + 24·2 + 28·2 comes to 426 px against a 390 px viewport, and the page
+   scrolls sideways. The mock shrinks and the padding narrows instead. */
+@media(max-width:520px){
+  .wrap{padding:0 18px}
+  .stage{padding:26px 12px;border-radius:13px}
+  .win{font-size:12.5px}
+  section{padding:52px 0}
+  .hero{padding:56px 0 44px}
+}
+
+/* A presentation attribute cannot read a custom property, so the colours the two
+   drawings use are set here instead. The attributes are left in place: they are
+   what anything reading the SVG without the stylesheet gets. */
+/* The mark does not follow the palette. An app icon looks the same on any
+   wallpaper, in the Dock and in the browser tab — that is what makes it an icon.
+   Themed for one release, it went pale-plate and dark-ring in light mode: a
+   different mark from `icon.svg`, sitting beside a tab showing the real one.
+   These four values are `icon.svg`'s own, and a test holds them to it. */
+/* Drawn at 26 px, below the 40 the mark thins at — the same rule `icon.svg`
+   carries as a media query and `make-favicon.sh` bakes into the .ico. Without
+   it the tab and the header, inches apart on one screen, show two different
+   marks: one ring up there and two down here. */
+.brand .inner{display:none}
+.brand .outer{stroke-width:7}
+.brand .plate{fill:#1c1c22}
+.brand .hush{stroke:#ffffff;stroke-opacity:.12}
+.brand .arc{stroke:#34c759}
+.brand .ink{stroke:#ffffff}
+.chart .grid{stroke:var(--line)}
+.chart .axis{fill:var(--fg-3)}
+.chart .l1{stroke:var(--id-1)}
+.chart .l2{stroke:var(--id-2)}
+.chart .l3{stroke:var(--id-3)}
+
+/* ---------- the appearance switch ---------- */
+.themes{border:0;margin:0;padding:0;display:flex;gap:0;align-items:center}
+.themes legend{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.themes input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.themes label{
+  font-family:var(--mono);font-size:11px;letter-spacing:.02em;color:var(--fg-3);
+  padding:4px 9px;cursor:pointer;border:1px solid var(--line);border-right-width:0;
+  background:transparent;user-select:none;line-height:1.4;
+}
+.themes label:first-of-type{border-radius:7px 0 0 7px}
+.themes label:last-of-type{border-radius:0 7px 7px 0;border-right-width:1px}
+.themes input:checked + label{background:var(--strip-on);color:var(--fg)}
+.themes input:focus-visible + label{outline:2px solid var(--accent);outline-offset:1px}
+.themes label:hover{color:var(--fg-2)}
+
+/* After the rules above, not before: at equal specificity the later one wins,
+   and the first attempt at this sat in the earlier media block and changed
+   nothing at all. The switch is three words side by side, and at a large
+   minimum font size they stop fitting — at 32 px the fieldset alone measured
+   311 of a 320 px screen. */
+@media(max-width:520px){
+  .themes label{padding:4px 5px;letter-spacing:0}
+}
+footer p{margin:0 0 6px;max-width:60ch}
+
+/* ---------- paper ---------- */
+/*
+   Paper is white, and a browser's print dialog has "Background graphics" off by
+   default — so a page read in the dark palette would print near-white text onto
+   it. Every colour here is a `light-dark()` pair following `color-scheme`, so
+   pinning that to light flips the whole palette in one line; the two rules below
+   it beat the switch, which would otherwise still be holding the reader's choice.
+
+   The switch itself goes: three radio buttons are not something paper can offer.
+   Everything else stays, including the window mock — without background graphics
+   its bars drop out and the percentages beside them remain, which is the part
+   worth reading anyway.
+*/
+@media print {
+  :root, html:has(#t-light:checked), html:has(#t-dark:checked) { color-scheme: light }
+  body { background: #fff; color: #16161c }
+  .themes { display: none }
+  .stage { break-inside: avoid }
+  section { padding: 28px 0 }
+}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication",
+ "name":"Softcap",
+ "applicationCategory":"DeveloperApplication",
+ "operatingSystem":"macOS 14, iOS 17",
+ "url":"https://softcap.app/",
+ "image":"https://softcap.app/og.png",
+ "description":"In development. A macOS menu bar app showing what is left of your Claude Code and OpenAI Codex subscription limits, without spending the quota it measures.",
+ "featureList":["Several Claude accounts at once","Reads Codex usage from local session files","Menu bar timer","Widgets on macOS and iPhone","Threshold notifications","Ten languages"]}
+</script>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="head-row">
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true">
+        <rect class="plate" width="64" height="64" rx="14.3" fill="#1c1c22"/>
+        <circle class="hush outer" cx="32" cy="32" r="21" fill="none" stroke="#ffffff" stroke-opacity=".12" stroke-width="5"/>
+        <circle class="arc outer" cx="32" cy="32" r="21" fill="none" stroke="#34c759" stroke-width="5"
+                stroke-linecap="round" stroke-dasharray="85.8 131.9" transform="rotate(-90 32 32)"/>
+        <circle class="hush inner" cx="32" cy="32" r="11.5" fill="none" stroke="#ffffff" stroke-opacity=".12" stroke-width="3.6"/>
+        <circle class="ink inner" cx="32" cy="32" r="11.5" fill="none" stroke="#ffffff" stroke-width="3.6"
+                stroke-linecap="round" stroke-dasharray="21.7 50.5" transform="rotate(-90 32 32)"/>
+      </svg>
+      <span>Softcap</span>
+    </div>
+    <!-- Three, because the app offers three: system, light and dark. The radios
+         carry the state; `html:has(…:checked)` sets `color-scheme` and every
+         token follows. No script, so the policy stays `default-src 'none'`. -->
+    <fieldset class="themes">
+      <legend>Appearance</legend>
+      <input type="radio" name="theme" id="t-system" checked><label for="t-system">auto</label>
+      <input type="radio" name="theme" id="t-light"><label for="t-light">light</label>
+      <input type="radio" name="theme" id="t-dark"><label for="t-dark">dark</label>
+    </fieldset>
+    </div>
+  </div>
+</header>
+<main>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>Every subscription limit, <em>on one screen.</em></h1>
+    <p class="lede">
+      You bought a second Claude plan so you would not have to stop working — and then checking
+      whether it has room meant signing into it.
+    </p>
+    <p class="lede">
+      Softcap sits in the menu bar and shows every plan at once: what is spent, what resets when,
+      which account to open next.
+    </p>
+    <p class="note">macOS · menu bar, widget, and an iPhone app · <b>in development</b></p>
+  </div>
+
+  <div class="stage">
+    <div class="menubar" aria-hidden="true">
+      <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 4h8M2 6h8M2 8h5"/></svg></span>
+      <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="3" width="9" height="6" rx="1.4"/><path d="M11 5v2"/></svg></span>
+      <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1.5 4.5a7 7 0 019 0M3.5 6.7a4 4 0 015 0"/><circle cx="6" cy="9" r=".8" fill="currentColor" stroke="none"/></svg></span>
+      <span class="self">
+        <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2.6"/>
+          <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="2.6"
+                  stroke-linecap="round" stroke-dasharray="34.3 52.8" transform="rotate(-90 12 12)"/>
+        </svg>
+        0:41
+      </span>
+      <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 6h3.2M6.8 6H10"/><circle cx="6" cy="6" r="1.3"/></svg></span>
+      <span class="item">Mon 2:41&nbsp;AM</span>
+    </div>
+
+    <div class="desk">
+    <div class="widget" role="img" aria-label="The small Softcap widget on the desktop, showing the busiest account at 100 per cent with 41 minutes left.">
+      <span class="cap">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 16.5a9 9 0 0116 0"/><path d="M12 16.5l4.6-5.2" stroke-linecap="round"/>
+        </svg>
+        Subscription limits
+      </span>
+      <span class="big">100%</span>
+      <span class="who2">sam.k@example.com</span>
+      <span class="left">41m</span>
+    </div>
+    <div class="pointer"></div>
+    <div class="win" role="img" aria-label="The Softcap window listing three accounts with their five-hour and weekly limits, open below its menu bar item.">
+      <div class="win-head">Subscription limits <span>2:41 AM</span></div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="5" cy="5" r="4.2"/><circle cx="5" cy="5" r="1.6"/></svg></div>
+          <div class="who"><b>alex@example.com</b><i>Codex · Plus</i></div>
+          <span class="tag">Data from 28 Aug</span>
+        </div>
+        <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:2%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">0%</span><span class="t">—</span></div>
+        <div class="meter"><span class="k">week</span><span class="bar"><i style="width:39%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">39%</span><span class="t">3d 22h</span></div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg></div>
+          <div class="who"><b>sam@example.com</b><i>Claude · Max 20x</i></div>
+        </div>
+        <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:16%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">16%</span><span class="t">2h 04m</span></div>
+        <div class="meter"><span class="k">week</span><span class="bar"><i style="width:80%;background:var(--hot)"></i></span><span class="v" style="color:var(--hot)">80%</span><span class="t">3d 11h</span></div>
+      </div>
+
+      <div class="row">
+        <div class="row-top">
+          <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg></div>
+          <div class="who"><b>sam.k@example.com</b><i>Claude · Max 20x</i></div>
+        </div>
+        <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:100%;background:var(--crit)"></i></span><span class="v" style="color:var(--crit)">100%</span><span class="t">41m</span></div>
+        <div class="meter"><span class="k">week</span><span class="bar"><i style="width:55%;background:var(--warn)"></i></span><span class="v" style="color:var(--warn)">55%</span><span class="t">5d 16h</span></div>
+      </div>
+
+      <div class="win-foot"><b>Refresh</b><span>Settings…</span><span>Quit</span></div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap"><hr class="rule" style="margin-top:66px"></div>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Why it exists</p>
+    <h2>Measuring a quota should not spend it</h2>
+    <p>
+      Codex reports what is left of your rate limit only in the headers of a
+      <strong>successful</strong> request. Ask every five minutes and you spend the allowance you
+      were checking on.
+    </p>
+    <p>
+      So Softcap does not ask. The Codex CLI already writes its readings into
+      <code>~/.codex/sessions</code>; Softcap watches those files. Claude publishes a usage endpoint
+      that costs nothing to call, so that one is read live. A reading from a file is a snapshot, so
+      every surface shows when it was taken.
+    </p>
+  </div>
+</section>
+
+<div class="wrap"><hr class="rule"></div>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Several plans</p>
+    <h2>It will not sign your CLI out</h2>
+    <p>
+      Your keychain holds a token only for the plan you are signed into, and refreshing it can
+      rotate that token on the server — signing Claude Code out. A monitor that logs you out of the
+      thing it monitors is worse than none.
+    </p>
+    <p>
+      So the active account is <strong>read-only</strong> here, and Softcap keeps its own copy of
+      the refresh token for when you move on with <code>/login</code>. It can only take that copy
+      while Softcap is running, so sign into each plan the ordinary way with the app open — one
+      poll later it is kept, and they stay on screen together. Reading the CLI's keychain item needs macOS's
+      permission, which Softcap asks for when you press a button — never from a timer nobody is
+      watching.
+    </p>
+  </div>
+</section>
+
+<div class="wrap"><hr class="rule"></div>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Over time</p>
+    <h2>Where the week actually went</h2>
+    <p>
+      One line per account. Colour means <strong>which account</strong> here and
+      <strong>how loaded</strong> everywhere else, so the two scales never borrow from each other.
+    </p>
+
+    <div class="chart">
+      <svg viewBox="0 0 720 200" role="img" aria-label="Weekly usage over a month: one line per account.">
+        <g class="grid" stroke="#26262f" stroke-width="1">
+          <line x1="42" y1="16" x2="704" y2="16"/><line x1="42" y1="60" x2="704" y2="60"/>
+          <line x1="42" y1="104" x2="704" y2="104"/><line x1="42" y1="148" x2="704" y2="148"/>
+          <line x1="42" y1="172" x2="704" y2="172"/>
+        </g>
+        <g class="axis" fill="#828291" font-size="10" font-family="ui-monospace,monospace" text-anchor="end">
+          <text x="34" y="20">100%</text><text x="34" y="64">75%</text>
+          <text x="34" y="108">50%</text><text x="34" y="152">25%</text><text x="34" y="176">0%</text>
+        </g>
+        <g fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M60.0 172.0 L126.0 121.7 L180.0 90.9 L180.0 172.0 L180.0 172.0 L257.0 103.3 L320.0 61.2 L320.0 172.0 L320.0 172.0 L397.0 129.4 L460.0 103.4 L460.0 172.0 L460.0 172.0 L537.0 111.1 L600.0 73.7 L600.0 172.0 L600.0 172.0 L633.0 146.9 L660.0 131.4"
+                class="l1" stroke="#5c8cd9"/>
+          <path d="M60.0 172.0 L93.0 135.2 L120.0 112.7 L120.0 172.0 L120.0 172.0 L197.0 82.1 L260.0 26.9 L260.0 172.0 L260.0 172.0 L337.0 75.3 L400.0 16.0 L400.0 172.0 L400.0 172.0 L477.0 86.9 L540.0 34.7 L540.0 172.0 L540.0 172.0 L606.0 79.1 L660.0 22.2"
+                class="l2" stroke="#8c73cc"/>
+          <path d="M60.0 172.0 L104.0 154.6 L140.0 143.9 L140.0 172.0 L140.0 172.0 L217.0 142.0 L280.0 123.6" class="l3" stroke="#4da1ae"/>
+          <path d="M440.0 172.0 L517.0 148.8 L580.0 134.6 L580.0 172.0 L580.0 172.0 L624.0 159.4 L660.0 151.7" class="l3" stroke="#4da1ae"/>
+        </g>
+        <g class="axis" fill="#828291" font-size="10" font-family="ui-monospace,monospace" text-anchor="middle">
+          <text x="90" y="194">4 Aug</text><text x="230" y="194">11 Aug</text>
+          <text x="370" y="194">18 Aug</text><text x="510" y="194">25 Aug</text>
+          <text x="650" y="194">31 Aug</text>
+        </g>
+      </svg>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--id-3)"></i>alex</span>
+        <span><i class="dot" style="background:var(--id-1)"></i>sam</span>
+        <span><i class="dot" style="background:var(--id-2)"></i>sam.k</span>
+      </div>
+    </div>
+
+    <p style="margin-top:20px">
+      Each tooth is one week's allowance. They renew on different days, so the teeth do not line
+      up — which is the point: it tells you which account is fresh today. A break, like
+      <b style="color:var(--id-3);font-weight:400">alex</b>'s, is a stretch with nothing measured;
+      drawing across it would claim a reading nobody took.
+    </p>
+  </div>
+</section>
+
+<div class="wrap"><hr class="rule"></div>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">The rest of it</p>
+    <h2>Small things that matter at 2 a.m.</h2>
+
+    <div class="grid">
+      <div class="cell">
+        <h3>A timer in the menu bar</h3>
+        <p>Whichever limit is closest to running out, and how long until it frees up — without
+           clicking. The strip can carry the countdown, the percentage, both, or just the icon,
+           and a shortcut of your choosing opens the window without reaching for the mouse.</p>
+      </div>
+      <div class="cell">
+        <h3>Widgets</h3>
+        <p>All four sizes on macOS; on iPhone the home screen and the lock screen. The same
+           account row the window uses, so they cannot drift apart.</p>
+      </div>
+      <div class="cell">
+        <h3>It tells you before you hit it</h3>
+        <p>At 80% and 95% out of the box, or whichever levels you set instead — once per
+           crossing, not once per poll.</p>
+      </div>
+      <div class="cell">
+        <h3>Quiet hours</h3>
+        <p>Nothing arrives while you sleep, and nothing is delivered late to make up for it.</p>
+      </div>
+      <div class="cell">
+        <h3>Ten languages</h3>
+        <p>Including Arabic, laid out right to left. Switching takes effect immediately, with no
+           restart.</p>
+      </div>
+      <div class="cell">
+        <h3>Your tokens stay put</h3>
+        <p>Credentials stay in the keychain, never copied into preferences or logs. No telemetry.
+           The only other request is a daily check for a new version, and it can be switched off.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><hr class="rule"></div>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Under it</p>
+    <h2>For the sort of person who reads this part</h2>
+
+    <dl class="facts">
+      <!-- The gating question, and until now it was answered only in the
+           structured data, where a search engine could read it and a person
+           could not. -->
+      <div class="fact"><dt>Requires</dt>
+        <dd>macOS 14 or later. The iPhone app needs iOS 17.</dd></div>
+      <div class="fact"><dt>Claude</dt>
+        <dd>Live, from the OAuth usage endpoint.</dd></div>
+      <div class="fact"><dt>Codex</dt>
+        <dd>Parsed from the session files the CLI writes, watched with FSEvents. Snapshot age is
+            shown.</dd></div>
+      <div class="fact"><dt>Adding an account</dt>
+        <dd>OAuth with PKCE in your own browser, or <code>/login</code> in Claude Code — either
+            works.</dd></div>
+      <div class="fact"><dt>The core</dt>
+        <dd>A Swift package with no AppKit and no human-facing strings. Window, widgets and phone
+            share one row view.</dd></div>
+      <div class="fact"><dt>Dependencies</dt>
+        <dd>None. Every import is either Apple's own framework or a module of this project.</dd></div>
+      <div class="fact"><dt>Cost of running it</dt>
+        <dd>One request per Claude account per poll. Five minutes apart in the background, once
+            a minute with the window open — or anywhere between thirty seconds and an hour, if you
+            set it. Name and plan are asked once and kept for six hours. Codex costs nothing: it is
+            read from disk.</dd></div>
+      <div class="fact"><dt>Not yet</dt>
+        <dd>Cursor, GitHub Copilot and Gemini CLI. A provider that cannot be checked against a
+            live account would quietly show zero, which is worse than nothing.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<div class="wrap"><hr class="rule"></div>
+
+</main>
+<footer>
+  <div class="wrap">
+    <p>Softcap is in development, running on the machine it was written on.</p>
+    <p style="margin-top:14px;color:var(--fg-3)">Not affiliated with Anthropic or OpenAI.</p>
+  </div>
+</footer>
+
+</body>
+</html>

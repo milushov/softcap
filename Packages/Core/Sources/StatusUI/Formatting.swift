@@ -1,0 +1,139 @@
+import Foundation
+import SwiftUI
+import ProviderKit
+import Preferences
+
+/// Labels the models deliberately do not hold: they depend on the language.
+public extension Localization {
+
+    /// The locale matching the chosen language, for the system formatters.
+    ///
+    /// The app's language is not necessarily the system's — it is chosen in
+    /// settings — so a formatter left on `Locale.current` would spell dates and
+    /// units in the wrong language while every other label followed the choice.
+    var activeLocale: Locale {
+        language == .system ? .current : Locale(identifier: language.rawValue)
+    }
+
+    /// A limit window's name, by its identifier.
+    func windowTitle(_ id: String) -> String {
+        switch id {
+        case "session": self("5h")
+        case "weekly":  self("week")
+        default:        id
+        }
+    }
+
+    /// A percentage spelled the way the language spells it.
+    ///
+    /// Not `"\(n)%"`: Russian, French and Spanish put a non-breaking space
+    /// before the sign, and Arabic wraps it in directional marks so it does not
+    /// drift when the line runs right to left. Written by hand, four of the ten
+    /// languages come out wrong — and the app already disagreed with itself,
+    /// showing "80%" in a row and "80 %" in settings.
+    func percent(_ value: Double) -> String {
+        Int(value.rounded()).formatted(.percent.locale(activeLocale))
+    }
+
+    /// The remaining time in words: "3 h 39 m", "5 d 23 h", "47 m".
+    /// Units come from the catalogue, so order and abbreviations change with the
+    /// language.
+    func remaining(_ interval: TimeInterval?) -> String {
+        guard let interval, let time = RemainingTime(interval) else { return "—" }
+        let units = time.significantUnits
+        let major = unit(units.major)
+        guard let minor = units.minor.map(unit) else { return major }
+        return "\(major) \(minor)"
+    }
+
+    /// The short form for the menu bar: "0:47", "3:39", "5d".
+    func remainingCompact(_ interval: TimeInterval?) -> String {
+        guard let interval, let time = RemainingTime(interval) else { return "—" }
+        guard time.days == 0 else { return unit(.days(time.days)) }
+        return String(format: "%d:%02d", time.hours, time.minutes)
+    }
+
+    /// Error text is built from the failure kind, not the diagnostic: the latter
+    /// is written for the log and may carry a status code or a path.
+    func failureText(_ kind: ProviderFailure.Kind) -> String {
+        switch kind {
+        case .needsLogin:      self("Sign-in required")
+        case .needsPermission: self("Allow keychain access")
+        case .network:         self("Network unavailable")
+        case .noData:          self("No data available")
+        case .malformed:       self("Unexpected response")
+        }
+    }
+
+    private func unit(_ unit: RemainingTime.Unit) -> String {
+        let key = switch unit {
+        case .days:    "%lldd"
+        case .hours:   "%lldh"
+        case .minutes: "%lldm"
+        }
+        return String(format: self(key), unit.value)
+    }
+}
+
+/// Labels for settings values. They live next to the translations, not in the model.
+public extension Localization {
+    func title(_ value: Appearance) -> String {
+        switch value {
+        case .system: self("System")
+        case .light:  self("Light")
+        case .dark:   self("Dark")
+        }
+    }
+
+    func title(_ value: MenuBarContent) -> String {
+        switch value {
+        case .iconOnly: self("Icon")
+        case .timer:    self("Timer")
+        case .percent:  self("Percent")
+        case .both:     self("Both")
+        }
+    }
+
+    func title(_ value: PrimaryWindow) -> String {
+        switch value {
+        case .worst:   self("Busiest")
+        case .session: self("Five-hour")
+        case .weekly:  self("Weekly")
+        }
+    }
+
+    func title(_ value: RowLayout) -> String {
+        switch value {
+        case .twoWindows: self("Two windows")
+        case .compact:    self("Single line")
+        case .rings:      self("Rings")
+        }
+    }
+
+    func title(_ value: Ordering) -> String {
+        switch value {
+        case .leastLoadedFirst: self("Least loaded first")
+        case .byName:           self("By name")
+        }
+    }
+
+    func title(_ value: WindowScope) -> String {
+        switch value {
+        case .session: self("5h")
+        case .weekly:  self("week")
+        case .both:    self("both")
+        }
+    }
+}
+
+public extension Severity {
+    /// Bar and label colour. The thresholds live in `Severity` itself.
+    var tint: Color {
+        switch self {
+        case .ok:       .green
+        case .warning:  .yellow
+        case .hot:      .orange
+        case .critical: .red
+        }
+    }
+}

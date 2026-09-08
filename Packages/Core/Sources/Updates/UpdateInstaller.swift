@@ -1,0 +1,314 @@
+import Foundation
+import ProviderKit
+import ClaudeProvider
+
+// Everything below is the Mac's.
+//
+// `Process` is not on iOS at all, and `SecStaticCode` lives only in the macOS
+// SDK — `Security` itself exists on both, so an import check cannot see this.
+// The package declares .iOS(.v17) and exports `Updates` as a library, so
+// without this guard the first person to add it to the phone target, or to
+// build the package for a simulator, meets a raw compile error where
+// `CoreStaysPortable` promises a named three-second failure.
+//
+// The pure half of the module — versions, checksums, the schedule, the feed —
+// is portable and sits outside this guard, in its own files.
+#if os(macOS)
+import Security
+
+/// Downloading a release and putting it where the running app is.
+///
+/// Each step is a refusal rather than a workaround. What is installed is what
+/// the release published, is this app, and is the version it said it was —
+/// because nothing downstream will ask again: `URLSession` does not mark a file
+/// with `com.apple.quarantine` the way a browser does, so Gatekeeper never sees
+/// it. That absence is the feature — an update that opens without the dialog an
+/// ad-hoc signed build otherwise gets — and it is also why these checks are the
+/// only ones there are.
+public struct UpdateInstaller: Sendable {
+
+    public enum Phase: Sendable, Equatable {
+        case downloading(Double)
+        case verifying
+        case installing
+    }
+
+    public static let bundleIdentifier = "app.softcap.Softcap"
+
+    private let downloader: any FileDownloader
+    private let http: any HTTPClient
+
+    public init(downloader: any FileDownloader, http: any HTTPClient) {
+        self.downloader = downloader
+        self.http = http
+    }
+
+    /// Replaces the bundle at `bundle` with the build `release` publishes.
+    ///
+    /// Does not restart: `restart(_:)` is separate so that a test can install
+    /// without relaunching anything.
+    public func install(
+        _ release: Release,
+        replacing bundle: URL,
+        progress: @escaping @Sendable (Phase) -> Void
+    ) async throws {
+        let work = try scratchDirectory()
+        defer { try? FileManager.default.removeItem(at: work) }
+
+        progress(.downloading(0))
+        let archive: URL
+        do {
+            archive = try await downloader.download(release.archive) {
+                progress(.downloading($0))
+            }
+        } catch {
+            throw Self.networkFailure(error)
+        }
+        defer { try? FileManager.default.removeItem(at: archive) }
+
+        progress(.verifying)
+        try await verify(archive, of: release)
+
+        let unpacked = try unpack(archive, into: work)
+        try check(unpacked, isSoftcapAt: release.version)
+        try checkSigningIdentity(of: unpacked, matches: bundle)
+
+        progress(.installing)
+        try replace(bundle, with: unpacked)
+    }
+
+    // MARK: - verifying
+
+    private func verify(_ archive: URL, of release: Release) async throws {
+        let published: Checksums
+        do {
+            let (data, status) = try await http.get(release.checksums, headers: [:])
+            // Not reaching the sums is not the same as the sums disagreeing.
+            // Both were reported as a mismatch, so an outage or a rate limit
+            // told the reader their download had been tampered with.
+            guard status == 200 else {
+                throw UpdateFailure(kind: .network,
+                                    diagnostic: "checksums came back \(status)")
+            }
+            guard let text = String(data: data, encoding: .utf8) else {
+                throw UpdateFailure(kind: .network, diagnostic: "checksums were not text")
+            }
+            published = Checksums(text)
+        } catch let failure as UpdateFailure {
+            throw failure
+        } catch {
+            throw Self.networkFailure(error)
+        }
+
+        guard let expected = published.digest(for: release.archiveName) else {
+            throw UpdateFailure(kind: .checksumMismatch,
+                                diagnostic: "no line for \(release.archiveName)")
+        }
+
+        let actual = try Checksums.digest(ofFileAt: archive)
+        guard actual == expected else {
+            throw UpdateFailure(
+                kind: .checksumMismatch,
+                diagnostic: "got \(actual.prefix(12)), expected \(expected.prefix(12))")
+        }
+    }
+
+    // MARK: - unpacking
+
+    /// `ditto`, not `unzip`: it is the only one that keeps a bundle's symlinks
+    /// and its signature intact, and it is what built the archive in the first
+    /// place.
+    private func unpack(_ archive: URL, into directory: URL) throws -> URL {
+        let out = directory.appendingPathComponent("unpacked")
+        try FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
+        process.arguments = ["-x", "-k", archive.path, out.path]
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        do {
+            try process.run()
+        } catch {
+            throw UpdateFailure(kind: .unpackFailed, diagnostic: "ditto would not run")
+        }
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else {
+            throw UpdateFailure(kind: .unpackFailed,
+                                diagnostic: "ditto exited \(process.terminationStatus)")
+        }
+
+        // Exactly one, not the first one found. `contentsOfDirectory` answers in
+        // whatever order the file system holds, which on APFS is a hash of the
+        // name — so an archive carrying a second bundle could decide which one
+        // was installed by choosing what to call it.
+        let bundles = try FileManager.default
+            .contentsOfDirectory(at: out, includingPropertiesForKeys: nil)
+            .filter { $0.pathExtension == "app" }
+        guard bundles.count == 1, let app = bundles.first else {
+            throw UpdateFailure(kind: .unpackFailed,
+                                diagnostic: "\(bundles.count) bundles in the archive")
+        }
+        return app
+    }
+
+    /// A matching checksum says the bytes are the ones published. It does not
+    /// say they are the right ones — a release that shipped the wrong artefact
+    /// would checksum perfectly.
+    private func check(_ bundle: URL, isSoftcapAt version: ReleaseVersion) throws {
+        let plist = bundle.appendingPathComponent("Contents/Info.plist")
+        guard let info = NSDictionary(contentsOf: plist) as? [String: Any] else {
+            throw UpdateFailure(kind: .unpackFailed, diagnostic: "no Info.plist")
+        }
+        guard info["CFBundleIdentifier"] as? String == Self.bundleIdentifier else {
+            throw UpdateFailure(kind: .unpackFailed, diagnostic: "another app's bundle")
+        }
+        let found = (info["CFBundleShortVersionString"] as? String).flatMap(ReleaseVersion.init)
+        guard let found, found == version else {
+            throw UpdateFailure(
+                kind: .unpackFailed,
+                diagnostic: "the archive holds \(found?.description ?? "no version")")
+        }
+    }
+
+    /// The check meant to notice a swapped bundle.
+    ///
+    /// Two questions, and the first one was missing. **Does the signature still
+    /// cover the code**, and **is it the same signer**. Only the second was
+    /// asked, and asking it alone answered nothing: reading an identity is not
+    /// checking it — `SecCodeCopySigningInformation` parses the signature blob
+    /// and reports what it says, so a bundle whose executable has been replaced
+    /// still names the team that signed the original. Every release is signed,
+    /// ad-hoc when no certificate is configured, so the first question can be
+    /// put to all of them.
+    ///
+    /// Nothing is demanded of the arriving bundle that the installed one cannot
+    /// answer for itself: an app whose own signature is broken is in no position
+    /// to insist.
+    private func checkSigningIdentity(of new: URL, matches current: URL) throws {
+        guard Self.signatureIsIntact(of: current) else { return }
+
+        guard Self.signatureIsIntact(of: new) else {
+            throw UpdateFailure(kind: .signatureChanged,
+                                diagnostic: "the arriving signature does not cover its code")
+        }
+
+        let running = Self.teamIdentifier(of: current)
+        let arriving = Self.teamIdentifier(of: new)
+        guard arriving == running else {
+            throw UpdateFailure(kind: .signatureChanged,
+                                diagnostic: "signed by \(arriving ?? "nobody")")
+        }
+    }
+
+    /// Whether the signature still matches what it covers.
+    ///
+    /// This is the one that catches a patched executable, and it is what
+    /// `codesign --verify` runs. An ad-hoc signature answers it as well as a
+    /// Developer ID one does — it identifies nobody, but it still seals the
+    /// bundle it was made from.
+    static func signatureIsIntact(of bundle: URL) -> Bool {
+        var code: SecStaticCode?
+        guard SecStaticCodeCreateWithPath(bundle as CFURL, [], &code) == errSecSuccess,
+              let code else { return false }
+        return SecStaticCodeCheckValidity(code, [], nil) == errSecSuccess
+    }
+
+    /// Who signed it, for a signature already known to be intact. `nil` for an
+    /// ad-hoc one, which identifies nobody.
+    static func teamIdentifier(of bundle: URL) -> String? {
+        var code: SecStaticCode?
+        guard SecStaticCodeCreateWithPath(bundle as CFURL, [], &code) == errSecSuccess,
+              let code else { return nil }
+        var information: CFDictionary?
+        guard SecCodeCopySigningInformation(
+                  code, SecCSFlags(rawValue: kSecCSSigningInformation), &information
+              ) == errSecSuccess,
+              let dictionary = information as? [String: Any] else { return nil }
+        return dictionary[kSecCodeInfoTeamIdentifier as String] as? String
+    }
+
+    // MARK: - replacing
+
+    /// Atomic on APFS: the old bundle is kept until the new one is in place, and
+    /// a failure leaves what was there.
+    ///
+    /// The copy is staged beside the installed app rather than left in the
+    /// temporary directory, because `replaceItemAt` is only atomic within a
+    /// volume — and a bundle half-moved across one is where an app that will not
+    /// launch comes from.
+    private func replace(_ current: URL, with new: URL) throws {
+        let fileManager = FileManager.default
+        let staged = current.deletingLastPathComponent()
+            .appendingPathComponent(".\(current.lastPathComponent).incoming")
+
+        try? fileManager.removeItem(at: staged)
+        do {
+            try fileManager.copyItem(at: new, to: staged)
+        } catch {
+            throw UpdateFailure(kind: .notWritable,
+                                diagnostic: "could not write beside the installed app")
+        }
+
+        do {
+            _ = try fileManager.replaceItemAt(current, withItemAt: staged)
+        } catch {
+            try? fileManager.removeItem(at: staged)
+            throw UpdateFailure(kind: .notWritable, diagnostic: "could not replace the app")
+        }
+    }
+
+    // MARK: - restarting
+
+    /// Quits and comes back.
+    ///
+    /// The wait is not decoration: `open` on a bundle whose app is still running
+    /// activates the copy already in memory rather than launching the new one,
+    /// and the update would appear not to have happened until the next launch.
+    @discardableResult
+    public static func restart(_ bundle: URL) -> Bool {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/sh")
+        process.arguments = [
+            "-c",
+            "while kill -0 \(getpid()) 2>/dev/null; do sleep 0.2; done; "
+                + "/usr/bin/open \(bundle.path.singleQuotedForShell)",
+        ]
+        // Whether the watcher was started at all decides whether quitting is
+        // the right next move: the caller logged "restarting" and terminated
+        // regardless, so a failed spawn left the new version installed and the
+        // app simply gone.
+        do {
+            try process.run()
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    // MARK: -
+
+    private func scratchDirectory() throws -> URL {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("softcap-update-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory
+    }
+
+    /// A provider's failure, said in this module's words.
+    private static func networkFailure(_ error: any Error) -> UpdateFailure {
+        UpdateFailure(kind: .network,
+                      diagnostic: (error as? ProviderFailure)?.diagnostic ?? "\(type(of: error))")
+    }
+}
+
+extension String {
+    /// A path is not a shell word: a space ends the argument and a quote ends
+    /// the string. Single quotes carry everything except a single quote, which
+    /// is closed, escaped, and reopened.
+    public var singleQuotedForShell: String {
+        "'" + replacingOccurrences(of: "'", with: "'\\''") + "'"
+    }
+}
+
+#endif

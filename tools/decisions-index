@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""List the decision log's headings, with when each was written.
+
+    tools/decisions-index [substring]
+
+`docs/DECISIONS.md` is append-only and two hundred entries long. The README says
+the way to find something is to search the headings, and there was nowhere the
+headings could be seen together.
+
+Not a generated file: a file would drift from the log the moment one is appended
+without the other, which is the defect most of that log is about. This reads the
+log and git each time it is run.
+
+Where the date comes from
+    Forty-two headings carry their own date, from when the log was written in
+    that style. Those are believed: they say when the decision was made.
+    The rest are dated by the commit that added them — accurate for everything
+    written since, and for the early entries that were later translated from
+    Russian it is the date of the translation rather than of the decision. Those
+    are the ones carrying their own date, so the two rules cover each other.
+"""
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+HEADING = re.compile(r"^## (?:(\d{4}-\d{2}-\d{2}) · )?(.+)$")
+
+
+def root() -> Path:
+    out = subprocess.run(["git", "rev-parse", "--show-toplevel"],
+                         capture_output=True, text=True, check=True)
+    return Path(out.stdout.strip())
+
+
+def dates_from_history(log: Path) -> dict:
+    """Heading text → the date of the commit that first added it."""
+    out = subprocess.run(
+        ["git", "log", "--reverse", "--format=COMMIT %ad", "--date=short", "-p", "--", str(log)],
+        capture_output=True, text=True, cwd=log.parent.parent)
+    when, seen = None, {}
+    for line in out.stdout.splitlines():
+        if line.startswith("COMMIT "):
+            when = line[len("COMMIT "):].strip()
+        elif line.startswith("+## ") and when:
+            match = HEADING.match(line[1:])
+            if match and match.group(2) not in seen:
+                seen[match.group(2)] = when
+    return seen
+
+
+def main(argv) -> int:
+    wanted = argv[0].lower() if argv else None
+    log = root() / "docs" / "DECISIONS.md"
+    if not log.is_file():
+        print("decisions-index: docs/DECISIONS.md is not there", file=sys.stderr)
+        return 2
+
+    added = dates_from_history(log)
+    rows, undated = [], 0
+    for number, line in enumerate(log.read_text(encoding="utf-8").splitlines(), 1):
+        match = HEADING.match(line)
+        if not match:
+            continue
+        written, title = match.group(1), match.group(2)
+        if written is None:
+            written = added.get(title)
+        if written is None:
+            written, undated = "          ", undated + 1
+        rows.append((written, number, title))
+
+    if not rows:
+        print("decisions-index: no headings found — the log's format has changed",
+              file=sys.stderr)
+        return 2
+
+    shown = [r for r in rows if not wanted or wanted in r[2].lower()]
+    for written, number, title in shown:
+        print(f"{written}  {number:>5}  {title}")
+
+    sys.stdout.flush()   # the count below goes to stderr, and would otherwise
+                         # arrive ahead of the rows when both go to a terminal
+    if wanted:
+        print(f"\n{len(shown)} of {len(rows)} entries match {argv[0]!r}", file=sys.stderr)
+    else:
+        print(f"\n{len(rows)} entries", file=sys.stderr)
+    if undated:
+        print(f"{undated} could not be dated — not in the history of this file",
+              file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

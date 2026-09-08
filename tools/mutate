@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""Break something on purpose and require a check to notice.
+
+    tools/mutate <file> <old> <new> -- <command> [args...]
+
+A guard is worth what it catches, and the only way to know what it catches is to
+break the thing it guards and watch it go red. Doing that by hand has failed here
+six separate ways, and every one of them looked like the guard passing:
+
+  * `sed` matching nothing, because the phrase wraps across a line in the file
+    while the check squashes whitespace before looking;
+  * a Python replacement with the wrong escaping matching nothing;
+  * `ssh $OPTS host` — zsh does not word-split, so the whole option string became
+    one argument and the command never ran;
+  * `$S` holding a command line, treated as one command name for the same reason;
+  * `swift test --filter` naming a test that does not exist, which runs nothing
+    and exits zero;
+  * `git checkout --` to undo a mutation, which also threw away the uncommitted
+    work being tested — twice.
+
+So the shape of the answer is not "be more careful". It is that a mutation which
+changes nothing must be an error, that restoring must not go through git, and
+that a check which stays green has to be reported as a failure of the check.
+
+Exit codes
+  0  the mutation was made and the command failed — the guard caught it
+  1  the mutation was made and the command passed — the guard did not notice
+  2  the mutation could not be made, or the file was not clean to begin with
+
+The command is run from the repository root, with the file mutated. Whatever
+happens — including an interrupt — the file is put back from a copy taken before
+the edit, never from git.
+"""
+
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+
+
+def die(message, code=2):
+    print(f"mutate: {message}", file=sys.stderr)
+    sys.exit(code)
+
+
+def main(argv):
+    if "--" not in argv:
+        die("usage: mutate <file> <old> <new> -- <command> [args...]")
+    split = argv.index("--")
+    head, command = argv[:split], argv[split + 1:]
+    if len(head) != 3 or not command:
+        die("usage: mutate <file> <old> <new> -- <command> [args...]")
+
+    path, old, new = head
+    if not os.path.isfile(path):
+        die(f"{path} is not a file")
+    if old == new:
+        die("the replacement is identical to what it replaces")
+
+    root = subprocess.run(["git", "rev-parse", "--show-toplevel"],
+                          capture_output=True, text=True)
+    if root.returncode != 0:
+        die("not inside a git repository")
+    root = root.stdout.strip()
+
+    # The rule this file exists to enforce, written down twice in the decision log
+    # before it stuck: the tree must be clean *at this moment*, not merely
+    # committed at some point earlier. A mutation on top of unsaved work is how
+    # the work gets lost.
+    dirty = subprocess.run(["git", "status", "--porcelain", "--", path],
+                           capture_output=True, text=True, cwd=root)
+    if dirty.stdout.strip():
+        die(f"{path} has uncommitted changes — commit them before breaking it,\n"
+            f"        or the restore will be indistinguishable from losing them")
+
+    with open(path, encoding="utf-8") as handle:
+        before = handle.read()
+    occurrences = before.count(old)
+    if occurrences == 0:
+        die(f"nothing in {path} matches what you meant to replace.\n"
+            f"        The mutation was not made, so the check below was never asked "
+            f"anything —\n        which is exactly what a passing guard looks like.")
+
+    keep = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.basename(path))
+    keep.write(before.encode("utf-8"))
+    keep.close()
+
+    try:
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write(before.replace(old, new))
+        where = "1 place" if occurrences == 1 else f"{occurrences} places"
+        print(f"mutate: changed {where} in {path}", file=sys.stderr)
+
+        result = subprocess.run(command, cwd=root)
+    finally:
+        shutil.copyfile(keep.name, path)
+        os.unlink(keep.name)
+
+    if result.returncode == 0:
+        print(f"mutate: the check passed with {path} broken — it is not guarding this",
+              file=sys.stderr)
+        return 1
+    print(f"mutate: the check failed, as it should have (exit {result.returncode})",
+          file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

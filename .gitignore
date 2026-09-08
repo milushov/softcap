@@ -1,0 +1,31 @@
+.DS_Store
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+Softcap.xcodeproj/
+# Pre-rename generated project: still present in checkouts that have not
+# regenerated it since the rename landed.
+StatusChecker.xcodeproj/
+build/
+Signing.local.xcconfig
+
+# SwiftPM artefacts: 4,408 files and 287 MB reached the repository because this
+# rule was not here from the start.
+.build/
+Packages/*/.build/
+build-ios/
+
+# Worktrees and state written by the agent harness — 751 MB of it at the time
+# this line was added. It was ignored through .git/info/exclude, which is local
+# to one clone and travels with nothing: a fresh clone, or a reset of that file,
+# would have left `git add -A` free to commit the lot. That is exactly how the
+# .build artefacts above got in.
+.claude/
+
+# Scratch space for plan execution: ledgers, briefs, review packages.
+.superpowers/
+
+# Release output of tools/make_dmg.sh and the Release workflow.
+dist/
+*.dmg

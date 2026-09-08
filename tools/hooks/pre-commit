@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+#
+# Refuses a commit that carries personal data, or that breaks anything.
+#
+# It began as the first of those alone. `NoPersonalDataInTheRepository` is part of
+# the suite and ran too late twice: a real mail address and a real account
+# identifier were both written into prose describing a live run, committed, and
+# caught only by the next `make test`, by which point they were in the history.
+# That check still gets its own message below, because it is the one failure that
+# cannot be fixed forward — the value is in the history from the moment it lands.
+#
+# The rest was added after a commit went out with two tests failing. The hook had
+# run, passed, and examined one suite out of sixty-eight; the failure was in
+# another. Running everything costs about four seconds against one, which is
+# little enough to pay on every commit — and the alternative, on the evidence, is
+# pushing red.
+#
+# Install with tools/install-hooks.sh. Skip with `git commit --no-verify` when you
+# have a reason — an unfinished change with a known-red test is a reason.
+set -euo pipefail
+root="$(git rev-parse --show-toplevel)"
+cd "$root/Packages/Core"
+
+# Named once, so the failures below can quote it.
+SUITE="NoPersonalDataInTheRepository"
+
+if ! output=$(swift test 2>&1); then
+  echo "" >&2
+  if grep -q "Suite $SUITE .*failed" <<<"$output"; then
+    echo "commit refused: personal data in the working tree" >&2
+    echo "$output" | grep -E "Expectation failed|offenders" | head -5 >&2
+    echo "" >&2
+    echo "describe the value instead of quoting it, or use an example.com address" >&2
+  else
+    echo "commit refused: the suite does not pass" >&2
+    echo "$output" | grep -E "^✘|recorded an issue" | head -6 >&2
+    echo "" >&2
+    echo "fix it, or commit with --no-verify if the red is deliberate" >&2
+  fi
+  exit 1
+fi
+
+# A run that examined nothing exits zero and prints a line that reads like
+# success. That is how this hook could become a thing which approves every commit
+# while looking exactly like a hook that works — and it guards the one check whose
+# failure once cost a rewrite of the whole history.
+#
+# Two floors. The first is the point: the personal-data suite has to have actually
+# run, by name, whatever else did. The second catches an invocation that somehow
+# discovered a handful of tests — a hundred is far below the four hundred there
+# are, and is a floor against breakage rather than a target.
+if ! grep -q "Suite $SUITE passed" <<<"$output"; then
+  echo "" >&2
+  echo "commit refused: the personal-data check did not run" >&2
+  echo "  \"$SUITE\" is not in the results — it was probably renamed or moved." >&2
+  echo "" >&2
+  exit 1
+fi
+
+# Read with sed, and checked for being a number before it is compared.
+#
+# Written with `grep -oE` this captured the count *with ANSI colour codes around
+# it*, because grep here colours by default. `[ "$examined" -lt 100 ]` then failed
+# with "integer expression expected" — and an erroring test inside `if` is simply
+# false, so the floor did not fire and the hook passed. A guard against silent
+# no-ops, silently doing nothing.
+# The page, when the commit touches it.
+#
+# Nothing here renders the site: the suite reads its markup as text. So a commit
+# that breaks the layout passes everything above, and one did — the bar in
+# `check-widths.sh` was raised past what the page can hold and the commit went out
+# with that check failing, because no hook ran it.
+#
+# Only when `site/` is staged: it costs about five seconds, against four for the
+# suite, and a commit that touches no page has no layout to break.
+if git diff --cached --name-only --diff-filter=ACM | grep -q '^site/'; then
+  if [ ! -x "${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}" ]; then
+    # Said out loud. A check that quietly did not run is the failure this whole
+    # file is written against.
+    echo "" >&2
+    echo "note: the page was not rendered — Chrome is not where this expects it." >&2
+    echo "  The layout is unchecked in this commit. Set CHROME to have it looked at." >&2
+    echo "" >&2
+  elif ! widths=$("$root/site/check-widths.sh" 2>&1); then
+    echo "" >&2
+    echo "commit refused: the page does not hold its width" >&2
+    echo "$widths" | grep -E "FAIL|text size" | head -8 >&2
+    echo "" >&2
+    exit 1
+  fi
+fi
+
+examined=$(sed -nE 's/.*Test run with ([0-9]+) tests?.*/\1/p' <<<"$output" | head -1)
+case "$examined" in
+  ''|*[!0-9]*)
+    echo "" >&2
+    echo "commit refused: could not read how many tests ran" >&2
+    echo "  the summary line was not in the form this hook expects, so the floor" >&2
+    echo "  below could not be applied and nothing here has been verified." >&2
+    echo "" >&2
+    exit 1 ;;
+esac
+if [ "$examined" -lt 100 ]; then
+  echo "" >&2
+  echo "commit refused: the run examined $examined tests" >&2
+  echo "  there are several hundred; a run this small did not do what it says." >&2
+  echo "" >&2
+  exit 1
+fi

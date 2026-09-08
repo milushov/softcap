@@ -1,0 +1,205 @@
+name: Softcap
+options:
+  bundleIdPrefix: app.softcap
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+packages:
+  Core:
+    path: Packages/Core
+
+configFiles:
+  Debug: Signing.xcconfig
+  Release: Signing.xcconfig
+
+# `#if DEBUG` compiled to nothing until this was here: both configurations share
+# one xcconfig and nothing defined the flag, so a debug build silently dropped
+# everything guarded by it. Nothing was relying on it yet, which is the only
+# reason it cost nothing — the next `#if DEBUG` anybody writes would have been
+# absent from the build with no sign of it.
+#
+# Confirmed by making the app say so: with this in place it logs "DEBUG is
+# defined" on launch, and without it the line was not there. `strings` on the
+# built binary finds none of the app's literals at all, so it cannot answer this
+# question and was believed for one wrong conclusion before that was noticed.
+settings:
+  configs:
+    Debug:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+
+targets:
+  Softcap:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+      - path: Resources/Assets.xcassets
+    info:
+      path: App/Info.plist
+      properties:
+        LSUIElement: true
+        CFBundleName: Softcap
+        # Taken from the build setting rather than written out. The release
+        # workflow passes MARKETING_VERSION on the command line, and a literal
+        # here ignores it — which is how every published build came to call
+        # itself 0.1 while the widget beside it carried the real number. Nothing
+        # read the number, so it cost nothing until an updater had to compare it
+        # against the newest release and was told it was out of date forever.
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.softcap.Softcap
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_ENTITLEMENTS: App/Softcap.entitlements
+        MARKETING_VERSION: "0.1"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        ENABLE_HARDENED_RUNTIME: YES
+        # Обязательно стабильная подпись, а не ad-hoc ("-").
+        # Доступ к чужому элементу Keychain macOS привязывает к подписи
+        # приложения. Ad-hoc подпись меняется при каждой пересборке, поэтому
+        # «Always Allow» переставал действовать и пароль спрашивали снова.
+        # Имя указано целиком: для macOS-цели Xcode толкует короткое
+        # "Apple Development" как "Mac Development" и сертификат не находит.
+    dependencies:
+      - target: SoftcapWidget
+        embed: true
+        codeSign: true
+      - package: Core
+        product: ProviderKit
+      - package: Core
+        product: ClaudeProvider
+      - package: Core
+        product: CodexProvider
+      - package: Core
+        product: Credentials
+      - package: Core
+        product: Monitoring
+      - package: Core
+        product: Preferences
+      - package: Core
+        product: StatusUI
+      # The Mac app only. The widget has no interface for it, and the iOS app
+      # cannot replace its own bundle — the same arrangement CodexProvider has.
+      - package: Core
+        product: Updates
+
+  SoftcapWidget:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: Widget
+    info:
+      path: Widget/Info.plist
+      properties:
+        CFBundleDisplayName: Softcap
+        # Has to match the containing app: notarisation rejects a bundle whose
+        # embedded extension carries a different version.
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.softcap.Softcap.widget
+        CODE_SIGN_ENTITLEMENTS: Widget/SoftcapWidget.entitlements
+        # Also on the extension: notarisation checks every nested executable.
+        ENABLE_HARDENED_RUNTIME: YES
+        MARKETING_VERSION: "0.1"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        SKIP_INSTALL: YES
+    dependencies:
+      - package: Core
+        product: ProviderKit
+      - package: Core
+        product: Preferences
+      - package: Core
+        product: StatusUI
+
+  SoftcapiOS:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: iOS
+      - path: Resources/iOSAssets.xcassets
+    info:
+      path: iOS/Info.plist
+      properties:
+        CFBundleDisplayName: Softcap
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.softcap.Softcap.ios
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # Its own version, not the Mac app's. The release workflow builds only
+        # the macOS scheme, so this pair never receives an override — and taking
+        # the Mac's 0.1 moved a shipped 1.0 backwards, which the App Store
+        # refuses outright.
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_ENTITLEMENTS: iOS/SoftcapiOS.entitlements
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGNING_REQUIRED: YES
+        CODE_SIGNING_ALLOWED: YES
+    dependencies:
+      - target: SoftcapiOSWidget
+        embed: true
+      - package: Core
+        product: ProviderKit
+      - package: Core
+        product: ClaudeProvider
+      - package: Core
+        product: Credentials
+      - package: Core
+        product: Monitoring
+      - package: Core
+        product: Preferences
+      - package: Core
+        product: StatusUI
+
+  SoftcapiOSWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: iOSWidget
+    info:
+      path: iOSWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Softcap
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.softcap.Softcap.ios.widget
+        # Matches the app it is embedded in, for the reason written there.
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_ENTITLEMENTS: iOSWidget/SoftcapiOSWidget.entitlements
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGNING_REQUIRED: YES
+        CODE_SIGNING_ALLOWED: YES
+        SKIP_INSTALL: YES
+    dependencies:
+      - package: Core
+        product: ProviderKit
+      - package: Core
+        product: Preferences
+      - package: Core
+        product: StatusUI

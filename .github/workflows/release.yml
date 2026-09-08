@@ -1,0 +1,249 @@
+name: Release
+
+# Every push to main that touches the app produces a downloadable build. The
+# README link never has to change: GitHub keeps
+# /releases/latest/download/<name> pointing at the newest release, so the
+# workflow uploads the disk image twice — once under its version, once under a
+# fixed name for that URL to resolve.
+
+on:
+  push:
+    branches: [main]
+    # Doc-only pushes produce an identical binary, and the README is rewritten
+    # by this workflow itself — without this the run would trigger itself.
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - '**/*.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Two releases building at once would race for the same tag and for the README
+# commit. Queue them instead of cancelling: every push to main deserves a build.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Tests
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      # The logic tests are a plain SwiftPM package: no Xcode project, no
+      # signing, no simulator. They fail fast and cost a minute.
+      - name: Logic tests
+        run: cd Packages/Core && swift test
+
+  release:
+    name: Build and publish
+    needs: test
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Work out the version
+        id: v
+        run: |
+          set -euo pipefail
+          # Single source of truth for the marketing version is project.yml;
+          # the run number distinguishes builds made from it.
+          BASE=$(grep -m1 'MARKETING_VERSION:' project.yml | sed 's/.*"\(.*\)".*/\1/')
+          VERSION="${BASE}.${{ github.run_number }}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION"    >> "$GITHUB_OUTPUT"
+          echo "Building $VERSION"
+
+      - name: Generate the Xcode project
+        run: xcodegen generate
+
+      # Built without signing on purpose. The entitlements ask for an app
+      # group, and Xcode will not sign that under CODE_SIGN_STYLE=Manual
+      # without a provisioning profile a runner cannot obtain. tools/sign_app.sh
+      # applies the entitlements afterwards.
+      - name: Build
+        run: |
+          set -euo pipefail
+          xcodebuild -project Softcap.xcodeproj -scheme Softcap \
+            -configuration Release -derivedDataPath build \
+            MARKETING_VERSION="${{ steps.v.outputs.version }}" \
+            CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            build | grep -E "error:|warning:|BUILD" || true
+          test -d build/Build/Products/Release/Softcap.app
+
+      # Optional. Without these secrets the build is still published, ad-hoc
+      # signed, and the release notes tell the reader how to open it.
+      #
+      #   MACOS_CERTIFICATE_P12        base64 of a Developer ID Application .p12
+      #   MACOS_CERTIFICATE_PASSWORD   its export password
+      #   MACOS_SIGNING_IDENTITY       e.g. "Developer ID Application: Name (TEAMID)"
+      #   MACOS_TEAM_ID                the 10-character team identifier
+      - name: Import the signing certificate
+        id: cert
+        env:
+          CERT_P12: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          CERT_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CERT_P12:-}" ]; then
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No certificate configured — publishing an ad-hoc signed build."
+            exit 0
+          fi
+          KEYCHAIN="$RUNNER_TEMP/build.keychain-db"
+          KEYCHAIN_PASSWORD=$(uuidgen)
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          echo "$CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" \
+            -P "$CERT_PASSWORD" -T /usr/bin/codesign
+          # Without this codesign would stop for a UI prompt no runner can answer.
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" > /dev/null
+          security list-keychain -d user -s "$KEYCHAIN" login.keychain-db
+          # -P overwrites before unlinking: the runner is discarded anyway, but
+          # a private key should not outlive the step that needed it.
+          rm -P "$RUNNER_TEMP/cert.p12"
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Sign
+        env:
+          SIGN_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+          TEAM_ID: ${{ secrets.MACOS_TEAM_ID }}
+        run: tools/sign_app.sh build/Build/Products/Release/Softcap.app
+
+      - name: Package
+        id: pkg
+        run: |
+          set -euo pipefail
+          APP=build/Build/Products/Release/Softcap.app
+          V="${{ steps.v.outputs.version }}"
+          tools/make_dmg.sh "$APP" "$V" dist
+
+          # A zipped .app alongside the image: it is what an in-app updater
+          # would download later, and what people who dislike disk images want.
+          # ditto rather than zip — it is the only one that keeps the signature
+          # and the symlinks inside a bundle intact.
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "dist/Softcap-$V.zip"
+
+          # The fixed name is what /releases/latest/download/Softcap.dmg
+          # resolves to, and it is why the README link never goes stale.
+          cp "dist/Softcap-$V.dmg" dist/Softcap.dmg
+
+          cd dist && shasum -a 256 ./*.dmg ./*.zip > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      # Notarisation is what removes the "cannot be opened" dialog on another
+      # person's Mac. It needs a real certificate, so it only runs when one was
+      # configured, and it staples the ticket so the check works offline.
+      - name: Notarise
+        if: steps.cert.outputs.signed == 'true'
+        env:
+          APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
+          TEAM_ID: ${{ secrets.MACOS_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          V="${{ steps.v.outputs.version }}"
+          xcrun notarytool submit "dist/Softcap-$V.dmg" \
+            --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" \
+            --team-id "$TEAM_ID" --wait
+          xcrun stapler staple "dist/Softcap-$V.dmg"
+          cp "dist/Softcap-$V.dmg" dist/Softcap.dmg
+          cd dist && shasum -a 256 ./*.dmg ./*.zip > SHA256SUMS.txt
+
+      - name: Release notes
+        id: notes
+        run: |
+          set -euo pipefail
+          {
+            echo "Built from \`${GITHUB_SHA:0:7}\` on $(date -u '+%Y-%m-%d')."
+            echo
+            echo "**Install** — open the disk image and drag Softcap to Applications."
+            echo
+            if [ "${{ steps.cert.outputs.signed }}" != "true" ]; then
+              echo "This build is signed ad-hoc rather than with an Apple Developer ID,"
+              echo "so macOS will refuse it on first launch. To open it anyway:"
+              echo
+              echo '```'
+              echo 'xattr -dr com.apple.quarantine /Applications/Softcap.app'
+              echo '```'
+              echo
+              echo "Or right-click the app, choose Open, and confirm once."
+              echo
+            fi
+            echo "### Checksums"
+            echo
+            echo '```'
+            cat dist/SHA256SUMS.txt
+            echo '```'
+          } > notes.md
+          cat notes.md
+
+      - name: Publish the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.v.outputs.tag }}
+          name: ${{ steps.v.outputs.version }}
+          body_path: notes.md
+          make_latest: true
+          files: |
+            dist/Softcap-${{ steps.v.outputs.version }}.dmg
+            dist/Softcap-${{ steps.v.outputs.version }}.zip
+            dist/Softcap.dmg
+            dist/SHA256SUMS.txt
+
+      # The download URL is fixed, so this only refreshes the version and date
+      # shown next to it. It rewrites one marked block and commits nothing when
+      # that block is unchanged.
+      - name: Refresh the README download block
+        run: |
+          set -euo pipefail
+          V="${{ steps.v.outputs.version }}"
+          TAG="${{ steps.v.outputs.tag }}"
+          REPO="${{ github.repository }}"
+          python3 - "$V" "$TAG" "$REPO" <<'PY'
+          import re, sys, datetime, pathlib
+          version, tag, repo = sys.argv[1:4]
+          block = (
+              "<!-- download:start -->\n"
+              f"### [⬇︎ Download Softcap {version}]"
+              f"(https://github.com/{repo}/releases/latest/download/Softcap.dmg)\n\n"
+              f"A disk image for macOS 14 and later. Released "
+              f"{datetime.date.today():%d %B %Y} — "
+              f"[all versions](https://github.com/{repo}/releases/tag/{tag}).\n"
+              "<!-- download:end -->"
+          )
+          path = pathlib.Path("README.md")
+          text = path.read_text(encoding="utf-8")
+          new = re.sub(
+              r"<!-- download:start -->.*?<!-- download:end -->",
+              lambda _: block, text, count=1, flags=re.S,
+          )
+          if new != text:
+              path.write_text(new, encoding="utf-8")
+              print("README updated")
+          else:
+              print("README already current")
+          PY
+
+          if git diff --quiet README.md; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Point the README download link at $V [skip ci]"
+          # Someone may have pushed while the build ran; rebase rather than
+          # force, so their commit survives.
+          git pull --rebase origin main
+          git push origin HEAD:main
