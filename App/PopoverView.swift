@@ -217,6 +217,11 @@ struct PopoverView: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(.tertiary)
+        // Without this the first of the three takes keyboard focus on opening
+        // and macOS draws the accent-coloured focus fill behind it, which at
+        // this size reads as somebody else's app icon sitting in the footer
+        // rather than as a button that is ready. The shortcut still works.
+        .focusEffectDisabled()
         .help(title)
         .accessibilityLabel(title)
         .keyboardShortcut(key)
