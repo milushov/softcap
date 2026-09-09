@@ -203,6 +203,14 @@ Switches immediately, no restart. Follows the system by default.
 
 **Appearance** — system, light or dark.
 
+**Minimal window** — the limits window as a list: one line per account, and
+colour only where a limit is close. The heading and the named buttons go; the
+three actions stay as symbols, and what the row stopped saying — the service,
+the plan, the date a stale reading was taken — moves into its tooltip. Which
+limit the line shows is the one **Primary window** names, and that setting
+therefore does two jobs here. Off by default, and in the status item's menu as
+well as in settings.
+
 Settings live in `~/Library/Preferences/app.softcap.Softcap.plist`.
 Accounts the app gathered itself are in the Keychain under the service
 `StatusChecker-accounts` — the old name, kept through the rename so that nothing

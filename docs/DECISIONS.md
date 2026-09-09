@@ -6802,3 +6802,44 @@ second kind of credential to protect for no gain.
 other way to reach "an account with no credential of its own" from outside. There
 is now — a refresher that rejects, which is also how it happens in life — so the
 hook is gone and the two tests that used it go through the real path instead.
+
+---
+
+## 2026-09-09 · A setting that strips the window to a list
+
+**Decision.** `minimalWindow` draws one line per account — name, which limit,
+how full, how long left, and a hairline bar — with no heading, no dividers, no
+service badge, no plan label, and colour only above `Severity.ok`. It is a
+`Bool`, it is off by default, and it is reachable from the status item's menu as
+well as from Appearance, where it greys out `Row layout` because a row layout
+describes the full window and the minimal one does not have one.
+
+**Why.** The full window is built for the reading somebody opens the app to do,
+and most openings are not that: they are a glance to confirm nothing is on fire,
+and for those it says nine things where one would do. Both readings are
+legitimate, so this is a setting rather than a new design.
+
+A `Bool` rather than a two-valued enum because the toggle and the checked menu
+item say the same thing, and one catalogue key labels both — an enum would have
+cost four keys in ten languages to say it. `MinimalAccountRow` is a second view
+rather than a fourth `RowLayout`: that enum describes a row, and this setting
+also takes away the window around it.
+
+**Cost.** A second row view to keep in step with the first — `OneRowDrawnEverywhere`
+does not cover it, because that guard is about the four surfaces drawing one
+account and this is about one surface drawing it twice over. `Primary window`
+now has two jobs: which account the menu bar counts, and which of one account's
+limits this row shows. The badge, the plan and the date a stale reading was
+taken are only in the tooltip here.
+
+**The popover resizes itself.** The design named this as unverified: an
+`NSPopover` is not obliged to recompute its height when its hosted content
+changes, and this content is half the height. It does — the window opens at the
+shorter size with no help. The awkward case, flipping the setting while the
+window is open, does not arise: the menu closes the popover before it appears,
+and the settings window, being another window, dismisses a transient popover by
+taking focus. What did have to be handled is smaller and was not predicted:
+opening the list-shaped window gives keyboard focus to the first of the three
+footer symbols, and the accent-coloured focus fill behind an eleven-point glyph
+reads as somebody else's app icon sitting in the footer. `focusEffectDisabled()`
+takes the fill off and leaves the shortcut working.
