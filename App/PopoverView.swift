@@ -14,6 +14,26 @@ struct PopoverView: View {
     private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
+        Group {
+            if model.preferences.minimalWindow { minimal } else { full }
+        }
+        .frame(width: 322)
+        // The chosen language decides how a date and a time are written, not
+        // only which words are used. Left alone, SwiftUI formats them in the
+        // system's language while every label around them follows the setting —
+        // so the badge said `28 Aug` in one language and the clock beside it
+        // read in another.
+        .environment(\.locale, loc.activeLocale)
+        .environment(\.layoutDirection, loc.layoutDirection ?? .leftToRight)
+        .id(loc.language)
+        .onAppear { model.isPopoverOpen = true }
+        .onDisappear { model.isPopoverOpen = false }
+        .onReceive(tick) { now = $0 }
+    }
+
+    /// The window as it has always been: a heading, two meters per account,
+    /// three named buttons.
+    private var full: some View {
         VStack(spacing: 0) {
             header
             Divider().opacity(0.5)
@@ -35,18 +55,43 @@ struct PopoverView: View {
             Divider().opacity(0.5)
             footer
         }
-        .frame(width: 322)
-        // The chosen language decides how a date and a time are written, not
-        // only which words are used. Left alone, SwiftUI formats them in the
-        // system's language while every label around them follows the setting —
-        // so the badge said `28 Aug` in one language and the clock beside it
-        // read in another.
-        .environment(\.locale, loc.activeLocale)
-        .environment(\.layoutDirection, loc.layoutDirection ?? .leftToRight)
-        .id(loc.language)
-        .onAppear { model.isPopoverOpen = true }
-        .onDisappear { model.isPopoverOpen = false }
-        .onReceive(tick) { now = $0 }
+    }
+
+    /// The same window with everything that is not a reading taken off it.
+    ///
+    /// Nothing is drawn above the list unless the readings are overdue, and
+    /// that line is the only heading this window ever spends: a clock saying
+    /// when a current reading was taken answers a question nobody asked, while
+    /// `2 h old` answers the one that matters.
+    private var minimal: some View {
+        VStack(spacing: 0) {
+            if case .overdue(let seconds) = age {
+                Text(String(format: loc("%@ old"), loc.remaining(seconds)))
+                    .font(.system(size: 10.5))
+                    .monospacedDigit()
+                    .foregroundStyle(Severity.hot.tint)
+                    .help(loc("Nothing has been read for a while. A sign-in prompt may be waiting."))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 13)
+                    .padding(.bottom, 2)
+            }
+
+            if model.snapshots.isEmpty {
+                empty
+            } else {
+                ForEach(model.snapshots) { snapshot in
+                    MinimalAccountRow(
+                        snapshot: snapshot, now: now,
+                        choice: model.preferences.primaryWindow,
+                        showSnapshotAge: model.preferences.showSnapshotAge,
+                        localization: loc
+                    )
+                }
+            }
+
+            quietFooter
+        }
+        .padding(.vertical, 8)
     }
 
     private var header: some View {
@@ -68,12 +113,18 @@ struct PopoverView: View {
     /// and was watched saying so for an hour. Past the point where the reading is
     /// overdue, the age replaces both the spinner and the clock time: `2:41 AM`
     /// is perfectly plausible and says nothing.
-    @ViewBuilder
-    private var freshness: some View {
-        let age = readingAge(
+    /// How old the readings are, and whether that is older than the polling
+    /// interval says it should be. Both windows ask, so it is asked once here
+    /// rather than computed twice.
+    private var age: ReadingAge {
+        readingAge(
             lastUpdated: model.lastUpdated, now: now,
             pollingEvery: model.preferences.backgroundInterval
         )
+    }
+
+    @ViewBuilder
+    private var freshness: some View {
         if case .overdue(let seconds) = age {
             Text(String(format: loc("%@ old"), loc.remaining(seconds)))
                 .font(.system(size: 11))
@@ -138,5 +189,36 @@ struct PopoverView: View {
                 .keyboardShortcut("q")
         }
         .padding(.horizontal, 12).padding(.vertical, 8)
+    }
+
+    /// Three symbols where the full window has three words. The actions are in
+    /// the status item's menu as well, but a window whose only way out is a
+    /// gesture nothing advertises is a window with no way out.
+    private var quietFooter: some View {
+        HStack {
+            quietButton("arrow.clockwise", loc("Refresh"), "r") {
+                Task { await model.refresh(.person) }
+            }
+            Spacer()
+            quietButton("gearshape", loc("Settings…"), ",") { SettingsWindow.open() }
+            Spacer()
+            quietButton("power", loc("Quit"), "q") { NSApplication.shared.terminate(nil) }
+        }
+        .padding(.horizontal, 18)
+        .padding(.top, 6)
+    }
+
+    private func quietButton(
+        _ symbol: String, _ title: String, _ key: KeyEquivalent,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol).font(.system(size: 11))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.tertiary)
+        .help(title)
+        .accessibilityLabel(title)
+        .keyboardShortcut(key)
     }
 }
