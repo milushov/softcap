@@ -35,6 +35,14 @@ final class AppModel: ObservableObject {
 
     /// The Accounts section builds its own `LoginController` over this store.
     let store: CredentialStore
+
+    /// The browser sign-in.
+    ///
+    /// It used to be a `@StateObject` inside the Accounts pane, which made it
+    /// unreachable from the menu and no longer-lived than the pane: leaving
+    /// that section during a sign-in destroyed the controller and the sign-in
+    /// with it. Lazy, so a launch that never signs anybody in never builds one.
+    lazy var login = LoginController(store: store)
     private var poller: UsagePoller?
     private var tracker = ThresholdTracker()
 

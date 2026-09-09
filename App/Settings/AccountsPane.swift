@@ -8,7 +8,7 @@ struct AccountsPane: View {
     @ObservedObject var model: PreferencesModel
     @ObservedObject var appModel: AppModel
 
-    @StateObject private var loginController: LoginController
+    @ObservedObject private var loginController: LoginController
     @State private var rows: [AccountRow] = []
     @State private var pendingForget: AccountRow?
     @State private var manualCode = ""
@@ -17,7 +17,7 @@ struct AccountsPane: View {
     init(model: PreferencesModel, appModel: AppModel) {
         self.model = model
         self.appModel = appModel
-        _loginController = StateObject(wrappedValue: LoginController(store: appModel.store))
+        _loginController = ObservedObject(wrappedValue: appModel.login)
     }
 
     struct AccountRow: Identifiable, Hashable {
