@@ -114,3 +114,29 @@ import ProviderKit
         #expect(back.lastUpdateCheck == settings.lastUpdateCheck)
     }
 }
+
+@Test func theWindowIsFullUntilSomebodyAsksOtherwise() {
+    #expect(Preferences.defaults.minimalWindow == false)
+}
+
+/// The field-by-field decoder, from the other direction: a settings file
+/// written before this flag existed must keep every other answer in it.
+@Test func settingsStoredBeforeTheFlagExistedSurviveTheUpgrade() throws {
+    var stored = Preferences.defaults
+    stored.languageCode = "ru"
+    stored.thresholds = [90]
+    stored.rowLayout = .rings
+
+    let encoded = try JSONEncoder().encode(stored)
+    var fields = try #require(
+        try JSONSerialization.jsonObject(with: encoded) as? [String: Any]
+    )
+    fields.removeValue(forKey: "minimalWindow")
+    let older = try JSONSerialization.data(withJSONObject: fields)
+
+    let read = try JSONDecoder().decode(Preferences.self, from: older)
+    #expect(read.minimalWindow == false)
+    #expect(read.languageCode == "ru")
+    #expect(read.thresholds == [90])
+    #expect(read.rowLayout == .rings)
+}

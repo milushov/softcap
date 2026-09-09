@@ -91,6 +91,12 @@ public struct Preferences: Codable, Sendable, Equatable {
     public var ordering: Ordering
     public var showSnapshotAge: Bool
 
+    /// The window stripped to a list: one line per account, no header, no
+    /// dividers, no footer labels. A `Bool` rather than a two-valued enum
+    /// because the settings toggle and the checked menu item say the same
+    /// thing, and both can be labelled from one catalogue key.
+    public var minimalWindow: Bool
+
     // Notifications
     public var notificationsEnabled: Bool
     public var thresholds: [Int]
@@ -104,6 +110,14 @@ public struct Preferences: Codable, Sendable, Equatable {
     public var refreshAfterWake: Bool
     public var openWindowHotKey: HotKeyCombo?
     public var refreshHotKey: HotKeyCombo?
+
+    // Reports
+    /// Whether a failure may be described to the collector the author runs.
+    ///
+    /// Named for what it does rather than for the machinery behind it: the
+    /// setting outlives whichever collector is on the other end, and a field
+    /// called `sentryEnabled` would have to be migrated the day that changes.
+    public var sendsErrorReports: Bool
 
     // Updates
     public var checksForUpdates: Bool
@@ -128,6 +142,7 @@ public struct Preferences: Codable, Sendable, Equatable {
         rowLayout: .twoWindows,
         ordering: .leastLoadedFirst,
         showSnapshotAge: true,
+        minimalWindow: false,
         notificationsEnabled: true,
         thresholds: [95, 80],
         notifyOnRecovery: true,
@@ -138,6 +153,7 @@ public struct Preferences: Codable, Sendable, Equatable {
         refreshAfterWake: true,
         openWindowHotKey: nil,
         refreshHotKey: nil,
+        sendsErrorReports: true,
         checksForUpdates: true,
         lastUpdateCheck: nil,
         disabledProviders: [],
@@ -194,6 +210,7 @@ extension Preferences {
         rowLayout            = read(.rowLayout, fallback.rowLayout)
         ordering             = read(.ordering, fallback.ordering)
         showSnapshotAge      = read(.showSnapshotAge, fallback.showSnapshotAge)
+        minimalWindow        = read(.minimalWindow, fallback.minimalWindow)
         notificationsEnabled = read(.notificationsEnabled, fallback.notificationsEnabled)
         thresholds           = read(.thresholds, fallback.thresholds)
         notifyOnRecovery     = read(.notifyOnRecovery, fallback.notifyOnRecovery)
@@ -204,6 +221,7 @@ extension Preferences {
         refreshAfterWake     = read(.refreshAfterWake, fallback.refreshAfterWake)
         openWindowHotKey     = readOptional(.openWindowHotKey, fallback.openWindowHotKey)
         refreshHotKey        = readOptional(.refreshHotKey, fallback.refreshHotKey)
+        sendsErrorReports    = read(.sendsErrorReports, fallback.sendsErrorReports)
         checksForUpdates     = read(.checksForUpdates, fallback.checksForUpdates)
         lastUpdateCheck      = readOptional(.lastUpdateCheck, fallback.lastUpdateCheck)
         disabledProviders    = read(.disabledProviders, fallback.disabledProviders)
