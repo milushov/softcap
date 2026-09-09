@@ -205,6 +205,33 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         settings.target = self
         menu.addItem(settings)
 
+        let addAccount = NSMenuItem(
+            title: Localization.shared("Add account…"),
+            action: #selector(addAccount), keyEquivalent: ""
+        )
+        addAccount.target = self
+        menu.addItem(addAccount)
+
+        let statistics = NSMenuItem(
+            title: Localization.shared("Statistics") + "…",
+            action: #selector(openStatistics), keyEquivalent: ""
+        )
+        statistics.target = self
+        menu.addItem(statistics)
+
+        menu.addItem(.separator())
+
+        // The one setting with a home outside settings. It is the whole shape
+        // of the window rather than a detail of it, and a checked item says
+        // which shape is on without being asked.
+        let minimal = NSMenuItem(
+            title: Localization.shared("Minimal window"),
+            action: #selector(toggleMinimalWindow), keyEquivalent: ""
+        )
+        minimal.target = self
+        minimal.state = preferences.value.minimalWindow ? .on : .off
+        menu.addItem(minimal)
+
         // Reads as an offer once there is one to make. This change, and the
         // same one in the settings footer, is the whole of how loudly a found
         // update announces itself.
@@ -248,6 +275,26 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // away a release already found, and a second press does not start a
         // second check.
         Task { await updates.checkUnlessSomethingIsAlreadyOffered(now: Date()) }
+    }
+
+    /// Opens the Accounts section and starts the browser sign-in.
+    ///
+    /// Both, not just the second: a sign-in can come back asking for a code
+    /// pasted by hand, and the field that takes it is on that screen. One
+    /// started with nothing on screen would strand whoever pressed it.
+    @objc private func addAccount() {
+        model.settingsSection = .accounts
+        SettingsWindow.open()
+        model.login.start()
+    }
+
+    @objc private func openStatistics() {
+        model.settingsSection = .statistics
+        SettingsWindow.open()
+    }
+
+    @objc private func toggleMinimalWindow() {
+        preferences.update { $0.minimalWindow.toggle() }
     }
 
     @objc private func quit() {
