@@ -32,9 +32,15 @@ struct AppearancePane: View {
                     ForEach(PrimaryWindow.allCases, id: \.self) { Text(loc.title($0)).tag($0) }
                 }
 
+                Toggle(loc("Minimal window"), isOn: binding(\.minimalWindow))
+
                 Picker(loc("Row layout"), selection: binding(\.rowLayout)) {
                     ForEach(RowLayout.allCases, id: \.self) { Text(loc.title($0)).tag($0) }
                 }
+                // A row layout describes the full window, and the minimal one
+                // does not have one. Disabled rather than hidden: a setting
+                // that vanishes reads as a bug, a grey one explains itself.
+                .disabled(model.value.minimalWindow)
 
                 Picker(loc("Order"), selection: binding(\.ordering)) {
                     ForEach(Ordering.allCases, id: \.self) { Text(loc.title($0)).tag($0) }
