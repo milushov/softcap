@@ -6843,3 +6843,102 @@ opening the list-shaped window gives keyboard focus to the first of the three
 footer symbols, and the accent-coloured focus fill behind an eleven-point glyph
 reads as somebody else's app icon sitting in the footer. `focusEffectDisabled()`
 takes the fill off and leaves the shortcut working.
+
+## 2026-09-10 · The held token goes into the keychain, and a rotation is never spent twice
+
+**Decision.** Three changes to how the credential store treats a refresh, made
+together because they close one failure. The access token and its deadline are
+written into the account's record in the keychain, beside the refresh token, so
+a relaunch serves the poll with what it already has. One refresh runs per
+account at a time: a caller arriving while the request is out awaits the same
+reply instead of sending its own. And a rotation the keychain refuses to store
+is kept in memory and written again at the next call, instead of being dropped
+by the `try?` that *An access token is held until it is nearly spent* left in
+place and named as the remaining window. That entry also judged the keychain
+copy "a second kind of credential to protect for no gain"; this one reverses
+that judgment, on evidence. The store also re-finds the account by handle after
+the network call — an index held across that wait crashed on a list a `forget`
+had emptied meanwhile — and an account failure now goes to the collector once
+per change of kind, next to the log line the poll already wrote.
+
+**Why.** Two accounts died in one afternoon, and the investigation that found
+out why had to be run from gaps in the usage history, because nothing else kept
+a trace. The mechanism: a refresh token is single-use — the server rotates it
+on every spend — and the held access token was memory only, so every relaunch
+opened with a refresh. A relaunch is the worst possible moment to spend the
+credential: the processes that die are the ones being replaced, and during
+development the app is rebuilt and replaced many times a day, four times in
+three minutes at the worst. A reply in flight when the process dies is a
+rotation nobody receives; the next launch asks with the token the server had
+already retired, is told `invalid_grant`, and the account is stranded until
+somebody signs in again. With the token written down, a relaunch spends
+nothing, and the refreshes that remain happen in a process that stays alive to
+receive the answer.
+
+**Cost.** The keychain item now holds access tokens as well as refresh tokens —
+a second credential class in the same protected place, invalidated by the same
+sign-out paths, and short-lived by nature. One more write per token lifetime,
+for the deadline and token themselves. The window is narrowed again, not
+closed: a process killed inside the seconds between sending a refresh and
+receiving its reply still loses the rotation, and no client-side design can
+close that — only making the sign-in cheap and the death visible, which is
+what the collector line is for.
+
+---
+
+## 2026-09-10 · Settings reach the app through a subscription, not through the settings scene
+
+**Decision.** `AppDelegate` subscribes to `PreferencesModel.$value` and assigns
+`AppModel.preferences` and `UpdateModel.preferences` from there. The
+`.onChange` on the `Settings` scene that used to do it is gone.
+
+**Why.** It did not work. A scene's content is built when its window opens and
+not again — the `App` observes the delegate, which publishes nothing — so the
+modifier went on comparing the value it had been built with. A changed setting
+therefore reached the rest of the app when the settings window was next opened,
+or at the next launch.
+
+This is the third time the same shape has been found in this file: `applyTheme`
+and `applyLanguage` each carry an entry describing it for the appearance and the
+language. Those two were fixed by moving ownership into `PreferencesModel`; this
+one cannot be, because the objects being fed are not its business. The delegate
+owns all three, so wiring them to one another is its work.
+
+**What it had been hiding.** The minimal window is what exposed it — the toggle
+went on and the full window stayed on screen — but `Row layout`, `Order`,
+`Show snapshot age` and both polling intervals had the same defect and nobody
+had looked. Changing the polling interval had been taking effect at the next
+launch.
+
+**Cost.** `AppModel.preferences` now publishes on every assignment, including
+the one the daily update check makes when it stamps the moment it last ran. The
+window redraws a little more often than it strictly must; the alternative is
+reasoning about which assignments matter, which is how this was got wrong in the
+first place.
+
+---
+
+## 2026-09-10 · A number and a bar do not take the same colour
+
+**Decision.** `Severity.numberTint` is separate from `Severity.tint`. A bar, a
+ring and a fill keep all four colours; a number stays in the ordinary text
+colour through `.ok` and `.warning` and takes orange and red only from `.hot`
+up. The window, both widgets and the phone follow it.
+
+**Why.** Yellow reads perfectly well as an area and not at all as four digits on
+a light background, and the figure is the part somebody is trying to read: the
+colour was costing more than it carried. Nothing is lost — the bar beside the
+number still shows all four levels, and it is the one with room for colour.
+
+The thresholds did not move and neither did the bars, so the reading a person
+has learned is unchanged; only the digits stopped shouting in a voice that could
+not be heard.
+
+**Cost.** Below 75% the number no longer says anything by colour, so a glance
+that used to sort accounts by hue now sorts them by bar. In the widgets, where
+the percentage is the whole content and there is no bar beside it, that is a
+real loss of one signal — accepted for the same reason: an unreadable signal is
+not one.
+
+`Severity.tint` had a second definition inside the app, identical to the one in
+`StatusUI` and free to drift from it. It is gone; there is one now.
