@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import Combine
 import ProviderKit
 import Monitoring
 import Preferences
@@ -16,10 +17,6 @@ struct SoftcapApp: App {
                 .onChange(of: delegate.preferences.value.appearance, initial: true) { _, new in
                     applyAppearance(new)
                 }
-                .onChange(of: delegate.preferences.value, initial: true) { _, new in
-                    delegate.model.preferences = new
-                    delegate.updates.preferences = new
-                }
         }
     }
 }
@@ -32,14 +29,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     let preferences = PreferencesModel()
     let updates = UpdateModel()
 
+    private var cancellables: Set<AnyCancellable> = []
+
     private lazy var statusItem = StatusItemController(
         model: model, preferences: preferences, updates: updates)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Settings reach the rest of the app from here, and this is the third
+        // time that lesson has been learned in this file.
+        //
+        // It used to be an `.onChange` on the settings scene. A scene's content
+        // is built when its window opens and not again: the `App` observes this
+        // delegate, which publishes nothing, so the modifier went on comparing
+        // the value it had been built with. A setting therefore reached the
+        // window when the settings window was next opened — or at the next
+        // launch — which is the same shape `applyTheme` describes for the
+        // appearance and `applyLanguage` for the language.
+        //
+        // The new setting is where it showed: turning on the minimal window
+        // left the full one on screen. `Row layout`, `Order`, `Show snapshot
+        // age` and both polling intervals had the same defect and nobody had
+        // looked.
+        //
+        // A subscription instead. This delegate owns all three objects, so
+        // wiring them to one another is its work and nobody else's.
+        preferences.$value
+            .sink { [model, updates] value in
+                model.preferences = value
+                updates.preferences = value
+            }
+            .store(in: &cancellables)
+
         Task {
             await preferences.load()
-            model.preferences = preferences.value
-            updates.preferences = preferences.value
             updates.recordCheck = { [preferences] moment in
                 preferences.update { $0.lastUpdateCheck = moment }
             }
@@ -64,6 +86,7 @@ func applyAppearance(_ appearance: Appearance) {
     case .dark:   NSAppearance(named: .darkAqua)
     }
 }
+
 
 extension Severity {
     /// Bar and label colour. The thresholds live in `Severity`.
