@@ -150,7 +150,7 @@ public extension Severity {
     /// levels, and it is the one that has the room for colour.
     var numberTint: AnyShapeStyle {
         switch self {
-        case .ok, .warning:   AnyShapeStyle(.secondary)
+        case .ok, .warning:   AnyShapeStyle(.primary)
         case .hot, .critical: AnyShapeStyle(tint)
         }
     }

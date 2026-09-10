@@ -137,7 +137,7 @@ struct PopoverView: View {
             Text(updated, style: .time)
                 .font(.system(size: 11))
                 .monospacedDigit()
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -185,7 +185,7 @@ struct PopoverView: View {
             Button(loc("Quit")) { NSApplication.shared.terminate(nil) }
                 .buttonStyle(.plain)
                 .font(.system(size: 11.5))
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
                 .keyboardShortcut("q")
         }
         .padding(.horizontal, 12).padding(.vertical, 8)
@@ -216,7 +216,7 @@ struct PopoverView: View {
             Image(systemName: symbol).font(.system(size: 11))
         }
         .buttonStyle(.plain)
-        .foregroundStyle(.tertiary)
+        .foregroundStyle(.secondary)
         // Without this the first of the three takes keyboard focus on opening
         // and macOS draws the accent-coloured focus fill behind it, which at
         // this size reads as somebody else's app icon sitting in the footer

@@ -76,7 +76,7 @@ public struct AccountRow: View {
                     .truncationMode(.middle)
                 Text("\(snapshot.provider.title) · \(snapshot.planLabel)")
                     .font(.system(size: 10.5))
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
             }
             Spacer(minLength: 4)
             if snapshot.freshness.isStale && showSnapshotAge {
@@ -104,7 +104,7 @@ public struct AccountRow: View {
         HStack(spacing: 8) {
             Text(loc.windowTitle(window.id))
                 .font(.system(size: 10.5))
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
                 .frame(width: 34, alignment: .leading)
 
             LimitBar(percent: window.percent)
@@ -123,7 +123,7 @@ public struct AccountRow: View {
             Text(loc.remaining(window.remaining(from: now)))
                 .font(.system(size: 11))
                 .monospacedDigit()
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
                 .frame(width: 62, alignment: .trailing)
         }
     }
@@ -168,7 +168,7 @@ public struct AccountRow: View {
             }
             .font(.system(size: 10.5))
             .monospacedDigit()
-            .foregroundStyle(.tertiary)
+            .foregroundStyle(.secondary)
         }
     }
 
@@ -195,7 +195,7 @@ public struct AccountRow: View {
                     .frame(width: 34, height: 34)
                     Text(loc.windowTitle(window.id))
                         .font(.system(size: 8.5))
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                 }
             }
             Spacer(minLength: 0)
@@ -203,7 +203,7 @@ public struct AccountRow: View {
                 Text(loc.remaining(worst.remaining(from: now)))
                     .font(.system(size: 11))
                     .monospacedDigit()
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
             }
         }
     }

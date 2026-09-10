@@ -243,3 +243,51 @@ private func matches(_ pattern: String, in line: String) -> Bool {
             """)
     }
 }
+
+/// Words are never fainter than `.secondary`.
+///
+/// SwiftUI's hierarchy runs primary, secondary, tertiary, quaternary, and the
+/// last two are around 40% and 20% of the text colour. Over the window's
+/// translucent material that lands near 3:1 against the background — under the
+/// 4.5:1 that small text needs to be read, and it was the whole minimal window
+/// at first: the service, the countdown, the date a reading was taken and the
+/// three symbols in the footer were all drawn at a level meant for something
+/// else.
+///
+/// The rule the levels now carry: `.primary` for the name and the figure, which
+/// are what somebody opens the window to read; `.secondary` for every other
+/// word; `.tertiary` and below for shapes only — a bar's empty track is not
+/// read, it is seen.
+///
+/// It cannot measure contrast, which depends on a material this cannot see.
+/// It can refuse the level that was measurably too faint on the one background
+/// that matters, which is the mistake that was made.
+@Suite struct WordsAreNeverFainterThanSecondary {
+
+    @Test func nothingIsPaintedBelowSecondary() throws {
+        var offenders: [String] = []
+        var painted = 0
+
+        for (path, text) in try swiftSources(
+            under: ["App", "iOS", "Widget", "iOSWidget", "Packages/Core/Sources/StatusUI"]
+        ) {
+            for line in code(text) where line.contains("foregroundStyle(") {
+                painted += 1
+                if line.contains("foregroundStyle(.tertiary)")
+                    || line.contains("foregroundStyle(.quaternary)") {
+                    offenders.append("\(path): \(line.trimmingCharacters(in: .whitespaces))")
+                }
+            }
+        }
+
+        #expect(painted >= 20, """
+            only \(painted) coloured labels found — the scan is looking in the \
+            wrong place
+            """)
+        #expect(offenders.isEmpty, """
+            words too faint to read over the window's material: \
+            \(offenders.sorted()) — `.secondary` is the floor for anything \
+            made of letters
+            """)
+    }
+}

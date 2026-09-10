@@ -76,11 +76,11 @@ struct SettingsView: View {
                 .buttonStyle(.plain)
                 .font(.system(size: 11.5))
                 .foregroundStyle(.secondary)
-            Text(verbatim: "·").font(.system(size: 11.5)).foregroundStyle(.tertiary)
+            Text(verbatim: "·").font(.system(size: 11.5)).foregroundStyle(.secondary)
             Text(updates.versionText)
                 .font(.system(size: 11.5))
                 .monospacedDigit()
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)

@@ -100,7 +100,7 @@ struct LimitsScreen: View {
                 Text(updated, style: .time)
                     .font(.footnote)
                     .monospacedDigit()
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
             }
         }
     }

@@ -71,11 +71,11 @@ public struct MinimalAccountRow: View {
                 if snapshot.freshness.isStale && showSnapshotAge {
                     Text(capturedDate)
                         .font(.system(size: 10))
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                 }
                 Text(loc.windowTitle(window.id))
                     .font(.system(size: 10))
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
                 Text(loc.percent(window.percent))
                     .font(.system(size: 11.5))
                     .monospacedDigit()
@@ -83,7 +83,7 @@ public struct MinimalAccountRow: View {
                 Text(loc.remaining(window.remaining(from: now)))
                     .font(.system(size: 11))
                     .monospacedDigit()
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
                     // Wide enough for "5 d 23 h" in the language that spells it
                     // longest, so the percentage beside it does not shuffle
                     // sideways every time a countdown changes unit.
@@ -110,7 +110,7 @@ public struct MinimalAccountRow: View {
     /// The bar's fill, which is not the number's colour: see `numberTint`.
     private func paint(_ window: LimitWindow) -> AnyShapeStyle {
         window.severity == .ok
-            ? AnyShapeStyle(.tertiary)
+            ? AnyShapeStyle(.secondary)
             : AnyShapeStyle(window.severity.tint)
     }
 

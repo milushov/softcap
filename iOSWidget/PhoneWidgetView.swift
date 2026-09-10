@@ -120,7 +120,7 @@ struct PhoneWidgetView: View {
                 Text(loc.remaining(window.remaining(from: entry.date)))
                     .font(.system(size: 10))
                     .monospacedDigit()
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -149,7 +149,7 @@ struct PhoneWidgetView: View {
             Text(snapshot.capturedAt, style: .time)
                 .font(.system(size: 10))
                 .monospacedDigit()
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -184,7 +184,7 @@ struct PhoneWidgetView: View {
             if hidden > 0 {
                 Text(String(format: loc("+%lld more"), hidden))
                     .font(.system(size: 9.5))
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
                     .padding(.top, 3)
             }
         }
@@ -195,7 +195,7 @@ struct PhoneWidgetView: View {
         VStack(spacing: 5) {
             Image(systemName: "gauge.with.needle")
                 .font(.system(size: 18))
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
             Text(loc("No accounts found"))
                 .font(.system(size: 11, weight: .medium))
                 .multilineTextAlignment(.center)

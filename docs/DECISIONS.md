@@ -7018,3 +7018,39 @@ background would notice, which is exactly how it got there the first time.
 `foregroundStyle` — so a symbol that genuinely wants the bar's colour would have
 to argue with it. None does today. `fill` and `stroke` are untouched, so bars,
 rings and the tick keep all four levels.
+
+---
+
+## 2026-09-10 · Words are never fainter than secondary
+
+**Decision.** `.primary` for the account name and the figure, `.secondary` for
+every other word, and `.tertiary` or `.quaternary` for shapes only. Twenty-three
+labels moved up a level, across the window, both widgets, the phone and the
+settings screen. `WordsAreNeverFainterThanSecondary` holds it.
+
+**Correction to the entry above.** *A number and a bar do not take the same
+colour*, written this morning, put a calm figure at `.secondary`. It is
+`.primary`: the figure is the thing the window exists to show, and the reasoning
+there — that the number is the part somebody is trying to read — argues for the
+stronger level rather than the weaker one. The colour rule itself stands: orange
+and red from `.hot` up, nothing below it.
+
+**Why.** SwiftUI's tertiary is around 40% of the text colour, and over the
+popover's translucent material that lands near 3:1 against what shows through —
+below the 4.5:1 small text needs. It was not a guess: the window was read on a
+light desktop and the service, the countdown, the date of a stale reading and
+the three footer symbols could not be made out.
+
+The minimal window is where it was noticed, because it has nothing else to lean
+on — no badge, no plan line, no dividers. But the full window had been drawing
+its window labels, its countdowns and its plan line at the same level since it
+was built, and the widgets with it. All of them moved.
+
+**Cost.** The hierarchy is flatter: the window label, the countdown and a stale
+date now sit at the same level as each other where two of them used to recede.
+Weighing them apart again would mean a level between secondary and tertiary,
+which the system does not have and which would have to be a hand-mixed opacity —
+a colour that then has to be maintained against two themes for the sake of a
+distinction nobody asked for. The calm bar in the minimal row moved up too, for
+the same reason and with the same trade: at 18% it is now clearly a short bar
+rather than a hint of one.
