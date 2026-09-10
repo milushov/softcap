@@ -6995,3 +6995,26 @@ tell whether a value is *right* — only whether anybody is listening for it.
 That is the failure that was silent, and it is the one they close. `UpdateModel`
 now republishes on every settings change including the update check's own
 stamp; the views it feeds redraw a little more often than they must.
+
+---
+
+## 2026-09-10 · The colour rule gets a scan of its own
+
+**Decision.** `ANumberDoesNotTakeTheColourOfABar` refuses a `foregroundStyle`
+painted from `Severity.tint` or from `Severity(percent:)`. The entry above —
+*A number and a bar do not take the same colour* — is the reasoning; this is
+the check that keeps it true.
+
+**Why.** The rule lives in two computed properties one letter apart,
+`tint` and `numberTint`, and the wrong one is always in reach. Six call sites
+had to be changed to introduce it and every one of them still compiles
+perfectly with the old spelling: nothing but somebody's eyes on a light
+background would notice, which is exactly how it got there the first time.
+
+**Watched failing.** `AccountRow`'s percentage was put back on `tint` through
+`tools/mutate`; the check named the line.
+
+**Cost.** It cannot tell a number from a symbol — both are coloured by
+`foregroundStyle` — so a symbol that genuinely wants the bar's colour would have
+to argue with it. None does today. `fill` and `stroke` are untouched, so bars,
+rings and the tick keep all four levels.

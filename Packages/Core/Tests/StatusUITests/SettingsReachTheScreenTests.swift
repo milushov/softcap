@@ -202,3 +202,44 @@ private func matches(_ pattern: String, in line: String) -> Bool {
         })).sorted()
     }
 }
+
+/// A number does not take the colour of a bar.
+///
+/// `Severity.tint` is yellow at `.warning`, and yellow is an excellent bar and
+/// an unreadable four digits on a light background — the figure being the part
+/// somebody is actually trying to read. `numberTint` is the one for text: plain
+/// through `.warning`, orange and red from `.hot` up, where both are legible
+/// either side of the theme.
+///
+/// The rule is written against `foregroundStyle`, which is what colours text and
+/// symbols; `fill` and `stroke` colour shapes and keep all four levels. An
+/// explicit `Severity.hot.tint` stays allowed and is used in seven places for a
+/// warning sentence: it is orange by name rather than by a percentage, and
+/// orange reads.
+@Suite struct ANumberDoesNotTakeTheColourOfABar {
+
+    @Test func noTextIsColouredByTheBarTint() throws {
+        var offenders: [String] = []
+        var painted = 0
+
+        for (path, text) in try swiftSources(
+            under: ["App", "iOS", "Widget", "iOSWidget", "Packages/Core/Sources/StatusUI"]
+        ) {
+            for line in code(text) where line.contains("foregroundStyle(") {
+                painted += 1
+                if line.contains(".severity.tint") || line.contains("Severity(percent:") {
+                    offenders.append("\(path): \(line.trimmingCharacters(in: .whitespaces))")
+                }
+            }
+        }
+
+        #expect(painted >= 20, """
+            only \(painted) coloured labels found — the scan is looking in the \
+            wrong place
+            """)
+        #expect(offenders.isEmpty, """
+            a number wearing the bar's colour: \(offenders.sorted()) — yellow \
+            is unreadable as text. Use `numberTint`
+            """)
+    }
+}
