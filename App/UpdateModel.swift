@@ -27,7 +27,11 @@ final class UpdateModel: ObservableObject {
     @Published private(set) var lastChecked: Date?
 
     /// Fed by whoever owns the settings, the same way `AppModel` is.
-    var preferences: Preferences = .defaults {
+    ///
+    /// `@Published` for the reason written beside that one: a settings copy
+    /// that announces nothing is a setting that does not apply. No view reads
+    /// this one today; the next one to do so should not have to find that out.
+    @Published var preferences: Preferences = .defaults {
         didSet { lastChecked = preferences.lastUpdateCheck }
     }
 

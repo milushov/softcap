@@ -1,0 +1,150 @@
+import Testing
+import Foundation
+
+/// Two rules, both out of one bug: a setting could be changed and the window
+/// went on drawing the one before it.
+///
+/// The minimal window is where it was noticed — the toggle went on and the full
+/// window stayed — but `Row layout`, `Order`, `Show snapshot age` and both
+/// polling intervals had been arriving at the next launch for as long as they
+/// had existed, and nobody had looked. The decision log has the entry; these
+/// are the two shapes it broke in, held from both ends.
+///
+/// Neither can be caught by reading the settings screen, which was correct
+/// throughout: the switch moved, the value was stored, and the store was right.
+/// Only the path from there to the screen was broken, and a path is a thing a
+/// scanner can see.
+private func swiftSources(under directories: [String]) throws -> [(path: String, text: String)] {
+    var found: [(String, String)] = []
+    for directory in directories {
+        let root = repositoryRootForSettings.appendingPathComponent(directory)
+        guard let walker = FileManager.default.enumerator(
+            at: root, includingPropertiesForKeys: nil
+        ) else { continue }
+        for case let url as URL in walker where url.pathExtension == "swift" {
+            let text = try String(contentsOf: url, encoding: .utf8)
+            found.append((directory + "/" + url.lastPathComponent, text))
+        }
+    }
+    return found
+}
+
+private var repositoryRootForSettings: URL {
+    URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+}
+
+/// Lines with their comments removed: a rule about code should not fire on
+/// prose that describes the mistake it forbids, and both of these are described
+/// in prose a few lines from where they are enforced.
+private func code(_ text: String) -> [String] {
+    text.components(separatedBy: "\n").map { line in
+        guard let comment = line.range(of: "//") else { return line }
+        return String(line[line.startIndex..<comment.lowerBound])
+    }
+}
+
+private func matches(_ pattern: String, in line: String) -> Bool {
+    guard let regex = try? NSRegularExpression(pattern: pattern) else { return false }
+    return regex.firstMatch(
+        in: line, range: NSRange(line.startIndex..., in: line)
+    ) != nil
+}
+
+/// A model that keeps a copy of the settings must say when it changes.
+///
+/// Three of them do keep one — the Mac's `AppModel` and `UpdateModel`, the
+/// phone's `PhoneModel` — because the settings are owned by one object and
+/// needed by several. A plain `var` on an `ObservableObject` announces nothing,
+/// so a view drawn from that copy keeps drawing the value it was built with.
+/// That is not a thing anybody notices while writing it: the assignment is
+/// right there, and it plainly happens.
+///
+/// The widgets are not scanned. A widget is rebuilt from a timeline entry and
+/// observes nothing, so it has nowhere for this mistake to live.
+@Suite struct SettingsCopiesAnnounceThemselves {
+
+    @Test func everyCopyOfTheSettingsIsPublished() throws {
+        var offenders: [String] = []
+        var seen = 0
+
+        for (path, text) in try swiftSources(under: ["App", "iOS"]) {
+            for line in code(text) {
+                // `PreferencesModel` is a different type and must not match, so
+                // the name may not run on into another word.
+                guard matches(#"\bvar\s+\w+\s*:\s*Preferences(?![A-Za-z])"#, in: line) else { continue }
+                seen += 1
+                if !line.contains("@Published") {
+                    offenders.append("\(path): \(line.trimmingCharacters(in: .whitespaces))")
+                }
+            }
+        }
+
+        #expect(seen >= 3, """
+            only \(seen) settings copies found where there are three — \
+            the scan is looking in the wrong place
+            """)
+        #expect(offenders.isEmpty, """
+            a settings copy that announces nothing is a setting that does not \
+            apply: \(offenders.sorted()) — mark it `@Published`
+            """)
+    }
+}
+
+/// A scene reads no value out of a model.
+///
+/// A `Scene`'s content is built when its window opens and not again: the `App`
+/// observes nothing that publishes, so a value read there is frozen at the
+/// moment of the build, and a modifier comparing it never sees it change. The
+/// settings used to travel from `PreferencesModel` to `AppModel` through an
+/// `.onChange` written exactly like that, and they travelled once.
+///
+/// Passing the objects themselves is what a scene is for, and stays allowed: a
+/// view that receives an `ObservableObject` observes it properly. So the rule
+/// is about reaching *through* one — `delegate.preferences.value` — rather than
+/// about mentioning it. A call is allowed too: `model.start()` asks the model
+/// to do something rather than reading a value that will go stale.
+@Suite struct ASceneReadsNoValueOutOfAModel {
+
+    @Test func noSceneReachesThroughAModel() throws {
+        var offenders: [String] = []
+        var scenes = 0
+
+        for (path, text) in try swiftSources(under: ["App", "iOS"]) {
+            guard let body = Self.sceneBody(of: text) else { continue }
+            scenes += 1
+            for line in body where matches(
+                #"[A-Za-z_]\w*\.[A-Za-z_]\w*\.[A-Za-z_]\w*(?!\s*\()"#, in: line
+            ) {
+                offenders.append("\(path): \(line.trimmingCharacters(in: .whitespaces))")
+            }
+        }
+
+        #expect(scenes == 2, """
+            \(scenes) scenes found where there are two, the Mac's and the \
+            phone's — the scan is looking in the wrong place
+            """)
+        #expect(offenders.isEmpty, """
+            a scene reading a value out of a model: \(offenders.sorted()) — it \
+            is read once and never again. Pass the object and let the view \
+            observe it, or subscribe where the objects are owned
+            """)
+    }
+
+    /// The scene body: from `some Scene` to the brace that closes it, which in
+    /// both files is a `}` at four spaces. Matching braces properly would be a
+    /// parser; if this ever stops finding two scenes the count above says so
+    /// rather than the rule going quietly unenforced.
+    private static func sceneBody(of text: String) -> [String]? {
+        let lines = code(text)
+        guard let start = lines.firstIndex(where: { $0.contains("some Scene") }) else { return nil }
+        guard let end = lines[lines.index(after: start)...].firstIndex(where: {
+            $0.trimmingCharacters(in: .whitespaces) == "}" && $0.hasPrefix("    }")
+        }) else { return nil }
+        return Array(lines[start...end])
+    }
+}

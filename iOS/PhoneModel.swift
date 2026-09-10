@@ -22,7 +22,11 @@ final class PhoneModel: ObservableObject {
 
     private let store: CredentialStore
     private let preferencesStore: PreferencesStore
-    private(set) var preferences: Preferences = .defaults
+    /// Read by the screen for the row layout and the polling interval, so it
+    /// announces itself. It is assigned once, in `start()`, and a refresh
+    /// follows immediately — which published it by accident of ordering rather
+    /// than by intent. See `SettingsCopiesAnnounceThemselves`.
+    @Published private(set) var preferences: Preferences = .defaults
 
     init(
         store: CredentialStore = CredentialStore(

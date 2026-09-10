@@ -132,16 +132,14 @@ final class AppModel: ObservableObject {
     var isPopoverOpen = false { didSet { restartTimer() } }
 
     /// Settings that affect polling and display. Supplied by the settings window.
-    var preferences: Preferences = .defaults {
+    ///
+    /// `@Published` because the window is drawn from it. A plain `var` on an
+    /// `ObservableObject` announces nothing, and the window then keeps the
+    /// shape that was chosen before last — which is how the minimal window
+    /// arrived not working. `SettingsCopiesAnnounceThemselves` holds the rule
+    /// for all three models that keep one of these.
+    @Published var preferences: Preferences = .defaults {
         didSet {
-            // A plain `var` on an `ObservableObject` publishes nothing, and
-            // this one decides what the window draws — a popover rebuilt from
-            // it would otherwise keep the shape chosen before last.
-            // Assignments are rare, a person changing a setting or the update
-            // check stamping its moment, so telling the views about all of
-            // them is cheaper than reasoning about which ones matter.
-            objectWillChange.send()
-
             // Only when the cadence itself changed. It used to restart on any
             // settings change at all, which was harmless while a person was the
             // only one who could cause one — and then the update check began
