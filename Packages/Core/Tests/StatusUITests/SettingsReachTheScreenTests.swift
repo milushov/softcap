@@ -148,3 +148,57 @@ private func matches(_ pattern: String, in line: String) -> Bool {
         return Array(lines[start...end])
     }
 }
+
+/// The widget hears about a setting change.
+///
+/// It is another process and carries its own copy of some of the settings, so
+/// it learns of a change when the snapshot is rewritten and at no other time.
+/// The snapshot used to be rewritten by a poll and by nothing else: the row
+/// layout, and the language, reached the desktop up to five minutes after they
+/// reached the window.
+///
+/// So every setting `publishToWidget` puts into the snapshot has to be one the
+/// model watches for change. Add a fifth field and forget the comparison and
+/// the widget goes on drawing the fourth one's world, with the switch moved,
+/// the window right, and nothing on screen to say why.
+@Suite struct TheWidgetHearsAboutASettingChange {
+
+    @Test func everySettingTheSnapshotCarriesIsWatchedForChange() throws {
+        let url = repositoryRootForSettings.appendingPathComponent("App/AppModel.swift")
+        let lines = code(try String(contentsOf: url, encoding: .utf8))
+        let whole = lines.joined(separator: "\n")
+
+        let carried = Self.settingsRead(inBodyAfter: "func publishToWidget", of: lines)
+        #expect(carried.count >= 4, """
+            the snapshot is built from \(carried.count) settings where it is \
+            built from four — the scan is looking in the wrong place
+            """)
+
+        let unwatched = carried.filter {
+            !whole.contains("oldValue.\($0) != preferences.\($0)")
+        }
+        #expect(unwatched.isEmpty, """
+            the widget carries \(unwatched.sorted()) and nothing notices when \
+            it changes: the snapshot is rewritten on a poll, so the desktop \
+            would keep the old value until the next one
+            """)
+    }
+
+    /// The settings read inside one function's body. The body ends at the first
+    /// closing brace in the function's own column, which is how every function
+    /// in that file is written; if it ever stops finding four the count above
+    /// says so rather than the rule passing on an empty list.
+    private static func settingsRead(inBodyAfter marker: String, of lines: [String]) -> [String] {
+        guard let start = lines.firstIndex(where: { $0.contains(marker) }) else { return [] }
+        guard let end = lines[lines.index(after: start)...].firstIndex(where: {
+            $0.hasPrefix("    }")
+        }) else { return [] }
+
+        let body = lines[start...end].joined(separator: "\n")
+        guard let regex = try? NSRegularExpression(pattern: #"preferences\.(\w+)"#) else { return [] }
+        let found = regex.matches(in: body, range: NSRange(body.startIndex..., in: body))
+        return Array(Set(found.compactMap { match in
+            Range(match.range(at: 1), in: body).map { String(body[$0]) }
+        })).sorted()
+    }
+}

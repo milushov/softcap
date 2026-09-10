@@ -6942,3 +6942,56 @@ not one.
 
 `Severity.tint` had a second definition inside the app, identical to the one in
 `StatusUI` and free to drift from it. It is gone; there is one now.
+
+---
+
+## 2026-09-10 · The path from a setting to the screen, held from three sides
+
+**Decision.** Three scans, and the fixes they demanded:
+
+- **`SettingsCopiesAnnounceThemselves`** — a stored copy of `Preferences` on a
+  model must be `@Published`. Three models keep one, because the settings are
+  owned by one object and wanted by several.
+- **`ASceneReadsNoValueOutOfAModel`** — a `Scene`'s body may pass an object and
+  call a method on one, and may not reach through either to a value.
+- **`TheWidgetHearsAboutASettingChange`** — every setting `publishToWidget`
+  copies into the shared snapshot must be one whose change the model watches
+  for.
+
+**Why.** The minimal window arrived not working, and the cause was none of the
+things anybody would look at: the switch moved, the value was stored, the store
+was correct, and the settings screen was right throughout. Only the path from
+there to the screen was broken. Looking along the rest of that path found the
+same disease three more times, in code that had shipped for weeks:
+
+- `UpdateModel` kept an unannounced copy of the settings. No view reads it
+  today, which is the whole danger — the next one to read it would have
+  inherited a bug nobody put there.
+- The phone's `PhoneModel` kept one that its screen *does* read, for the row
+  layout and the polling interval. It worked by an accident of ordering:
+  `start()` assigns it one line before a refresh publishes something else.
+- The widget's copy of four settings was rewritten by a poll and by nothing
+  else, so the row layout and the language reached the desktop up to five
+  minutes after they reached the window. Now a change to any of the four
+  rewrites the snapshot at once — but not before the first reading, or an empty
+  list would blank a widget that had a good snapshot a moment ago.
+
+A fourth, of the same family, fixed alongside: hiding an account or switching a
+service off is applied where the poller is built, so the switch took effect at
+the next poll and until then the window went on showing what had just been
+hidden. It re-polls now, as a timer poll rather than a person's — flipping a
+switch in settings is not a request for keychain access, and a dialog nobody
+asked for is the one thing a poll from here must not raise.
+
+**Each guard was watched failing.** `iOS/PhoneModel.swift` lost its
+`@Published`, `iOS/SoftcapiOSApp.swift` gained a `model.preferences.rowLayout`
+in its scene, and `publishToWidget`'s row layout stopped being compared; each
+turned its own check red and named the thing that broke. The first two went
+through `tools/mutate`; the third was done by hand with a copy, because the tool
+refuses a file that is not clean and that one is being edited elsewhere.
+
+**Cost.** Three scans are three more things to keep true, and none of them can
+tell whether a value is *right* — only whether anybody is listening for it.
+That is the failure that was silent, and it is the one they close. `UpdateModel`
+now republishes on every settings change including the update check's own
+stamp; the views it feeds redraw a little more often than they must.

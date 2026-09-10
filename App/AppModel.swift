@@ -152,6 +152,34 @@ final class AppModel: ObservableObject {
                 restartTimer()
             }
             if oldValue.codexRoot != preferences.codexRoot { startWatchingCodex() }
+
+            // The widget is another process and carries its own copy of these
+            // four. It learned of a change when the snapshot was rewritten and
+            // at no other time, and the snapshot was rewritten by a poll and by
+            // nothing else — so the desktop kept the old row layout, and the
+            // old language, for up to five minutes. `TheWidgetHearsAboutASettingChange`
+            // holds this list to the one `publishToWidget` builds.
+            //
+            // Not before the first reading: publishing an empty list here would
+            // blank a widget that had a good snapshot a moment ago.
+            if lastUpdated != nil,
+               oldValue.rowLayout != preferences.rowLayout
+                || oldValue.showSnapshotAge != preferences.showSnapshotAge
+                || oldValue.languageCode != preferences.languageCode
+                || oldValue.backgroundInterval != preferences.backgroundInterval {
+                publishToWidget(snapshots)
+            }
+
+            // Hiding an account, or switching a service off, is applied where
+            // the poller is built — so the switch took effect at the next poll,
+            // and until then the window went on showing what somebody had just
+            // hidden. As a timer poll rather than a person's: flipping a switch
+            // in settings is not a request for keychain access, and a dialog
+            // nobody asked for is the one thing a poll here must not raise.
+            if oldValue.hiddenAccounts != preferences.hiddenAccounts
+                || oldValue.disabledProviders != preferences.disabledProviders {
+                Task { await refresh(.timer) }
+            }
             if oldValue.refreshHotKey != preferences.refreshHotKey {
                 // Registration lives here, not in the settings scene: that one
                 // is created lazily, so the shortcut did nothing until the window
