@@ -23,15 +23,19 @@ public enum CodexIdentityReader {
             throw ProviderFailure(kind: .malformed, diagnostic: "auth.json has no tokens.id_token")
         }
 
-        let parts = idToken.split(separator: ".")
-        guard parts.count >= 2, let body = decodeSegment(String(parts[1])),
-              let claims = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
-        else {
+        return try parse(idToken: idToken, accountID: tokens["account_id"] as? String)
+    }
+
+    public static func parse(idToken: String, accountID: String? = nil) throws -> CodexIdentity {
+        guard let claims = JWTClaims.decode(idToken) else {
             throw ProviderFailure(kind: .malformed, diagnostic: "id_token not parsed")
         }
 
         let auth = claims[authClaimKey] as? [String: Any] ?? [:]
-        let accountID = auth["chatgpt_account_id"] as? String ?? "unknown"
+        guard let accountID = accountID ?? auth["chatgpt_account_id"] as? String,
+              !accountID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw ProviderFailure(kind: .malformed, diagnostic: "codex identity has no account id")
+        }
         let name = claims["name"] as? String
         let email = claims["email"] as? String
 
@@ -42,10 +46,4 @@ public enum CodexIdentityReader {
         )
     }
 
-    private static func decodeSegment(_ segment: String) -> Data? {
-        var s = segment.replacingOccurrences(of: "-", with: "+")
-                       .replacingOccurrences(of: "_", with: "/")
-        while s.count % 4 != 0 { s += "=" }
-        return Data(base64Encoded: s)
-    }
 }

@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import ProviderKit
 import ClaudeProvider
+import CodexProvider
 import Credentials
 import Monitoring
 import Preferences
@@ -10,10 +11,8 @@ import WidgetKit
 
 /// The phone's state.
 ///
-/// Claude is queried directly: the token travels through the iCloud keychain, so
-/// the phone needs no Mac to be awake. Codex cannot work that way — its data
-/// lives in local files on the Mac — so on iOS it is absent rather than shown as
-/// an empty row pretending to be a limit.
+/// Saved browser accounts are queried directly using the iCloud keychain.
+/// Local Codex session files remain exclusive to the Mac.
 @MainActor
 final class PhoneModel: ObservableObject {
     @Published fileprivate(set) var snapshots: [AccountSnapshot] = []
@@ -63,9 +62,14 @@ final class PhoneModel: ObservableObject {
 
         let refs = await store.knownRefs()
             .filter { !preferences.hiddenAccounts.contains($0.id) }
-        let poller = UsagePoller(providers: [
-            ClaudeUsageProvider(tokens: store, knownAccounts: refs)
-        ])
+        var providers: [any UsageProvider] = []
+        if !preferences.disabledProviders.contains(.claude) {
+            providers.append(ClaudeUsageProvider(tokens: store, knownAccounts: refs))
+        }
+        if !preferences.disabledProviders.contains(.codex) {
+            providers.append(CodexLiveUsageProvider(tokens: store, knownAccounts: refs))
+        }
+        let poller = UsagePoller(providers: providers)
 
         snapshots = orderedForDisplay(await poller.refresh(), ordering: preferences.ordering)
         lastUpdated = Date()

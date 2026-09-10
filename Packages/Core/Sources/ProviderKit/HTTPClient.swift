@@ -1,5 +1,4 @@
 import Foundation
-import ProviderKit
 
 /// The minimum a provider needs from the network. A separate protocol so that
 /// tests never reach the internet.

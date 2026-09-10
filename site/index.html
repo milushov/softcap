@@ -362,7 +362,7 @@ footer p{margin:0 0 6px;max-width:60ch}
  "url":"https://softcap.app/",
  "image":"https://softcap.app/og.png",
  "description":"In development. A macOS menu bar app showing what is left of your Claude Code and OpenAI Codex subscription limits, without spending the quota it measures.",
- "featureList":["Several Claude accounts at once","Reads Codex usage from local session files","Menu bar timer","Widgets on macOS and iPhone","Threshold notifications","Ten languages"]}
+ "featureList":["Several Claude and Codex accounts at once","Live Codex usage with local session support","Menu bar timer","Widgets on macOS and iPhone","Threshold notifications","Ten languages"]}
 </script>
 </head>
 <body>
@@ -484,15 +484,14 @@ footer p{margin:0 0 6px;max-width:60ch}
     <p class="eyebrow">Why it exists</p>
     <h2>Measuring a quota should not spend it</h2>
     <p>
-      Codex reports what is left of your rate limit only in the headers of a
-      <strong>successful</strong> request. Ask every five minutes and you spend the allowance you
-      were checking on.
+      Softcap reads subscription usage directly for accounts added through the browser.
+      These requests fetch limits without sending a prompt or running a model.
     </p>
     <p>
-      So Softcap does not ask. The Codex CLI already writes its readings into
-      <code>~/.codex/sessions</code>; Softcap watches those files. Claude publishes a usage endpoint
-      that costs nothing to call, so that one is read live. A reading from a file is a snapshot, so
-      every surface shows when it was taken.
+      Local Codex accounts also work: the CLI writes its readings into
+      <code>~/.codex/sessions</code>, and Softcap watches those files. A reading from a file is
+      a snapshot, so every surface shows when it was taken. Sign into that account through
+      Softcap's browser flow to see current usage independently of the CLI.
     </p>
   </div>
 </section>
@@ -606,8 +605,11 @@ footer p{margin:0 0 6px;max-width:60ch}
       </div>
       <div class="cell">
         <h3>Your tokens stay put</h3>
-        <p>Credentials stay in the keychain, never copied into preferences or logs. No telemetry.
-           The only other request is a daily check for a new version, and it can be switched off.</p>
+        <p>Credentials stay in the keychain, never copied into preferences or logs. When something
+           fails, the app sends a description of the failure to its author, stripped of paths,
+           addresses and anything token-shaped before it leaves the machine — and it can be
+           switched off. The only other request is a daily check for a new version, and that can
+           be switched off too.</p>
       </div>
     </div>
   </div>
@@ -629,11 +631,11 @@ footer p{margin:0 0 6px;max-width:60ch}
       <div class="fact"><dt>Claude</dt>
         <dd>Live, from the OAuth usage endpoint.</dd></div>
       <div class="fact"><dt>Codex</dt>
-        <dd>Parsed from the session files the CLI writes, watched with FSEvents. Snapshot age is
-            shown.</dd></div>
+        <dd>Live usage for browser accounts. Local session files are watched with FSEvents,
+            with snapshot age shown.</dd></div>
       <div class="fact"><dt>Adding an account</dt>
-        <dd>OAuth with PKCE in your own browser, or <code>/login</code> in Claude Code — either
-            works.</dd></div>
+        <dd>Choose Claude Code or OpenAI Codex, then sign in with OAuth and PKCE in your own
+            browser. Local CLI accounts are also detected.</dd></div>
       <div class="fact"><dt>The core</dt>
         <dd>A Swift package with no AppKit and no human-facing strings. Window, widgets and phone
             share one row view.</dd></div>
@@ -642,8 +644,8 @@ footer p{margin:0 0 6px;max-width:60ch}
       <div class="fact"><dt>Cost of running it</dt>
         <dd>One request per Claude account per poll. Five minutes apart in the background, once
             a minute with the window open — or anywhere between thirty seconds and an hour, if you
-            set it. Name and plan are asked once and kept for six hours. Codex costs nothing: it is
-            read from disk.</dd></div>
+            set it. Claude name and plan are asked once and kept for six hours. Each saved Codex account
+            adds one usage request per poll; local Codex readings come from disk.</dd></div>
       <div class="fact"><dt>Not yet</dt>
         <dd>Cursor, GitHub Copilot and Gemini CLI. A provider that cannot be checked against a
             live account would quietly show zero, which is worse than nothing.</dd></div>

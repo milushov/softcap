@@ -33,7 +33,7 @@ struct ServicesPane: View {
                             Button(loc("Reset")) { model.update { $0.codexRoot = nil } }
                         }
                     }
-                    Text(loc("Snapshot from session files — updates when Codex goes online."))
+                    Text(loc("Browser accounts use live usage data. Local accounts use snapshots from session files."))
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
 

@@ -7054,3 +7054,40 @@ a colour that then has to be maintained against two themes for the sake of a
 distinction nobody asked for. The calm bar in the minimal row moved up too, for
 the same reason and with the same trade: at 18% it is now clearly a short bar
 rather than a hint of one.
+
+## 2026-09-10 — Browser grants belong to a provider, not to Claude
+
+**Decision.** Put HTTP, PKCE, callback parsing and authentication contracts in
+`ProviderKit`. Give Claude and Codex their own browser adapters and refreshers;
+address every saved credential by its provider-qualified account ID. Keep the
+existing keychain format and retain the access token returned by sign-in. Both
+account menus now offer a provider choice and failed accounts can be reconnected.
+
+**Why.** The former controller resolved every identity at Anthropic and the store
+assumed every handle was Claude's. A second button alone would store and refresh
+Codex grants through the wrong service. Provider-qualified refresh flights also
+prevent equal handles from sharing a request, and responses from an old grant
+must not overwrite a newer sign-in.
+
+**Cost.** Provider adapters must track their services' OAuth conventions. Codex
+uses a fixed loopback callback and cannot use Claude's manual redirect. An occupied
+port is reported, without stopping another application's login. Compatibility
+aliases retain existing ClaudeProvider callers while the shared code moves.
+
+## 2026-09-10 — Saved Codex accounts read usage without a model request
+
+**Decision.** Use the Codex account usage endpoint for independently signed-in
+browser accounts. Keep local session file discovery, history and watching for
+CLI accounts. Exclude saved and hidden account IDs from local discovery. Query
+saved Codex accounts from iOS as well.
+
+**Why.** A browser account has no local rollout files, so authentication without
+a usage source would create a permanently empty row. The account usage endpoint
+reads limits without an inference request, superseding the earlier choice to
+use session files exclusively because inference headers would spend quota.
+
+**Cost.** This is a first-party client endpoint rather than a versioned public
+integration API, so response changes may require maintenance. A bad grant stays
+visible instead of falling back to potentially unrelated session data. The
+existing iCloud credential sharing still has no cross-device refresh lock.
+See `docs/authentication.md` for source references and verification boundaries.

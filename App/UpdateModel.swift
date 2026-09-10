@@ -3,6 +3,7 @@ import AppKit
 import os
 import ProviderKit
 import ClaudeProvider
+import Diagnostics
 import Preferences
 import Updates
 
@@ -213,6 +214,14 @@ final class UpdateModel: ObservableObject {
     /// visible reads as broken.
     private func report(_ failure: UpdateFailure, announcing: Bool) {
         Self.log.error("update check failed: \(failure.diagnostic, privacy: .public)")
+        // Every failed check funnels through here, announced or not, which makes
+        // it the one place worth describing rather than three.
+        let diagnostic = failure.diagnostic
+        let kind = "UpdateFailure.\(failure.kind)"
+        Task {
+            await Diagnostics.shared.report(
+                .error, category: "updates", message: diagnostic, failureType: kind)
+        }
         state = announcing ? .failed(failure) : .idle
     }
 
@@ -231,6 +240,12 @@ final class UpdateModel: ObservableObject {
             }
         } catch let failure as UpdateFailure {
             Self.log.error("install failed: \(failure.diagnostic, privacy: .public)")
+            let diagnostic = failure.diagnostic
+            let kind = "UpdateFailure.\(failure.kind)"
+            Task {
+                await Diagnostics.shared.report(
+                    .error, category: "updates.install", message: diagnostic, failureType: kind)
+            }
             state = .failed(failure)
             return
         } catch {

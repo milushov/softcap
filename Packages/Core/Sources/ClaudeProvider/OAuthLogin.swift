@@ -1,27 +1,11 @@
 import Foundation
 import ProviderKit
 
-public struct RefreshedTokens: Sendable, Hashable {
-    public let accessToken: String
-    public let refreshToken: String?
-    /// How many seconds the access token is good for, as the server reported it,
-    /// or `nil` when the reply did not say.
-    ///
-    /// `nil` means nothing may be assumed. A guessed lifetime would have the app
-    /// handing out a token the server had already retired, and that failure
-    /// arrives looking like a dead account rather than like a guess.
-    public let expiresIn: TimeInterval?
-
-    public init(
-        accessToken: String, refreshToken: String?, expiresIn: TimeInterval? = nil
-    ) {
-        self.accessToken = accessToken
-        self.refreshToken = refreshToken
-        self.expiresIn = expiresIn
-    }
-}
-
-public struct OAuthLogin: Sendable {
+public struct OAuthLogin: BrowserAuthenticating {
+    public let provider: ProviderID = .claude
+    public let callbackPath = "/callback"
+    public let callbackPort: UInt16? = nil
+    public var manualRedirectURI: String? { OAuthEndpoints.manualRedirect }
     private let http: any HTTPClient
 
     public init(http: any HTTPClient = URLSessionHTTPClient()) { self.http = http }
@@ -82,7 +66,28 @@ public struct OAuthLogin: Sendable {
                 kind: .needsLogin, diagnostic: "code exchange failed, HTTP \(status)")
         }
         return RefreshedTokens(
-            accessToken: access, refreshToken: root["refresh_token"] as? String
+            accessToken: access, refreshToken: root["refresh_token"] as? String,
+            expiresIn: (root["expires_in"] as? NSNumber)?.doubleValue
         )
+    }
+
+    public func authenticate(
+        code: String, verifier: String, redirectURI: String, state: String
+    ) async throws -> AuthenticatedAccount {
+        let tokens = try await exchange(
+            code: code, verifier: verifier, redirectURI: redirectURI, state: state)
+        let (data, status) = try await http.get(
+            URL(string: "https://api.anthropic.com/api/oauth/profile")!, headers: [
+                "Authorization": "Bearer \(tokens.accessToken)",
+                "anthropic-beta": "oauth-2025-04-20",
+                "User-Agent": OAuthEndpoints.userAgent,
+            ])
+        guard status == 200 else {
+            throw ProviderFailure(kind: .needsLogin, diagnostic: "profile read failed, HTTP \(status)")
+        }
+        let profile = try ClaudeProfileResponse.parse(data)
+        return AuthenticatedAccount(account: AccountRef(
+            id: "claude/\(profile.uuid)", provider: .claude, handle: profile.uuid,
+            lastKnownName: profile.displayName), tokens: tokens)
     }
 }

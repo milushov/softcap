@@ -126,3 +126,16 @@ private let limitsLine = """
         }
     }
 }
+
+@Test func aSavedOrHiddenCodexAccountIsNotDiscoveredTwice() async throws {
+    let provider = CodexUsageProvider(
+        fileSystem: StubFS(auth: authFixture(), lines: [limitsLine]),
+        excludedAccountIDs: ["codex/acc-1"])
+    #expect(try await provider.discoverAccounts().isEmpty)
+}
+
+@Test func localAccountSwitchDoesNotAttachAnotherAccountsUsage() async throws {
+    let provider = CodexUsageProvider(fileSystem: StubFS(auth: authFixture(), lines: [limitsLine]))
+    let other = AccountRef(id: "codex/other", provider: .codex, handle: "other")
+    await #expect(throws: ProviderFailure.self) { try await provider.fetch(other) }
+}

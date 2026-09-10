@@ -16,9 +16,11 @@ private final class TestClock: @unchecked Sendable {
     }
 }
 
-/// Counts refreshes and can be told how long the token it hands out is good for.
+/// Counts refreshes, records which refresh token each one spent, and can be
+/// told how long the token it hands out is good for.
 private actor CountingRefresher: TokenRefreshing {
     private(set) var calls = 0
+    private(set) var spent: [String] = []
     private var lifetime: TimeInterval?
     private var rotation: String?
 
@@ -29,6 +31,7 @@ private actor CountingRefresher: TokenRefreshing {
 
     func refresh(refreshToken: String) async throws -> RefreshedTokens {
         calls += 1
+        spent.append(refreshToken)
         return RefreshedTokens(
             accessToken: "access-\(calls)", refreshToken: rotation, expiresIn: lifetime
         )
@@ -152,6 +155,81 @@ private actor PlainKeychain: KeychainAccess {
     }
 }
 
+/// The held token goes into the keychain beside the refresh token, so a
+/// relaunch serves the poll with what it already has instead of spending a
+/// rotation to fetch what it already had.
+///
+/// Held in memory only, a relaunch cost one refresh — and that is precisely the
+/// most dangerous moment to spend one. The processes that die are the ones being
+/// replaced: a rebuild during development kills the app several times an hour,
+/// and a refresh in flight when the process dies is a rotation whose reply
+/// nobody receives. Two accounts were lost to exactly that in one afternoon —
+/// the server had rotated, the reply never landed, and the next launch asked
+/// with a token the server had already retired.
+@Suite struct TheHeldTokenSurvivesARelaunch {
+
+    @Test func aRelaunchServesTheHeldTokenInsteadOfRefreshing() async throws {
+        let clock = TestClock()
+        let keychain = PlainKeychain()
+        let refresher = CountingRefresher(lifetime: 28800, rotation: "rt-2")
+
+        let first = CredentialStore(
+            keychain: keychain, refresher: refresher, cacheWindow: 0, now: { clock.now }
+        )
+        try await first.addLoggedInAccount(
+            uuid: "u-1", displayName: "sam@example.com", refreshToken: "rt"
+        )
+        let served = try await first.accessToken(for: "u-1")
+
+        // The relaunch: a new store over the same keychain, five minutes later.
+        clock.advance(300)
+        let second = CredentialStore(
+            keychain: keychain, refresher: refresher, cacheWindow: 0, now: { clock.now }
+        )
+        await second.load()
+        let after = try await second.accessToken(for: "u-1")
+
+        #expect(after == served)
+        let calls = await refresher.calls
+        #expect(calls == 1, """
+            refreshed \(calls) times across a relaunch — a rotation was spent \
+            on a token that had hours left to live
+            """)
+    }
+
+    /// The relaunch may serve the held token only while it is good. Past its
+    /// deadline it refreshes — and with the rotation the previous run saved,
+    /// which is the other half of surviving: a stale held token served anyway
+    /// would 401, and a stale refresh token spent anyway is `invalid_grant`.
+    @Test func aStaleHeldTokenIsReplacedThroughTheSavedRotation() async throws {
+        let clock = TestClock()
+        let keychain = PlainKeychain()
+        let refresher = CountingRefresher(lifetime: 3600, rotation: "rt-2")
+
+        let first = CredentialStore(
+            keychain: keychain, refresher: refresher, cacheWindow: 0, now: { clock.now }
+        )
+        try await first.addLoggedInAccount(
+            uuid: "u-1", displayName: "sam@example.com", refreshToken: "rt"
+        )
+        _ = try await first.accessToken(for: "u-1")
+
+        clock.advance(4000)          // past the hour the token was good for
+        let second = CredentialStore(
+            keychain: keychain, refresher: refresher, cacheWindow: 0, now: { clock.now }
+        )
+        await second.load()
+        _ = try await second.accessToken(for: "u-1")
+
+        #expect(await refresher.calls == 2)
+        let last = await refresher.spent.last
+        #expect(last == "rt-2", """
+            the relaunch spent \(last ?? "nothing") — not the rotation the \
+            previous run had saved
+            """)
+    }
+}
+
 /// The refresher has to read the lifetime out of the reply before anything can
 /// hold the token for it.
 @Suite struct TheRefreshReplySaysHowLongTheTokenLasts {
@@ -185,11 +263,10 @@ private actor PlainKeychain: KeychainAccess {
 
 /// Forgetting an account lets go of its token too.
 ///
-/// The held token lives in memory, which is why it is not in the keychain — but
-/// "not written down" is not the same as "let go of". An account the reader has
-/// removed should leave nothing behind that could still be sent on its behalf,
-/// and signing back into it must fetch a token afresh rather than resurrect the
-/// one held from before.
+/// The held token lives on the account's record and leaves with it. An account
+/// the reader has removed should leave nothing behind that could still be sent
+/// on its behalf, and signing back into it must fetch a token afresh rather
+/// than resurrect the one held from before.
 @Suite struct ForgettingAnAccountLetsGoOfItsToken {
 
     @Test func signingBackInDoesNotResurrectTheOldOne() async throws {

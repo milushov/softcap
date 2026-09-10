@@ -1,13 +1,7 @@
 import Foundation
+import ProviderKit
 
-/// The server has finished with this refresh token: expired, revoked, or rotated
-/// away by another client. Distinct from any other refresh failure because the
-/// answer will not change — a network error is worth retrying in five minutes and
-/// this is not, and a client that asks forever with a credential it has been told
-/// is dead is a badly behaved one.
-public struct RefreshRejected: Error, Sendable, Equatable {
-    public init() {}
-}
+public typealias RefreshRejected = ProviderKit.RefreshRejected
 
 /// Thrown rather than writing over an account list that could not be read.
 public struct WouldOverwriteUnreadableAccounts: Error, CustomStringConvertible {
@@ -28,5 +22,6 @@ public extension CredentialStore {
         case activeInCLI   // token read from the CLI keychain, never refreshed
         case refreshed     // lives on its own refresh token copy
         case needsLogin    // no copy, nothing to refresh with
+        case localSession  // Codex's local files; no credential owned by Softcap
     }
 }

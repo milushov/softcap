@@ -21,6 +21,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private var popover: NSPopover?
     private var cancellables: Set<AnyCancellable> = []
     private var tick: Timer?
+    private var appearanceObserver: NSKeyValueObservation?
 
     init(model: AppModel, preferences: PreferencesModel, updates: UpdateModel) {
         self.model = model
@@ -39,6 +40,28 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         item.button?.action = #selector(buttonClicked(_:))
         item.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
         statusItem = item
+
+        // The window does not follow `NSApp.appearance` on its own.
+        //
+        // It is an `NSPopover` hanging off the status item's button, and a status
+        // item's window belongs to the system menu bar rather than to this app —
+        // so the popover inherits the menu bar's appearance and stayed light
+        // while every window the app owns had gone dark. Setting it explicitly is
+        // the only way.
+        //
+        // Observed rather than set once, because the setting can be changed while
+        // the window is open — which is precisely what happens: the settings
+        // screen is where the switch lives, and both can be on screen together.
+        // `[weak self]` on the outer closure, not the inner one: the observation is
+        // stored on `self`, so a strong capture here would be a cycle.
+        appearanceObserver = NSApp.observe(\.effectiveAppearance, options: [.initial, .new]) {
+            [weak self] app, _ in
+            // KVO calls back on whichever thread changed the value; appearance is
+            // only ever set from the main one, and the compiler cannot know that.
+            MainActor.assumeIsolated {
+                self?.popover?.appearance = app.effectiveAppearance
+            }
+        }
 
         // The label beside the icon is recomputed on every data update and
         // whenever the "In the menu bar" setting changes.
@@ -165,6 +188,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     private func makePopover() -> NSPopover {
         let popover = NSPopover()
+        // The observer above only fires on a change; a popover built after the
+        // last one would otherwise open in the menu bar's appearance.
+        popover.appearance = NSApp.effectiveAppearance
         popover.behavior = .transient
         popover.delegate = self
         popover.contentViewController = NSHostingController(
@@ -207,9 +233,20 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
         let addAccount = NSMenuItem(
             title: Localization.shared("Add account…"),
-            action: #selector(addAccount), keyEquivalent: ""
+            action: nil, keyEquivalent: ""
         )
-        addAccount.target = self
+        let providers = NSMenu()
+        for provider in LoginController.providers {
+            let item = NSMenuItem(
+                title: provider == .claude ? "Claude Code" : "OpenAI Codex",
+                action: #selector(addAccount(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = provider.rawValue
+            item.isEnabled = !model.login.isRunning
+            providers.addItem(item)
+        }
+        providers.autoenablesItems = false
+        addAccount.submenu = providers
         menu.addItem(addAccount)
 
         let statistics = NSMenuItem(
@@ -282,10 +319,12 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     /// Both, not just the second: a sign-in can come back asking for a code
     /// pasted by hand, and the field that takes it is on that screen. One
     /// started with nothing on screen would strand whoever pressed it.
-    @objc private func addAccount() {
+    @objc private func addAccount(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String,
+              let provider = ProviderID(rawValue: raw) else { return }
         model.settingsSection = .accounts
         SettingsWindow.open()
-        model.login.start()
+        model.login.start(provider: provider)
     }
 
     @objc private func openStatistics() {

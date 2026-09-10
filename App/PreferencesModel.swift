@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Diagnostics
 import Preferences
 import StatusUI
 
@@ -18,6 +19,8 @@ final class PreferencesModel: ObservableObject {
     func load() async {
         value = await store.load()
         applyLanguage()
+        applyTheme()
+        applyReporting()
     }
 
     func update(_ change: (inout Preferences) -> Void) {
@@ -25,6 +28,8 @@ final class PreferencesModel: ObservableObject {
         change(&draft)
         value = draft.normalized()
         applyLanguage()
+        applyTheme()
+        applyReporting()
         let snapshot = value
         Task { await store.save(snapshot) }
     }
@@ -38,5 +43,31 @@ final class PreferencesModel: ObservableObject {
     /// the settings is the only one who knows the current value.
     private func applyLanguage() {
         Localization.shared.use(AppLanguage(code: value.languageCode))
+    }
+
+    /// Light or dark, applied here and only here — the same lesson as the
+    /// language, learned twice.
+    ///
+    /// It used to live on the settings scene, as `.onChange(of:)` over
+    /// `preferences.value.appearance`. That fires when the scene's body is
+    /// re-evaluated, and nothing re-evaluates it when the value changes: the
+    /// scene observes the app delegate, and it is this object that publishes. So
+    /// the choice was written to disk and applied at the *next* launch, by
+    /// `applicationDidFinishLaunching` — which is why switching appeared to do
+    /// nothing while the settings window plainly remembered the answer.
+    private func applyTheme() {
+        applyAppearance(value.appearance)
+    }
+
+    /// The reporting switch is followed here for the same reason the language
+    /// is: the owner of the settings is the only one that knows the current
+    /// value, and somebody who turns reports off expects the next failure to go
+    /// unreported rather than the next launch.
+    ///
+    /// Safe in a debug build, where nothing ever calls `start` and the shared
+    /// instance therefore has no reporter to enable.
+    private func applyReporting() {
+        let wanted = value.sendsErrorReports
+        Task { await Diagnostics.shared.setEnabled(wanted) }
     }
 }

@@ -81,16 +81,22 @@ public struct RealCodexFileSystem: CodexFileSystem {
 public struct CodexUsageProvider: UsageProvider {
     public let id: ProviderID = .codex
     private let fileSystem: any CodexFileSystem
+    private let excludedAccountIDs: Set<String>
 
     #if os(macOS)
-    public init(fileSystem: any CodexFileSystem = RealCodexFileSystem()) {
+    public init(
+        fileSystem: any CodexFileSystem = RealCodexFileSystem(),
+        excludedAccountIDs: Set<String> = []
+    ) {
         self.fileSystem = fileSystem
+        self.excludedAccountIDs = excludedAccountIDs
     }
     #else
     /// On iOS there is no default source: the caller supplies one, or the
     /// provider is simply not used.
-    public init(fileSystem: any CodexFileSystem) {
+    public init(fileSystem: any CodexFileSystem, excludedAccountIDs: Set<String> = []) {
         self.fileSystem = fileSystem
+        self.excludedAccountIDs = excludedAccountIDs
     }
     #endif
 
@@ -105,8 +111,10 @@ public struct CodexUsageProvider: UsageProvider {
     public func discoverAccounts() async throws -> [AccountRef] {
         guard let data = try? fileSystem.readAuthJSON() else { return [] }
         let identity = try CodexIdentityReader.parse(authJSON: data)
+        guard !excludedAccountIDs.contains("codex/\(identity.accountID)") else { return [] }
         return [AccountRef(
-            id: "codex/\(identity.accountID)", provider: .codex, handle: identity.accountID
+            id: "codex/\(identity.accountID)", provider: .codex, handle: identity.accountID,
+            lastKnownName: identity.displayName
         )]
     }
 
@@ -114,6 +122,9 @@ public struct CodexUsageProvider: UsageProvider {
     /// list, just marked as having no data.
     public func fetch(_ ref: AccountRef) async throws -> AccountSnapshot {
         let identity = try CodexIdentityReader.parse(authJSON: try fileSystem.readAuthJSON())
+        guard ref.id == "codex/\(identity.accountID)" else {
+            throw ProviderFailure(kind: .noData, diagnostic: "local codex account changed during read")
+        }
         let plan = identity.planType.map { $0.prefix(1).uppercased() + $0.dropFirst() } ?? "—"
 
         do {

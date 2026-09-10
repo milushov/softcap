@@ -8,7 +8,7 @@ import ClaudeProvider
 /// the token on the server side, leaving the CLI with a stale one and signing it
 /// out. Inactive accounts have no such tie to the CLI, so they are refreshed
 /// from their saved copy — which is what makes all subscriptions visible at once.
-public actor CredentialStore: ClaudeTokenSource {
+public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
     public static let cliService = "Claude Code-credentials"
     /// Deliberately still the old name after the rename to Softcap. Keychain
     /// access is bound to the code signature, not to the bundle identifier, so
@@ -17,7 +17,7 @@ public actor CredentialStore: ClaudeTokenSource {
     public static let ownService = "StatusChecker-accounts"
 
     private let keychain: any KeychainAccess
-    private let refresher: any TokenRefreshing
+    private let refreshers: [ProviderID: any TokenRefreshing]
     /// How long to hold what was read from the keychain. Enough for one poll;
     /// the CLI token does not expire in that time — it lives about eight hours.
     /// Tests pass zero so they can check reads without the delay.
@@ -25,13 +25,20 @@ public actor CredentialStore: ClaudeTokenSource {
     private var accounts: [StoredAccount] = []
     private var cliCache: (oauth: [String: Any], readAt: Date)?
 
-    /// Access tokens already fetched, by account handle, with the moment each
-    /// stops being usable.
+    /// The refresh under way for each account, so a second caller arriving
+    /// while the request is out joins it instead of spending the same
+    /// single-use token again.
     ///
-    /// Memory only. Writing them beside the refresh tokens would put a second
-    /// kind of credential in the keychain to no purpose: an access token is
-    /// cheap to obtain again, and a relaunch simply fetches one.
-    private var accessCache: [String: (token: String, goodUntil: Date)] = [:]
+    /// An actor is reentrant at every `await`: while one caller waits on the
+    /// network, another walks in. Without this map the second one refreshed
+    /// too — with a token the first spend had already rotated away — and the
+    /// server's `invalid_grant` read as an account that needs signing in.
+    private struct RefreshFlight {
+        let id = UUID()
+        let spending: String
+        let task: Task<String, any Error>
+    }
+    private var refreshInFlight: [String: RefreshFlight] = [:]
 
     /// Refresh this long before the server's own deadline.
     ///
@@ -46,11 +53,12 @@ public actor CredentialStore: ClaudeTokenSource {
     public init(
         keychain: any KeychainAccess,
         refresher: any TokenRefreshing,
+        codexRefresher: any TokenRefreshing = OpenAITokenRefresher(),
         cacheWindow: TimeInterval = 10,
         now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.keychain = keychain
-        self.refresher = refresher
+        self.refreshers = [.claude: refresher, .codex: codexRefresher]
         self.cacheWindow = cacheWindow
         self.now = now
     }
@@ -88,12 +96,12 @@ public actor CredentialStore: ClaudeTokenSource {
     /// Once every account carries a grant of this app's own, the answer is
     /// `false` for good and the item is never opened again.
     public func dependsOnCLI() -> Bool {
-        accounts.isEmpty || accounts.contains { !$0.isOwnGrant }
+        accounts.isEmpty || accounts.contains { $0.provider == .claude && !$0.isOwnGrant }
     }
 
     public func knownRefs() -> [AccountRef] {
         accounts.map {
-            AccountRef(id: $0.id, provider: .claude, handle: $0.handle,
+            AccountRef(id: $0.id, provider: $0.provider, handle: $0.handle,
                        lastKnownName: $0.displayName)
         }
     }
@@ -107,7 +115,7 @@ public actor CredentialStore: ClaudeTokenSource {
     public func syncWithCLI(profileUUID: String, displayName: String) async throws {
         let refresh = try? await currentCLIRefreshToken()
 
-        if let index = accounts.firstIndex(where: { $0.handle == profileUUID }) {
+        if let index = accounts.firstIndex(where: { $0.id == "claude/\(profileUUID)" }) {
             accounts[index].displayName = displayName
             // An own grant is never replaced by a copy of the CLI's token.
             //
@@ -132,7 +140,17 @@ public actor CredentialStore: ClaudeTokenSource {
     }
 
     public func accessToken(for handle: String) async throws -> String {
-        guard let index = accounts.firstIndex(where: { $0.handle == handle }) else {
+        try await accessToken(for: AccountRef(id: "claude/\(handle)", provider: .claude, handle: handle))
+    }
+
+    public func accessToken(for ref: AccountRef) async throws -> String {
+        // A change the keychain refused earlier is retried before anything
+        // else. Every poll passes through here, so a keychain that has come
+        // back gets the only copy of a rotated credential at the first
+        // opportunity rather than at the next rotation.
+        if unsavedChanges { await persistRemembering() }
+
+        guard let index = accounts.firstIndex(where: { $0.id == ref.id && $0.provider == ref.provider }) else {
             throw ProviderFailure(kind: .needsLogin, diagnostic: "account not found")
         }
 
@@ -149,7 +167,7 @@ public actor CredentialStore: ClaudeTokenSource {
         // foreign item again, every poll, for an account that only a sign-in can
         // fix, while `dependsOnCLI()` went on reporting there was no reason to
         // look. The claim and the behaviour have to agree.
-        if accounts[index].isOwnGrant {
+        if accounts[index].isOwnGrant || accounts[index].provider != .claude {
             guard let refresh = accounts[index].refreshToken else {
                 throw ProviderFailure(
                     kind: .needsLogin, diagnostic: "own grant spent; sign in"
@@ -162,7 +180,7 @@ public actor CredentialStore: ClaudeTokenSource {
         // still the authority on which account is active there.
         do {
             let active = try await currentCLIAccountToken()
-            if active.handle == handle { return active.token }
+            if active.handle == ref.handle { return active.token }
         } catch let failure as ProviderFailure where failure.kind == .needsPermission {
             // The CLI's item is one item, so a refusal is refused for everybody.
             // It must not condemn an account holding a working copy of its own —
@@ -179,7 +197,9 @@ public actor CredentialStore: ClaudeTokenSource {
             // active one, and its own copy is next.
         }
 
-        guard let refresh = accounts[index].refreshToken else {
+        // The CLI read awaited another actor. The list may have changed there.
+        guard let index = accounts.firstIndex(where: { $0.id == ref.id }),
+              let refresh = accounts[index].refreshToken else {
             throw ProviderFailure(
                 kind: .needsLogin, diagnostic: "no usable credential; sign in"
             )
@@ -187,50 +207,92 @@ public actor CredentialStore: ClaudeTokenSource {
         return try await refreshing(at: index, with: refresh)
     }
 
-    /// Trades a refresh token for an access token, keeping whatever the server
-    /// hands back for next time.
+    /// Serves the held token while it is good, and otherwise trades the
+    /// refresh token for a new one — through one request at a time per account.
     private func refreshing(at index: Int, with refresh: String) async throws -> String {
         // A token already in hand and not yet near its deadline serves this poll
         // as well as a new one would. Every refresh spends the refresh token —
         // the server rotates it on use — so a refresh made for no reason is a
         // rotation made for no reason, and each rotation is a chance for the
         // reply to be lost and the account left holding a retired credential.
-        let handle = accounts[index].handle
-        if let held = accessCache[handle], held.goodUntil > now() {
-            return held.token
+        if let held = accounts[index].accessToken,
+           let until = accounts[index].accessGoodUntil, until > now() {
+            return held
         }
 
+        // One request per account, however many callers want its token. This
+        // check, the insertion below it and the held-token check above run as
+        // one synchronous stretch on the actor, which is what makes them one
+        // decision: no second caller can slip in between them.
+        let id = accounts[index].id
+        if let running = refreshInFlight[id], running.spending == refresh {
+            return try await running.task.value
+        }
+        let provider = accounts[index].provider
+        let run = RefreshFlight(spending: refresh, task: Task {
+            try await performRefresh(id: id, provider: provider, spending: refresh)
+        })
+        refreshInFlight[id] = run
+        defer {
+            if refreshInFlight[id]?.id == run.id { refreshInFlight[id] = nil }
+        }
+        return try await run.task.value
+    }
+
+    /// Spends the refresh token and writes down everything the reply granted.
+    ///
+    /// The account is found by handle again after the network call rather than
+    /// addressed by the position it held before it: the list can change while
+    /// the request is out, and an index kept across that wait once crashed on
+    /// a list a `forget` had emptied in the meantime.
+    private func performRefresh(id: String, provider: ProviderID, spending refresh: String) async throws -> String {
         let fresh: RefreshedTokens
         do {
-            fresh = try await refresher.refresh(refreshToken: refresh)
+            guard let service = refreshers[provider] else {
+                throw ProviderFailure(kind: .needsLogin, diagnostic: "provider has no token refresher")
+            }
+            fresh = try await service.refresh(refreshToken: refresh)
         } catch is RefreshRejected {
-            // Stop keeping a token the server has finished with. Without this the
-            // account asks again on every poll, forever, with a credential it has
-            // been told is dead — and the answer cannot change until the account
-            // is signed into again, which is what the row now says.
+            // Stop keeping credentials the server has finished with — the
+            // access token it granted last included. Without this the account
+            // asks again on every poll, forever, with a credential it has been
+            // told is dead — and the answer cannot change until the account is
+            // signed into again, which is what the row now says.
             //
             // The account stays in the list. Removing it would hide the very
-            // thing the reader needs to act on, and a sign-in gives it a working
-            // token again the moment they do.
-            accounts[index].refreshToken = nil
-            try? await persist()
+            // thing the reader needs to act on, and a sign-in gives it a
+            // working token again the moment they do.
+            if let index = accounts.firstIndex(where: { $0.id == id && $0.refreshToken == refresh }) {
+                accounts[index].refreshToken = nil
+                accounts[index].accessToken = nil
+                accounts[index].accessGoodUntil = nil
+                await persistRemembering()
+            }
             throw ProviderFailure(
                 kind: .needsLogin, diagnostic: "refresh token rejected; sign in again"
             )
         }
-        if let rotated = fresh.refreshToken {
+
+        guard let index = accounts.firstIndex(where: { $0.id == id && $0.refreshToken == refresh }) else {
+            // Forgotten while the request was out. The reply belongs to
+            // nobody: dropping it is the letting-go the forget promised.
+            throw ProviderFailure(kind: .needsLogin, diagnostic: "account not found")
+        }
+
+        let before = accounts[index]
+        if let rotated = fresh.refreshToken, !rotated.isEmpty {
             accounts[index].refreshToken = rotated
-            try? await persist()
         }
         // Held only when the server said how long for. Absent that, nothing is
         // assumed and every poll fetches its own, as before.
-        if let life = fresh.expiresIn, life > Self.expiryMargin {
-            accessCache[handle] = (
-                fresh.accessToken, now().addingTimeInterval(life - Self.expiryMargin)
-            )
+        if let life = fresh.expiresIn, life.isFinite, life > Self.expiryMargin {
+            accounts[index].accessToken = fresh.accessToken
+            accounts[index].accessGoodUntil = now().addingTimeInterval(life - Self.expiryMargin)
         } else {
-            accessCache[handle] = nil
+            accounts[index].accessToken = nil
+            accounts[index].accessGoodUntil = nil
         }
+        if accounts[index] != before { await persistRemembering() }
         return fresh.accessToken
     }
 
@@ -275,7 +337,7 @@ public actor CredentialStore: ClaudeTokenSource {
         let oauth = try await cliOAuth()
         guard let access = oauth["accessToken"] as? String,
               let refresh = oauth["refreshToken"] as? String,
-              let match = accounts.first(where: { $0.refreshToken == refresh })
+              let match = accounts.first(where: { $0.provider == .claude && !$0.isOwnGrant && $0.refreshToken == refresh })
         else {
             throw ProviderFailure(kind: .needsLogin, diagnostic: "active account unrecognised")
         }
@@ -316,7 +378,8 @@ public actor CredentialStore: ClaudeTokenSource {
 
         return accounts.map { account in
             let state: AccountState
-            if let activeRefresh, account.refreshToken == activeRefresh {
+            if account.provider == .claude, !account.isOwnGrant,
+               let activeRefresh, account.refreshToken == activeRefresh {
                 state = .activeInCLI
             } else if account.refreshToken != nil {
                 state = .refreshed
@@ -331,7 +394,11 @@ public actor CredentialStore: ClaudeTokenSource {
     /// The keychain item owned by Claude Code is left alone — the CLI sign-in
     /// keeps working, which is what the interface promises.
     public func forget(handle: String) async throws {
-        try await changing { $0.removeAll { $0.handle == handle } }
+        try await forget(id: "claude/\(handle)")
+    }
+
+    public func forget(id: String) async throws {
+        try await changing { $0.removeAll { $0.id == id } }
     }
 
     /// Saves an account added through browser sign-in.
@@ -340,19 +407,45 @@ public actor CredentialStore: ClaudeTokenSource {
     public func addLoggedInAccount(
         uuid: String, displayName: String, refreshToken: String
     ) async throws {
-        // A new grant supersedes whatever was held for this account. Without
-        // this, re-signing-in would leave the app serving the previous grant's
+        try await addLoggedInAccount(AuthenticatedAccount(
+            account: AccountRef(id: "claude/\(uuid)", provider: .claude, handle: uuid,
+                                lastKnownName: displayName),
+            tokens: RefreshedTokens(accessToken: "", refreshToken: refreshToken)))
+    }
+
+    public func addLoggedInAccount(_ result: AuthenticatedAccount) async throws {
+        let ref = result.account
+        guard [.claude, .codex].contains(ref.provider), !ref.handle.isEmpty,
+              ref.id == "\(ref.provider.rawValue)/\(ref.handle)",
+              let refresh = result.tokens.refreshToken, !refresh.isEmpty else {
+            throw ProviderFailure(kind: .needsLogin, diagnostic: "sign-in has no usable grant")
+        }
+        let life = result.tokens.expiresIn ?? 0
+        let keepAccess = life.isFinite && life > Self.expiryMargin && !result.tokens.accessToken.isEmpty
+        let until = keepAccess ? now().addingTimeInterval(life - Self.expiryMargin) : nil
+        // The record is replaced, not updated, and the held access token goes
+        // with it. A new grant supersedes whatever was held for this account:
+        // updating in place would leave the app serving the previous grant's
         // token until it expired — the sign-in would look done and change
         // nothing for an hour.
-        accessCache[uuid] = nil
         try await changing {
-            $0.removeAll { $0.handle == uuid }
+            $0.removeAll { $0.id == ref.id }
             $0.append(StoredAccount(
-                id: "claude/\(uuid)", handle: uuid,
-                displayName: displayName, refreshToken: refreshToken,
-                tokenOrigin: .ownGrant
+                id: ref.id, handle: ref.handle,
+                displayName: ref.lastKnownName, refreshToken: refresh,
+                tokenOrigin: .ownGrant,
+                accessToken: keepAccess ? result.tokens.accessToken : nil,
+                accessGoodUntil: until
             ))
         }
+    }
+
+    public func invalidateAccessToken(for ref: AccountRef, rejectedToken: String) async {
+        guard let index = accounts.firstIndex(where: { $0.id == ref.id }),
+              accounts[index].accessToken == rejectedToken else { return }
+        accounts[index].accessToken = nil
+        accounts[index].accessGoodUntil = nil
+        await persistRemembering()
     }
 
     /// Changes the account list and saves it, or does neither.
@@ -371,12 +464,8 @@ public actor CredentialStore: ClaudeTokenSource {
             accounts = previous
             throw error
         }
-        // Nothing is kept on behalf of an account that is no longer listed. The
-        // held token is in memory rather than the keychain, but "not written
-        // down" is not "let go of", and a token that outlives the account it
-        // belongs to is a credential nobody is watching any more.
-        let present = Set(accounts.map(\.handle))
-        accessCache = accessCache.filter { present.contains($0.key) }
+        // Nothing is kept on behalf of an account that is no longer listed:
+        // the held access token lives on the record and leaves with it.
     }
 
     /// Refuses to write when the item held something this build could not read.
@@ -390,5 +479,27 @@ public actor CredentialStore: ClaudeTokenSource {
         guard !storedButUnreadable else { throw WouldOverwriteUnreadableAccounts() }
         let data = try JSONEncoder().encode(accounts)
         try await keychain.write(data, service: Self.ownService)
+        unsavedChanges = false
+    }
+
+    /// Set when a change could not be written; a later successful write, from
+    /// anywhere, clears it.
+    private var unsavedChanges = false
+
+    /// Persists, and remembers a failure instead of reporting it.
+    ///
+    /// This is the refresh path's persist, where giving up is not an option:
+    /// the change being saved is the only copy of a rotated refresh token, the
+    /// server has already retired the one it replaced, and no caller can do
+    /// anything about a failed write. So the change stays in memory and is put
+    /// in front of the keychain again on the next call — `try?` here once
+    /// dropped a rotation on the floor, and the next launch asked the server
+    /// with the retired token and was told to sign in again.
+    private func persistRemembering() async {
+        do {
+            try await persist()
+        } catch {
+            unsavedChanges = true
+        }
     }
 }

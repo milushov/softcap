@@ -38,6 +38,9 @@ jobs:
       - name: Logic tests
         run: cd Packages/Core && swift test
 
+      - name: Browser authentication lifecycle
+        run: python3 tools/test_authentication.py
+
   release:
     name: Build and publish
     needs: test

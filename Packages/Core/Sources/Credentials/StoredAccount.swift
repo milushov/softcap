@@ -1,4 +1,5 @@
 import Foundation
+import ProviderKit
 
 /// Where an account's refresh token came from, which decides what may be done
 /// with it.
@@ -33,7 +34,30 @@ public struct StoredAccount: Sendable, Codable, Hashable {
     /// have had is the CLI: the browser path is what introduced it.
     public var tokenOrigin: TokenOrigin?
 
+    /// The access token the last refresh returned, and the moment it stops
+    /// being usable — written down beside the refresh token, so a relaunch
+    /// serves the poll with what it already has.
+    ///
+    /// These lived in memory first, on the argument that an access token is
+    /// cheap to fetch again. It is not: fetching one spends the refresh token —
+    /// the server rotates it on use — and the refresh a relaunch makes is the
+    /// most dangerous one there is, because the processes that die are the
+    /// ones being replaced, and a reply in flight when the process dies is a
+    /// rotation nobody receives. Two accounts were lost to exactly that in one
+    /// afternoon of rebuilds.
+    ///
+    /// Optional for the same reason `tokenOrigin` is: a required field would
+    /// turn every existing install's list unreadable at once.
+    public var accessToken: String?
+    public var accessGoodUntil: Date?
+
     /// What `nil` means, written once so the rule is not spelled out at each
     /// use and drifted apart between them.
     public var isOwnGrant: Bool { tokenOrigin == .ownGrant }
+
+    /// The stable identifier already carries its namespace. Deriving this
+    /// preserves the original keychain format, including pre-OAuth installs.
+    public var provider: ProviderID {
+        ProviderID(rawValue: String(id.prefix(while: { $0 != "/" }))) ?? .claude
+    }
 }

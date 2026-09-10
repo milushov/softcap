@@ -57,12 +57,12 @@ targets:
         CURRENT_PROJECT_VERSION: "1"
         SWIFT_VERSION: "6.0"
         ENABLE_HARDENED_RUNTIME: YES
-        # Обязательно стабильная подпись, а не ad-hoc ("-").
-        # Доступ к чужому элементу Keychain macOS привязывает к подписи
-        # приложения. Ad-hoc подпись меняется при каждой пересборке, поэтому
-        # «Always Allow» переставал действовать и пароль спрашивали снова.
-        # Имя указано целиком: для macOS-цели Xcode толкует короткое
-        # "Apple Development" как "Mac Development" и сертификат не находит.
+        # A stable signature, never ad-hoc ("-"). macOS ties access to another
+        # application's keychain item to the signature of the app asking, and an
+        # ad-hoc signature changes on every rebuild — so "Always Allow" stopped
+        # holding and the password was asked for again.
+        # The identity is named in full: for a macOS target Xcode reads the short
+        # "Apple Development" as "Mac Development" and finds no certificate.
     dependencies:
       - target: SoftcapWidget
         embed: true
@@ -82,9 +82,14 @@ targets:
       - package: Core
         product: StatusUI
       # The Mac app only. The widget has no interface for it, and the iOS app
-      # cannot replace its own bundle — the same arrangement CodexProvider has.
+      # cannot replace its own bundle.
       - package: Core
         product: Updates
+      # The Mac app only, for now: it is the one target that ships, so it is the
+      # only one whose failures anybody could act on. A widget reporting on its
+      # own would also report while nobody is looking at it.
+      - package: Core
+        product: Diagnostics
 
   SoftcapWidget:
     type: app-extension
@@ -160,6 +165,8 @@ targets:
         product: ProviderKit
       - package: Core
         product: ClaudeProvider
+      - package: Core
+        product: CodexProvider
       - package: Core
         product: Credentials
       - package: Core

@@ -26,25 +26,34 @@ public enum OAuthCallback {
     /// Parses the first line of an HTTP request the local listener received.
     ///
     /// Expects `GET /callback?code=…&state=… HTTP/1.1`.
-    public static func parse(requestLine request: String, expectedState: String) -> Outcome {
+    public static func parse(
+        requestLine request: String, expectedState: String, callbackPath: String = "/callback"
+    ) -> Outcome {
         guard let line = request.split(separator: "\r\n").first ?? request.split(separator: "\n").first,
+              line.split(separator: " ").first == "GET",
               let path = line.split(separator: " ").dropFirst().first,
-              let components = URLComponents(string: "http://localhost\(path)")
+              path.hasPrefix("/"), !path.hasPrefix("//"),
+              let components = URLComponents(string: "http://localhost\(path)"),
+              components.path == callbackPath
         else { return .unrelated }
 
         let items = components.queryItems ?? []
         // A browser fetching /favicon.ico reaches the same listener.
         guard !items.isEmpty else { return .unrelated }
 
+        guard items.contains(where: { $0.name == "code" || $0.name == "error" }) else {
+            return .unrelated
+        }
+        guard items.filter({ $0.name == "state" }).count == 1,
+              items.first(where: { $0.name == "state" })?.value == expectedState else {
+            return .stateMismatch
+        }
         if let error = items.first(where: { $0.name == "error" })?.value {
             return .denied(reason: error)
         }
-
-        guard let code = items.first(where: { $0.name == "code" })?.value, !code.isEmpty else {
+        guard items.filter({ $0.name == "code" }).count == 1,
+              let code = items.first(where: { $0.name == "code" })?.value, !code.isEmpty else {
             return .unrelated
-        }
-        guard items.first(where: { $0.name == "state" })?.value == expectedState else {
-            return .stateMismatch
         }
         return .code(code)
     }

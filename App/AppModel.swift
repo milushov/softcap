@@ -7,6 +7,7 @@ import ProviderKit
 import ClaudeProvider
 import CodexProvider
 import Credentials
+import Diagnostics
 import Monitoring
 import Preferences
 import StatusUI
@@ -33,7 +34,7 @@ final class AppModel: ObservableObject {
     /// no way to reach inside it otherwise.
     @Published var settingsSection: SettingsSection = .accounts
 
-    /// The Accounts section builds its own `LoginController` over this store.
+    /// Shared by account management, browser sign-in and polling.
     let store: CredentialStore
 
     /// The browser sign-in.
@@ -42,7 +43,20 @@ final class AppModel: ObservableObject {
     /// unreachable from the menu and no longer-lived than the pane: leaving
     /// that section during a sign-in destroyed the controller and the sign-in
     /// with it. Lazy, so a launch that never signs anybody in never builds one.
-    lazy var login = LoginController(store: store)
+    lazy var login = makeLoginController()
+
+    private func makeLoginController() -> LoginController {
+        let controller = LoginController(store: store)
+        controller.didAddAccount = { [weak self] ref in
+            Task { await self?.refreshAfterSignIn(ref) }
+        }
+        return controller
+    }
+
+    private func refreshAfterSignIn(_ ref: AccountRef) async {
+        await identities.forget(ref.id)
+        await refresh(.timer)
+    }
     private var poller: UsagePoller?
     private var tracker = ThresholdTracker()
 
@@ -338,6 +352,13 @@ final class AppModel: ObservableObject {
                 \(account.id, privacy: .public): \
                 \(failure.diagnostic, privacy: .public)
                 """)
+            // The collector hears it too, on the same once-per-change terms.
+            // An account dying used to leave no trace anywhere but this log —
+            // two died in one afternoon and the investigation had to be run
+            // from usage-history gaps. The report carries the diagnostic and
+            // not the account: which one it was is personal, that it happens
+            // is the signal.
+            Task { await Diagnostics.shared.report(failure, category: "poll") }
         }
         // And once when it clears, so the log says how long it lasted rather
         // than simply stopping.
@@ -420,7 +441,8 @@ final class AppModel: ObservableObject {
     }
 
     private func rebuildPoller() async {
-        let refs = await store.knownRefs()
+        let allRefs = await store.knownRefs()
+        let refs = allRefs
             .filter { !preferences.hiddenAccounts.contains($0.id) }
 
         var providers: [any UsageProvider] = []
@@ -433,8 +455,10 @@ final class AppModel: ObservableObject {
         }
         if !preferences.disabledProviders.contains(.codex) {
             let root = preferences.codexRoot.map { URL(fileURLWithPath: $0) }
+            providers.append(CodexLiveUsageProvider(tokens: store, knownAccounts: refs))
             providers.append(CodexUsageProvider(
-                fileSystem: root.map { RealCodexFileSystem(root: $0) } ?? RealCodexFileSystem()
+                fileSystem: root.map { RealCodexFileSystem(root: $0) } ?? RealCodexFileSystem(),
+                excludedAccountIDs: Set(allRefs.map(\.id)).union(preferences.hiddenAccounts)
             ))
         }
         poller = UsagePoller(providers: providers)
@@ -486,19 +510,30 @@ final class AppModel: ObservableObject {
     }
 
     func accountRows() async -> [AccountsPane.AccountRow] {
-        await store.accountStates().map { item in
+        var rows = await store.accountStates().map { item in
             AccountsPane.AccountRow(
                 id: item.account.id,
                 handle: item.account.handle,
+                provider: item.account.provider,
                 displayName: item.account.displayName,
                 state: item.state
             )
         }
+        let root = preferences.codexRoot.map { URL(fileURLWithPath: $0) }
+        let local = CodexUsageProvider(
+            fileSystem: root.map { RealCodexFileSystem(root: $0) } ?? RealCodexFileSystem(),
+            excludedAccountIDs: Set(rows.map(\.id)))
+        if let ref = try? await local.discoverAccounts().first {
+            rows.append(AccountsPane.AccountRow(
+                id: ref.id, handle: ref.handle, provider: .codex,
+                displayName: ref.lastKnownName, state: .localSession))
+        }
+        return rows
     }
 
-    func forgetAccount(handle: String) async {
-        try? await store.forget(handle: handle)
-        await identities.forget("claude/\(handle)")
+    func forgetAccount(id: String) async throws {
+        try await store.forget(id: id)
+        await identities.forget(id)
         // `.timer`: the person asked to forget an account, not to be asked for
         // permission to read one.
         await refresh(.timer)
@@ -506,7 +541,7 @@ final class AppModel: ObservableObject {
 
     func forgetAllAccounts() async {
         for ref in await store.knownRefs() {
-            try? await store.forget(handle: ref.handle)
+            try? await store.forget(id: ref.id)
         }
         await refresh(.timer)
     }

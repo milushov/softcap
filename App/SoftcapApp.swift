@@ -2,6 +2,8 @@ import SwiftUI
 import AppKit
 import Combine
 import ProviderKit
+import ClaudeProvider
+import Diagnostics
 import Monitoring
 import Preferences
 import StatusUI
@@ -14,9 +16,6 @@ struct SoftcapApp: App {
         Settings {
             SettingsView(model: delegate.preferences, appModel: delegate.model,
                          updates: delegate.updates)
-                .onChange(of: delegate.preferences.value.appearance, initial: true) { _, new in
-                    applyAppearance(new)
-                }
         }
     }
 }
@@ -61,11 +60,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             .store(in: &cancellables)
 
         Task {
+            startReporting()
             await preferences.load()
             updates.recordCheck = { [preferences] moment in
                 preferences.update { $0.lastUpdateCheck = moment }
             }
-            applyAppearance(preferences.value.appearance)
             statusItem.install()
 
             // The quiet check, now and once a day after. It opens nothing: at
@@ -73,6 +72,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             // footer.
             updates.startChecking()
         }
+    }
+
+    /// Arranges for a failure to be describable, before anything can fail.
+    ///
+    /// Not compiled into a debug build at all. A flag would have been one line
+    /// shorter and would have left a real reporter sitting behind it, one
+    /// `setEnabled(true)` away from posting the author's own development
+    /// failures to the collector; with no reporter to enable, the shared
+    /// instance is inert no matter what the setting says.
+    ///
+    /// It runs before the settings are loaded, so it starts switched off and
+    /// `PreferencesModel` turns it on a moment later if that is what the setting
+    /// says. The other order would report for one moment on a machine whose
+    /// owner had turned reporting off.
+    private func startReporting() {
+        #if !DEBUG
+        let version = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String)
+            ?? "unknown"
+        Task {
+            await Diagnostics.shared.start(
+                reporter: CollectorReporter(
+                    http: URLSessionHTTPClient(),
+                    destination: Diagnostics.shipped,
+                    client: "softcap/\(version)"
+                ),
+                release: "softcap@\(version)",
+                enabled: false
+            )
+        }
+        #endif
     }
 }
 

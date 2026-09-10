@@ -2,9 +2,16 @@ import Testing
 import Foundation
 
 /// The landing makes a promise about the reader's machine: "Credentials stay in
-/// the keychain, never copied into preferences or logs. No telemetry. The only
-/// other request is a daily check for a new version, and it can be switched
-/// off."
+/// the keychain, never copied into preferences or logs. When something fails, the
+/// app sends a description of the failure to its author, stripped of paths,
+/// addresses and anything token-shaped before it leaves the machine — and it can
+/// be switched off."
+///
+/// It said "No telemetry" until reports were added, and the sentence was replaced
+/// rather than dropped: an absence that stops being true has to be replaced by
+/// the narrower thing that is, or the page keeps a promise the code no longer
+/// makes. `Scrubber` is what makes the new sentence true, and is tested against
+/// the shapes that would break it.
 ///
 /// It read "nothing else leaves your Mac" until the updater made that untrue.
 /// `thePageStillMakesThePromise` checks the two phrases the suite actually
@@ -35,9 +42,12 @@ import Foundation
             "platform.claude.com": "OAuth authorize and token, and the manual redirect",
             "claude.com":          "where the sign-in flow sends the browser",
             "api.openai.com":      "not fetched: the namespace of a claim inside a Codex token",
+            "auth.openai.com":     "Codex browser sign-in, code exchange and token refresh",
+            "chatgpt.com":         "read-only Codex subscription usage, without inference",
             "localhost":           "the loopback the PKCE redirect comes back to",
             "api.github.com":      "the release feed, once a day, and switchable off",
             "github.com":          "the release page, and the build a release publishes",
+            "sentry.softcap.app":  "where a failure is described, scrubbed, and switchable off",
         ]
 
         let files = try Self.swiftFiles()
@@ -145,7 +155,7 @@ import Foundation
     @Test func thePageStillMakesThePromise() throws {
         #expect(try Self.pageSays("Credentials stay in the keychain"),
                 "the landing no longer makes the claim this suite is guarding")
-        #expect(try Self.pageSays("No telemetry"),
+        #expect(try Self.pageSays("stripped of paths, addresses and anything token-shaped"),
                 "the landing no longer makes the claim this suite is guarding")
     }
 

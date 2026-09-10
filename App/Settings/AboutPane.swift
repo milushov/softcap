@@ -40,6 +40,19 @@ struct AboutPane: View {
                                    value: "~/Library/Preferences/app.softcap.Softcap.plist")
                 }
 
+                // On this screen rather than a privacy tab of its own: the pane
+                // already answers "what does this app keep, and where", and what
+                // leaves the machine is the other half of that question.
+                Section {
+                    Toggle(loc("Send error reports"), isOn: Binding(
+                        get: { model.value.sendsErrorReports },
+                        set: { new in model.update { $0.sendsErrorReports = new } }
+                    ))
+                    Text(loc("When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first."))
+                        .font(.system(size: 11)).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 Section {
                     Button(loc("Forget all accounts…"), role: .destructive) {
                         confirmForgetAll = true

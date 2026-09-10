@@ -12,6 +12,7 @@ struct AccountsPane: View {
     @State private var rows: [AccountRow] = []
     @State private var pendingForget: AccountRow?
     @State private var manualCode = ""
+    @State private var accountError: String?
     @ObservedObject private var loc = Localization.shared
 
     init(model: PreferencesModel, appModel: AppModel) {
@@ -23,13 +24,14 @@ struct AccountsPane: View {
     struct AccountRow: Identifiable, Hashable {
         let id: String
         let handle: String
+        let provider: ProviderID
         let displayName: String
         let state: CredentialStore.AccountState
     }
 
     var body: some View {
         Pane(title: loc("Accounts"),
-             subtitle: loc("Accounts appear on their own when you sign in with claude /login, and can be added through the browser.")) {
+             subtitle: loc("Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected.")) {
             VStack(alignment: .leading, spacing: 10) {
                 if rows.isEmpty {
                     Text(loc("No accounts yet"))
@@ -40,7 +42,7 @@ struct AccountsPane: View {
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(row.displayName)
                                     .font(.system(size: 12.5, weight: .medium))
-                                Text(caption(for: row.state))
+                                Text(caption(for: row))
                                     .font(.system(size: 11)).foregroundStyle(.secondary)
                             }
                             Spacer()
@@ -51,17 +53,36 @@ struct AccountsPane: View {
                                             in: RoundedRectangle(cornerRadius: 4))
                                 .foregroundStyle(tint(for: row.state))
                             Toggle("", isOn: visible(row)).labelsHidden()
-                            Button(loc("Forget…")) { pendingForget = row }
+                                .accessibilityLabel(String(format: loc("Show %@"), row.displayName))
+                            if row.state == .needsLogin || row.state == .localSession {
+                                Button(loc("Sign in…")) { loginController.start(provider: row.provider) }
+                                    .disabled(loginController.isRunning)
+                            }
+                            if row.state != .localSession {
+                                Button(loc("Forget…")) { pendingForget = row }
+                            }
                         }
                         Divider()
                     }
                 }
 
                 HStack(spacing: 8) {
-                    Button(loc("Add account…")) { loginController.start() }
-                        .disabled(loginController.isRunning)
+                    Menu(loc("Add account…")) {
+                        ForEach(LoginController.providers, id: \.self) { provider in
+                            Button(provider == .claude ? "Claude Code" : "OpenAI Codex") {
+                                manualCode = ""
+                                loginController.start(provider: provider)
+                            }
+                        }
+                    }
+                    .fixedSize()
+                    .disabled(loginController.isRunning)
                     if loginController.isRunning {
                         ProgressView().controlSize(.small)
+                        if let provider = loginController.provider {
+                            Text(String(format: loc("Signing in to %@…"), provider.title))
+                                .font(.system(size: 11)).foregroundStyle(.secondary)
+                        }
                         Button(loc("Cancel")) { loginController.cancel() }
                     }
                     Spacer()
@@ -111,23 +132,34 @@ struct AccountsPane: View {
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
 
-                Text(loc("“Active in CLI” means the token is read directly and never refreshed, otherwise Claude Code would be signed out. “Refreshed” means the app keeps its own copy of the refresh token."))
+                if let accountError {
+                    Text(accountError).font(.system(size: 11)).foregroundStyle(.red)
+                }
+
+                Text(loc("Browser accounts refresh independently. Local Codex accounts show readings from session files. Your CLI sign-ins are not changed."))
                     .font(.system(size: 11)).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
         .task { await reload() }
         .onChange(of: loginController.message) { _, _ in Task { await reload() } }
-        // An added account is polled at once. Forgetting one already did this;
-        // adding one did not, so a new account sat unread in the window until
-        // the next background poll — up to five minutes of looking broken.
+        // Explicitly adding an account makes it visible, even if its old row
+        // or provider had been hidden. AppModel refreshes after sign-in even
+        // when this pane is no longer open.
         .onChange(of: loginController.completedSignIns) { _, _ in
-            Task { await reload(); await appModel.refresh(.timer) }
+            if let ref = loginController.completedAccount {
+                model.update {
+                    $0.hiddenAccounts.remove(ref.id)
+                    $0.disabledProviders.remove(ref.provider)
+                }
+            }
+            Task { await reload() }
         }
+        .onChange(of: appModel.lastUpdated) { _, _ in Task { await reload() } }
         .alert(item: $pendingForget) { row in
             Alert(
                 title: Text(String(format: loc("Forget %@?"), row.displayName)),
-                message: Text(loc("The token copy will be deleted. This does not affect your Claude Code sign-in.")),
+                message: Text(loc("Saved credentials will be deleted. Your CLI sign-ins will not change.")),
                 primaryButton: .destructive(Text(loc("Forget"))) {
                     Task { await forget(row) }
                 },
@@ -141,7 +173,12 @@ struct AccountsPane: View {
     }
 
     private func forget(_ row: AccountRow) async {
-        await appModel.forgetAccount(handle: row.handle)
+        do {
+            try await appModel.forgetAccount(id: row.id)
+            accountError = nil
+        } catch {
+            accountError = loc("Could not forget the account. Try again.")
+        }
         await reload()
     }
 
@@ -162,14 +199,16 @@ struct AccountsPane: View {
         case .activeInCLI: loc("active in CLI")
         case .refreshed:   loc("refreshed")
         case .needsLogin:  loc("sign-in needed")
+        case .localSession: loc("local session")
         }
     }
 
-    private func caption(for state: CredentialStore.AccountState) -> String {
-        switch state {
+    private func caption(for row: AccountRow) -> String {
+        switch row.state {
         case .activeInCLI: loc("Claude · token read from Claude Code")
-        case .refreshed:   loc("Claude · own refresh token copy")
-        case .needsLogin:  loc("Claude · nothing to refresh with")
+        case .refreshed:   String(format: loc("%@ · saved account"), row.provider.title)
+        case .needsLogin:  String(format: loc("%@ · sign-in required"), row.provider.title)
+        case .localSession: loc("Codex · local session files")
         }
     }
 
@@ -178,6 +217,7 @@ struct AccountsPane: View {
         case .activeInCLI: .green
         case .refreshed:   .blue
         case .needsLogin:  .red
+        case .localSession: .secondary
         }
     }
 }

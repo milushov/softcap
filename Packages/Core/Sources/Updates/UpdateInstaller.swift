@@ -1,6 +1,5 @@
 import Foundation
 import ProviderKit
-import ClaudeProvider
 
 // Everything below is the Mac's.
 //

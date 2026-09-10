@@ -27,7 +27,7 @@ public struct ClaudeUsageProvider: UsageProvider {
     ) {
         self.http = http
         self.tokens = tokens
-        self.knownAccounts = knownAccounts
+        self.knownAccounts = knownAccounts.filter { $0.provider == .claude }
         self.identities = identities
     }
 

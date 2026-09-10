@@ -78,9 +78,9 @@ iOS unchanged. The app in `App/` is a thin SwiftUI layer on top of it.
 
 | Module | Responsibility |
 |---|---|
-| `ProviderKit` | limit models and the provider protocol |
+| `ProviderKit` | limit models, shared HTTP transport, OAuth primitives and provider protocols |
 | `ClaudeProvider` | Anthropic API requests, OAuth sign-in |
-| `CodexProvider` | reading local session files and watching them |
+| `CodexProvider` | OpenAI browser sign-in, live usage and local session files |
 | `Credentials` | credentials in the keychain |
 | `Monitoring` | polling, ordering, threshold notifications |
 | `Preferences` | settings and their defaults |
@@ -105,15 +105,19 @@ an English label directly, and nor could any check: "profile not parsed" and
 
 **Claude** — live, from `api.anthropic.com/api/oauth/usage`.
 
-**Codex** — from local session files in `~/.codex/sessions`, so it is a snapshot
-rather than the current state. Every surface shows when the reading was taken —
-the window, both widgets and the phone — and says so in words once it is older
-than it should be.
+**Codex** — accounts added through the browser read current limits from
+`chatgpt.com/backend-api/wham/usage`. This is a usage request, not an inference
+request, and sends no prompt. Each request includes the account's own access
+token and ChatGPT account identifier.
 
-Polling Codex over the network is deliberately avoided: the rate limit headers
-only arrive on a *successful* request, so polling every five minutes would spend
-the very quota the app is watching. Instead the app watches the session files
-and updates the reading the moment Codex writes one.
+The local account in `~/.codex/auth.json` is still detected. Without a browser
+grant, its readings come from `~/.codex/sessions`, watched with FSEvents. Every
+surface shows when that snapshot was taken. Adding the same account through the
+browser replaces its local row with live usage; hiding it hides both sources.
+Softcap never writes `auth.json` or refreshes a Codex CLI token.
+
+See [authentication architecture](docs/authentication.md) for protocol details,
+credential compatibility and the test commands.
 
 ## What the app sends back
 
@@ -141,7 +145,7 @@ every provider does, because `NothingElseLeavesYourMac` holds that exactly one
 file in this project turns a URL into traffic — and the list of hosts beside that
 rule is only worth reading while that stays true.
 
-## Several Claude subscriptions
+## Several Claude and Codex subscriptions
 
 The account currently signed in to Claude Code is **read-only** here: the app
 never refreshes its token, because a rotated refresh token would sign the CLI
@@ -160,8 +164,15 @@ every use, so a copy the app took can be invalidated by the CLI refreshing the
 same account afterwards; the app clears a copy the server has rejected rather
 than retrying a dead credential, and the row says the same thing.
 
-An account can also be added straight from settings with "Add account…": a
-browser opens and the password is typed only there.
+Choose **Add account… → Claude Code** or **OpenAI Codex** in Accounts settings
+or the menu bar context menu. A browser opens and the password is typed only
+there. Codex uses the ChatGPT subscription sign-in. Each saved account has an
+independent grant in Softcap's keychain item, and its first access token is kept
+with the server-reported expiry so the first poll does not rotate it again.
+
+An account needing a new grant has a **Sign in…** button for its provider.
+Forgetting an account removes only Softcap's saved credentials; CLI sign-ins are
+left alone. A Codex account still signed into the CLI may remain as a local row.
 
 ### The one permission it needs, and how to stop needing it
 
@@ -273,10 +284,10 @@ widget is a separate process and does not reach the network itself.
 from `StatusUI`, so the Mac window, both widgets and the phone cannot drift
 apart.
 
-Claude is queried directly — the token travels through the iCloud keychain, so
-the phone does not need the Mac to be awake. Codex is absent on iOS by design:
-its data lives in local files on the Mac, and showing an empty row pretending to
-be a limit would be worse than showing nothing.
+Claude and saved Codex browser accounts are queried directly using credentials
+in the iCloud keychain, so the phone does not need the Mac to be awake. Local
+Codex session files remain Mac-only. Hidden accounts and disabled services are
+excluded from phone polling too.
 
 Signing is disabled for that target, so it builds and runs in a simulator with no
 certificate.

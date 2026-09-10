@@ -5,7 +5,7 @@
 # recipe that pipes.
 SHELL := /bin/bash
 
-.PHONY: test project build build-ios run run-ios lint
+.PHONY: test test-auth project build build-ios run run-ios lint
 
 # A link failure after an API change in Core is almost always a stale incremental
 # build, not a real error: object files still reference the previous mangled
@@ -28,6 +28,9 @@ test:
 	  else \
 	    exit 1; \
 	  fi
+
+test-auth:
+	python3 tools/test_authentication.py
 
 project:
 	xcodegen generate
