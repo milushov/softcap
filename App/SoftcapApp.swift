@@ -88,19 +88,6 @@ func applyAppearance(_ appearance: Appearance) {
 }
 
 
-extension Severity {
-    /// Bar and label colour. The thresholds live in `Severity`.
-    var tint: Color {
-        switch self {
-        case .ok:       .green
-        case .warning:  .yellow
-        case .hot:      .orange
-        case .critical: .red
-        }
-    }
-}
-
-
 /// Lets a SwiftUI window be told apart from the menu bar window without relying
 /// on the title, which the system localizes.
 extension NSHostingController: NSHostingViewProtocol {}

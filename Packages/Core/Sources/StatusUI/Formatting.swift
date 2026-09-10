@@ -127,13 +127,31 @@ public extension Localization {
 }
 
 public extension Severity {
-    /// Bar and label colour. The thresholds live in `Severity` itself.
+    /// Bar, ring and fill colour. The thresholds live in `Severity` itself.
     var tint: Color {
         switch self {
         case .ok:       .green
         case .warning:  .yellow
         case .hot:      .orange
         case .critical: .red
+        }
+    }
+
+    /// The colour a *number* takes, which is a different question.
+    ///
+    /// A bar is an area, and yellow reads perfectly well as one. Yellow digits
+    /// on a light background do not — and the figure is the part somebody is
+    /// actually trying to read, so losing it there costs more than the colour
+    /// gains. A number therefore stays in the ordinary text colour until the
+    /// limit is nearly spent, and takes orange and red only from `.hot` up,
+    /// where both are legible either side of the theme.
+    ///
+    /// Nothing is lost by it: the bar beside the number carries all four
+    /// levels, and it is the one that has the room for colour.
+    var numberTint: AnyShapeStyle {
+        switch self {
+        case .ok, .warning:   AnyShapeStyle(.secondary)
+        case .hot, .critical: AnyShapeStyle(tint)
         }
     }
 }

@@ -111,7 +111,7 @@ struct PhoneWidgetView: View {
                 Text(loc.percent(window.percent))
                     .font(.system(size: 30, weight: .semibold, design: .rounded))
                     .monospacedDigit()
-                    .foregroundStyle(window.severity.tint)
+                    .foregroundStyle(window.severity.numberTint)
                 Text(account.displayName)
                     .font(.system(size: 10))
                     .lineLimit(1)

@@ -113,9 +113,7 @@ public struct AccountRow: View {
             Text(loc.percent(window.percent))
                 .font(.system(size: 11))
                 .monospacedDigit()
-                .foregroundStyle(window.severity == .ok
-                                 ? AnyShapeStyle(.secondary)
-                                 : AnyShapeStyle(window.severity.tint))
+                .foregroundStyle(window.severity.numberTint)
                 // 38, not 34: languages that put a space before the sign need
                 // 34.4 pt for "100 %" — it would have been cut off at exactly
                 // the reading that matters most. The width comes out of the

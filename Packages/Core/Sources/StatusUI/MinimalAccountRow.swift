@@ -79,7 +79,7 @@ public struct MinimalAccountRow: View {
                 Text(loc.percent(window.percent))
                     .font(.system(size: 11.5))
                     .monospacedDigit()
-                    .foregroundStyle(paint(window))
+                    .foregroundStyle(window.severity.numberTint)
                 Text(loc.remaining(window.remaining(from: now)))
                     .font(.system(size: 11))
                     .monospacedDigit()
@@ -107,6 +107,7 @@ public struct MinimalAccountRow: View {
         .frame(height: 2)
     }
 
+    /// The bar's fill, which is not the number's colour: see `numberTint`.
     private func paint(_ window: LimitWindow) -> AnyShapeStyle {
         window.severity == .ok
             ? AnyShapeStyle(.tertiary)
