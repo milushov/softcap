@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Softcap — настройки</title>
+<title>Softcap — settings</title>
 <style>
-  /* ── светлая (база) ── */
+  /* ── light (base) ── */
   :root{
     --bg:#f2f2f7; --card:#fff; --side:#e8e8ed; --pane:#fcfcfd;
     --txt:#1d1d1f; --dim:#6e6e73; --dim2:#8e8e93;
@@ -15,7 +15,7 @@
     --navtxt:#2c2c30; --icbg:rgba(0,0,0,.10); --swoff:#d6d6db;
     --seclbl:#77777f; --shadow:rgba(0,0,0,.22); --hairline:rgba(0,0,0,.13);
   }
-  /* ── тёмная ── */
+  /* ── dark ── */
   [data-theme="dark"]{
     --bg:#1c1c1e; --card:#2c2c2e; --side:#232325; --pane:#2f2f31;
     --txt:#f2f2f7; --dim:#a1a1a6; --dim2:#8e8e93;
@@ -26,7 +26,7 @@
     --navtxt:#e2e2e7; --icbg:rgba(255,255,255,.14); --swoff:#48484a;
     --seclbl:#8e8e93; --shadow:rgba(0,0,0,.6); --hairline:rgba(255,255,255,.14);
   }
-  /* ── системная: следует настройке macOS ── */
+  /* ── system: follows the macOS setting ── */
   @media (prefers-color-scheme: dark){
     [data-theme="system"]{
       --bg:#1c1c1e; --card:#2c2c2e; --side:#232325; --pane:#2f2f31;
@@ -65,8 +65,8 @@
   .nav{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;font-size:12.5px;
     color:var(--navtxt);cursor:default;margin-bottom:1px}
   .nav.on{background:var(--sel);color:#fff}
-  /* Глиф, а не цветная плашка: подложки под иконками удешевляют вид,
-     нативные боковые панели macOS рисуют символ в цвет подписи. */
+  /* A glyph, not a coloured tile: a filled backdrop under an icon cheapens
+     the look, and the native macOS sidebars draw the symbol in the label's colour. */
   .nav .ic{width:16px;height:16px;flex:none;display:grid;place-items:center;
     color:var(--dim);opacity:.9}
   .nav.on .ic{color:#fff;opacity:1}
@@ -112,8 +112,8 @@
   .b-err{background:rgba(255,59,48,.14);color:#c9251c}
   .b-soon{background:var(--icbg);color:var(--dim2)}
 
-  /* Логотипы сервисов тоже монохромные: цветные плашки в списке спорят
-     с индикаторами загрузки, которые цветом кодируют смысл. */
+  /* The service logos are monochrome too: coloured tiles in a list argue
+     with the load indicators, where the colour is what carries the meaning. */
   .logo{width:20px;height:20px;border-radius:5px;flex:none;display:grid;place-items:center;
     color:var(--dim);border:1px solid var(--sep);background:transparent}
   .chip{border:1px solid var(--fieldb);border-radius:14px;background:var(--field);padding:3px 9px;font-size:11.5px;
@@ -140,7 +140,7 @@
   .tab .ic{width:20px;height:20px;display:grid;place-items:center;color:var(--dim)}
   .caption{color:var(--dim);font-size:12.5px;margin-top:10px;max-width:60ch}
 
-  /* бейджи: на тёмном фоне тёмный текст не читается */
+  /* badges: dark text is unreadable on a dark background */
   [data-theme="dark"] .b-live{background:rgba(50,215,75,.18);color:#4ee06a}
   [data-theme="dark"] .b-ref{background:rgba(10,132,255,.22);color:#6cb8ff}
   [data-theme="dark"] .b-err{background:rgba(255,69,58,.20);color:#ff7b70}
@@ -152,7 +152,7 @@
     [data-theme="system"] .btn.danger{border-color:rgba(255,69,58,.45)}
   }
 
-  /* ---------- переключатель темы страницы ---------- */
+  /* ---------- the page's own theme switch ---------- */
   .themebar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;
     gap:10px;align-items:center;padding:11px;background:var(--card);
     border-top:1px solid var(--sep);box-shadow:0 -6px 22px var(--shadow)}
@@ -165,160 +165,160 @@
 </head>
 <body>
 
-<h1>Softcap — экран настроек</h1>
+<h1>Softcap — the settings screen</h1>
 <p class="lede">
-  Семь разделов, панель слева. Иконки — монохромные штриховые глифы в цвет подписи,
-  как SF&nbsp;Symbols в нативных панелях macOS: цветные плашки удешевляют вид и спорят
-  с индикаторами загрузки, где цвет несёт смысл. Внизу страницы — переключатель тем.
+  Seven sections, the list on the left. The icons are monochrome line glyphs in the label's colour,
+  the way SF&nbsp;Symbols are in the native macOS sidebars: coloured tiles cheapen the look and argue
+  with the load indicators, where the colour carries meaning. At the foot of the page is a theme switch.
 </p>
 
 <div class="wrap">
 
-<h2 class="sec">Основной экран — аккаунты</h2>
+<h2 class="sec">The main screen — accounts</h2>
 
 <div class="win">
   <div class="tb"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-    <span class="ttl">Настройки</span></div>
+    <span class="ttl">Settings</span></div>
   <div class="body">
     <div class="side">
-      <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Аккаунты</div>
-      <div class="nav"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Внешний вид</div>
-      <div class="nav"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Уведомления</div>
-      <div class="nav"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Обновление</div>
-      <div class="nav"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Сервисы</div>
-      <div class="nav"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Горячая клавиша</div>
-      <div class="nav"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> О программе</div>
+      <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Accounts</div>
+      <div class="nav"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Appearance</div>
+      <div class="nav"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Notifications</div>
+      <div class="nav"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Updates</div>
+      <div class="nav"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Services</div>
+      <div class="nav"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Hot key</div>
+      <div class="nav"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> About</div>
     </div>
     <div class="pane">
-      <h3>Аккаунты</h3>
-      <p class="sub">Появляются сами, когда вы заходите в них через <code>claude /login</code>.
-        Здесь можно скрыть аккаунт из окна или забыть совсем.</p>
+      <h3>Accounts</h3>
+      <p class="sub">They appear on their own when you sign in with <code>claude /login</code>.
+        Here an account can be hidden from the window, or forgotten altogether.</p>
 
       <div class="group">
         <div class="row">
           <span class="logo">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.2 6.1 6.1 2.2-6.1 2.2L12 19.2l-2.2-6.1L3.7 10.9l6.1-2.2z"/></svg></span>
           <span class="lbl"><div class="t">alex@example.com</div>
-            <div class="d">Claude · Max 20x · обновлено минуту назад</div></span>
-          <span class="badge b-live">активен в CLI</span>
+            <div class="d">Claude · Max 20x · updated a minute ago</div></span>
+          <span class="badge b-live">active in CLI</span>
           <span class="sw on"><i></i></span>
         </div>
         <div class="row">
           <span class="logo">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.2 6.1 6.1 2.2-6.1 2.2L12 19.2l-2.2-6.1L3.7 10.9l6.1-2.2z"/></svg></span>
           <span class="lbl"><div class="t">sam@example.com</div>
-            <div class="d">Claude · Max 5x · продлевается своей копией токена</div></span>
-          <span class="badge b-ref">продлевается</span>
+            <div class="d">Claude · Max 5x · own refresh token copy</div></span>
+          <span class="badge b-ref">refreshed</span>
           <span class="sw on"><i></i></span>
         </div>
         <div class="row">
           <span class="logo">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.2 6.1 6.1 2.2-6.1 2.2L12 19.2l-2.2-6.1L3.7 10.9l6.1-2.2z"/></svg></span>
           <span class="lbl"><div class="t">team@example.org</div>
-            <div class="d">Claude · Pro · токен истёк 3 дня назад</div></span>
-          <span class="badge b-err">нужен вход</span>
+            <div class="d">Claude · Pro · token expired 3 days ago</div></span>
+          <span class="badge b-err">sign-in needed</span>
           <span class="sw"><i></i></span>
         </div>
         <div class="row">
           <span class="logo">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4.3"/><circle cx="12" cy="12" r="8.6" opacity=".55"/></svg></span>
           <span class="lbl"><div class="t">Tyler Durden</div>
-            <div class="d">Codex · Plus · снимок от 28 авг</div></span>
-          <span class="badge b-live">локальный</span>
+            <div class="d">Codex · Plus · data from 28 Aug</div></span>
+          <span class="badge b-live">local</span>
           <span class="sw on"><i></i></span>
         </div>
       </div>
 
       <div class="row" style="padding:0 2px;gap:8px">
-        <span class="btn">Забыть выбранный…</span>
-        <span class="btn">Проверить сейчас</span>
+        <span class="btn">Forget…</span>
+        <span class="btn">Refresh now</span>
         <span style="flex:1"></span>
       </div>
 
       <p class="hint" style="margin-top:12px">
-        <b>Активен в CLI</b> — токен читается напрямую и никогда не продлевается, иначе
-        <code>claude</code> разлогинится. <b>Продлевается</b> — приложение держит свою копию
-        refresh-токена, снятую пока аккаунт был активен.
+        <b>Active in CLI</b> — the token is read directly and never refreshed, otherwise
+        <code>claude</code> would be signed out. <b>Refreshed</b> — the app keeps its own copy of the
+        refresh token, taken while the account was active.
       </p>
     </div>
   </div>
 </div>
 
-<h2 class="sec">Остальные разделы</h2>
+<h2 class="sec">The other sections</h2>
 
 <div class="grid">
 
-  <!-- Внешний вид -->
+  <!-- Appearance -->
   <div class="win mini">
     <div class="tb"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-      <span class="ttl">Настройки</span></div>
+      <span class="ttl">Settings</span></div>
     <div class="body">
       <div class="side">
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Аккаунты</div>
-        <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Внешний вид</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Уведомления</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Обновление</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Сервисы</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Горячая клавиша</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> О программе</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Accounts</div>
+        <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Appearance</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Notifications</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Updates</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Services</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Hot key</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> About</div>
       </div>
       <div class="pane">
-        <h3>Внешний вид</h3>
-        <p class="sub">Как выглядит значок в строке меню и строка аккаунта в окне.</p>
+        <h3>Appearance</h3>
+        <p class="sub">How the menu bar icon and the account row in the window look.</p>
         <div class="group">
-          <div class="row"><span class="lbl"><div class="t">Оформление</div>
-            <div class="d">системное следует за настройкой macOS</div></span>
-            <span class="seg"><span class="on">Системное</span><span>Светлое</span><span>Тёмное</span></span></div>
-          <div class="row"><span class="lbl"><div class="t">В строке меню</div></span>
-            <span class="seg"><span>Иконка</span><span class="on">Таймер</span><span>%</span><span>Оба</span></span></div>
-          <div class="row"><span class="lbl"><div class="t">Считать главным</div>
-            <div class="d">по какому окну цвет и таймер</div></span>
-            <span class="pop">Самое забитое</span></div>
-          <div class="row"><span class="lbl"><div class="t">Компоновка строки</div>
-            <div class="d">A — два окна, B — одна строка, C — кольца</div></span>
+          <div class="row"><span class="lbl"><div class="t">Appearance</div>
+            <div class="d">system follows the macOS setting</div></span>
+            <span class="seg"><span class="on">System</span><span>Light</span><span>Dark</span></span></div>
+          <div class="row"><span class="lbl"><div class="t">In the menu bar</div></span>
+            <span class="seg"><span>Icon</span><span class="on">Timer</span><span>%</span><span>Both</span></span></div>
+          <div class="row"><span class="lbl"><div class="t">Primary window</div>
+            <div class="d">which window the colour and the timer follow</div></span>
+            <span class="pop">Busiest</span></div>
+          <div class="row"><span class="lbl"><div class="t">Row layout</div>
+            <div class="d">A — two windows, B — a single line, C — rings</div></span>
             <span class="seg"><span class="on">A</span><span>B</span><span>C</span></span></div>
-          <div class="row"><span class="lbl"><div class="t">Порядок</div></span>
-            <span class="pop">Свободные сверху</span></div>
-          <div class="row"><span class="lbl"><div class="t">Показывать возраст снимка</div>
-            <div class="d">плашка «данные от 28 авг»</div></span>
+          <div class="row"><span class="lbl"><div class="t">Order</div></span>
+            <span class="pop">Least loaded first</span></div>
+          <div class="row"><span class="lbl"><div class="t">Show snapshot age</div>
+            <div class="d">the “data from 28 Aug” badge</div></span>
             <span class="sw on"><i></i></span></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Уведомления -->
+  <!-- Notifications -->
   <div class="win mini">
     <div class="tb"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-      <span class="ttl">Настройки</span></div>
+      <span class="ttl">Settings</span></div>
     <div class="body">
       <div class="side">
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Аккаунты</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Внешний вид</div>
-        <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Уведомления</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Обновление</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Сервисы</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Горячая клавиша</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> О программе</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Accounts</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Appearance</div>
+        <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Notifications</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Updates</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Services</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Hot key</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> About</div>
       </div>
       <div class="pane">
-        <h3>Уведомления</h3>
-        <p class="sub">Сейчас пороги 80 и 95 зашиты в код. Здесь их можно менять.</p>
+        <h3>Notifications</h3>
+        <p class="sub">The thresholds 80 and 95 are hard-coded today. Here they can be changed.</p>
         <div class="group">
-          <div class="row"><span class="lbl"><div class="t">Уведомлять</div></span>
+          <div class="row"><span class="lbl"><div class="t">Notify</div></span>
             <span class="sw on"><i></i></span></div>
-          <div class="row"><span class="lbl"><div class="t">Пороги</div>
-            <div class="d">срабатывает на пересечении вверх</div></span>
+          <div class="row"><span class="lbl"><div class="t">Thresholds</div>
+            <div class="d">fires when a threshold is crossed upward</div></span>
             <span style="display:flex;gap:5px">
               <span class="chip">80 % <span class="x">×</span></span>
               <span class="chip">95 % <span class="x">×</span></span>
               <span class="chip add">+</span></span></div>
-          <div class="row"><span class="lbl"><div class="t">Когда снова свободен</div></span>
+          <div class="row"><span class="lbl"><div class="t">When free again</div></span>
             <span class="sw on"><i></i></span></div>
-          <div class="row"><span class="lbl"><div class="t">По каким окнам</div></span>
-            <span class="seg"><span>5ч</span><span>нед</span><span class="on">оба</span></span></div>
-          <div class="row"><span class="lbl"><div class="t">Тихие часы</div>
-            <div class="d">ночью оповещение бесполезно</div></span>
+          <div class="row"><span class="lbl"><div class="t">Which windows</div></span>
+            <span class="seg"><span>5h</span><span>week</span><span class="on">both</span></span></div>
+          <div class="row"><span class="lbl"><div class="t">Quiet hours</div>
+            <div class="d">a notification at night is useless</div></span>
             <span style="display:flex;gap:5px;align-items:center">
               <span class="kbd">23:00</span><span style="color:var(--dim2)">–</span><span class="kbd">09:00</span></span></div>
         </div>
@@ -326,150 +326,150 @@
     </div>
   </div>
 
-  <!-- Обновление -->
+  <!-- Updates -->
   <div class="win mini">
     <div class="tb"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-      <span class="ttl">Настройки</span></div>
+      <span class="ttl">Settings</span></div>
     <div class="body">
       <div class="side">
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Аккаунты</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Внешний вид</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Уведомления</div>
-        <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Обновление</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Сервисы</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Горячая клавиша</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> О программе</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Accounts</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Appearance</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Notifications</div>
+        <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Updates</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Services</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Hot key</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> About</div>
       </div>
       <div class="pane">
-        <h3>Обновление и запуск</h3>
-        <p class="sub">Как часто ходить за данными и стартовать ли самому.</p>
+        <h3>Updates and launch</h3>
+        <p class="sub">How often to fetch data and whether to start on its own.</p>
         <div class="group">
-          <div class="row"><span class="lbl"><div class="t">Запускать при входе в систему</div>
-            <div class="d">сейчас этого нет вовсе</div></span>
+          <div class="row"><span class="lbl"><div class="t">Launch at login</div>
+            <div class="d">not there at all today</div></span>
             <span class="sw on"><i></i></span></div>
-          <div class="row"><span class="lbl"><div class="t">Когда окно открыто</div></span>
-            <span class="stepper"><span class="v">60 с</span></span></div>
-          <div class="row"><span class="lbl"><div class="t">В фоне</div></span>
-            <span class="stepper"><span class="v">5 мин</span></span></div>
-          <div class="row"><span class="lbl"><div class="t">Обновлять после пробуждения</div>
-            <div class="d">данные за время сна устаревают</div></span>
+          <div class="row"><span class="lbl"><div class="t">While the window is open</div></span>
+            <span class="stepper"><span class="v">60 s</span></span></div>
+          <div class="row"><span class="lbl"><div class="t">In the background</div></span>
+            <span class="stepper"><span class="v">5 min</span></span></div>
+          <div class="row"><span class="lbl"><div class="t">Refresh after wake</div>
+            <div class="d">the reading goes stale while the Mac sleeps</div></span>
             <span class="sw on"><i></i></span></div>
         </div>
-        <p class="hint">Чаще раза в минуту смысла нет: лимиты на стороне сервиса
-          пересчитываются не мгновенно.</p>
+        <p class="hint">More often than once a minute is pointless: the service does not
+          recompute its limits instantly.</p>
       </div>
     </div>
   </div>
 
-  <!-- Сервисы -->
+  <!-- Services -->
   <div class="win mini">
     <div class="tb"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-      <span class="ttl">Настройки</span></div>
+      <span class="ttl">Settings</span></div>
     <div class="body">
       <div class="side">
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Аккаунты</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Внешний вид</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Уведомления</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Обновление</div>
-        <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Сервисы</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Горячая клавиша</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> О программе</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Accounts</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Appearance</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Notifications</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Updates</div>
+        <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Services</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Hot key</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> About</div>
       </div>
       <div class="pane">
-        <h3>Сервисы</h3>
-        <p class="sub">Откуда брать данные. Выключенный сервис не опрашивается.</p>
+        <h3>Services</h3>
+        <p class="sub">Where the data comes from. A service switched off is not polled.</p>
         <div class="group">
           <div class="row">
             <span class="logo">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.2 6.1 6.1 2.2-6.1 2.2L12 19.2l-2.2-6.1L3.7 10.9l6.1-2.2z"/></svg></span>
             <span class="lbl"><div class="t">Claude Code</div>
-              <div class="d">живые данные из API</div></span>
+              <div class="d">live data from the API</div></span>
             <span class="sw on"><i></i></span></div>
           <div class="row">
             <span class="logo">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4.3"/><circle cx="12" cy="12" r="8.6" opacity=".55"/></svg></span>
             <span class="lbl"><div class="t">OpenAI Codex</div>
-              <div class="d">~/.codex — снимок из файлов сессий</div></span>
-            <span class="btn">Выбрать…</span>
+              <div class="d">~/.codex — a snapshot from the session files</div></span>
+            <span class="btn">Choose…</span>
             <span class="sw on"><i></i></span></div>
           <div class="row"><span class="logo"></span>
             <span class="lbl"><div class="t">Cursor</div></span>
-            <span class="badge b-soon">позже</span></div>
+            <span class="badge b-soon">later</span></div>
           <div class="row"><span class="logo"></span>
             <span class="lbl"><div class="t">GitHub Copilot</div></span>
-            <span class="badge b-soon">позже</span></div>
+            <span class="badge b-soon">later</span></div>
           <div class="row"><span class="logo"></span>
             <span class="lbl"><div class="t">Gemini CLI</div></span>
-            <span class="badge b-soon">позже</span></div>
+            <span class="badge b-soon">later</span></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Горячая клавиша -->
+  <!-- Hot key -->
   <div class="win mini">
     <div class="tb"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-      <span class="ttl">Настройки</span></div>
+      <span class="ttl">Settings</span></div>
     <div class="body">
       <div class="side">
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Аккаунты</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Внешний вид</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Уведомления</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Обновление</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Сервисы</div>
-        <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Горячая клавиша</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> О программе</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Accounts</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Appearance</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Notifications</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Updates</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Services</div>
+        <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Hot key</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> About</div>
       </div>
       <div class="pane">
-        <h3>Горячая клавиша</h3>
-        <p class="sub">Открыть окно, не целясь мышью в строку меню.</p>
+        <h3>Hot key</h3>
+        <p class="sub">Open the window without aiming the mouse at the menu bar.</p>
         <div class="group">
-          <div class="row"><span class="lbl"><div class="t">Открыть окно</div></span>
-            <span class="kbd">⌥ ⌘ L</span><span class="btn">Изменить</span></div>
-          <div class="row"><span class="lbl"><div class="t">Обновить сейчас</div>
-            <div class="d">не назначено</div></span>
-            <span class="btn">Назначить</span></div>
+          <div class="row"><span class="lbl"><div class="t">Open the window</div></span>
+            <span class="kbd">⌥ ⌘ L</span><span class="btn">Change</span></div>
+          <div class="row"><span class="lbl"><div class="t">Refresh now</div>
+            <div class="d">not set</div></span>
+            <span class="btn">Set</span></div>
         </div>
         <p class="hint" style="background:rgba(255,159,10,.10);padding:9px 10px;border-radius:6px;
            border:1px solid rgba(255,159,10,.25)">
-          Ради одного поля целый раздел выглядит пусто. Второй пункт добавлен,
-          чтобы экран не был почти пустым — но проще перенести обе строки
-          в «Обновление и запуск» и оставить шесть разделов.
+          A whole section for one field looks empty. The second item is there so the
+          screen would not be nearly bare — but it is simpler to move both rows into
+          “Updates and launch” and keep six sections.
         </p>
       </div>
     </div>
   </div>
 
-  <!-- О программе -->
+  <!-- About -->
   <div class="win mini">
     <div class="tb"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-      <span class="ttl">Настройки</span></div>
+      <span class="ttl">Settings</span></div>
     <div class="body">
       <div class="side">
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Аккаунты</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Внешний вид</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Уведомления</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Обновление</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Сервисы</div>
-        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Горячая клавиша</div>
-        <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> О программе</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.3"/><path d="M3.8 19.2c0-3.1 2.6-5 5.7-5s5.7 1.9 5.7 5"/><path d="M16.2 5.2a3.3 3.3 0 0 1 0 5.6"/><path d="M17.6 14.6c1.7.7 2.9 2.2 2.9 4.6"/></svg></span> Accounts</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2z" fill="currentColor" stroke="none"/></svg></span> Appearance</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9.5a6 6 0 1 0-12 0c0 4.8-2 5.9-2 5.9h16s-2-1.1-2-5.9z"/><path d="M13.7 18.8a2 2 0 0 1-3.4 0"/></svg></span> Notifications</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.6 4.6v5.2h-5.2"/></svg></span> Updates</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.9" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="3.9" width="6.9" height="6.9" rx="1.7"/><rect x="3.9" y="13.2" width="6.9" height="6.9" rx="1.7"/><rect x="13.2" y="13.2" width="6.9" height="6.9" rx="1.7"/></svg></span> Services</div>
+        <div class="nav muted"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="6.2" width="18.8" height="11.6" rx="2.2"/><path d="M6.2 9.7h.01M9.6 9.7h.01M13 9.7h.01M16.4 9.7h.01M6.2 13h.01M9.6 13h.01M13 13h.01M16.4 13h.01M8.4 16.1h7.2"/></svg></span> Hot key</div>
+        <div class="nav on"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5"/><path d="M12 7.9h.01"/></svg></span> About</div>
       </div>
       <div class="pane">
-        <h3>О программе и данные</h3>
-        <p class="sub">Что приложение хранит и как это убрать.</p>
+        <h3>About and data</h3>
+        <p class="sub">What the app stores and how to remove it.</p>
         <div class="group">
-          <div class="row"><span class="lbl"><div class="t">Версия</div></span>
-            <span style="color:var(--dim);font-size:12px">0.1 (сборка 1)</span></div>
-          <div class="row"><span class="lbl"><div class="t">Учётные данные</div>
+          <div class="row"><span class="lbl"><div class="t">Version</div></span>
+            <span style="color:var(--dim);font-size:12px">0.1 (build 1)</span></div>
+          <div class="row"><span class="lbl"><div class="t">Credentials</div>
             <div class="d">Keychain · StatusChecker-accounts</div></span>
-            <span class="btn">Показать</span></div>
-          <div class="row"><span class="lbl"><div class="t">Настройки</div>
+            <span class="btn">Show</span></div>
+          <div class="row"><span class="lbl"><div class="t">Settings</div>
             <div class="d">~/Library/Preferences/app.softcap.Softcap.plist</div></span></div>
         </div>
         <div class="group">
-          <div class="row"><span class="lbl"><div class="t">Забыть все аккаунты</div>
-            <div class="d">удалит только копии токенов приложения; вход в CLI не тронет</div></span>
-            <span class="btn danger">Забыть…</span></div>
+          <div class="row"><span class="lbl"><div class="t">Forget all accounts</div>
+            <div class="d">removes only the token copies this app keeps; the CLI sign-in is untouched</div></span>
+            <span class="btn danger">Forget…</span></div>
         </div>
       </div>
     </div>
@@ -480,10 +480,10 @@
 </div>
 
 <div class="themebar">
-  <span class="cap">Тема макета:</span>
-  <button data-set="system" class="on">Системная</button>
-  <button data-set="light">Светлая</button>
-  <button data-set="dark">Тёмная</button>
+  <span class="cap">Mock-up theme:</span>
+  <button data-set="system" class="on">System</button>
+  <button data-set="light">Light</button>
+  <button data-set="dark">Dark</button>
 </div>
 
 <script>

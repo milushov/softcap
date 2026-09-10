@@ -1,17 +1,19 @@
-// Настройки подписи.
+// Signing settings.
 //
-// Значения по умолчанию рассчитаны на то, что проект собирают у себя: подпись
-// ad-hoc работает без учётной записи разработчика. Но доступ к чужому элементу
-// Keychain macOS привязывает к подписи, а ad-hoc меняется при каждой сборке —
-// поэтому «Always Allow» с ней не запоминается и пароль спрашивают снова.
+// The defaults assume the project is being built for the machine it is on: an
+// ad-hoc signature works without a developer account. But macOS ties access to
+// another application's keychain item to the signature, and an ad-hoc one
+// changes on every build — so "Always Allow" is not remembered with it and the
+// password is asked for again.
 //
-// Чтобы этого не было, создайте рядом Signing.local.xcconfig (он в .gitignore)
-// со своими значениями:
+// To avoid that, create Signing.local.xcconfig beside this file (it is in
+// .gitignore) with your own values:
 //
-//     CODE_SIGN_IDENTITY = Apple Development: Ваше Имя (XXXXXXXXXX)
+//     CODE_SIGN_IDENTITY = Apple Development: Your Name (XXXXXXXXXX)
 //     DEVELOPMENT_TEAM = YYYYYYYYYY
 //
-// Team ID — это поле OU сертификата, а не число в скобках его имени:
+// The team ID is the OU field of the certificate, not the number in brackets in
+// its name:
 //     security find-certificate -c "Apple Development" -p | openssl x509 -noout -subject
 
 #include? "Signing.local.xcconfig"

@@ -2,62 +2,62 @@
 > carried out, step by step, not a reference document. New plans are written
 > in English. See `docs/DECISIONS.md` for the reasoning.
 
-# Экран настроек — план реализации
+# The settings screen — implementation plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Окно настроек с шестью разделами, которое действительно управляет поведением приложения, плюс вход в аккаунт Claude через браузер прямо из настроек.
+**Goal:** A settings window with six sections that genuinely governs how the app behaves, plus signing in to a Claude account through the browser from inside settings.
 
-**Architecture:** Модель настроек и вся логика, которую можно проверить без запуска приложения, живут в новом модуле `Packages/Core/Sources/Preferences`. Существующие места, где значения зашиты (`ThresholdTracker`, `orderedForDisplay`, интервалы опроса), начинают принимать их параметром. Экраны — сцена `Settings` в `App/Settings/`, по файлу на раздел.
+**Architecture:** The settings model, and every piece of logic that can be checked without launching the app, live in a new module `Packages/Core/Sources/Preferences`. The places that hard-code values today (`ThresholdTracker`, `orderedForDisplay`, the poll intervals) start taking them as a parameter. The screens are a `Settings` scene in `App/Settings/`, one file per section.
 
-**Tech Stack:** Swift 6.2, SwiftUI `Settings` + `NavigationSplitView`, `UserDefaults`, `CryptoKit` (PKCE), `Network` (слушатель для возврата из браузера), `ServiceManagement` (автозапуск), Carbon (глобальные сочетания), Swift Testing.
+**Tech Stack:** Swift 6.2, SwiftUI `Settings` + `NavigationSplitView`, `UserDefaults`, `CryptoKit` (PKCE), `Network` (the listener the browser comes back to), `ServiceManagement` (launch at login), Carbon (global shortcuts), Swift Testing.
 
 ## Global Constraints
 
-- Swift tools version `6.2`, платформа `.macOS(.v14)`, строгая конкурентность.
-- Ни один тест не ходит в сеть, не читает Keychain и не пишет в `UserDefaults` — всё за протоколами.
-- Секреты (`code_verifier`, токены) не попадают в логи, `UserDefaults` и сообщения об ошибках.
-- Настройки хранятся в `UserDefaults` одним ключом `preferences`; учётные данные остаются в Keychain.
-- Язык интерфейса — русский. Оформление по умолчанию — `Системное`.
-- Пороги по умолчанию `[80, 95]`; интервалы опроса 60 с и 300 с; границы интервалов 30…3600 с.
-- Адреса OAuth (из констант Claude Code, проверены 2026-08-30):
+- Swift tools version `6.2`, platform `.macOS(.v14)`, strict concurrency.
+- No test reaches the network, reads the keychain or writes to `UserDefaults` — everything sits behind a protocol.
+- Secrets (`code_verifier`, tokens) never reach the log, `UserDefaults` or an error message.
+- Settings are stored in `UserDefaults` under the single key `preferences`; credentials stay in the keychain.
+- The interface language is Russian. The default appearance is `Системное`.
+- Default thresholds `[80, 95]`; poll intervals 60 s and 300 s; the interval bounds are 30…3600 s.
+- The OAuth addresses (from Claude Code's own constants, checked 2026-08-30):
   authorize `https://platform.claude.com/oauth/authorize`,
   token `https://platform.claude.com/v1/oauth/token`,
   client_id `9d1c250a-e61b-44d9-88ed-5944d1962f5e`,
   scope `org:create_api_key user:profile user:inference`.
-- Иконки разделов — монохромные штриховые глифы в цвет подписи, без плашек.
+- Section icons are monochrome line glyphs in the colour of the label, with no tile behind them.
 
-## Структура файлов
+## File layout
 
 ```
-Packages/Core/Sources/Preferences/          # новый модуль
-├── Preferences.swift          # модель, значения по умолчанию, нормализация
-├── QuietHours.swift           # окно тишины, в том числе через полночь
-└── PreferencesStore.swift     # протокол хранилища + UserDefaults
+Packages/Core/Sources/Preferences/          # the new module
+├── Preferences.swift          # the model, its defaults, normalisation
+├── QuietHours.swift           # the quiet window, including across midnight
+└── PreferencesStore.swift     # the storage protocol + UserDefaults
 
 Packages/Core/Sources/ClaudeProvider/
-├── OAuthEndpoints.swift       # адреса и client_id одним местом
+├── OAuthEndpoints.swift       # the addresses and client_id, in one place
 ├── PKCE.swift                 # verifier, challenge, base64url
-├── OAuthLogin.swift           # сборка URL + обмен кода на токены
-└── ClaudeProvider.swift       # (без изменений)
+├── OAuthLogin.swift           # building the URL + trading the code for tokens
+└── ClaudeProvider.swift       # (unchanged)
 
 Packages/Core/Sources/Credentials/
 └── CredentialStore.swift      # + addLoggedInAccount, forget, hidden
 
 Packages/Core/Sources/Monitoring/
-└── ThresholdNotifier.swift    # пороги и тихие часы параметром
+└── ThresholdNotifier.swift    # thresholds and quiet hours as a parameter
 
 Packages/Core/Sources/ProviderKit/
-└── SnapshotOrdering.swift     # порядок параметром
+└── SnapshotOrdering.swift     # the order as a parameter
 
 App/
-├── PreferencesModel.swift     # @MainActor обёртка над Preferences
+├── PreferencesModel.swift     # @MainActor wrapper over Preferences
 ├── LaunchAtLogin.swift        # SMAppService
-├── LoginController.swift      # слушатель localhost + запуск браузера
+├── LoginController.swift      # the localhost listener + opening the browser
 ├── HotKeys.swift              # Carbon RegisterEventHotKey
 └── Settings/
-    ├── SettingsView.swift     # каркас, боковая панель
-    ├── SettingsIcons.swift    # монохромные глифы разделов
+    ├── SettingsView.swift     # the frame, the sidebar
+    ├── SettingsIcons.swift    # the monochrome section glyphs
     ├── AccountsPane.swift
     ├── AppearancePane.swift
     ├── NotificationsPane.swift
@@ -68,7 +68,7 @@ App/
 
 ---
 
-### Task 1: Модель настроек
+### Task 1: The settings model
 
 **Files:**
 - Create: `Packages/Core/Sources/Preferences/Preferences.swift`
@@ -78,7 +78,7 @@ App/
 - Test: `Packages/Core/Tests/PreferencesTests/QuietHoursTests.swift`
 
 **Interfaces:**
-- Consumes: `ProviderID` из `ProviderKit`.
+- Consumes: `ProviderID` from `ProviderKit`.
 - Produces:
   - `enum Appearance: String, Codable, Sendable, CaseIterable` — `.system`, `.light`, `.dark`
   - `enum MenuBarContent: String, Codable, Sendable, CaseIterable` — `.iconOnly`, `.timer`, `.percent`, `.both`
@@ -87,33 +87,33 @@ App/
   - `enum Ordering: String, Codable, Sendable, CaseIterable` — `.leastLoadedFirst`, `.byName`
   - `enum WindowScope: String, Codable, Sendable, CaseIterable` — `.session`, `.weekly`, `.both`
   - `struct QuietHours: Codable, Sendable, Hashable` — `init(startMinute:endMinute:)`, `contains(_ date: Date, calendar: Calendar) -> Bool`
-  - `struct Preferences: Codable, Sendable, Equatable` — все поля из спеки, `static let defaults`, `func normalized() -> Preferences`
+  - `struct Preferences: Codable, Sendable, Equatable` — every field from the spec, `static let defaults`, `func normalized() -> Preferences`
   - `Preferences.intervalRange: ClosedRange<TimeInterval>` = `30...3600`
 
-- [ ] **Step 1: Добавить модуль в манифест**
+- [ ] **Step 1: Add the module to the manifest**
 
-В `Packages/Core/Package.swift` добавить в `products`:
+In `Packages/Core/Package.swift`, add to `products`:
 
 ```swift
         .library(name: "Preferences", targets: ["Preferences"]),
 ```
 
-и в `targets`:
+and to `targets`:
 
 ```swift
         .target(name: "Preferences", dependencies: ["ProviderKit"]),
         .testTarget(name: "PreferencesTests", dependencies: ["Preferences"]),
 ```
 
-Создать каталоги:
+Create the directories:
 
 ```bash
 mkdir -p Packages/Core/Sources/Preferences Packages/Core/Tests/PreferencesTests
 ```
 
-- [ ] **Step 2: Написать падающий тест на окно тишины**
+- [ ] **Step 2: Write a failing test for the quiet window**
 
-Создать `Packages/Core/Tests/PreferencesTests/QuietHoursTests.swift`:
+Create `Packages/Core/Tests/PreferencesTests/QuietHoursTests.swift`:
 
 ```swift
 import Testing
@@ -134,42 +134,42 @@ private func at(_ hour: Int, _ minute: Int) -> Date {
     let hours = QuietHours(startMinute: 13 * 60, endMinute: 14 * 60)   // 13:00–14:00
     #expect(hours.contains(at(13, 30), calendar: utc))
     #expect(hours.contains(at(12, 59), calendar: utc) == false)
-    #expect(hours.contains(at(14, 0), calendar: utc) == false)   // конец не включаем
+    #expect(hours.contains(at(14, 0), calendar: utc) == false)   // the end is excluded
 }
 
 @Test func windowAcrossMidnightWorksOnBothSides() {
     let hours = QuietHours(startMinute: 23 * 60, endMinute: 9 * 60)    // 23:00–09:00
-    #expect(hours.contains(at(23, 30), calendar: utc))   // вечер
-    #expect(hours.contains(at(2, 0), calendar: utc))     // ночь
-    #expect(hours.contains(at(8, 59), calendar: utc))    // утро
+    #expect(hours.contains(at(23, 30), calendar: utc))   // evening
+    #expect(hours.contains(at(2, 0), calendar: utc))     // night
+    #expect(hours.contains(at(8, 59), calendar: utc))    // morning
     #expect(hours.contains(at(9, 0), calendar: utc) == false)
     #expect(hours.contains(at(15, 0), calendar: utc) == false)
 }
 
 @Test func startEqualToEndMeansAlwaysQuiet() {
-    // Вырожденный случай: пользователь выставил одинаковое время.
-    // Трактуем как «тишина круглые сутки», а не «никогда».
+    // The degenerate case: the same time was set for both ends.
+    // Read as “quiet around the clock”, not as “never”.
     let hours = QuietHours(startMinute: 60, endMinute: 60)
     #expect(hours.contains(at(0, 30), calendar: utc))
     #expect(hours.contains(at(12, 0), calendar: utc))
 }
 ```
 
-- [ ] **Step 3: Убедиться, что тест падает**
+- [ ] **Step 3: Confirm the test fails**
 
 Run: `cd Packages/Core && swift test --filter QuietHoursTests`
-Expected: FAIL — модуль `Preferences` ещё пуст.
+Expected: FAIL — the `Preferences` module is still empty.
 
-- [ ] **Step 4: Реализовать окно тишины**
+- [ ] **Step 4: Implement the quiet window**
 
-Создать `Packages/Core/Sources/Preferences/QuietHours.swift`:
+Create `Packages/Core/Sources/Preferences/QuietHours.swift`:
 
 ```swift
 import Foundation
 
-/// Промежуток суток, заданный минутами от полуночи.
-/// Хранится в минутах, а не датами: настройка привязана ко времени дня,
-/// а не к конкретному дню, и переживает смену часового пояса.
+/// A stretch of the day, given as minutes from midnight.
+/// Held in minutes rather than dates: the setting is tied to a time of day
+/// and not to one particular day, and it survives a change of time zone.
 public struct QuietHours: Codable, Sendable, Hashable {
     public let startMinute: Int
     public let endMinute: Int
@@ -183,27 +183,27 @@ public struct QuietHours: Codable, Sendable, Hashable {
         let parts = calendar.dateComponents([.hour, .minute], from: date)
         let minute = (parts.hour ?? 0) * 60 + (parts.minute ?? 0)
 
-        // Начало позже конца — промежуток переваливает через полночь,
-        // и тогда «внутри» означает «после начала ИЛИ до конца».
+        // The start later than the end means the stretch runs over midnight,
+        // and then “inside” means “after the start OR before the end”.
         if startMinute < endMinute {
             return minute >= startMinute && minute < endMinute
         }
         if startMinute > endMinute {
             return minute >= startMinute || minute < endMinute
         }
-        return true   // начало равно концу — тишина круглые сутки
+        return true   // start equal to end — quiet around the clock
     }
 }
 ```
 
-- [ ] **Step 5: Убедиться, что тесты проходят**
+- [ ] **Step 5: Confirm the tests pass**
 
 Run: `cd Packages/Core && swift test --filter QuietHoursTests`
-Expected: PASS, 3 теста.
+Expected: PASS, 3 tests.
 
-- [ ] **Step 6: Написать падающий тест на модель**
+- [ ] **Step 6: Write a failing test for the model**
 
-Создать `Packages/Core/Tests/PreferencesTests/PreferencesTests.swift`:
+Create `Packages/Core/Tests/PreferencesTests/PreferencesTests.swift`:
 
 ```swift
 import Testing
@@ -241,7 +241,7 @@ import ProviderKit
 @Test func thresholdsOutsideRangeAreDropped() {
     var p = Preferences.defaults
     p.thresholds = [0, 50, 100, 140, -10]
-    // 0 и отрицательные бессмысленны, выше 100 недостижимо
+    // 0 and negatives are meaningless, above 100 is unreachable
     #expect(p.normalized().thresholds == [100, 50])
 }
 
@@ -284,14 +284,14 @@ import ProviderKit
 }
 ```
 
-- [ ] **Step 7: Убедиться, что тест падает**
+- [ ] **Step 7: Confirm the test fails**
 
 Run: `cd Packages/Core && swift test --filter PreferencesTests`
 Expected: FAIL, `cannot find 'Preferences' in scope`.
 
-- [ ] **Step 8: Реализовать модель**
+- [ ] **Step 8: Implement the model**
 
-Создать `Packages/Core/Sources/Preferences/Preferences.swift`:
+Create `Packages/Core/Sources/Preferences/Preferences.swift`:
 
 ```swift
 import Foundation
@@ -368,7 +368,7 @@ public enum WindowScope: String, Codable, Sendable, CaseIterable {
         }
     }
 
-    /// Подходит ли окно с таким идентификатором под выбранный охват.
+    /// Whether a window with this identifier falls under the chosen scope.
     public func includes(windowID: String) -> Bool {
         switch self {
         case .both:    true
@@ -379,7 +379,7 @@ public enum WindowScope: String, Codable, Sendable, CaseIterable {
 }
 
 public struct Preferences: Codable, Sendable, Equatable {
-    // Внешний вид
+    // Appearance
     public var appearance: Appearance
     public var menuBarContent: MenuBarContent
     public var primaryWindow: PrimaryWindow
@@ -387,26 +387,26 @@ public struct Preferences: Codable, Sendable, Equatable {
     public var ordering: Ordering
     public var showSnapshotAge: Bool
 
-    // Уведомления
+    // Notifications
     public var notificationsEnabled: Bool
     public var thresholds: [Int]
     public var notifyOnRecovery: Bool
     public var notifyWindows: WindowScope
     public var quietHours: QuietHours?
 
-    // Обновление и запуск
+    // Updates and launch
     public var foregroundInterval: TimeInterval
     public var backgroundInterval: TimeInterval
     public var refreshAfterWake: Bool
 
-    // Сервисы и аккаунты
+    // Services and accounts
     public var disabledProviders: Set<ProviderID>
     public var hiddenAccounts: Set<String>
     public var codexRoot: String?
 
-    /// Допустимые границы опроса. Чаще, чем раз в полминуты, ходить незачем:
-    /// лимиты на стороне сервиса пересчитываются не мгновенно. Реже часа —
-    /// монитор перестаёт быть монитором.
+    /// The allowed polling bounds. More often than twice a minute is pointless:
+    /// the service does not recompute its limits instantly. Less often than
+    /// hourly and the monitor stops being one.
     public static let intervalRange: ClosedRange<TimeInterval> = 30...3600
 
     public static let defaults = Preferences(
@@ -429,8 +429,8 @@ public struct Preferences: Codable, Sendable, Equatable {
         codexRoot: nil
     )
 
-    /// Приводит значения к допустимым. Вызывается перед сохранением и после
-    /// чтения: настройки могут прийти из файла, который правили руками.
+    /// Brings values into range. Called before saving and after reading:
+    /// settings may arrive from a file somebody edited by hand.
     public func normalized() -> Preferences {
         var copy = self
         copy.thresholds = Array(Set(thresholds.filter { $0 > 0 && $0 <= 100 }))
@@ -446,52 +446,52 @@ public struct Preferences: Codable, Sendable, Equatable {
 }
 ```
 
-- [ ] **Step 9: Сделать `ProviderID` кодируемым**
+- [ ] **Step 9: Make `ProviderID` codable**
 
-`Preferences` хранит `Set<ProviderID>`, а raw-value enum **не получает**
-`Codable` автоматически — без явного объявления весь `Preferences` перестанет
-быть `Codable` с ошибкой «does not conform to protocol 'Decodable'». Проверено.
+`Preferences` holds a `Set<ProviderID>`, and a raw-value enum does **not** get
+`Codable` automatically — without declaring it, the whole of `Preferences` stops
+being `Codable` with the error “does not conform to protocol 'Decodable'”. Checked.
 
-В `Packages/Core/Sources/ProviderKit/Models.swift` дописать `Codable` в
-объявление:
+In `Packages/Core/Sources/ProviderKit/Models.swift`, add `Codable` to the
+declaration:
 
 ```swift
 public enum ProviderID: String, Sendable, Hashable, Codable, CaseIterable {
 ```
 
-- [ ] **Step 10: Убедиться, что тесты проходят**
+- [ ] **Step 10: Confirm the tests pass**
 
 Run: `cd Packages/Core && swift test --filter PreferencesTests`
-Expected: PASS, 7 тестов модели.
+Expected: PASS, 7 model tests.
 
 Run: `cd Packages/Core && swift test --filter QuietHoursTests`
-Expected: PASS, 3 теста.
+Expected: PASS, 3 tests.
 
 - [ ] **Step 11: Commit**
 
 ```bash
 git add Packages/Core
-git commit -m "Модель настроек: значения по умолчанию, границы, окно тишины"
+git commit -m "The settings model: defaults, bounds, the quiet window"
 ```
 
 ---
 
-### Task 2: Хранилище настроек
+### Task 2: The settings store
 
 **Files:**
 - Create: `Packages/Core/Sources/Preferences/PreferencesStore.swift`
 - Test: `Packages/Core/Tests/PreferencesTests/PreferencesStoreTests.swift`
 
 **Interfaces:**
-- Consumes: `Preferences` из Task 1.
+- Consumes: `Preferences` from Task 1.
 - Produces:
   - `protocol PreferencesStorage: Sendable` — `read() -> Data?`, `write(_ data: Data)`
-  - `struct UserDefaultsStorage: PreferencesStorage` — `init(defaults: UserDefaults = .standard)`, ключ `"preferences"`
+  - `struct UserDefaultsStorage: PreferencesStorage` — `init(defaults: UserDefaults = .standard)`, the key `"preferences"`
   - `actor PreferencesStore` — `init(storage:)`, `load() -> Preferences`, `save(_ value: Preferences)`, `current() -> Preferences`
 
-- [ ] **Step 1: Написать падающий тест**
+- [ ] **Step 1: Write a failing test**
 
-Создать `Packages/Core/Tests/PreferencesTests/PreferencesStoreTests.swift`:
+Create `Packages/Core/Tests/PreferencesTests/PreferencesStoreTests.swift`:
 
 ```swift
 import Testing
@@ -538,14 +538,14 @@ private actor MemoryStorage: PreferencesStorage {
 }
 
 @Test func corruptedDataFallsBackToDefaults() async {
-    let storage = MemoryStorage(Data("это не json".utf8))
+    let storage = MemoryStorage(Data("this is not json".utf8))
     let store = PreferencesStore(storage: storage)
-    // Повреждённый файл не должен ронять приложение.
+    // A corrupt file must not bring the app down.
     #expect(await store.load() == Preferences.defaults)
 }
 
 @Test func partialDataFallsBackToDefaults() async {
-    // Настройки от будущей версии, где полей меньше: важнее не упасть.
+    // Settings from a future version with fewer fields: not falling over matters more.
     let storage = MemoryStorage(Data(#"{"appearance":"dark"}"#.utf8))
     #expect(await PreferencesStore(storage: storage).load() == Preferences.defaults)
 }
@@ -557,20 +557,20 @@ private actor MemoryStorage: PreferencesStorage {
 }
 ```
 
-- [ ] **Step 2: Убедиться, что тест падает**
+- [ ] **Step 2: Confirm the test fails**
 
 Run: `cd Packages/Core && swift test --filter PreferencesStoreTests`
 Expected: FAIL, `cannot find 'PreferencesStore' in scope`.
 
-- [ ] **Step 3: Реализовать**
+- [ ] **Step 3: Implement**
 
-Создать `Packages/Core/Sources/Preferences/PreferencesStore.swift`:
+Create `Packages/Core/Sources/Preferences/PreferencesStore.swift`:
 
 ```swift
 import Foundation
 
-/// Хранилище за протоколом, чтобы тесты не писали в настоящий `UserDefaults`
-/// и не оставляли следов в системе.
+/// Storage behind a protocol, so the tests never write to the real `UserDefaults`
+/// and leave nothing behind in the system.
 public protocol PreferencesStorage: Sendable {
     func read() async -> Data?
     func write(_ data: Data) async
@@ -593,9 +593,9 @@ public actor PreferencesStore {
 
     public init(storage: any PreferencesStorage) { self.storage = storage }
 
-    /// Читает настройки. Любая неудача — повреждённые данные, неполный набор
-    /// полей от другой версии — даёт значения по умолчанию: настройки не тот
-    /// повод, чтобы приложение не запустилось.
+    /// Reads the settings. Any failure — corrupt data, an incomplete set of
+    /// fields from another version — gives the defaults: settings are not the
+    /// kind of reason for an app to refuse to start.
     @discardableResult
     public func load() async -> Preferences {
         guard let data = await storage.read(),
@@ -614,57 +614,57 @@ public actor PreferencesStore {
         await storage.write(data)
     }
 
-    /// Последнее прочитанное значение, без обращения к хранилищу.
+    /// The last value read, without going to storage.
     public func current() -> Preferences { value }
 }
 ```
 
-- [ ] **Step 4: Убедиться, что тесты проходят**
+- [ ] **Step 4: Confirm the tests pass**
 
 Run: `cd Packages/Core && swift test --filter PreferencesStoreTests`
-Expected: PASS, 6 тестов.
+Expected: PASS, 6 tests.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add Packages/Core
-git commit -m "Хранилище настроек с откатом на значения по умолчанию"
+git commit -m "The settings store, falling back to the defaults"
 ```
 
 ---
 
-### Task 3: Пороги, тихие часы и порядок становятся настройками
+### Task 3: Thresholds, quiet hours and the order become settings
 
 **Files:**
 - Modify: `Packages/Core/Sources/Monitoring/ThresholdNotifier.swift`
 - Modify: `Packages/Core/Sources/ProviderKit/SnapshotOrdering.swift`
-- Modify: `Packages/Core/Package.swift` (Monitoring зависит от Preferences)
+- Modify: `Packages/Core/Package.swift` (Monitoring depends on Preferences)
 - Modify: `Packages/Core/Tests/MonitoringTests/ThresholdNotifierTests.swift`
 - Modify: `Packages/Core/Tests/ProviderKitTests/SnapshotOrderingTests.swift`
 
 **Interfaces:**
-- Consumes: `Preferences`, `QuietHours`, `WindowScope`, `Ordering` из Tasks 1–2.
+- Consumes: `Preferences`, `QuietHours`, `WindowScope`, `Ordering` from Tasks 1–2.
 - Produces:
-  - `ThresholdTracker.init(thresholds: [Int], notifyOnRecovery: Bool, scope: WindowScope, quietHours: QuietHours?, calendar: Calendar)` — старый `init()` остаётся с прежним поведением по умолчанию
-  - `ThresholdTracker.events(for:now:) -> [ThresholdEvent]` — добавлен параметр `now` для проверки тихих часов
-  - `orderedForDisplay(_ snapshots: [AccountSnapshot], ordering: Ordering) -> [AccountSnapshot]` — прежняя однопараметрическая форма сохраняется
+  - `ThresholdTracker.init(thresholds: [Int], notifyOnRecovery: Bool, scope: WindowScope, quietHours: QuietHours?, calendar: Calendar)` — the old `init()` stays, with the behaviour it had by default
+  - `ThresholdTracker.events(for:now:) -> [ThresholdEvent]` — a `now` parameter added, for checking the quiet hours
+  - `orderedForDisplay(_ snapshots: [AccountSnapshot], ordering: Ordering) -> [AccountSnapshot]` — the earlier one-parameter form is kept
 
-Сейчас `ThresholdTracker` берёт `[95, 80]` из константы типа, а `orderedForDisplay`
-всегда сортирует по загрузке. Значения переезжают в параметры — заодно это
-единственный способ проверить их на разных настройках.
+Today `ThresholdTracker` takes `[95, 80]` from a constant on the type, and `orderedForDisplay`
+always sorts by load. The values move into parameters — which is also the only
+way to check them under different settings.
 
-- [ ] **Step 1: Добавить зависимость модуля**
+- [ ] **Step 1: Add the module dependency**
 
-В `Packages/Core/Package.swift` заменить строку с `Monitoring`:
+In `Packages/Core/Package.swift`, replace the `Monitoring` line:
 
 ```swift
         .target(name: "Monitoring", dependencies: ["ProviderKit", "Preferences"]),
 ```
 
-и строку с `ProviderKit`-тестами оставить как есть, а `ProviderKit` пусть
-остаётся без зависимостей: `Ordering` для сортировки объявлен в `Preferences`,
-поэтому `orderedForDisplay` переезжает в `Monitoring`. Заменить строку
-`SnapshotOrdering.swift` в списке файлов ниже — файл перемещается.
+and leave the `ProviderKit` test line as it is; `ProviderKit` itself stays
+without dependencies: `Ordering` is declared in `Preferences`, so
+`orderedForDisplay` moves into `Monitoring`. Replace the
+`SnapshotOrdering.swift` line in the file list below — the file moves.
 
 ```bash
 git mv Packages/Core/Sources/ProviderKit/SnapshotOrdering.swift \
@@ -673,8 +673,8 @@ git mv Packages/Core/Tests/ProviderKitTests/SnapshotOrderingTests.swift \
        Packages/Core/Tests/MonitoringTests/SnapshotOrderingTests.swift
 ```
 
-В `Packages/Core/Sources/Monitoring/SnapshotOrdering.swift` добавить первой строкой
-`import Preferences`, а в тестах заменить `@testable import ProviderKit` на:
+In `Packages/Core/Sources/Monitoring/SnapshotOrdering.swift` add `import Preferences`
+as the first line, and in the tests replace `@testable import ProviderKit` with:
 
 ```swift
 import ProviderKit
@@ -682,9 +682,9 @@ import Preferences
 @testable import Monitoring
 ```
 
-- [ ] **Step 2: Написать падающий тест на порядок по имени**
+- [ ] **Step 2: Write a failing test for ordering by name**
 
-Дописать в `Packages/Core/Tests/MonitoringTests/SnapshotOrderingTests.swift`:
+Append to `Packages/Core/Tests/MonitoringTests/SnapshotOrderingTests.swift`:
 
 ```swift
 @Test func byNameIgnoresLoad() {
@@ -702,23 +702,23 @@ import Preferences
 }
 ```
 
-- [ ] **Step 3: Убедиться, что тест падает**
+- [ ] **Step 3: Confirm the test fails**
 
 Run: `cd Packages/Core && swift test --filter SnapshotOrderingTests`
-Expected: FAIL — у `orderedForDisplay` нет параметра `ordering`.
+Expected: FAIL — `orderedForDisplay` has no `ordering` parameter.
 
-- [ ] **Step 4: Реализовать порядок**
+- [ ] **Step 4: Implement the order**
 
-Заменить содержимое `Packages/Core/Sources/Monitoring/SnapshotOrdering.swift`:
+Replace the contents of `Packages/Core/Sources/Monitoring/SnapshotOrdering.swift`:
 
 ```swift
 import Foundation
 import ProviderKit
 import Preferences
 
-/// Порядок строк в окне. Аккаунты с ошибкой всегда внизу независимо от выбора:
-/// по ним нечего сказать, и держать их вверху значит занимать лучшее место
-/// пустой строкой.
+/// The order of the rows in the window. Accounts in error are always at the
+/// bottom whatever the choice: there is nothing to say about them, and keeping
+/// them at the top means spending the best place on an empty row.
 public func orderedForDisplay(
     _ snapshots: [AccountSnapshot], ordering: Ordering = .leastLoadedFirst
 ) -> [AccountSnapshot] {
@@ -738,14 +738,14 @@ public func orderedForDisplay(
 }
 ```
 
-- [ ] **Step 5: Убедиться, что тесты порядка проходят**
+- [ ] **Step 5: Confirm the ordering tests pass**
 
 Run: `cd Packages/Core && swift test --filter SnapshotOrderingTests`
-Expected: PASS, 5 тестов.
+Expected: PASS, 5 tests.
 
-- [ ] **Step 6: Написать падающий тест на настраиваемые пороги**
+- [ ] **Step 6: Write a failing test for configurable thresholds**
 
-Дописать в `Packages/Core/Tests/MonitoringTests/ThresholdNotifierTests.swift`:
+Append to `Packages/Core/Tests/MonitoringTests/ThresholdNotifierTests.swift`:
 
 ```swift
 import Preferences
@@ -794,7 +794,7 @@ private func moment(_ hour: Int) -> Date {
         thresholds: [80], notifyOnRecovery: true, scope: .session,
         quietHours: nil, calendar: utcCalendar
     )
-    // snap(...) отдаёт единственное окно с id "weekly" — под охват не подходит
+    // snap(...) returns the single window with id "weekly" — outside the scope
     _ = tracker.events(for: snap(10), now: moment(12))
     #expect(tracker.events(for: snap(90), now: moment(12)).isEmpty)
 }
@@ -806,7 +806,7 @@ private func moment(_ hour: Int) -> Date {
         calendar: utcCalendar
     )
     _ = tracker.events(for: snap(10), now: moment(12))
-    #expect(tracker.events(for: snap(90), now: moment(2)).isEmpty)      // ночь — молчим
+    #expect(tracker.events(for: snap(90), now: moment(2)).isEmpty)      // night — silence
 }
 
 @Test func quietHoursDoNotLoseTheCrossingAfterwards() {
@@ -816,29 +816,29 @@ private func moment(_ hour: Int) -> Date {
         calendar: utcCalendar
     )
     _ = tracker.events(for: snap(10), now: moment(12))
-    _ = tracker.events(for: snap(90), now: moment(2))                    // подавлено
-    // Замер уже учтён, поэтому повторного пересечения нет — и это правильно:
-    // догонять ночные уведомления утром значит будить человека прошлым.
-    #expect(tracker.events(for: snap(92), now: moment(12)).isEmpty)
+    _ = tracker.events(for: snap(90), now: moment(2))                    // suppressed
+    // The reading is already recorded, so there is no second crossing — and that
+    // is right: catching up on night-time notifications in the morning is waking
+    // somebody with the past.
 }
 ```
 
-- [ ] **Step 7: Убедиться, что тест падает**
+- [ ] **Step 7: Confirm the test fails**
 
 Run: `cd Packages/Core && swift test --filter ThresholdNotifierTests`
-Expected: FAIL — у `ThresholdTracker` нет такого инициализатора.
+Expected: FAIL — `ThresholdTracker` has no such initialiser.
 
-- [ ] **Step 8: Реализовать**
+- [ ] **Step 8: Implement**
 
-Заменить объявление `ThresholdTracker` в
-`Packages/Core/Sources/Monitoring/ThresholdNotifier.swift` (сам `ThresholdEvent`
-не трогать):
+Replace the declaration of `ThresholdTracker` in
+`Packages/Core/Sources/Monitoring/ThresholdNotifier.swift` (leave `ThresholdEvent`
+itself alone):
 
 ```swift
-/// Помнит предыдущий замер и выдаёт событие только на пересечении порога.
-/// Без этого фоновый опрос раз в пять минут превратился бы в поток уведомлений.
+/// Remembers the previous reading and emits an event only on a crossing.
+/// Without that, a background poll every five minutes would become a stream of notifications.
 public struct ThresholdTracker: Sendable {
-    private let thresholds: [Int]        // по убыванию
+    private let thresholds: [Int]        // descending
     private let notifyOnRecovery: Bool
     private let scope: WindowScope
     private let quietHours: QuietHours?
@@ -870,8 +870,8 @@ public struct ThresholdTracker: Sendable {
         var events: [ThresholdEvent] = []
         var current: [Key: Double] = [:]
 
-        // Тишина гасит уведомления, но замер всё равно записывается: иначе
-        // утром прилетит пачка событий о том, что случилось ночью.
+        // Quiet hours suppress the notification, but the reading is recorded
+        // anyway: otherwise the morning brings a batch of events about the night.
         let silent = quietHours?.contains(now, calendar: calendar) ?? false
 
         for snapshot in snapshots where snapshot.failure == nil {
@@ -908,24 +908,24 @@ public struct ThresholdTracker: Sendable {
 }
 ```
 
-Первой строкой файла добавить `import Preferences`.
+Add `import Preferences` as the first line of the file.
 
-- [ ] **Step 9: Убедиться, что весь пакет проходит**
+- [ ] **Step 9: Confirm the whole package passes**
 
 Run: `cd Packages/Core && swift test`
-Expected: PASS. Прежние восемь тестов `ThresholdNotifierTests` продолжают
-работать без изменений — значения по умолчанию у инициализатора те же.
+Expected: PASS. The eight earlier `ThresholdNotifierTests` go on working
+unchanged — the initialiser's defaults are the same values.
 
 - [ ] **Step 10: Commit**
 
 ```bash
 git add Packages/Core
-git commit -m "Пороги, охват окон, тихие часы и порядок вынесены в параметры"
+git commit -m "Thresholds, window scope, quiet hours and order moved into parameters"
 ```
 
 ---
 
-### Task 4: Каркас окна настроек
+### Task 4: The frame of the settings window
 
 **Files:**
 - Create: `App/PreferencesModel.swift`
@@ -933,37 +933,37 @@ git commit -m "Пороги, охват окон, тихие часы и пор�
 - Create: `App/Settings/SettingsView.swift`
 - Modify: `App/StatusCheckerApp.swift`
 - Modify: `App/PopoverView.swift`
-- Modify: `project.yml` (зависимость от `Preferences`)
+- Modify: `project.yml` (a dependency on `Preferences`)
 
 **Interfaces:**
-- Consumes: `Preferences`, `PreferencesStore`, `UserDefaultsStorage` из Tasks 1–2.
+- Consumes: `Preferences`, `PreferencesStore`, `UserDefaultsStorage` from Tasks 1–2.
 - Produces:
   - `@MainActor final class PreferencesModel: ObservableObject` — `@Published var value: Preferences`, `func load() async`, `func update(_ change: (inout Preferences) -> Void)`
-  - `enum SettingsSection: String, CaseIterable, Identifiable` — `.accounts`, `.appearance`, `.notifications`, `.updates`, `.services`, `.about`; свойства `title`, `icon`
+  - `enum SettingsSection: String, CaseIterable, Identifiable` — `.accounts`, `.appearance`, `.notifications`, `.updates`, `.services`, `.about`; the properties `title` and `icon`
   - `struct SettingsIcon: View` — `init(_ section: SettingsSection)`
   - `struct SettingsView: View` — `init(model: PreferencesModel, appModel: AppModel)`
 
-- [ ] **Step 1: Подключить модуль к приложению**
+- [ ] **Step 1: Link the module to the app**
 
-В `project.yml` в блок `dependencies` цели `StatusChecker` добавить:
+In `project.yml`, add to the `dependencies` block of the `StatusChecker` target:
 
 ```yaml
       - package: Core
         product: Preferences
 ```
 
-- [ ] **Step 2: Создать модель настроек для UI**
+- [ ] **Step 2: Create the settings model for the UI**
 
-Создать `App/PreferencesModel.swift`:
+Create `App/PreferencesModel.swift`:
 
 ```swift
 import Foundation
 import SwiftUI
 import Preferences
 
-/// Обёртка над `PreferencesStore` для SwiftUI: хранит текущее значение и
-/// сохраняет каждое изменение сразу, без кнопки «Применить» — так принято
-/// в настройках macOS.
+/// A wrapper over `PreferencesStore` for SwiftUI: it holds the current value and
+/// saves every change immediately, with no “Apply” button — that is the macOS
+/// convention for settings.
 @MainActor
 final class PreferencesModel: ObservableObject {
     @Published private(set) var value: Preferences = .defaults
@@ -988,9 +988,9 @@ final class PreferencesModel: ObservableObject {
 }
 ```
 
-- [ ] **Step 3: Создать разделы и монохромные глифы**
+- [ ] **Step 3: Create the sections and the monochrome glyphs**
 
-Создать `App/Settings/SettingsIcons.swift`:
+Create `App/Settings/SettingsIcons.swift`:
 
 ```swift
 import SwiftUI
@@ -1011,8 +1011,8 @@ enum SettingsSection: String, CaseIterable, Identifiable {
         }
     }
 
-    /// Штриховые символы, а не цветные плашки: в окне лимитов цвет уже кодирует
-    /// загрузку, и второй цветовой язык рядом ослабляет оба.
+    /// Line symbols rather than coloured tiles: in the limits window colour
+    /// already encodes load, and a second colour language beside it weakens both.
     var symbol: String {
         switch self {
         case .accounts:      "person.2"
@@ -1038,9 +1038,9 @@ struct SettingsIcon: View {
 }
 ```
 
-- [ ] **Step 4: Создать каркас окна**
+- [ ] **Step 4: Create the window frame**
 
-Создать `App/Settings/SettingsView.swift`:
+Create `App/Settings/SettingsView.swift`:
 
 ```swift
 import SwiftUI
@@ -1079,8 +1079,8 @@ struct SettingsView: View {
     }
 }
 
-/// Общая обёртка раздела: заголовок, пояснение и содержимое.
-/// Вынесена, чтобы шесть экранов не расходились в отступах и размерах.
+/// The shared wrapper for a section: a heading, an explanation and the content.
+/// Pulled out so that six screens do not drift apart in padding and sizes.
 struct Pane<Content: View>: View {
     let title: String
     let subtitle: String
@@ -1100,10 +1100,10 @@ struct Pane<Content: View>: View {
 }
 ```
 
-- [ ] **Step 5: Создать заглушки шести разделов**
+- [ ] **Step 5: Create six placeholder sections**
 
-Чтобы каркас собрался до того, как разделы наполнятся, создать по файлу на
-раздел. Каждый следующий заменяется в своей задаче.
+So that the frame builds before the sections are filled, create one file per
+section. Each is replaced in its own task.
 
 ```bash
 mkdir -p App/Settings
@@ -1123,8 +1123,8 @@ EOF
 done
 ```
 
-Разделы `Accounts` и `About` принимают ещё и `appModel`, поэтому в них добавить
-строку `@ObservedObject var appModel: AppModel` после `model`:
+The `Accounts` and `About` sections also take an `appModel`, so add the line
+`@ObservedObject var appModel: AppModel` after `model` in those two:
 
 ```bash
 for n in Accounts About; do
@@ -1132,9 +1132,9 @@ for n in Accounts About; do
 done
 ```
 
-- [ ] **Step 6: Объявить сцену и пункт открытия**
+- [ ] **Step 6: Declare the scene and the item that opens it**
 
-В `App/StatusCheckerApp.swift` добавить в `StatusCheckerApp` свойство и сцену:
+In `App/StatusCheckerApp.swift`, add a property and a scene to `StatusCheckerApp`:
 
 ```swift
 @main
@@ -1157,7 +1157,7 @@ struct StatusCheckerApp: App {
 }
 ```
 
-В `App/PopoverView.swift` в `footer` добавить пункт между «Обновить» и «Выйти»:
+In `App/PopoverView.swift`, add an item to `footer` between “Обновить” and “Выйти”:
 
 ```swift
     private var footer: some View {
@@ -1182,25 +1182,25 @@ struct StatusCheckerApp: App {
     }
 ```
 
-- [ ] **Step 7: Собрать и открыть**
+- [ ] **Step 7: Build and open**
 
 Run: `make build`
 Expected: `BUILD SUCCEEDED`.
 
-Run: `make run`, затем нажать значок в строке меню и «Настройки…».
-Expected: открывается окно 720×470 с боковой панелью из шести разделов,
-иконки монохромные, подписи целые.
+Run: `make run`, then click the menu bar icon and “Настройки…”.
+Expected: a 720×470 window opens with a sidebar of six sections,
+the icons monochrome, the labels whole.
 
 - [ ] **Step 8: Commit**
 
 ```bash
 git add App project.yml
-git commit -m "Каркас окна настроек: боковая панель и шесть разделов"
+git commit -m "The frame of the settings window: a sidebar and six sections"
 ```
 
 ---
 
-### Task 5: Раздел «Внешний вид» и применение оформления
+### Task 5: The “Appearance” section, and applying the appearance
 
 **Files:**
 - Modify: `App/Settings/AppearancePane.swift`
@@ -1209,12 +1209,12 @@ git commit -m "Каркас окна настроек: боковая панел
 - Modify: `App/AppModel.swift`
 
 **Interfaces:**
-- Consumes: `PreferencesModel` из Task 4; `Appearance`, `MenuBarContent`, `PrimaryWindow`, `RowLayout`, `Ordering` из Task 1.
-- Produces: `func applyAppearance(_ appearance: Appearance)` в `App/StatusCheckerApp.swift`.
+- Consumes: `PreferencesModel` from Task 4; `Appearance`, `MenuBarContent`, `PrimaryWindow`, `RowLayout`, `Ordering` from Task 1.
+- Produces: `func applyAppearance(_ appearance: Appearance)` in `App/StatusCheckerApp.swift`.
 
-- [ ] **Step 1: Наполнить раздел**
+- [ ] **Step 1: Fill the section in**
 
-Заменить содержимое `App/Settings/AppearancePane.swift`:
+Replace the contents of `App/Settings/AppearancePane.swift`:
 
 ```swift
 import SwiftUI
@@ -1264,13 +1264,13 @@ struct AppearancePane: View {
 }
 ```
 
-- [ ] **Step 2: Применять оформление ко всему приложению**
+- [ ] **Step 2: Apply the appearance across the app**
 
-В `App/StatusCheckerApp.swift` добавить функцию и вызов при изменении:
+In `App/StatusCheckerApp.swift`, add the function and a call on change:
 
 ```swift
-/// Переводит выбор пользователя в оформление AppKit.
-/// `nil` означает «как в системе» — это и есть значение по умолчанию.
+/// Turns the user's choice into an AppKit appearance.
+/// `nil` means “follow the system”, which is also the default.
 @MainActor
 func applyAppearance(_ appearance: Appearance) {
     NSApp.appearance = switch appearance {
@@ -1281,7 +1281,7 @@ func applyAppearance(_ appearance: Appearance) {
 }
 ```
 
-В `body` сцены `Settings` добавить реакцию:
+Add the reaction to the body of the `Settings` scene:
 
 ```swift
         Settings {
@@ -1292,9 +1292,9 @@ func applyAppearance(_ appearance: Appearance) {
         }
 ```
 
-- [ ] **Step 3: Значок строки меню читает настройку**
+- [ ] **Step 3: The menu bar icon reads the setting**
 
-В `App/StatusCheckerApp.swift` заменить `MenuBarLabel`:
+In `App/StatusCheckerApp.swift`, replace `MenuBarLabel`:
 
 ```swift
 private struct MenuBarLabel: View {
@@ -1309,7 +1309,7 @@ private struct MenuBarLabel: View {
                 } icon: {
                     Image(systemName: "gauge.with.needle")
                 }
-                // Без явного стиля строка меню показывает только иконку.
+                // Without an explicit style the menu bar shows only the icon.
                 .labelStyle(.titleAndIcon)
             } else {
                 Image(systemName: "gauge.with.needle")
@@ -1318,7 +1318,7 @@ private struct MenuBarLabel: View {
         .task { await model.start() }
     }
 
-    /// Что дописать рядом со значком. `nil` — только значок.
+    /// What to write beside the icon. `nil` — the icon alone.
     private var trailingText: String? {
         guard let summary = model.summary else { return nil }
         let percent = "\(Int(summary.percent.rounded()))%"
@@ -1334,7 +1334,7 @@ private struct MenuBarLabel: View {
 }
 ```
 
-и передать настройку при создании:
+and pass the setting when it is created:
 
 ```swift
         } label: {
@@ -1342,18 +1342,18 @@ private struct MenuBarLabel: View {
         }
 ```
 
-- [ ] **Step 4: Окно читает компоновку, порядок и возраст снимка**
+- [ ] **Step 4: The window reads the layout, the order and the snapshot age**
 
-В `App/AppModel.swift` добавить свойство и учесть его при опросе:
+In `App/AppModel.swift`, add the property and take it into account when polling:
 
 ```swift
-    /// Настройки, влияющие на опрос и показ. Обновляются из окна настроек.
+    /// The settings that affect polling and display. Updated from the settings window.
     var preferences: Preferences = .defaults {
         didSet { restartTimer() }
     }
 ```
 
-В `refresh()` заменить строку сортировки и сборки сводки:
+In `refresh()`, replace the sorting and summary lines:
 
 ```swift
         let result = orderedForDisplay(await poller.refresh(), ordering: preferences.ordering)
@@ -1361,7 +1361,7 @@ private struct MenuBarLabel: View {
         summary = menuBarSummary(result, now: Date(), window: preferences.primaryWindow)
 ```
 
-В `restartTimer()` заменить жёсткие числа:
+In `restartTimer()`, replace the hard-coded numbers:
 
 ```swift
         let interval = isPopoverOpen
@@ -1369,7 +1369,7 @@ private struct MenuBarLabel: View {
             : preferences.backgroundInterval
 ```
 
-В `App/AccountRowView.swift` добавить параметры и скрыть плашку по настройке:
+In `App/AccountRowView.swift`, add the parameters and hide the badge per the setting:
 
 ```swift
 struct AccountRowView: View {
@@ -1379,13 +1379,13 @@ struct AccountRowView: View {
     var showSnapshotAge: Bool = true
 ```
 
-и в `header` заменить условие плашки:
+and in `header`, replace the badge condition:
 
 ```swift
             if snapshot.freshness.isStale && showSnapshotAge {
 ```
 
-В `App/PopoverView.swift` передать значения:
+In `App/PopoverView.swift`, pass the values through:
 
 ```swift
                     AccountRowView(
@@ -1395,18 +1395,18 @@ struct AccountRowView: View {
                     )
 ```
 
-Компоновки `.compact` и `.rings` рисуются в Task 11; пока `AccountRowView`
-игнорирует значение `layout`, кроме `.twoWindows`, — это осознанно, чтобы
-раздел заработал раньше отрисовки альтернатив.
+The `.compact` and `.rings` layouts are drawn in Task 11; for now `AccountRowView`
+ignores the value of `layout` except for `.twoWindows` — deliberately, so that the
+section starts working before the alternatives are drawn.
 
-- [ ] **Step 5: Научить сводку выбирать окно**
+- [ ] **Step 5: Teach the summary to pick a window**
 
-В `Packages/Core/Sources/Monitoring/UsagePoller.swift` заменить `menuBarSummary`:
+In `Packages/Core/Sources/Monitoring/UsagePoller.swift`, replace `menuBarSummary`:
 
 ```swift
-/// Что показать в строке меню.
-/// По умолчанию берётся окно, ближайшее к исчерпанию: брать ближайший по
-/// времени сброс нельзя — у свободного аккаунта он ни о чём не говорит.
+/// What to show in the menu bar.
+/// By default the window nearest to exhaustion is taken: the nearest reset in
+/// time will not do — on an idle account it says nothing at all.
 public func menuBarSummary(
     _ snapshots: [AccountSnapshot], now: Date, window: PrimaryWindow = .worst
 ) -> MenuBarSummary? {
@@ -1423,11 +1423,11 @@ public func menuBarSummary(
 }
 ```
 
-Первой строкой файла добавить `import Preferences`.
+Add `import Preferences` as the first line of the file.
 
-- [ ] **Step 6: Тест на выбор окна**
+- [ ] **Step 6: A test for picking the window**
 
-Дописать в `Packages/Core/Tests/MonitoringTests/UsagePollerTests.swift`:
+Append to `Packages/Core/Tests/MonitoringTests/UsagePollerTests.swift`:
 
 ```swift
 @Test func menuBarCanBePinnedToWeeklyWindow() {
@@ -1446,12 +1446,12 @@ public func menuBarSummary(
 }
 ```
 
-Дописать `import Preferences` в начало файла.
+Add `import Preferences` at the top of the file.
 
-- [ ] **Step 7: Проверить**
+- [ ] **Step 7: Check**
 
 Run: `cd Packages/Core && swift test --filter UsagePollerTests`
-Expected: PASS, 7 тестов.
+Expected: PASS, 7 tests.
 
 Run: `make build`
 Expected: `BUILD SUCCEEDED`.
@@ -1460,24 +1460,24 @@ Expected: `BUILD SUCCEEDED`.
 
 ```bash
 git add App Packages/Core
-git commit -m "Раздел «Внешний вид»: оформление, значок и вид окна"
+git commit -m "The Appearance section: the appearance, the icon and the look of the window"
 ```
 
 ---
 
-### Task 6: Раздел «Уведомления»
+### Task 6: The “Notifications” section
 
 **Files:**
 - Modify: `App/Settings/NotificationsPane.swift`
 - Modify: `App/AppModel.swift`
 
 **Interfaces:**
-- Consumes: `PreferencesModel` из Task 4; `ThresholdTracker.init(thresholds:notifyOnRecovery:scope:quietHours:calendar:)` из Task 3.
-- Produces: `AppModel.rebuildTracker()` — пересобирает трекер при изменении настроек.
+- Consumes: `PreferencesModel` from Task 4; `ThresholdTracker.init(thresholds:notifyOnRecovery:scope:quietHours:calendar:)` from Task 3.
+- Produces: `AppModel.rebuildTracker()` — rebuilds the tracker when the settings change.
 
-- [ ] **Step 1: Наполнить раздел**
+- [ ] **Step 1: Fill the section in**
 
-Заменить содержимое `App/Settings/NotificationsPane.swift`:
+Replace the contents of `App/Settings/NotificationsPane.swift`:
 
 ```swift
 import SwiftUI
@@ -1556,7 +1556,7 @@ struct NotificationsPane: View {
         guard let level = Int(draftThreshold.trimmingCharacters(in: .whitespaces)),
               level > 0, level <= 100
         else { draftThreshold = ""; return }
-        model.update { $0.thresholds.append(level) }   // normalized() отсортирует
+        model.update { $0.thresholds.append(level) }   // normalized() will sort it
         draftThreshold = ""
     }
 
@@ -1597,23 +1597,23 @@ struct NotificationsPane: View {
 }
 ```
 
-- [ ] **Step 2: Пересобирать трекер при изменении настроек**
+- [ ] **Step 2: Rebuild the tracker when the settings change**
 
-В `App/AppModel.swift` заменить объявление трекера и добавить пересборку:
+In `App/AppModel.swift`, replace the tracker's declaration and add the rebuild:
 
 ```swift
     private var tracker = ThresholdTracker()
 ```
 
-на
+with
 
 ```swift
     private var tracker = ThresholdTracker()
 
-    /// Трекер держит историю замеров, поэтому пересоздаётся только когда
-    /// настройки уведомлений действительно изменились — иначе каждое открытие
-    /// настроек стирало бы память о предыдущих значениях и первое же
-    /// срабатывание после этого пропало бы.
+    /// The tracker holds the history of readings, so it is recreated only when
+    /// the notification settings have actually changed — otherwise every opening
+    /// of the settings would erase the memory of the previous values, and the
+    /// very next event after that would be lost.
     private var trackerSettings: TrackerSettings?
 
     private struct TrackerSettings: Equatable {
@@ -1641,38 +1641,38 @@ struct NotificationsPane: View {
     }
 ```
 
-В `refresh()` перед разбором событий вставить вызов и учесть выключатель:
+In `refresh()`, insert the call before the events are read, and honour the switch:
 
 ```swift
         rebuildTrackerIfNeeded()
         if preferences.notificationsEnabled {
             for event in tracker.events(for: result, now: Date()) { post(event) }
         } else {
-            // Замер всё равно скармливаем, чтобы после включения уведомлений
-            // не прилетела пачка событий за всё время простоя.
+            // The reading is fed in anyway, so that switching notifications on
+            // does not bring a batch of events covering the whole idle stretch.
             _ = tracker.events(for: result, now: Date())
         }
 ```
 
-- [ ] **Step 3: Собрать и проверить**
+- [ ] **Step 3: Build and check**
 
 Run: `make build`
 Expected: `BUILD SUCCEEDED`.
 
-Run: `make run`, открыть «Настройки… → Уведомления».
-Expected: пороги показаны чипами, удаляются крестиком, добавляются вводом числа
-и Enter; при выключенном «Уведомлять» форма недоступна.
+Run: `make run`, open “Настройки… → Уведомления”.
+Expected: the thresholds are shown as chips, removed with the cross, added by typing
+a number and pressing Enter; with “Уведомлять” off, the form is disabled.
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add App
-git commit -m "Раздел «Уведомления»: настраиваемые пороги и тихие часы"
+git commit -m "The Notifications section: configurable thresholds and quiet hours"
 ```
 
 ---
 
-### Task 7: Раздел «Обновление и запуск»
+### Task 7: The “Updates and launch” section
 
 **Files:**
 - Create: `App/LaunchAtLogin.swift`
@@ -1680,22 +1680,22 @@ git commit -m "Раздел «Уведомления»: настраиваемы
 - Modify: `App/AppModel.swift`
 
 **Interfaces:**
-- Consumes: `PreferencesModel` из Task 4.
+- Consumes: `PreferencesModel` from Task 4.
 - Produces: `enum LaunchAtLogin` — `static var isEnabled: Bool`, `static func set(_ on: Bool) throws`.
 
-- [ ] **Step 1: Реализовать автозапуск**
+- [ ] **Step 1: Implement launch at login**
 
-Создать `App/LaunchAtLogin.swift`:
+Create `App/LaunchAtLogin.swift`:
 
 ```swift
 import Foundation
 import ServiceManagement
 
-/// Запуск при входе в систему.
+/// Launching at login.
 ///
-/// Состояние читается у системы, а не хранится в настройках: пользователь может
-/// отключить автозапуск в системных настройках, и тогда наше сохранённое
-/// значение врало бы.
+/// The state is read from the system rather than kept in the settings: a person
+/// can turn launch at login off in System Settings, and then our stored value
+/// would be a lie.
 enum LaunchAtLogin {
     static var isEnabled: Bool {
         SMAppService.mainApp.status == .enabled
@@ -1711,9 +1711,9 @@ enum LaunchAtLogin {
 }
 ```
 
-- [ ] **Step 2: Наполнить раздел**
+- [ ] **Step 2: Fill the section in**
 
-Заменить содержимое `App/Settings/UpdatesPane.swift`:
+Replace the contents of `App/Settings/UpdatesPane.swift`:
 
 ```swift
 import SwiftUI
@@ -1758,7 +1758,7 @@ struct UpdatesPane: View {
             try LaunchAtLogin.set(on)
             launchError = nil
         } catch {
-            // Не притворяемся, что получилось: возвращаем переключатель назад.
+            // Do not pretend it worked: put the switch back.
             launchAtLogin = LaunchAtLogin.isEnabled
             launchError = "Не удалось изменить автозапуск. Проверьте «Системные настройки → Основные → Объекты входа»."
         }
@@ -1795,9 +1795,9 @@ struct UpdatesPane: View {
 }
 ```
 
-- [ ] **Step 3: Обновлять после пробуждения**
+- [ ] **Step 3: Refresh after waking**
 
-В `App/AppModel.swift` в `start()` подписаться на уведомление о пробуждении:
+In `App/AppModel.swift`, subscribe to the wake notification in `start()`:
 
 ```swift
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -1810,27 +1810,27 @@ struct UpdatesPane: View {
         }
 ```
 
-Первой строкой файла добавить `import AppKit`.
+Add `import AppKit` as the first line of the file.
 
-- [ ] **Step 4: Собрать и проверить**
+- [ ] **Step 4: Build and check**
 
 Run: `make build`
 Expected: `BUILD SUCCEEDED`.
 
-Run: `make run`, открыть «Настройки… → Обновление».
-Expected: переключатель автозапуска отражает настоящее состояние системы;
-шаг интервалов 30 секунд, ниже 30 с и выше часа не уходит.
+Run: `make run`, open “Настройки… → Обновление”.
+Expected: the launch-at-login switch reflects the system's real state;
+the intervals step by 30 seconds and go no lower than 30 s or higher than an hour.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add App
-git commit -m "Раздел «Обновление и запуск»: автозапуск и частоты опроса"
+git commit -m "The Updates and launch section: launch at login and the poll frequencies"
 ```
 
 ---
 
-### Task 8: Раздел «Сервисы» и фильтрация опроса
+### Task 8: The “Services” section, and filtering the poll
 
 **Files:**
 - Modify: `App/Settings/ServicesPane.swift`
@@ -1838,12 +1838,12 @@ git commit -m "Раздел «Обновление и запуск»: автоз
 - Modify: `Packages/Core/Sources/CodexProvider/CodexProvider.swift`
 
 **Interfaces:**
-- Consumes: `PreferencesModel` из Task 4; `RealCodexFileSystem(root:)` из прототипа.
-- Produces: `AppModel.rebuildPoller()` учитывает `disabledProviders` и `codexRoot`.
+- Consumes: `PreferencesModel` from Task 4; `RealCodexFileSystem(root:)` from the prototype.
+- Produces: `AppModel.rebuildPoller()` honours `disabledProviders` and `codexRoot`.
 
-- [ ] **Step 1: Наполнить раздел**
+- [ ] **Step 1: Fill the section in**
 
-Заменить содержимое `App/Settings/ServicesPane.swift`:
+Replace the contents of `App/Settings/ServicesPane.swift`:
 
 ```swift
 import SwiftUI
@@ -1925,9 +1925,9 @@ struct ServicesPane: View {
 }
 ```
 
-- [ ] **Step 2: Учесть настройки при сборке опроса**
+- [ ] **Step 2: Honour the settings when the poll is assembled**
 
-В `App/AppModel.swift` заменить `rebuildPoller()`:
+In `App/AppModel.swift`, replace `rebuildPoller()`:
 
 ```swift
     private func rebuildPoller() async {
@@ -1948,9 +1948,9 @@ struct ServicesPane: View {
     }
 ```
 
-- [ ] **Step 3: Тест на фильтрацию скрытых аккаунтов**
+- [ ] **Step 3: A test for filtering hidden accounts**
 
-Дописать в `Packages/Core/Tests/MonitoringTests/UsagePollerTests.swift`:
+Append to `Packages/Core/Tests/MonitoringTests/UsagePollerTests.swift`:
 
 ```swift
 @Test func pollerWithoutProvidersReturnsNothing() async {
@@ -1959,27 +1959,27 @@ struct ServicesPane: View {
 }
 ```
 
-- [ ] **Step 4: Проверить**
+- [ ] **Step 4: Check**
 
 Run: `cd Packages/Core && swift test --filter UsagePollerTests`
-Expected: PASS, 8 тестов.
+Expected: PASS, 8 tests.
 
 Run: `make build`
 Expected: `BUILD SUCCEEDED`.
 
-Проверить вручную: выключить Codex — его строка пропадает из окна; выключить оба
-сервиса — окно показывает «Аккаунты не найдены», приложение не падает.
+Check by hand: switch Codex off — its row disappears from the window; switch both
+services off — the window shows “Аккаунты не найдены” and the app does not fall over.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add App Packages/Core
-git commit -m "Раздел «Сервисы»: включение провайдеров и путь к каталогу Codex"
+git commit -m "The Services section: enabling providers and the path to the Codex directory"
 ```
 
 ---
 
-### Task 9: Раздел «Аккаунты»
+### Task 9: The “Accounts” section
 
 **Files:**
 - Modify: `App/Settings/AccountsPane.swift`
@@ -1987,15 +1987,15 @@ git commit -m "Раздел «Сервисы»: включение провай�
 - Test: `Packages/Core/Tests/CredentialsTests/CredentialStoreTests.swift`
 
 **Interfaces:**
-- Consumes: `CredentialStore` из прототипа; `PreferencesModel` из Task 4.
+- Consumes: `CredentialStore` from the prototype; `PreferencesModel` from Task 4.
 - Produces:
   - `enum AccountState: Sendable` — `.activeInCLI`, `.refreshed`, `.needsLogin`
   - `CredentialStore.accountStates() async -> [(account: StoredAccount, state: AccountState)]`
   - `CredentialStore.forget(handle: String) async throws`
 
-- [ ] **Step 1: Написать падающий тест**
+- [ ] **Step 1: Write a failing test**
 
-Дописать в `Packages/Core/Tests/CredentialsTests/CredentialStoreTests.swift`:
+Append to `Packages/Core/Tests/CredentialsTests/CredentialStoreTests.swift`:
 
 ```swift
 @Test func statesDistinguishActiveFromRefreshed() async throws {
@@ -2015,7 +2015,7 @@ git commit -m "Раздел «Сервисы»: включение провай�
 }
 
 @Test func accountWithoutCopyNeedsLogin() async throws {
-    // Keychain CLI пуст — копию refresh-токена снять было неоткуда.
+    // The CLI keychain is empty — there was nowhere to take a refresh token copy from.
     let store = await makeStore(MemoryKeychain())
     try await store.syncWithCLI(profileUUID: "u-9", displayName: "c@b.c")
 
@@ -2030,35 +2030,35 @@ git commit -m "Раздел «Сервисы»: включение провай�
     try await store.forget(handle: "u-1")
 
     #expect(await store.knownRefs().isEmpty)
-    // Вход в CLI не тронут — это главное обещание кнопки «Забыть».
+    // The CLI sign-in is untouched — that is the whole promise of the “Забыть” button.
     #expect(await keychain.writeCount(for: CredentialStore.cliService) == 0)
 }
 
 @Test func forgettingUnknownAccountIsHarmless() async throws {
     let store = await makeStore(MemoryKeychain())
-    try await store.forget(handle: "нет такого")
+    try await store.forget(handle: "no such thing")
     #expect(await store.knownRefs().isEmpty)
 }
 ```
 
-- [ ] **Step 2: Убедиться, что тест падает**
+- [ ] **Step 2: Confirm the test fails**
 
 Run: `cd Packages/Core && swift test --filter CredentialStoreTests`
-Expected: FAIL — нет `accountStates` и `forget`.
+Expected: FAIL — there is no `accountStates` and no `forget`.
 
-- [ ] **Step 3: Реализовать**
+- [ ] **Step 3: Implement**
 
-Дописать в `Packages/Core/Sources/Credentials/CredentialStore.swift` внутри
+Append to `Packages/Core/Sources/Credentials/CredentialStore.swift`, inside
 `CredentialStore`:
 
 ```swift
-    /// Как приложение добывает токен для этого аккаунта прямо сейчас.
-    /// Вычисляется, а не хранится: состояние меняется от того, под кем
-    /// пользователь залогинен в CLI, а не от наших записей.
+    /// How the app obtains a token for this account right now.
+    /// Computed rather than stored: the state changes with whoever the user is
+    /// signed in as in the CLI, not with anything we record.
     public enum AccountState: Sendable, Hashable {
-        case activeInCLI   // токен читается из Keychain CLI, не продлевается
-        case refreshed     // живёт на своей копии refresh-токена
-        case needsLogin    // копии нет, продлить нечем
+        case activeInCLI   // the token is read from the CLI keychain, never refreshed
+        case refreshed     // lives on its own copy of the refresh token
+        case needsLogin    // there is no copy, and nothing to refresh with
     }
 
     public func accountStates() async -> [(account: StoredAccount, state: AccountState)] {
@@ -2077,23 +2077,23 @@ Expected: FAIL — нет `accountStates` и `forget`.
         }
     }
 
-    /// Забывает аккаунт вместе с копией токена.
-    /// Элемент Keychain, принадлежащий Claude Code, не трогается — вход в CLI
-    /// остаётся рабочим, и это обещано пользователю в интерфейсе.
+    /// Forgets an account together with its token copy.
+    /// The keychain item belonging to Claude Code is not touched — the CLI sign-in
+    /// keeps working, and that is what the interface promises the user.
     public func forget(handle: String) async throws {
         accounts.removeAll { $0.handle == handle }
         try await persist()
     }
 ```
 
-- [ ] **Step 4: Убедиться, что тесты проходят**
+- [ ] **Step 4: Confirm the tests pass**
 
 Run: `cd Packages/Core && swift test --filter CredentialStoreTests`
-Expected: PASS, 14 тестов.
+Expected: PASS, 14 tests.
 
-- [ ] **Step 5: Наполнить раздел**
+- [ ] **Step 5: Fill the section in**
 
-Заменить содержимое `App/Settings/AccountsPane.swift`:
+Replace the contents of `App/Settings/AccountsPane.swift`:
 
 ```swift
 import SwiftUI
@@ -2212,9 +2212,9 @@ struct AccountsPane: View {
 }
 ```
 
-- [ ] **Step 6: Добавить мост в AppModel**
+- [ ] **Step 6: Add the bridge in AppModel**
 
-В `App/AppModel.swift` дописать:
+In `App/AppModel.swift`, append:
 
 ```swift
     func accountRows() async -> [AccountsPane.AccountRow] {
@@ -2234,26 +2234,26 @@ struct AccountsPane: View {
     }
 ```
 
-- [ ] **Step 7: Собрать и проверить**
+- [ ] **Step 7: Build and check**
 
 Run: `make build`
 Expected: `BUILD SUCCEEDED`.
 
-Run: `make run`, открыть «Настройки… → Аккаунты».
-Expected: аккаунт показан с бейджем «активен в CLI»; выключатель убирает его из
-окна лимитов; «Забыть…» спрашивает подтверждение и после согласия убирает строку,
-а `claude --version` продолжает работать.
+Run: `make run`, open “Настройки… → Аккаунты”.
+Expected: the account is shown with the badge “активен в CLI”; the switch removes it
+from the limits window; “Забыть…” asks for confirmation and, once given, removes the row,
+while `claude --version` goes on working.
 
 - [ ] **Step 8: Commit**
 
 ```bash
 git add App Packages/Core
-git commit -m "Раздел «Аккаунты»: состояния, скрытие и забывание"
+git commit -m "The Accounts section: states, hiding and forgetting"
 ```
 
 ---
 
-### Task 10: Вход через браузер
+### Task 10: Signing in through the browser
 
 **Files:**
 - Create: `Packages/Core/Sources/ClaudeProvider/OAuthEndpoints.swift`
@@ -2266,21 +2266,21 @@ git commit -m "Раздел «Аккаунты»: состояния, скрыт
 - Test: `Packages/Core/Tests/ClaudeProviderTests/OAuthLoginTests.swift`
 
 **Interfaces:**
-- Consumes: `HTTPClient` из прототипа; `ClaudeProfileResponse` из прототипа.
+- Consumes: `HTTPClient` from the prototype; `ClaudeProfileResponse` from the prototype.
 - Produces:
   - `enum OAuthEndpoints` — `authorize`, `token`, `manualRedirect`, `clientID`, `scope`
   - `struct PKCEPair: Sendable` — `verifier`, `challenge`; `static func generate() -> PKCEPair`
   - `struct OAuthLogin: Sendable` — `init(http:)`, `func authorizationURL(redirectURI:pkce:state:manual:) -> URL`, `func exchange(code:verifier:redirectURI:) async throws -> RefreshedTokens`
   - `CredentialStore.addLoggedInAccount(uuid:displayName:refreshToken:) async throws`
 
-Адреса взяты из констант установленного Claude Code и проверены живьём
-2026-08-30: запрос авторизации отвечает `200` и отдаёт страницу входа.
-**Прежний адрес `claude.ai/oauth/authorize` отвечает `403` — домены сменились**,
-поэтому здесь же `AnthropicTokenRefresher` переводится на `platform.claude.com`.
+The addresses are taken from the constants of the installed Claude Code and were checked
+live on 2026-08-30: the authorize request answers `200` and serves the sign-in page.
+**The former address `claude.ai/oauth/authorize` answers `403` — the domains have changed**,
+so `AnthropicTokenRefresher` is moved to `platform.claude.com` here as well.
 
-- [ ] **Step 1: Написать падающий тест на PKCE**
+- [ ] **Step 1: Write a failing test for PKCE**
 
-Создать `Packages/Core/Tests/ClaudeProviderTests/PKCETests.swift`:
+Create `Packages/Core/Tests/ClaudeProviderTests/PKCETests.swift`:
 
 ```swift
 import Testing
@@ -2310,7 +2310,7 @@ import CryptoKit
 }
 
 @Test func verifierIsLongEnoughForTheSpec() {
-    // RFC 7636 требует от 43 до 128 символов.
+    // RFC 7636 requires between 43 and 128 characters.
     let pair = PKCEPair.generate()
     #expect(pair.verifier.count >= 43)
     #expect(pair.verifier.count <= 128)
@@ -2323,23 +2323,23 @@ import CryptoKit
 }
 ```
 
-- [ ] **Step 2: Убедиться, что тест падает**
+- [ ] **Step 2: Confirm the test fails**
 
 Run: `cd Packages/Core && swift test --filter PKCETests`
 Expected: FAIL, `cannot find 'PKCEPair' in scope`.
 
-- [ ] **Step 3: Реализовать адреса и PKCE**
+- [ ] **Step 3: Implement the addresses and PKCE**
 
-Создать `Packages/Core/Sources/ClaudeProvider/OAuthEndpoints.swift`:
+Create `Packages/Core/Sources/ClaudeProvider/OAuthEndpoints.swift`:
 
 ```swift
 import Foundation
 
-/// Адреса входа, взятые из констант установленного Claude Code.
+/// The sign-in addresses, taken from the constants of the installed Claude Code.
 ///
-/// Домены сменились: `claude.ai/oauth/authorize` отвечает `403`, действующий
-/// адрес — `platform.claude.com`. Держим их одним местом, чтобы следующая
-/// смена правилась в одной точке.
+/// The domains have changed: `claude.ai/oauth/authorize` answers `403`, and the
+/// address in force is `platform.claude.com`. Kept in one place so that the next
+/// change is made at a single point.
 public enum OAuthEndpoints {
     public static let authorize = URL(string: "https://platform.claude.com/oauth/authorize")!
     public static let token = URL(string: "https://platform.claude.com/v1/oauth/token")!
@@ -2349,14 +2349,14 @@ public enum OAuthEndpoints {
 }
 ```
 
-Создать `Packages/Core/Sources/ClaudeProvider/PKCE.swift`:
+Create `Packages/Core/Sources/ClaudeProvider/PKCE.swift`:
 
 ```swift
 import Foundation
 import CryptoKit
 
-/// Пара для PKCE (RFC 7636). Верификатор остаётся у приложения, вызов уходит
-/// в браузер только в виде challenge — поэтому перехват адреса ничего не даёт.
+/// A PKCE pair (RFC 7636). The verifier stays with the app and only the challenge
+/// goes to the browser — which is why intercepting the address gains nothing.
 public struct PKCEPair: Sendable, Hashable {
     public let verifier: String
     public let challenge: String
@@ -2369,8 +2369,8 @@ public struct PKCEPair: Sendable, Hashable {
         return PKCEPair(verifier: verifier, challenge: base64URL(digest))
     }
 
-    /// base64url без набивки: `+` и `/` недопустимы в параметрах адреса,
-    /// а `=` спецификация запрещает.
+    /// base64url without padding: `+` and `/` are not allowed in address
+    /// parameters, and the specification forbids `=`.
     private static func base64URL(_ data: Data) -> String {
         data.base64EncodedString()
             .replacingOccurrences(of: "+", with: "-")
@@ -2380,14 +2380,14 @@ public struct PKCEPair: Sendable, Hashable {
 }
 ```
 
-- [ ] **Step 4: Убедиться, что тесты PKCE проходят**
+- [ ] **Step 4: Confirm the PKCE tests pass**
 
 Run: `cd Packages/Core && swift test --filter PKCETests`
-Expected: PASS, 4 теста.
+Expected: PASS, 4 tests.
 
-- [ ] **Step 5: Написать падающий тест на вход**
+- [ ] **Step 5: Write a failing test for the sign-in**
 
-Создать `Packages/Core/Tests/ClaudeProviderTests/OAuthLoginTests.swift`:
+Create `Packages/Core/Tests/ClaudeProviderTests/OAuthLoginTests.swift`:
 
 ```swift
 import Testing
@@ -2428,7 +2428,7 @@ private func d(_ s: String) -> Data { s.data(using: .utf8)! }
     #expect(byName["code_challenge_method"] == "S256")
     #expect(byName["state"] == "st-1")
     #expect(byName["scope"] == OAuthEndpoints.scope)
-    #expect(byName["code"] == nil)   // не ручной режим
+    #expect(byName["code"] == nil)   // not the manual route
 }
 
 @Test func manualModeAddsCodeFlagAndItsOwnRedirect() {
@@ -2483,15 +2483,15 @@ private func d(_ s: String) -> Data { s.data(using: .utf8)! }
         _ = try await OAuthLogin(http: http).exchange(
             code: "c", verifier: "SECRET-VERIFIER", redirectURI: "http://localhost:1/callback"
         )
-        Issue.record("ожидалась ошибка")
+        Issue.record("an error was expected")
     } catch let failure as ProviderFailure {
         #expect(failure.message.contains("SECRET") == false)
     } catch {
-        Issue.record("другой тип ошибки")
+        Issue.record("a different kind of error")
     }
 }
 
-/// Тестовая коробка: замыкание `@Sendable` не может писать в `var` напрямую.
+/// A test box: a `@Sendable` closure cannot write to a `var` directly.
 private final class Box: @unchecked Sendable {
     private let lock = NSLock()
     private var stored: Data?
@@ -2500,14 +2500,14 @@ private final class Box: @unchecked Sendable {
 }
 ```
 
-- [ ] **Step 6: Убедиться, что тест падает**
+- [ ] **Step 6: Confirm the test fails**
 
 Run: `cd Packages/Core && swift test --filter OAuthLoginTests`
 Expected: FAIL, `cannot find 'OAuthLogin' in scope`.
 
-- [ ] **Step 7: Реализовать вход**
+- [ ] **Step 7: Implement the sign-in**
 
-Создать `Packages/Core/Sources/ClaudeProvider/OAuthLogin.swift`:
+Create `Packages/Core/Sources/ClaudeProvider/OAuthLogin.swift`:
 
 ```swift
 import Foundation
@@ -2518,10 +2518,10 @@ public struct OAuthLogin: Sendable {
 
     public init(http: any HTTPClient = URLSessionHTTPClient()) { self.http = http }
 
-    /// Адрес страницы входа.
-    /// `manual: true` добавляет `code=true` — тогда сервер показывает код на
-    /// странице вместо возврата на `redirect_uri`. Это запасной путь на случай,
-    /// если возврат на localhost не сработает.
+    /// The address of the sign-in page.
+    /// `manual: true` adds `code=true` — the server then shows the code on the
+    /// page instead of returning to `redirect_uri`. That is the fallback route,
+    /// for when the return to localhost does not work.
     public func authorizationURL(
         redirectURI: String, pkce: PKCEPair, state: String, manual: Bool
     ) -> URL {
@@ -2560,8 +2560,8 @@ public struct OAuthLogin: Sendable {
               let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let access = root["access_token"] as? String
         else {
-            // Ответ сервера наружу не пересказываем: в него мог попасть код или
-            // верификатор, а сообщение уходит в интерфейс.
+            // The server's answer is not repeated outwards: it could carry the code
+            // or the verifier, and this message goes to the interface.
             throw ProviderFailure(kind: .needsLogin, message: "Не удалось завершить вход")
         }
         return RefreshedTokens(
@@ -2571,11 +2571,11 @@ public struct OAuthLogin: Sendable {
 }
 ```
 
-`RefreshedTokens` объявлен в модуле `Credentials`, а `OAuthLogin` живёт в
-`ClaudeProvider`, который от него не зависит. Поэтому переносим тип: вырезать
-объявление `RefreshedTokens` из
-`Packages/Core/Sources/Credentials/CredentialStore.swift` и вставить в
-`Packages/Core/Sources/ClaudeProvider/OAuthLogin.swift` перед `OAuthLogin`:
+`RefreshedTokens` is declared in the `Credentials` module, while `OAuthLogin` lives in
+`ClaudeProvider`, which does not depend on it. So the type moves: cut the declaration
+of `RefreshedTokens` out of
+`Packages/Core/Sources/Credentials/CredentialStore.swift` and paste it into
+`Packages/Core/Sources/ClaudeProvider/OAuthLogin.swift`, before `OAuthLogin`:
 
 ```swift
 public struct RefreshedTokens: Sendable, Hashable {
@@ -2589,12 +2589,12 @@ public struct RefreshedTokens: Sendable, Hashable {
 }
 ```
 
-`Credentials` уже импортирует `ClaudeProvider`, поэтому больше ничего не нужно.
+`Credentials` already imports `ClaudeProvider`, so nothing else is needed.
 
-- [ ] **Step 8: Перевести продление на действующий адрес**
+- [ ] **Step 8: Move refreshing to the address in force**
 
-В `Packages/Core/Sources/Credentials/CredentialStore.swift` в
-`AnthropicTokenRefresher` заменить константы на общие:
+In `Packages/Core/Sources/Credentials/CredentialStore.swift`, in
+`AnthropicTokenRefresher`, replace the constants with the shared ones:
 
 ```swift
 public struct AnthropicTokenRefresher: TokenRefreshing {
@@ -2625,14 +2625,14 @@ public struct AnthropicTokenRefresher: TokenRefreshing {
 }
 ```
 
-- [ ] **Step 9: Добавить сохранение вошедшего аккаунта**
+- [ ] **Step 9: Add saving of the account that signed in**
 
-Дописать в `CredentialStore`:
+Append to `CredentialStore`:
 
 ```swift
-    /// Сохраняет аккаунт, добавленный входом через браузер.
-    /// У него своя пара токенов, не связанная с сессией CLI, поэтому он сразу
-    /// попадает в состояние «продлевается».
+    /// Saves an account added by signing in through the browser.
+    /// It has a token pair of its own, unconnected to the CLI session, so it lands
+    /// straight in the “refreshed” state.
     public func addLoggedInAccount(
         uuid: String, displayName: String, refreshToken: String
     ) async throws {
@@ -2645,14 +2645,14 @@ public struct AnthropicTokenRefresher: TokenRefreshing {
     }
 ```
 
-- [ ] **Step 10: Убедиться, что весь пакет проходит**
+- [ ] **Step 10: Confirm the whole package passes**
 
 Run: `cd Packages/Core && swift test`
-Expected: PASS, все тесты.
+Expected: PASS, every test.
 
-- [ ] **Step 11: Реализовать возврат из браузера**
+- [ ] **Step 11: Implement the return from the browser**
 
-Создать `App/LoginController.swift`:
+Create `App/LoginController.swift`:
 
 ```swift
 import Foundation
@@ -2662,13 +2662,13 @@ import ProviderKit
 import ClaudeProvider
 import Credentials
 
-/// Проводит вход через браузер: поднимает слушатель на свободном порту,
-/// открывает страницу входа и ждёт возврата с кодом.
+/// Runs the browser sign-in: raises a listener on a free port, opens the
+/// sign-in page and waits for the return carrying the code.
 @MainActor
 final class LoginController: ObservableObject {
     @Published private(set) var isRunning = false
     @Published private(set) var message: String?
-    /// Адрес показывается, если возврат не сработал и нужен ручной ввод кода.
+    /// The address is shown if the return did not work and the code must be entered by hand.
     @Published private(set) var manualCodeExpected = false
 
     private let login = OAuthLogin()
@@ -2701,12 +2701,12 @@ final class LoginController: ObservableObject {
             )
             armTimeout()
         } catch {
-            // Порт занять не удалось — уходим на ручной ввод кода.
+            // The port could not be taken — fall back to entering the code by hand.
             fallBackToManual(pair: pair, state: st)
         }
     }
 
-    /// Ручной путь: код скопирован со страницы и вставлен в поле.
+    /// The manual route: the code was copied from the page and pasted into the field.
     func submit(code: String) async {
         guard let pair = pkce, let uri = redirectURI else { return }
         await finish(code: code, verifier: pair.verifier, redirectURI: uri)
@@ -2719,7 +2719,7 @@ final class LoginController: ObservableObject {
         message = nil
     }
 
-    // MARK: - внутреннее
+    // MARK: - internals
 
     private func startListener() throws -> UInt16 {
         let listener = try NWListener(using: .tcp, on: .any)
@@ -2735,7 +2735,7 @@ final class LoginController: ObservableObject {
         }
         listener.start(queue: .main)
 
-        // Порт назначается системой асинхронно; ждём его появления.
+        // The port is assigned by the system asynchronously; wait for it to appear.
         var attempts = 0
         while listener.port == nil && attempts < 200 {
             RunLoop.current.run(until: Date().addingTimeInterval(0.01))
@@ -2750,7 +2750,7 @@ final class LoginController: ObservableObject {
     private func handle(request: String, on connection: NWConnection) {
         defer { connection.cancel() }
 
-        // Первая строка вида: GET /callback?code=...&state=... HTTP/1.1
+        // The first line looks like: GET /callback?code=...&state=... HTTP/1.1
         guard let line = request.split(separator: "\r\n").first,
               let path = line.split(separator: " ").dropFirst().first,
               let components = URLComponents(string: "http://localhost\(path)")
@@ -2762,7 +2762,7 @@ final class LoginController: ObservableObject {
 
         respond(on: connection, ok: code != nil)
 
-        // Чужой state означает подставной редирект — такой код не берём.
+        // A foreign state means a planted redirect — that code is not taken.
         guard let code, returned == state, let pair = pkce, let uri = redirectURI else {
             message = "Возврат из браузера не распознан."
             isRunning = false
@@ -2832,7 +2832,7 @@ final class LoginController: ObservableObject {
         ))
     }
 
-    /// Слушатель не должен висеть бесконечно, если человек закрыл вкладку.
+    /// The listener must not hang about forever if the person closed the tab.
     private func armTimeout() {
         timeout?.cancel()
         timeout = Task { [weak self] in
@@ -2855,10 +2855,10 @@ final class LoginController: ObservableObject {
 }
 ```
 
-- [ ] **Step 12: Добавить кнопку в раздел «Аккаунты»**
+- [ ] **Step 12: Add the button to the “Accounts” section**
 
-В `App/Settings/AccountsPane.swift` добавить состояние и кнопку. После
-`@State private var pendingForget: AccountRow?` вставить:
+In `App/Settings/AccountsPane.swift`, add the state and the button. After
+`@State private var pendingForget: AccountRow?`, insert:
 
 ```swift
     @StateObject private var loginController: LoginController
@@ -2871,7 +2871,7 @@ final class LoginController: ObservableObject {
     }
 ```
 
-В `VStack` после списка аккаунтов, перед пояснением, вставить:
+In the `VStack`, after the account list and before the explanation, insert:
 
 ```swift
                 HStack(spacing: 8) {
@@ -2905,7 +2905,7 @@ final class LoginController: ObservableObject {
                 }
 ```
 
-И в `.task` добавить перезагрузку после успешного входа:
+And add a reload after a successful sign-in to `.task`:
 
 ```swift
         .onChange(of: loginController.message) { _, _ in
@@ -2913,50 +2913,50 @@ final class LoginController: ObservableObject {
         }
 ```
 
-- [ ] **Step 13: Открыть доступ к хранилищу**
+- [ ] **Step 13: Open access to the store**
 
-В `App/AppModel.swift` заменить `private let store: CredentialStore` на:
+In `App/AppModel.swift`, replace `private let store: CredentialStore` with:
 
 ```swift
-    /// Раздел «Аккаунты» создаёт свой `LoginController` поверх того же хранилища.
+    /// The “Accounts” section builds its own `LoginController` over the same store.
     let store: CredentialStore
 ```
 
-- [ ] **Step 14: Собрать и проверить**
+- [ ] **Step 14: Build and check**
 
 Run: `make build`
 Expected: `BUILD SUCCEEDED`.
 
-Run: `make run`, открыть «Настройки… → Аккаунты → Добавить аккаунт…».
-Expected: открывается браузер со страницей входа Claude; после входа браузер
-возвращается на localhost и показывает «Готово», а в списке появляется новый
-аккаунт с бейджем «продлевается».
+Run: `make run`, open “Настройки… → Аккаунты → Добавить аккаунт…”.
+Expected: the browser opens on the Claude sign-in page; after signing in the browser
+returns to localhost and shows “Готово”, and a new account appears in the list
+with the badge “продлевается”.
 
-Если браузер показывает код вместо возврата — сработал запасной путь: скопировать
-код в поле «Код со страницы» и нажать «Готово». Результат тот же.
+If the browser shows a code instead of returning, the fallback route fired: copy the
+code into the “Код со страницы” field and press “Готово”. The result is the same.
 
 - [ ] **Step 15: Commit**
 
 ```bash
 git add App Packages/Core
-git commit -m "Вход в аккаунт Claude через браузер из настроек"
+git commit -m "Signing in to a Claude account through the browser, from settings"
 ```
 
 ---
 
-### Task 11: Раздел «О программе», альтернативные компоновки строки
+### Task 11: The “About” section, and the alternative row layouts
 
 **Files:**
 - Modify: `App/Settings/AboutPane.swift`
 - Modify: `App/AccountRowView.swift`
 
 **Interfaces:**
-- Consumes: `RowLayout` из Task 1; `CredentialStore.forget` из Task 9.
+- Consumes: `RowLayout` from Task 1; `CredentialStore.forget` from Task 9.
 - Produces: `AppModel.forgetAllAccounts() async`.
 
-- [ ] **Step 1: Наполнить раздел «О программе»**
+- [ ] **Step 1: Fill the “About” section in**
 
-Заменить содержимое `App/Settings/AboutPane.swift`:
+Replace the contents of `App/Settings/AboutPane.swift`:
 
 ```swift
 import SwiftUI
@@ -3014,9 +3014,9 @@ struct AboutPane: View {
 }
 ```
 
-- [ ] **Step 2: Добавить метод в AppModel**
+- [ ] **Step 2: Add the method to AppModel**
 
-В `App/AppModel.swift` дописать:
+In `App/AppModel.swift`, append:
 
 ```swift
     func forgetAllAccounts() async {
@@ -3027,9 +3027,9 @@ struct AboutPane: View {
     }
 ```
 
-- [ ] **Step 3: Реализовать компоновки B и C**
+- [ ] **Step 3: Implement layouts B and C**
 
-В `App/AccountRowView.swift` заменить `body`:
+In `App/AccountRowView.swift`, replace `body`:
 
 ```swift
     var body: some View {
@@ -3051,7 +3051,7 @@ struct AboutPane: View {
         .padding(.vertical, 10)
     }
 
-    /// Одна строка: крупно недельный процент, пятичасовое окно — засечкой.
+    /// A single line: the weekly percentage large, the five-hour window as a notch.
     private var compactMeter: some View {
         let weekly = snapshot.windows.first { $0.id == "weekly" } ?? snapshot.windows.first
         let session = snapshot.windows.first { $0.id == "session" }
@@ -3090,7 +3090,7 @@ struct AboutPane: View {
         }
     }
 
-    /// Кольца: процент читается цифрой, без сравнения длин полос.
+    /// Rings: the percentage reads as a number, without comparing bar lengths.
     private var ringsRow: some View {
         HStack(spacing: 10) {
             ForEach(snapshot.windows) { window in
@@ -3124,25 +3124,25 @@ struct AboutPane: View {
     }
 ```
 
-- [ ] **Step 4: Собрать и проверить**
+- [ ] **Step 4: Build and check**
 
 Run: `make build`
 Expected: `BUILD SUCCEEDED`.
 
-Run: `make run`, в «Внешний вид» переключить компоновку между «Два окна»,
-«Одна строка» и «Кольца».
-Expected: окно перерисовывается, все три вида читаемы, ничего не обрезается.
+Run: `make run`, and in “Внешний вид” switch the layout between “Два окна”,
+“Одна строка” and “Кольца”.
+Expected: the window redraws, all three read clearly, and nothing is clipped.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add App
-git commit -m "Раздел «О программе» и альтернативные компоновки строки"
+git commit -m "The About section and the alternative row layouts"
 ```
 
 ---
 
-### Task 12: Горячие клавиши
+### Task 12: Hot keys
 
 **Files:**
 - Create: `App/HotKeys.swift`
@@ -3151,19 +3151,19 @@ git commit -m "Раздел «О программе» и альтернатив�
 - Test: `Packages/Core/Tests/PreferencesTests/HotKeyTests.swift`
 
 **Interfaces:**
-- Consumes: `Preferences` из Task 1.
+- Consumes: `Preferences` from Task 1.
 - Produces:
   - `struct HotKeyCombo: Codable, Sendable, Hashable` — `keyCode: UInt32`, `modifiers: UInt32`, `displayString: String`
   - `Preferences.openWindowHotKey: HotKeyCombo?`, `Preferences.refreshHotKey: HotKeyCombo?`
   - `final class HotKeyCenter` — `register(_ combo: HotKeyCombo?, id: UInt32, action: @escaping () -> Void)`, `unregisterAll()`
 
-Это единственная часть плана, требующая C-API: глобальное сочетание без прав
-Accessibility даёт только Carbon `RegisterEventHotKey`. Задача идёт последней —
-если работу нужно остановить раньше, всё остальное уже работает.
+This is the one part of the plan that needs a C API: a global shortcut without
+Accessibility permission is only available through Carbon `RegisterEventHotKey`. The task
+comes last — if the work has to stop earlier, everything else already works.
 
-- [ ] **Step 1: Написать падающий тест на описание сочетания**
+- [ ] **Step 1: Write a failing test for how a combination reads**
 
-Создать `Packages/Core/Tests/PreferencesTests/HotKeyTests.swift`:
+Create `Packages/Core/Tests/PreferencesTests/HotKeyTests.swift`:
 
 ```swift
 import Testing
@@ -3171,7 +3171,7 @@ import Foundation
 @testable import Preferences
 
 @Test func describesModifiersInAppleOrder() {
-    // Порядок значков в macOS: ⌃ ⌥ ⇧ ⌘
+    // The order of the symbols on macOS: ⌃ ⌥ ⇧ ⌘
     let combo = HotKeyCombo(keyCode: 37, modifiers: HotKeyCombo.command | HotKeyCombo.option)
     #expect(combo.displayString == "⌥⌘L")
 }
@@ -3196,20 +3196,20 @@ import Foundation
 }
 ```
 
-- [ ] **Step 2: Убедиться, что тест падает**
+- [ ] **Step 2: Confirm the test fails**
 
 Run: `cd Packages/Core && swift test --filter HotKeyTests`
 Expected: FAIL, `cannot find 'HotKeyCombo' in scope`.
 
-- [ ] **Step 3: Реализовать описание сочетания**
+- [ ] **Step 3: Implement how a combination reads**
 
-Дописать в `Packages/Core/Sources/Preferences/Preferences.swift` перед
+Append to `Packages/Core/Sources/Preferences/Preferences.swift`, before
 `struct Preferences`:
 
 ```swift
-/// Сочетание клавиш. Хранится кодами Carbon, а не символами: символ зависит от
-/// раскладки, а код клавиши — нет, поэтому сочетание не «переезжает» при
-/// переключении на другой язык ввода.
+/// A key combination. Held as Carbon key codes rather than characters: the character
+/// depends on the layout and the key code does not, so the combination does not
+/// wander when the input language is switched.
 public struct HotKeyCombo: Codable, Sendable, Hashable {
     public static let control: UInt32 = 1 << 12
     public static let option: UInt32 = 1 << 11
@@ -3224,7 +3224,7 @@ public struct HotKeyCombo: Codable, Sendable, Hashable {
         self.modifiers = modifiers
     }
 
-    /// Как сочетание выглядит в интерфейсе. Порядок значков — принятый в macOS.
+    /// How the combination reads in the interface. The symbol order is the macOS one.
     public var displayString: String {
         var result = ""
         if modifiers & Self.control != 0 { result += "⌃" }
@@ -3246,31 +3246,31 @@ public struct HotKeyCombo: Codable, Sendable, Hashable {
 }
 ```
 
-Добавить поля в `Preferences` после `refreshAfterWake`:
+Add the fields to `Preferences` after `refreshAfterWake`:
 
 ```swift
     public var openWindowHotKey: HotKeyCombo?
     public var refreshHotKey: HotKeyCombo?
 ```
 
-и в `defaults` после `refreshAfterWake: true,`:
+and to `defaults` after `refreshAfterWake: true,`:
 
 ```swift
         openWindowHotKey: nil,
         refreshHotKey: nil,
 ```
 
-- [ ] **Step 4: Убедиться, что тесты проходят**
+- [ ] **Step 4: Confirm the tests pass**
 
 Run: `cd Packages/Core && swift test --filter HotKeyTests`
-Expected: PASS, 5 тестов.
+Expected: PASS, 5 tests.
 
 Run: `cd Packages/Core && swift test --filter PreferencesTests`
-Expected: PASS — `defaultsMatchTheSpec` продолжает работать, новые поля `nil`.
+Expected: PASS — `defaultsMatchTheSpec` goes on working, the new fields `nil`.
 
-- [ ] **Step 5: Реализовать регистрацию**
+- [ ] **Step 5: Implement registration**
 
-Создать `App/HotKeys.swift`:
+Create `App/HotKeys.swift`:
 
 ```swift
 import Foundation
@@ -3278,11 +3278,11 @@ import AppKit
 import Carbon.HIToolbox
 import Preferences
 
-/// Глобальные сочетания клавиш.
+/// Global key combinations.
 ///
-/// Carbon `RegisterEventHotKey` — единственный способ получить сочетание,
-/// работающее вне активного приложения, без запроса прав Accessibility.
-/// Современного замещения у него нет.
+/// Carbon `RegisterEventHotKey` is the only way to get a combination that works
+/// outside the active application without asking for Accessibility permission.
+/// It has no modern replacement.
 @MainActor
 final class HotKeyCenter {
     static let shared = HotKeyCenter()
@@ -3349,9 +3349,9 @@ enum HotKeyID {
 }
 ```
 
-- [ ] **Step 6: Добавить запись сочетания в раздел**
+- [ ] **Step 6: Add recording a combination to the section**
 
-В `App/Settings/UpdatesPane.swift` заменить секцию «Горячие клавиши»:
+In `App/Settings/UpdatesPane.swift`, replace the “Горячие клавиши” section:
 
 ```swift
                 Section("Горячие клавиши") {
@@ -3360,7 +3360,7 @@ enum HotKeyID {
                 }
 ```
 
-и дописать в тот же тип:
+and append to the same type:
 
 ```swift
     @State private var recording: String?
@@ -3390,12 +3390,12 @@ enum HotKeyID {
     }
 ```
 
-Создать перехватчик нажатия в том же файле:
+Create the key-press catcher in the same file:
 
 ```swift
-/// Ловит одно нажатие и отдаёт его как сочетание.
-/// Через `NSView`, потому что SwiftUI не отдаёт коды клавиш и модификаторы
-/// в том виде, в каком их ждёт Carbon.
+/// Catches a single key press and hands it back as a combination.
+/// Through an `NSView`, because SwiftUI does not give up key codes and modifiers
+/// in the form Carbon expects them.
 private struct HotKeyRecorder: NSViewRepresentable {
     let isActive: Bool
     let onCapture: (HotKeyCombo) -> Void
@@ -3423,7 +3423,7 @@ private struct HotKeyRecorder: NSViewRepresentable {
             if event.modifierFlags.contains(.shift) { modifiers |= HotKeyCombo.shift }
             if event.modifierFlags.contains(.command) { modifiers |= HotKeyCombo.command }
 
-            // Сочетание без модификаторов перехватило бы обычный ввод.
+            // A combination without modifiers would swallow ordinary typing.
             guard modifiers != 0 else { NSSound.beep(); return }
             onCapture?(HotKeyCombo(keyCode: UInt32(event.keyCode), modifiers: modifiers))
         }
@@ -3431,9 +3431,9 @@ private struct HotKeyRecorder: NSViewRepresentable {
 }
 ```
 
-- [ ] **Step 7: Подключить действия**
+- [ ] **Step 7: Wire the actions up**
 
-В `App/StatusCheckerApp.swift` в сцене `Settings` добавить регистрацию:
+In `App/StatusCheckerApp.swift`, add the registration to the `Settings` scene:
 
 ```swift
                 .onChange(of: preferences.value.openWindowHotKey, initial: true) { _, combo in
@@ -3450,82 +3450,82 @@ private struct HotKeyRecorder: NSViewRepresentable {
                 }
 ```
 
-Открытие окна строки меню программно системой не поддерживается напрямую;
-если `openMenuBarExtra:` не срабатывает, сочетание «Открыть окно» остаётся
-незанятым, а «Обновить сейчас» работает. Проверить на шаге 8 и, если открытие не
-работает, убрать строку «Открыть окно» из раздела и оставить одно сочетание —
-обещать в интерфейсе то, что не работает, нельзя.
+Opening the menu bar window programmatically is not directly supported by the system;
+if `openMenuBarExtra:` does not fire, the “Открыть окно” combination is left
+unassigned while “Обновить сейчас” works. Check at step 8 and, if opening does not
+work, remove the “Открыть окно” row from the section and keep one combination —
+promising something in the interface that does not work is not allowed.
 
-- [ ] **Step 8: Собрать и проверить**
+- [ ] **Step 8: Build and check**
 
 Run: `make build`
 Expected: `BUILD SUCCEEDED`.
 
-Run: `make run`, назначить «Обновить сейчас» на ⌥⌘R, свернуть все окна, нажать
-сочетание.
-Expected: время в заголовке окна лимитов обновляется, значок перерисовывается.
+Run: `make run`, assign “Обновить сейчас” to ⌥⌘R, minimise every window, press
+the combination.
+Expected: the time in the limits window's heading updates, and the icon redraws.
 
 - [ ] **Step 9: Commit**
 
 ```bash
 git add App Packages/Core
-git commit -m "Горячие клавиши: запись сочетания и глобальная регистрация"
+git commit -m "Hot keys: recording a combination and registering it globally"
 ```
 
 ---
 
-### Task 13: Приёмка и документация
+### Task 13: Acceptance and documentation
 
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Прогнать все тесты**
+- [ ] **Step 1: Run every test**
 
 Run: `make test`
-Expected: PASS, ни одного падения.
+Expected: PASS, not a single failure.
 
-- [ ] **Step 2: Пройти по всем разделам**
+- [ ] **Step 2: Walk through every section**
 
-Run: `make run`, открыть «Настройки…» и проверить каждый:
+Run: `make run`, open “Настройки…” and check each of them:
 
-- **Аккаунты** — состояния показаны верно; выключатель убирает аккаунт из окна;
-  «Забыть» спрашивает подтверждение; `claude --version` после этого работает.
-- **Внешний вид** — переключение оформления меняет вид окна сразу; три
-  компоновки строки читаемы; изменение «В строке меню» видно на значке.
-- **Уведомления** — порог добавляется и удаляется; при выключенном «Уведомлять»
-  форма недоступна.
-- **Обновление** — автозапуск отражает состояние системы; интервалы не выходят
-  за 30 с и час.
-- **Сервисы** — выключение Codex убирает его строку; выключение обоих даёт
-  «Аккаунты не найдены» без падения.
-- **О программе** — версия верная; «Забыть все аккаунты» спрашивает подтверждение.
+- **Accounts** — the states are shown correctly; the switch removes an account from the
+  window; “Забыть” asks for confirmation; `claude --version` works afterwards.
+- **Appearance** — switching the appearance changes the window at once; all three row
+  layouts read clearly; a change to “В строке меню” shows on the icon.
+- **Notifications** — a threshold is added and removed; with “Уведомлять” off the form
+  is disabled.
+- **Updates** — launch at login reflects the system state; the intervals stay within
+  30 s and an hour.
+- **Services** — switching Codex off removes its row; switching both off gives
+  “Аккаунты не найдены” without falling over.
+- **About** — the version is right; “Забыть все аккаунты” asks for confirmation.
 
-- [ ] **Step 3: Проверить, что вход в CLI цел**
+- [ ] **Step 3: Check the CLI sign-in is intact**
 
 Run: `claude --version`
-Expected: версия печатается, вход не слетел.
+Expected: the version prints, the sign-in did not drop.
 
 Run: `security find-generic-password -s "Claude Code-credentials" | head -3`
-Expected: элемент на месте.
+Expected: the item is where it was.
 
-- [ ] **Step 4: Обновить README**
+- [ ] **Step 4: Update the README**
 
-В `README.md` после раздела «Несколько подписок Claude» добавить:
+In `README.md`, after the “Several Claude subscriptions” section, add:
 
 ```markdown
-## Настройки
+## Settings
 
-Открываются из окна лимитов пунктом «Настройки…» или сочетанием ⌘,.
+Opened from the limits window with the “Настройки…” item, or with ⌘,.
 
-Шесть разделов: аккаунты, внешний вид, уведомления, обновление и запуск,
-сервисы, о программе. Оформление — системное, светлое или тёмное.
+Six sections: accounts, appearance, notifications, updates and launch, services,
+about. The appearance is system, light or dark.
 
-Аккаунт можно добавить прямо из настроек кнопкой «Добавить аккаунт…»: откроется
-браузер, пароль вводится только там. Такой аккаунт живёт на своей паре токенов и
-не связан с сессией CLI.
+An account can be added from settings with the “Добавить аккаунт…” button: the browser
+opens, and the password is typed only there. Such an account lives on its own token pair
+and is unconnected to the CLI session.
 
-Настройки лежат в `~/Library/Preferences/dev.example.StatusChecker.plist`.
-Учётные данные там не хранятся — они в Keychain, в элементе
+The settings live in `~/Library/Preferences/dev.example.StatusChecker.plist`.
+Credentials are not kept there — they are in the keychain, in the item
 `StatusChecker-accounts`.
 ```
 
@@ -3533,15 +3533,15 @@ Expected: элемент на месте.
 
 ```bash
 git add README.md
-git commit -m "README: раздел о настройках"
+git commit -m "README: the settings section"
 ```
 
 ---
 
-## Что осталось за рамками
+## What was left out of scope
 
-1. **Перенос настроек между машинами** — сейчас они локальные.
-2. **Живые данные Codex** вместо снимка.
-3. **Провайдеры Cursor, GitHub Copilot, Gemini CLI** — место под них в разделе
-   «Сервисы» уже есть.
-4. **Приложение под iOS и виджет.**
+1. **Carrying settings between machines** — they are local for now.
+2. **Live Codex data** instead of a snapshot.
+3. **Cursor, GitHub Copilot and Gemini CLI providers** — the room for them in the
+   “Services” section already exists.
+4. **An iOS app and a widget.**

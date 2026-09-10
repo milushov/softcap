@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Softcap — макеты</title>
+<title>Softcap — mock-ups</title>
 <style>
   :root{
     --bg:#1c1c1e; --panel:rgba(44,44,46,.82); --panel-border:rgba(255,255,255,.12);
@@ -148,7 +148,7 @@
   <span style="font-weight:600">Finder</span>
   <span class="mb-item">File</span><span class="mb-item">Edit</span><span class="mb-item">View</span>
   <span class="grow"></span>
-  <span class="mb-ours" title="наше приложение">
+  <span class="mb-ours" title="our app">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="2.2" opacity=".28"/>
       <path d="M12 3a9 9 0 0 1 8.49 6" stroke="#ff9f0a" stroke-width="2.6" stroke-linecap="round"/>
@@ -156,26 +156,27 @@
     <span class="t">0:47</span>
   </span>
   <span class="mb-item">100%</span>
-  <span class="mb-item">Пт 18:21</span>
+  <span class="mb-item">Fri 18:21</span>
 </div>
 
 <div class="wrap">
-  <h1>Softcap — три компоновки одного окна</h1>
+  <h1>Softcap — three layouts for one window</h1>
   <p class="sub">
-    Числа настоящие: аккаунт <b>alex@example.com</b> сейчас 5&nbsp;% за 5&nbsp;часов и 23&nbsp;% за неделю,
-    Codex — снимок двухдневной давности. Остальные два аккаунта Claude показаны как правдоподобный пример,
-    чтобы было видно поведение при 78&nbsp;% и 96&nbsp;%. В панели сверху — иконка с таймером до ближайшего сброса.
+    The numbers are real: the account <b>alex@example.com</b> is at 5&nbsp;% of its five hours and 23&nbsp;% of
+    its week, and the Codex reading is a snapshot two days old. The other two Claude accounts are a plausible
+    example, so that the behaviour at 78&nbsp;% and 96&nbsp;% can be seen. In the bar at the top is the icon,
+    with the timer to the nearest reset.
   </p>
 
   <div class="cols">
 
     <!-- ══════════════ VARIANT A ══════════════ -->
     <div class="col">
-      <h2>Вариант A — два окна в строке</h2>
-      <p class="note">Всё видно сразу: и 5-часовое окно, и недельное. Максимум информации, строка выше.</p>
+      <h2>Option A — both windows on the row</h2>
+      <p class="note">Everything at once: the five-hour window and the weekly one. The most information, and the tallest row.</p>
       <div class="pop-arrow"></div>
       <div class="pop">
-        <div class="pop-head"><span class="ttl">Лимиты подписок</span><span class="upd">обновлено 18:21</span></div>
+        <div class="pop-head"><span class="ttl">Subscription limits</span><span class="upd">updated 18:21</span></div>
 
         <div class="row">
           <div class="rhead">
@@ -184,8 +185,8 @@
             </span>
             <span class="who"><div class="n">alex@example.com</div><div class="p">Claude · Max 20x</div></span>
           </div>
-          <div class="meter"><span class="lbl">5ч</span><span class="bar ok"><i style="width:5%"></i></span><span class="pct">5%</span><span class="eta">3ч 39м</span></div>
-          <div class="meter"><span class="lbl">нед</span><span class="bar ok"><i style="width:23%"></i></span><span class="pct">23%</span><span class="eta">5д 23ч</span></div>
+          <div class="meter"><span class="lbl">5h</span><span class="bar ok"><i style="width:5%"></i></span><span class="pct">5%</span><span class="eta">3h 39m</span></div>
+          <div class="meter"><span class="lbl">week</span><span class="bar ok"><i style="width:23%"></i></span><span class="pct">23%</span><span class="eta">5d 23h</span></div>
         </div>
 
         <div class="row">
@@ -195,8 +196,8 @@
             </span>
             <span class="who"><div class="n">sam@example.com</div><div class="p">Claude · Max 5x</div></span>
           </div>
-          <div class="meter"><span class="lbl">5ч</span><span class="bar hot"><i style="width:78%"></i></span><span class="pct t-hot">78%</span><span class="eta">1ч 12м</span></div>
-          <div class="meter"><span class="lbl">нед</span><span class="bar warn"><i style="width:61%"></i></span><span class="pct">61%</span><span class="eta">2д 4ч</span></div>
+          <div class="meter"><span class="lbl">5h</span><span class="bar hot"><i style="width:78%"></i></span><span class="pct t-hot">78%</span><span class="eta">1h 12m</span></div>
+          <div class="meter"><span class="lbl">week</span><span class="bar warn"><i style="width:61%"></i></span><span class="pct">61%</span><span class="eta">2d 4h</span></div>
         </div>
 
         <div class="row hi">
@@ -205,10 +206,10 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.6l2.2 6.1 6.1 2.2-6.1 2.2L12 19.2l-2.2-6.1L3.7 10.9l6.1-2.2z"/></svg>
             </span>
             <span class="who"><div class="n">team@example.org</div><div class="p">Claude · Pro</div></span>
-            <span class="badge" style="background:rgba(255,69,58,.16);color:#ff6961">почти всё</span>
+            <span class="badge" style="background:rgba(255,69,58,.16);color:#ff6961">almost exhausted</span>
           </div>
-          <div class="meter"><span class="lbl">5ч</span><span class="bar crit"><i style="width:96%"></i></span><span class="pct t-crit">96%</span><span class="eta t-crit">47м</span></div>
-          <div class="meter"><span class="lbl">нед</span><span class="bar crit"><i style="width:88%"></i></span><span class="pct t-crit">88%</span><span class="eta">4д 9ч</span></div>
+          <div class="meter"><span class="lbl">5h</span><span class="bar crit"><i style="width:96%"></i></span><span class="pct t-crit">96%</span><span class="eta t-crit">47m</span></div>
+          <div class="meter"><span class="lbl">week</span><span class="bar crit"><i style="width:88%"></i></span><span class="pct t-crit">88%</span><span class="eta">4d 9h</span></div>
         </div>
 
         <div class="row">
@@ -217,23 +218,23 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><circle cx="12" cy="12" r="4.3"/><circle cx="12" cy="12" r="8.6" opacity=".55"/></svg>
             </span>
             <span class="who"><div class="n">Tyler Durden</div><div class="p">Codex · Plus</div></span>
-            <span class="badge stale">2 дня назад</span>
+            <span class="badge stale">2 days old</span>
           </div>
-          <div class="meter"><span class="lbl">5ч</span><span class="bar ok"><i style="width:12%"></i></span><span class="pct">12%</span><span class="eta">—</span></div>
-          <div class="meter"><span class="lbl">нед</span><span class="bar warn"><i style="width:32%"></i></span><span class="pct">32%</span><span class="eta">4д 6ч</span></div>
+          <div class="meter"><span class="lbl">5h</span><span class="bar ok"><i style="width:12%"></i></span><span class="pct">12%</span><span class="eta">—</span></div>
+          <div class="meter"><span class="lbl">week</span><span class="bar warn"><i style="width:32%"></i></span><span class="pct">32%</span><span class="eta">4d 6h</span></div>
         </div>
 
-        <div class="pop-foot"><span>Обновить</span><span class="k">⌘R</span></div>
+        <div class="pop-foot"><span>Refresh</span><span class="k">⌘R</span></div>
       </div>
     </div>
 
     <!-- ══════════════ VARIANT B ══════════════ -->
     <div class="col">
-      <h2>Вариант B — одна строка, недельный фокус</h2>
-      <p class="note">Самый компактный. Крупно недельный процент, засечка на полосе — 5-часовое окно.</p>
+      <h2>Option B — one row, the weekly window in focus</h2>
+      <p class="note">The most compact. The weekly percentage large, and the notch on the bar is the five-hour window.</p>
       <div class="pop-arrow"></div>
       <div class="pop">
-        <div class="pop-head"><span class="ttl">Лимиты подписок</span><span class="upd">18:21</span></div>
+        <div class="pop-head"><span class="ttl">Subscription limits</span><span class="upd">18:21</span></div>
 
         <div class="b-row">
           <span class="logo" style="background:#d97757">
@@ -242,7 +243,7 @@
           <span class="b-mid">
             <span class="b-top"><span class="n">alex@example.com</span><span class="pct t-ok">23%</span></span>
             <span class="b-bar"><i class="" style="width:23%;background:var(--ok)"></i><u style="left:5%"></u></span>
-            <span class="b-sub">Max 20x <span class="dot">·</span> сброс через 5 д 23 ч <span class="dot">·</span> 5ч: 5%</span>
+            <span class="b-sub">Max 20x <span class="dot">·</span> resets in 5d 23h <span class="dot">·</span> 5h: 5%</span>
           </span>
         </div>
 
@@ -253,7 +254,7 @@
           <span class="b-mid">
             <span class="b-top"><span class="n">sam@example.com</span><span class="pct t-warn">61%</span></span>
             <span class="b-bar"><i style="width:61%;background:var(--warn)"></i><u style="left:78%"></u></span>
-            <span class="b-sub">Max 5x <span class="dot">·</span> сброс через 2 д 4 ч <span class="dot">·</span> <span class="t-hot">5ч: 78%</span></span>
+            <span class="b-sub">Max 5x <span class="dot">·</span> resets in 2d 4h <span class="dot">·</span> <span class="t-hot">5h: 78%</span></span>
           </span>
         </div>
 
@@ -264,7 +265,7 @@
           <span class="b-mid">
             <span class="b-top"><span class="n">team@example.org</span><span class="pct t-crit">88%</span></span>
             <span class="b-bar"><i style="width:88%;background:var(--crit)"></i><u style="left:96%"></u></span>
-            <span class="b-sub">Pro <span class="dot">·</span> сброс через 4 д 9 ч <span class="dot">·</span> <span class="t-crit">5ч: 96%</span></span>
+            <span class="b-sub">Pro <span class="dot">·</span> resets in 4d 9h <span class="dot">·</span> <span class="t-crit">5h: 96%</span></span>
           </span>
         </div>
 
@@ -275,21 +276,21 @@
           <span class="b-mid">
             <span class="b-top"><span class="n">Tyler Durden</span><span class="pct">32%</span></span>
             <span class="b-bar"><i style="width:32%;background:var(--warn);opacity:.5"></i><u style="left:12%"></u></span>
-            <span class="b-sub">Codex Plus <span class="dot">·</span> <span style="color:#ffb340">данные от 28 авг</span></span>
+            <span class="b-sub">Codex Plus <span class="dot">·</span> <span style="color:#ffb340">Data from 28 Aug</span></span>
           </span>
         </div>
 
-        <div class="pop-foot"><span>Обновить</span><span class="k">⌘R</span></div>
+        <div class="pop-foot"><span>Refresh</span><span class="k">⌘R</span></div>
       </div>
     </div>
 
     <!-- ══════════════ VARIANT C ══════════════ -->
     <div class="col">
-      <h2>Вариант C — два кольца</h2>
-      <p class="note">Проценты читаются мгновенно, без сравнения длин полос. Строка компактная, но плотная.</p>
+      <h2>Option C — two rings</h2>
+      <p class="note">The percentages read at once, without comparing the length of two bars. The row is compact, but dense.</p>
       <div class="pop-arrow"></div>
       <div class="pop">
-        <div class="pop-head"><span class="ttl">Лимиты подписок</span><span class="upd">18:21</span></div>
+        <div class="pop-head"><span class="ttl">Subscription limits</span><span class="upd">18:21</span></div>
 
         <div class="c-row">
           <span class="logo" style="background:#d97757;width:22px;height:22px">
@@ -297,18 +298,18 @@
           </span>
           <span class="c-mid">
             <div class="n">alex@example.com</div>
-            <div class="meta">Max 20x · сброс 3 ч 39 м / 5 д 23 ч</div>
+            <div class="meta">Max 20x · resets 3h 39m / 5d 23h</div>
           </span>
           <span class="rings">
             <span class="ring">
               <svg width="34" height="34"><circle cx="17" cy="17" r="14" fill="none" stroke="rgba(255,255,255,.11)" stroke-width="3.4"/>
               <circle cx="17" cy="17" r="14" fill="none" stroke="var(--ok)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="87.96" stroke-dashoffset="83.6"/></svg>
-              <span class="val t-ok">5%</span><span class="cap">5ч</span>
+              <span class="val t-ok">5%</span><span class="cap">5h</span>
             </span>
             <span class="ring">
               <svg width="34" height="34"><circle cx="17" cy="17" r="14" fill="none" stroke="rgba(255,255,255,.11)" stroke-width="3.4"/>
               <circle cx="17" cy="17" r="14" fill="none" stroke="var(--ok)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="87.96" stroke-dashoffset="67.7"/></svg>
-              <span class="val t-ok">23%</span><span class="cap">нед</span>
+              <span class="val t-ok">23%</span><span class="cap">week</span>
             </span>
           </span>
         </div>
@@ -319,18 +320,18 @@
           </span>
           <span class="c-mid">
             <div class="n">sam@example.com</div>
-            <div class="meta">Max 5x · сброс 1 ч 12 м / 2 д 4 ч</div>
+            <div class="meta">Max 5x · resets 1h 12m / 2d 4h</div>
           </span>
           <span class="rings">
             <span class="ring">
               <svg width="34" height="34"><circle cx="17" cy="17" r="14" fill="none" stroke="rgba(255,255,255,.11)" stroke-width="3.4"/>
               <circle cx="17" cy="17" r="14" fill="none" stroke="var(--hot)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="87.96" stroke-dashoffset="19.4"/></svg>
-              <span class="val t-hot">78%</span><span class="cap">5ч</span>
+              <span class="val t-hot">78%</span><span class="cap">5h</span>
             </span>
             <span class="ring">
               <svg width="34" height="34"><circle cx="17" cy="17" r="14" fill="none" stroke="rgba(255,255,255,.11)" stroke-width="3.4"/>
               <circle cx="17" cy="17" r="14" fill="none" stroke="var(--warn)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="87.96" stroke-dashoffset="34.3"/></svg>
-              <span class="val t-warn">61%</span><span class="cap">нед</span>
+              <span class="val t-warn">61%</span><span class="cap">week</span>
             </span>
           </span>
         </div>
@@ -341,18 +342,18 @@
           </span>
           <span class="c-mid">
             <div class="n">team@example.org</div>
-            <div class="meta t-crit">Pro · сброс 47 м / 4 д 9 ч</div>
+            <div class="meta t-crit">Pro · resets 47m / 4d 9h</div>
           </span>
           <span class="rings">
             <span class="ring">
               <svg width="34" height="34"><circle cx="17" cy="17" r="14" fill="none" stroke="rgba(255,255,255,.11)" stroke-width="3.4"/>
               <circle cx="17" cy="17" r="14" fill="none" stroke="var(--crit)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="87.96" stroke-dashoffset="3.5"/></svg>
-              <span class="val t-crit">96%</span><span class="cap">5ч</span>
+              <span class="val t-crit">96%</span><span class="cap">5h</span>
             </span>
             <span class="ring">
               <svg width="34" height="34"><circle cx="17" cy="17" r="14" fill="none" stroke="rgba(255,255,255,.11)" stroke-width="3.4"/>
               <circle cx="17" cy="17" r="14" fill="none" stroke="var(--crit)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="87.96" stroke-dashoffset="10.6"/></svg>
-              <span class="val t-crit">88%</span><span class="cap">нед</span>
+              <span class="val t-crit">88%</span><span class="cap">week</span>
             </span>
           </span>
         </div>
@@ -363,32 +364,32 @@
           </span>
           <span class="c-mid">
             <div class="n">Tyler Durden</div>
-            <div class="meta" style="color:#ffb340">Codex Plus · данные от 28 авг</div>
+            <div class="meta" style="color:#ffb340">Codex Plus · Data from 28 Aug</div>
           </span>
           <span class="rings">
             <span class="ring" style="opacity:.55">
               <svg width="34" height="34"><circle cx="17" cy="17" r="14" fill="none" stroke="rgba(255,255,255,.11)" stroke-width="3.4"/>
               <circle cx="17" cy="17" r="14" fill="none" stroke="var(--ok)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="87.96" stroke-dashoffset="77.4"/></svg>
-              <span class="val">12%</span><span class="cap">5ч</span>
+              <span class="val">12%</span><span class="cap">5h</span>
             </span>
             <span class="ring" style="opacity:.55">
               <svg width="34" height="34"><circle cx="17" cy="17" r="14" fill="none" stroke="rgba(255,255,255,.11)" stroke-width="3.4"/>
               <circle cx="17" cy="17" r="14" fill="none" stroke="var(--warn)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="87.96" stroke-dashoffset="59.8"/></svg>
-              <span class="val">32%</span><span class="cap">нед</span>
+              <span class="val">32%</span><span class="cap">week</span>
             </span>
           </span>
         </div>
 
-        <div class="pop-foot"><span>Обновить</span><span class="k">⌘R</span></div>
+        <div class="pop-foot"><span>Refresh</span><span class="k">⌘R</span></div>
       </div>
     </div>
 
   </div>
 
   <div class="legend">
-    <span><b>Цвет</b> — зелёный &lt;50 %, жёлтый 50–75 %, оранжевый 75–90 %, красный &gt;90 %</span>
-    <span><b>Порядок</b> — свободные аккаунты сверху, исчерпанные вниз</span>
-    <span><b>Плашка «2 дня назад»</b> — честно про устаревший снимок Codex</span>
+    <span><b>Colour</b> — green &lt;50 %, yellow 50–75 %, orange 75–90 %, red &gt;90 %</span>
+    <span><b>Order</b> — the least loaded accounts on top, the exhausted ones below</span>
+    <span><b>The “2 days old” badge</b> — honest about a Codex snapshot that has gone stale</span>
   </div>
 </div>
 
