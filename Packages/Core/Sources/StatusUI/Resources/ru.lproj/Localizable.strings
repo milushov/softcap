@@ -44,8 +44,7 @@
 "both" = "оба";
 "Sign-in did not complete" = "Вход не завершён";
 "Copy the code from the page and paste it below" = "Скопируйте код со страницы и вставьте его ниже";
-"Sign-in timed out" = "Вход не завершён за две минуты";
-"Account %@ added" = "Аккаунт %@ добавлен";
+"Sign-in timed out" = "Время ожидания входа истекло";
 "+%lld more" = "ещё %lld";
 "Open Softcap to load data." = "Откройте Softcap, чтобы загрузить данные.";
 "Accounts" = "Аккаунты";
@@ -107,7 +106,6 @@
 "Almost exhausted — time to switch." = "Аккаунт почти исчерпан — пора переключаться.";
 "%@ is free again" = "%@ снова свободен";
 "The limit reset, you can come back." = "Лимит сбросился, можно возвращаться.";
-"Something went wrong." = "Что-то пошло не так.";
 "Sign in on your Mac — accounts sync through the keychain." = "Войдите на Маке — аккаунты синхронизируются через связку ключей.";
 "Statistics" = "Статистика";
 "How much of each weekly limit has been used, over time." = "Сколько израсходовано от недельного лимита каждого аккаунта со временем.";
@@ -170,7 +168,6 @@
 "Browser accounts use live usage data. Local accounts use snapshots from session files." = "Для аккаунтов из браузера лимиты загружаются напрямую. Для локальных — читаются из файлов сессий.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Не удалось принять ответ входа Codex. Закройте другие попытки входа в Codex и повторите.";
 "Could not open the browser. Check your default browser and try again." = "Не удалось открыть браузер. Проверьте браузер по умолчанию и повторите.";
-"Return to the app to finish signing in." = "Вернитесь в приложение, чтобы завершить вход.";
 "Signing in to %@…" = "Вход в %@…";
 "Sign in…" = "Войти…";
 "local session" = "локальная сессия";
@@ -179,3 +176,8 @@
 "Codex · local session files" = "Codex · локальные файлы сессий";
 "Could not forget the account. Try again." = "Не удалось удалить аккаунт. Повторите попытку.";
 "Show %@" = "Показывать %@";
+"Signed in successfully" = "Вход выполнен успешно";
+"Your account is connected. You can close this tab." = "Аккаунт подключён. Эту вкладку можно закрыть.";
+"Return to Softcap to try signing in again." = "Вернитесь в Softcap и попробуйте войти снова.";
+"Dismiss" = "Закрыть";
+"Saving account…" = "Сохранение аккаунта…";

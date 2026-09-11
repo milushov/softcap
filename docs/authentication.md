@@ -38,6 +38,37 @@ identifier, PKCE S256 and `openid profile email offline_access`. The callback is
 Softcap does not cancel another application's listener or invent a manual redirect.
 Claude retains its provider-specific manual code fallback.
 
+## Returning to Softcap
+
+For either provider, the loopback response waits until the grant is exchanged
+and the account is saved. Only then does its page try `window.close()`. The app
+independently opens or restores Settings, selects Accounts and shows a dismissible
+success banner with the provider and account name. This also works when settings
+were closed or another section was selected during sign-in. The banner stays
+above the scrolling account list until dismissed or another sign-in starts.
+Previously hidden accounts and providers are made visible before refreshing usage;
+window activation does not wait for that refresh.
+
+Closing the tab is best effort: browsers can refuse script-driven closing of a
+tab opened by another app. In that case the localized page confirms completion
+and says the tab can be closed. Native activation does not require JavaScript,
+browser automation permissions or a custom URL scheme. See
+[the browser closing restrictions](https://developer.mozilla.org/en-US/docs/Web/API/Window/close).
+Claude's manual code fallback shows the same in-app completion; its remote page
+is outside Softcap's control and cannot be closed by the loopback response.
+
+Failed, cancelled or timed-out attempts never run the close script or trigger
+success activation. The listener's header deadline ends once a complete request
+is handed to the controller; the attempt timeout bounds the browser interaction
+and exchange. Once the keychain write starts, the UI shows **Saving account…**,
+disables cancellation and waits for its actual result. A system keychain write
+cannot be rolled back by cancelling a task, so reporting a timeout at that point
+would let a supposedly failed attempt save an account after a retry had started.
+The response is not cached, sends no referrer and removes the callback query from
+the address bar when browser scripting permits it.
+
+## Callback validation
+
 The callback parser checks the request method, exact path, unique code/state
 parameters and matching state, including on error replies. Requests unrelated to
 the attempt leave it running. OAuth codes, verifiers, response bodies and tokens
@@ -78,8 +109,11 @@ Keychain.
 Run `make test` for provider, parsing, persistence, namespace and rotation tests.
 Run `make test-auth` for the AppKit controller and real
 loopback listener, using fake accounts and a fake browser. The latter checks
-cancellation, timeout, occupied ports, stale completions and a complete local
-callback without reading user credentials or contacting a provider.
+both providers, manual fallback, cancellation, timeout, occupied ports, stale
+completions, cancellation and timeout during delayed persistence, failed saves,
+and responses held beyond the header
+deadline. JavaScriptCore runs the completion-page script, including blocked browser
+APIs. These tests do not read user credentials or contact a provider.
 
 Build both the `Softcap` and `SoftcapiOS` schemes after changing shared contracts.
 A complete real OpenAI/Claude consent flow still needs a person to sign in in

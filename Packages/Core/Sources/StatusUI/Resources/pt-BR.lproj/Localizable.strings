@@ -45,7 +45,6 @@
 "Sign-in did not complete" = "O login não foi concluído";
 "Copy the code from the page and paste it below" = "Copie o código da página e cole abaixo";
 "Sign-in timed out" = "Tempo de login esgotado";
-"Account %@ added" = "Conta %@ adicionada";
 "+%lld more" = "mais %lld";
 "Open Softcap to load data." = "Abra o Softcap para carregar os dados.";
 "Accounts" = "Contas";
@@ -107,7 +106,6 @@
 "Almost exhausted — time to switch." = "Quase esgotada — hora de trocar.";
 "%@ is free again" = "%@ está livre de novo";
 "The limit reset, you can come back." = "O limite foi redefinido, pode voltar.";
-"Something went wrong." = "Algo deu errado.";
 "Sign in on your Mac — accounts sync through the keychain." = "Entre no seu Mac — as contas sincronizam pelo chaveiro.";
 "Statistics" = "Estatísticas";
 "How much of each weekly limit has been used, over time." = "Quanto de cada limite semanal foi usado ao longo do tempo.";
@@ -170,7 +168,6 @@
 "Browser accounts use live usage data. Local accounts use snapshots from session files." = "As contas do navegador usam dados de uso em tempo real. As locais usam registros dos arquivos de sessão.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Não foi possível abrir o retorno de login do Codex. Feche outros logins do Codex e tente novamente.";
 "Could not open the browser. Check your default browser and try again." = "Não foi possível abrir o navegador. Verifique seu navegador padrão e tente novamente.";
-"Return to the app to finish signing in." = "Volte ao app para concluir o login.";
 "Signing in to %@…" = "Entrando em %@…";
 "Sign in…" = "Entrar…";
 "local session" = "sessão local";
@@ -179,3 +176,8 @@
 "Codex · local session files" = "Codex · arquivos de sessão locais";
 "Could not forget the account. Try again." = "Não foi possível esquecer a conta. Tente novamente.";
 "Show %@" = "Mostrar %@";
+"Signed in successfully" = "Login realizado com sucesso";
+"Your account is connected. You can close this tab." = "Sua conta está conectada. Você pode fechar esta aba.";
+"Return to Softcap to try signing in again." = "Volte ao Softcap para tentar fazer login novamente.";
+"Dismiss" = "Fechar";
+"Saving account…" = "Salvando conta…";

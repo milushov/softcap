@@ -45,7 +45,6 @@
 "Sign-in did not complete" = "لم يكتمل تسجيل الدخول";
 "Copy the code from the page and paste it below" = "انسخ الرمز من الصفحة والصقه أدناه";
 "Sign-in timed out" = "انتهت مهلة تسجيل الدخول";
-"Account %@ added" = "تمت إضافة الحساب %@";
 "+%lld more" = "و%lld غيرها";
 "Open Softcap to load data." = "افتح Softcap لتحميل البيانات.";
 "Accounts" = "الحسابات";
@@ -107,7 +106,6 @@
 "Almost exhausted — time to switch." = "شارف على النفاد — حان وقت التبديل.";
 "%@ is free again" = "%@ متاح مجددًا";
 "The limit reset, you can come back." = "أُعيد تعيين الحد، يمكنك العودة.";
-"Something went wrong." = "حدث خطأ ما.";
 "Sign in on your Mac — accounts sync through the keychain." = "سجّل الدخول على الـ Mac — تتزامن الحسابات عبر سلسلة المفاتيح.";
 "Statistics" = "الإحصائيات";
 "How much of each weekly limit has been used, over time." = "مقدار ما استُخدم من كل حد أسبوعي عبر الزمن.";
@@ -170,7 +168,6 @@
 "Browser accounts use live usage data. Local accounts use snapshots from session files." = "تستخدم حسابات المتصفح بيانات استخدام مباشرة. تستخدم الحسابات المحلية لقطات من ملفات الجلسات.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "تعذر فتح مسار عودة تسجيل الدخول إلى Codex. أغلق أي عملية أخرى لتسجيل الدخول إلى Codex وحاول مجددًا.";
 "Could not open the browser. Check your default browser and try again." = "تعذر فتح المتصفح. تحقق من المتصفح الافتراضي وحاول مجددًا.";
-"Return to the app to finish signing in." = "عد إلى التطبيق لإكمال تسجيل الدخول.";
 "Signing in to %@…" = "جارٍ تسجيل الدخول إلى %@…";
 "Sign in…" = "تسجيل الدخول…";
 "local session" = "جلسة محلية";
@@ -179,3 +176,8 @@
 "Codex · local session files" = "Codex · ملفات الجلسات المحلية";
 "Could not forget the account. Try again." = "تعذر حذف الحساب. حاول مجددًا.";
 "Show %@" = "إظهار %@";
+"Signed in successfully" = "تم تسجيل الدخول بنجاح";
+"Your account is connected. You can close this tab." = "تم ربط حسابك. يمكنك إغلاق علامة التبويب هذه.";
+"Return to Softcap to try signing in again." = "عُد إلى Softcap لمحاولة تسجيل الدخول مرة أخرى.";
+"Dismiss" = "إغلاق";
+"Saving account…" = "جارٍ حفظ الحساب…";

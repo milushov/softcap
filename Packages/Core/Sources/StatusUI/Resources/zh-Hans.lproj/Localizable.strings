@@ -45,7 +45,6 @@
 "Sign-in did not complete" = "登录未完成";
 "Copy the code from the page and paste it below" = "请从页面复制代码并粘贴到下方";
 "Sign-in timed out" = "登录超时";
-"Account %@ added" = "已添加账户 %@";
 "+%lld more" = "另有 %lld 个";
 "Open Softcap to load data." = "打开 Softcap 以加载数据。";
 "Accounts" = "账户";
@@ -107,7 +106,6 @@
 "Almost exhausted — time to switch." = "额度快用完了，该换账户了。";
 "%@ is free again" = "%@ 又可用了";
 "The limit reset, you can come back." = "额度已重置，可以回来了。";
-"Something went wrong." = "出了点问题。";
 "Sign in on your Mac — accounts sync through the keychain." = "请在 Mac 上登录 — 账户通过钥匙串同步。";
 "Statistics" = "统计";
 "How much of each weekly limit has been used, over time." = "每周额度的使用情况随时间变化。";
@@ -170,7 +168,6 @@
 "Browser accounts use live usage data. Local accounts use snapshots from session files." = "浏览器账户使用实时用量数据。本地账户使用会话文件中的快照。";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "无法启动 Codex 登录回调。请关闭其他 Codex 登录并重试。";
 "Could not open the browser. Check your default browser and try again." = "无法打开浏览器。请检查默认浏览器并重试。";
-"Return to the app to finish signing in." = "返回应用以完成登录。";
 "Signing in to %@…" = "正在登录 %@…";
 "Sign in…" = "登录…";
 "local session" = "本地会话";
@@ -179,3 +176,8 @@
 "Codex · local session files" = "Codex · 本地会话文件";
 "Could not forget the account. Try again." = "无法移除账户。请重试。";
 "Show %@" = "显示 %@";
+"Signed in successfully" = "登录成功";
+"Your account is connected. You can close this tab." = "账号已连接。你可以关闭此标签页。";
+"Return to Softcap to try signing in again." = "返回 Softcap 重试登录。";
+"Dismiss" = "关闭";
+"Saving account…" = "正在保存账号…";

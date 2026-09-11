@@ -5,8 +5,24 @@ import Credentials
 
 private actor MemoryAccounts: KeychainAccess {
     private var data: Data?
+    private let gated: Bool
+    private let fails: Bool
+    private var pending: CheckedContinuation<Void, Never>?
+    private(set) var writes = 0
+
+    init(gated: Bool = false, fails: Bool = false) {
+        self.gated = gated
+        self.fails = fails
+    }
+
     func read(service: String, promptIfNeeded: Bool) throws -> Data? { data }
-    func write(_ data: Data, service: String) throws { self.data = data }
+    func write(_ data: Data, service: String) async throws {
+        writes += 1
+        if gated { await withCheckedContinuation { pending = $0 } }
+        if fails { throw ProviderFailure(kind: .needsPermission, diagnostic: "simulated persistence failure") }
+        self.data = data
+    }
+    func release() { pending?.resume(); pending = nil }
 }
 
 private struct NoRefresh: TokenRefreshing {
@@ -17,18 +33,23 @@ private struct NoRefresh: TokenRefreshing {
 }
 
 private actor BrowserAuth: BrowserAuthenticating {
-    nonisolated let provider: ProviderID = .codex
-    nonisolated let callbackPath = "/auth/callback"
+    nonisolated let provider: ProviderID
+    nonisolated let callbackPath: String
     nonisolated let callbackPort: UInt16?
     nonisolated let manualRedirectURI: String?
     private let gated: Bool
+    private let fails: Bool
     private var pending: CheckedContinuation<Void, Never>?
     private(set) var calls = 0
 
-    init(port: UInt16? = nil, manual: String? = nil, gated: Bool = false) {
+    init(provider: ProviderID = .codex, port: UInt16? = nil, manual: String? = nil,
+         gated: Bool = false, fails: Bool = false) {
+        self.provider = provider
+        callbackPath = provider == .codex ? "/auth/callback" : "/callback"
         callbackPort = port
         manualRedirectURI = manual
         self.gated = gated
+        self.fails = fails
     }
     nonisolated func authorizationURL(
         redirectURI: String, pkce: PKCEPair, state: String, manual: Bool
@@ -40,8 +61,9 @@ private actor BrowserAuth: BrowserAuthenticating {
     func authenticate(code: String, verifier: String, redirectURI: String, state: String) async throws -> AuthenticatedAccount {
         calls += 1
         if gated { await withCheckedContinuation { pending = $0 } }
+        if fails { throw ProviderFailure(kind: .network, diagnostic: "simulated exchange failure") }
         return AuthenticatedAccount(account: AccountRef(
-            id: "codex/example", provider: .codex, handle: "example", lastKnownName: "sam@example.com"),
+            id: "\(provider.rawValue)/example", provider: provider, handle: "example", lastKnownName: "sam@example.com"),
             tokens: RefreshedTokens(accessToken: "access", refreshToken: "refresh", expiresIn: 3600))
     }
     func release() { pending?.resume(); pending = nil }
@@ -64,8 +86,8 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
 }
 
 @Suite @MainActor struct BrowserLoginLifecycle {
-    private func store() -> CredentialStore {
-        CredentialStore(keychain: MemoryAccounts(), refresher: NoRefresh(), codexRefresher: NoRefresh())
+    private func store(keychain: MemoryAccounts = MemoryAccounts()) -> CredentialStore {
+        CredentialStore(keychain: keychain, refresher: NoRefresh(), codexRefresher: NoRefresh())
     }
 
     @Test func cancelBeforeListenerStartsNeverOpensBrowser() async throws {
@@ -80,21 +102,131 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         #expect(model.message == nil)
     }
 
-    @Test func realLoopbackCallbackAddsAccountOnlyOnce() async throws {
+    @Test(arguments: [ProviderID.claude, .codex])
+    func realLoopbackCallbackAddsAccountOnlyOnce(provider: ProviderID) async throws {
         let browser = Browser()
-        let auth = BrowserAuth()
+        let auth = BrowserAuth(provider: provider)
         let store = store()
         let model = LoginController(store: store, authentication: { _ in auth }, openURL: browser.open)
-        model.start(provider: .codex)
+        var completions: [AccountRef] = []
+        model.didAddAccount = { ref in
+            #expect(!model.isRunning)
+            #expect(model.successNotice == ref)
+            completions.append(ref)
+        }
+        model.start(provider: provider)
         #expect(await eventually { browser.url != nil })
         let url = try #require(browser.url)
         let (body, response) = try await URLSession.shared.data(from: url)
         #expect((response as? HTTPURLResponse)?.statusCode == 200)
-        #expect(!body.isEmpty)
+        #expect(String(decoding: body, as: UTF8.self).contains("window.close()"))
         #expect(await eventually { model.completedSignIns == 1 })
         #expect(await auth.calls == 1)
-        #expect(await store.knownRefs().map(\.id) == ["codex/example"])
+        #expect(await store.knownRefs().map(\.id) == ["\(provider.rawValue)/example"])
+        #expect(completions.map(\.provider) == [provider])
+        #expect(model.successNotice?.provider == provider)
+        #expect(model.message == nil)
         #expect(!model.isRunning)
+        model.dismissSuccessNotice()
+        #expect(model.successNotice == nil)
+        #expect(model.completedSignIns == 1)
+        model.didAddAccount = nil
+    }
+
+    @Test func browserAndAppWaitForPersistence() async throws {
+        let browser = Browser()
+        let auth = BrowserAuth()
+        let keychain = MemoryAccounts(gated: true)
+        let model = LoginController(store: store(keychain: keychain), authentication: { _ in auth }, openURL: browser.open)
+        var completions = 0
+        model.didAddAccount = { _ in completions += 1 }
+        model.start(provider: .codex)
+        #expect(await eventually { browser.url != nil })
+        let url = try #require(browser.url)
+        var browserReplied = false
+        let response = Task {
+            let result = try await URLSession.shared.data(from: url)
+            browserReplied = true
+            return result
+        }
+        #expect(await eventually { await keychain.writes == 1 })
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(!browserReplied)
+        #expect(model.isRunning)
+        #expect(model.isSavingAccount)
+        #expect(model.successNotice == nil)
+        #expect(model.completedSignIns == 0)
+        #expect(completions == 0)
+        await keychain.release()
+        let (body, reply) = try await response.value
+        #expect((reply as? HTTPURLResponse)?.statusCode == 200)
+        #expect(String(decoding: body, as: UTF8.self).contains("window.close()"))
+        #expect(completions == 1)
+        #expect(model.successNotice != nil)
+
+        model.start(provider: .codex)
+        #expect(model.successNotice == nil)
+        model.cancel()
+    }
+
+    @Test(arguments: [false, true])
+    func failedExchangeOrSaveNeverClosesBrowserOrSignalsSuccess(saveFails: Bool) async throws {
+        let browser = Browser()
+        let auth = BrowserAuth(fails: !saveFails)
+        let store = store(keychain: MemoryAccounts(fails: saveFails))
+        let model = LoginController(store: store, authentication: { _ in auth }, openURL: browser.open)
+        var completions = 0
+        model.didAddAccount = { _ in completions += 1 }
+        model.start(provider: .codex)
+        #expect(await eventually { browser.url != nil })
+        let (body, response) = try await URLSession.shared.data(from: try #require(browser.url))
+        #expect((response as? HTTPURLResponse)?.statusCode == 400)
+        #expect(!String(decoding: body, as: UTF8.self).contains("window.close()"))
+        #expect(!model.isRunning)
+        #expect(model.message != nil)
+        #expect(model.successNotice == nil)
+        #expect(model.completedSignIns == 0)
+        #expect(completions == 0)
+        #expect(await store.knownRefs().isEmpty)
+    }
+
+    @Test(arguments: [false, true])
+    func cancellationAndTimeoutCannotContradictAnInFlightSave(saveFails: Bool) async throws {
+        let browser = Browser()
+        let auth = BrowserAuth()
+        let keychain = MemoryAccounts(gated: true, fails: saveFails)
+        let store = store(keychain: keychain)
+        let model = LoginController(store: store, authentication: { _ in auth }, openURL: browser.open,
+                                    timeoutDuration: .seconds(1))
+        var completions = 0
+        model.didAddAccount = { _ in completions += 1 }
+        model.start(provider: .codex)
+        #expect(await eventually { browser.url != nil })
+        let url = try #require(browser.url)
+        let response = Task { try await URLSession.shared.data(from: url) }
+        #expect(await eventually { await keychain.writes == 1 })
+
+        // A keychain write already under way cannot be cancelled. Neither a
+        // click nor the browser timer may report failure and permit a retry
+        // while that write can still commit the previous account.
+        model.cancel()
+        model.start(provider: .claude)
+        try await Task.sleep(for: .milliseconds(1100))
+        #expect(model.isRunning)
+        #expect(model.provider == .codex)
+        #expect(model.message == nil)
+        #expect(model.successNotice == nil)
+        #expect(completions == 0)
+        await keychain.release()
+
+        let (body, reply) = try await response.value
+        #expect((reply as? HTTPURLResponse)?.statusCode == (saveFails ? 400 : 200))
+        #expect(String(decoding: body, as: UTF8.self).contains("window.close()") == !saveFails)
+        #expect(!model.isRunning)
+        #expect((model.successNotice != nil) == !saveFails)
+        #expect(!model.isSavingAccount)
+        #expect(completions == (saveFails ? 0 : 1))
+        #expect(await store.knownRefs().isEmpty == saveFails)
     }
 
     @Test func aForeignCallbackDoesNotCancelTheRealAttempt() async throws {
@@ -106,7 +238,9 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         let url = try #require(browser.url)
         var wrong = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
         wrong.queryItems = [URLQueryItem(name: "state", value: "other"), URLQueryItem(name: "code", value: "reply")]
-        _ = try await URLSession.shared.data(from: try #require(wrong.url))
+        let (body, response) = try await URLSession.shared.data(from: try #require(wrong.url))
+        #expect((response as? HTTPURLResponse)?.statusCode == 400)
+        #expect(!String(decoding: body, as: UTF8.self).contains("window.close()"))
         #expect(model.isRunning)
         #expect(await auth.calls == 0)
         _ = try await URLSession.shared.data(from: try #require(browser.url))
@@ -118,11 +252,17 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         let auth = BrowserAuth(gated: true)
         let store = store()
         let model = LoginController(store: store, authentication: { _ in auth }, openURL: browser.open)
+        var completions = 0
+        model.didAddAccount = { _ in completions += 1 }
         model.start(provider: .codex)
         #expect(await eventually { browser.url != nil })
-        _ = try await URLSession.shared.data(from: try #require(browser.url))
+        let url = try #require(browser.url)
+        let response = Task { try await URLSession.shared.data(from: url) }
         #expect(await eventually { await auth.calls == 1 })
         model.cancel()
+        let (body, reply) = try await response.value
+        #expect((reply as? HTTPURLResponse)?.statusCode == 400)
+        #expect(!String(decoding: body, as: UTF8.self).contains("window.close()"))
         browser.url = nil
         model.start(provider: .codex)
         #expect(await eventually { browser.url != nil })
@@ -130,6 +270,8 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         try await Task.sleep(for: .milliseconds(50))
         #expect(model.isRunning)
         #expect(model.completedSignIns == 0)
+        #expect(model.successNotice == nil)
+        #expect(completions == 0)
         #expect(await store.knownRefs().isEmpty)
         model.cancel()
     }
@@ -169,7 +311,7 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         #expect(!first.manualCodeExpected)
         #expect(first.message != nil)
 
-        let claude = BrowserAuth(port: port, manual: "http://localhost/callback")
+        let claude = BrowserAuth(provider: .claude, port: port, manual: "http://localhost/callback")
         let second = LoginController(store: store(), authentication: { _ in claude }, openURL: browser.open)
         second.start(provider: .claude)
         #expect(await eventually { second.manualCodeExpected })
@@ -178,5 +320,49 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         await second.submit(code: "reply")
         #expect(await claude.calls == 0)
         #expect(!second.manualCodeExpected)
+    }
+
+    @Test func manualClaudeCompletionStillSignalsTheApp() async throws {
+        let occupied = BrowserCallbackListener()
+        let port = try await occupied.start(port: nil) { _, connection in connection.cancel() }
+        defer { occupied.stop() }
+        let browser = Browser()
+        let auth = BrowserAuth(provider: .claude, port: port, manual: "http://localhost/callback", gated: true)
+        let model = LoginController(store: store(), authentication: { _ in auth }, openURL: browser.open)
+        var completions: [AccountRef] = []
+        model.didAddAccount = { completions.append($0) }
+        model.start(provider: .claude)
+        #expect(await eventually { model.manualCodeExpected && browser.url != nil })
+        await model.submit(code: "reply")
+        #expect(await eventually { await auth.calls == 1 })
+        #expect(!model.manualCodeExpected)
+        #expect(model.message == nil)
+        await auth.release()
+        #expect(await eventually { model.completedSignIns == 1 })
+        #expect(completions.map(\.provider) == [.claude])
+        #expect(model.successNotice?.provider == .claude)
+        #expect(!model.isRunning)
+    }
+
+    @Test func timeoutDuringExchangeReleasesBrowserWithoutSuccess() async throws {
+        let browser = Browser()
+        let auth = BrowserAuth(gated: true)
+        let model = LoginController(store: store(), authentication: { _ in auth }, openURL: browser.open,
+                                    timeoutDuration: .seconds(1))
+        var completions = 0
+        model.didAddAccount = { _ in completions += 1 }
+        model.start(provider: .codex)
+        #expect(await eventually { browser.url != nil })
+        let url = try #require(browser.url)
+        let response = Task { try await URLSession.shared.data(from: url) }
+        #expect(await eventually { await auth.calls == 1 })
+        let (body, reply) = try await response.value
+        #expect((reply as? HTTPURLResponse)?.statusCode == 400)
+        #expect(!String(decoding: body, as: UTF8.self).contains("window.close()"))
+        await auth.release()
+        #expect(!model.isRunning)
+        #expect(model.message != nil)
+        #expect(model.successNotice == nil)
+        #expect(completions == 0)
     }
 }

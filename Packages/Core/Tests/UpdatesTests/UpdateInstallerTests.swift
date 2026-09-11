@@ -2,7 +2,6 @@ import Testing
 import Foundation
 import ProviderKit
 @testable import Updates
-@testable import ClaudeProvider
 
 @Suite struct InstallingAnUpdate {
 

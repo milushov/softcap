@@ -40,7 +40,8 @@ let package = Package(
         ),
         .testTarget(name: "MonitoringTests", dependencies: ["Monitoring"]),
         .testTarget(name: "PreferencesTests", dependencies: ["Preferences"]),
-        .testTarget(name: "StatusUITests", dependencies: ["StatusUI"]),
+        // Landing assertions also read the provider's identity-cache policy.
+        .testTarget(name: "StatusUITests", dependencies: ["StatusUI", "ClaudeProvider"]),
         .testTarget(name: "UpdatesTests", dependencies: ["Updates"]),
     ]
 )

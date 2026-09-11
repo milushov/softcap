@@ -45,7 +45,6 @@
 "Sign-in did not complete" = "Connexion non terminée";
 "Copy the code from the page and paste it below" = "Copiez le code de la page et collez-le ci-dessous";
 "Sign-in timed out" = "Délai de connexion dépassé";
-"Account %@ added" = "Compte %@ ajouté";
 "+%lld more" = "%lld de plus";
 "Open Softcap to load data." = "Ouvrez Softcap pour charger les données.";
 "Accounts" = "Comptes";
@@ -107,7 +106,6 @@
 "Almost exhausted — time to switch." = "Presque épuisé — il est temps de changer.";
 "%@ is free again" = "%@ est de nouveau libre";
 "The limit reset, you can come back." = "La limite est réinitialisée, vous pouvez revenir.";
-"Something went wrong." = "Une erreur est survenue.";
 "Sign in on your Mac — accounts sync through the keychain." = "Connectez-vous sur votre Mac — les comptes se synchronisent via le trousseau.";
 "Statistics" = "Statistiques";
 "How much of each weekly limit has been used, over time." = "La part de chaque limite hebdomadaire utilisée au fil du temps.";
@@ -170,7 +168,6 @@
 "Browser accounts use live usage data. Local accounts use snapshots from session files." = "Les comptes ajoutés par navigateur utilisent les données en direct. Les comptes locaux utilisent les relevés des fichiers de session.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Impossible de recevoir le retour de connexion Codex. Fermez les autres connexions Codex en cours et réessayez.";
 "Could not open the browser. Check your default browser and try again." = "Impossible d’ouvrir le navigateur. Vérifiez votre navigateur par défaut et réessayez.";
-"Return to the app to finish signing in." = "Revenez dans l’application pour terminer la connexion.";
 "Signing in to %@…" = "Connexion à %@…";
 "Sign in…" = "Se connecter…";
 "local session" = "session locale";
@@ -179,3 +176,8 @@
 "Codex · local session files" = "Codex · fichiers de session locaux";
 "Could not forget the account. Try again." = "Impossible d’oublier le compte. Réessayez.";
 "Show %@" = "Afficher %@";
+"Signed in successfully" = "Connexion réussie";
+"Your account is connected. You can close this tab." = "Votre compte est connecté. Vous pouvez fermer cet onglet.";
+"Return to Softcap to try signing in again." = "Revenez dans Softcap pour réessayer de vous connecter.";
+"Dismiss" = "Fermer";
+"Saving account…" = "Enregistrement du compte…";

@@ -45,7 +45,6 @@
 "Sign-in did not complete" = "সাইন ইন সম্পূর্ণ হয়নি";
 "Copy the code from the page and paste it below" = "পেজ থেকে কোড কপি করে নিচে পেস্ট করুন";
 "Sign-in timed out" = "সাইন ইনের সময় শেষ";
-"Account %@ added" = "%@ অ্যাকাউন্ট যোগ হয়েছে";
 "+%lld more" = "আরও %lld";
 "Open Softcap to load data." = "ডেটা লোড করতে Softcap খুলুন।";
 "Accounts" = "অ্যাকাউন্ট";
@@ -107,7 +106,6 @@
 "Almost exhausted — time to switch." = "প্রায় শেষ — বদলানোর সময়।";
 "%@ is free again" = "%@ আবার মুক্ত";
 "The limit reset, you can come back." = "সীমা রিসেট হয়েছে, ফিরতে পারেন।";
-"Something went wrong." = "কিছু একটা ভুল হয়েছে।";
 "Sign in on your Mac — accounts sync through the keychain." = "আপনার Mac-এ সাইন ইন করুন — অ্যাকাউন্ট কীচেইনের মাধ্যমে সিঙ্ক হয়।";
 "Statistics" = "পরিসংখ্যান";
 "How much of each weekly limit has been used, over time." = "সময়ের সাথে প্রতিটি সাপ্তাহিক সীমার কতটা ব্যবহৃত হয়েছে।";
@@ -170,7 +168,6 @@
 "Browser accounts use live usage data. Local accounts use snapshots from session files." = "ব্রাউজারের অ্যাকাউন্ট সরাসরি ব্যবহারের তথ্য দেখায়। স্থানীয় অ্যাকাউন্ট সেশন ফাইলের স্ন্যাপশট দেখায়।";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Codex লগইনের কলব্যাক খোলা যায়নি। অন্য Codex লগইন বন্ধ করে আবার চেষ্টা করুন।";
 "Could not open the browser. Check your default browser and try again." = "ব্রাউজার খোলা যায়নি। ডিফল্ট ব্রাউজার পরীক্ষা করে আবার চেষ্টা করুন।";
-"Return to the app to finish signing in." = "লগইন শেষ করতে অ্যাপে ফিরে যান।";
 "Signing in to %@…" = "%@-এ লগইন হচ্ছে…";
 "Sign in…" = "লগইন করুন…";
 "local session" = "স্থানীয় সেশন";
@@ -179,3 +176,8 @@
 "Codex · local session files" = "Codex · স্থানীয় সেশন ফাইল";
 "Could not forget the account. Try again." = "অ্যাকাউন্ট মুছে ফেলা যায়নি। আবার চেষ্টা করুন।";
 "Show %@" = "%@ দেখান";
+"Signed in successfully" = "সফলভাবে সাইন ইন হয়েছে";
+"Your account is connected. You can close this tab." = "আপনার অ্যাকাউন্ট সংযুক্ত হয়েছে। আপনি এই ট্যাবটি বন্ধ করতে পারেন।";
+"Return to Softcap to try signing in again." = "আবার সাইন ইন করার চেষ্টা করতে Softcap-এ ফিরে যান।";
+"Dismiss" = "বন্ধ করুন";
+"Saving account…" = "অ্যাকাউন্ট সংরক্ষণ করা হচ্ছে…";

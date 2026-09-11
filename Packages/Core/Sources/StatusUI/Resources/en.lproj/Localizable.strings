@@ -45,7 +45,6 @@
 "Sign-in did not complete" = "Sign-in did not complete";
 "Copy the code from the page and paste it below" = "Copy the code from the page and paste it below";
 "Sign-in timed out" = "Sign-in timed out";
-"Account %@ added" = "Account %@ added";
 "+%lld more" = "+%lld more";
 "Open Softcap to load data." = "Open Softcap to load data.";
 "Accounts" = "Accounts";
@@ -107,7 +106,6 @@
 "Almost exhausted — time to switch." = "Almost exhausted — time to switch.";
 "%@ is free again" = "%@ is free again";
 "The limit reset, you can come back." = "The limit reset, you can come back.";
-"Something went wrong." = "Something went wrong.";
 "Sign in on your Mac — accounts sync through the keychain." = "Sign in on your Mac — accounts sync through the keychain.";
 "Statistics" = "Statistics";
 "How much of each weekly limit has been used, over time." = "How much of each weekly limit has been used, over time.";
@@ -170,7 +168,6 @@
 "Browser accounts use live usage data. Local accounts use snapshots from session files." = "Browser accounts use live usage data. Local accounts use snapshots from session files.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again.";
 "Could not open the browser. Check your default browser and try again." = "Could not open the browser. Check your default browser and try again.";
-"Return to the app to finish signing in." = "Return to the app to finish signing in.";
 "Signing in to %@…" = "Signing in to %@…";
 "Sign in…" = "Sign in…";
 "local session" = "local session";
@@ -179,3 +176,8 @@
 "Codex · local session files" = "Codex · local session files";
 "Could not forget the account. Try again." = "Could not forget the account. Try again.";
 "Show %@" = "Show %@";
+"Signed in successfully" = "Signed in successfully";
+"Your account is connected. You can close this tab." = "Your account is connected. You can close this tab.";
+"Return to Softcap to try signing in again." = "Return to Softcap to try signing in again.";
+"Dismiss" = "Dismiss";
+"Saving account…" = "Saving account…";

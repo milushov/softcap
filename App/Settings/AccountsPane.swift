@@ -79,11 +79,15 @@ struct AccountsPane: View {
                     .disabled(loginController.isRunning)
                     if loginController.isRunning {
                         ProgressView().controlSize(.small)
-                        if let provider = loginController.provider {
+                        if loginController.isSavingAccount {
+                            Text(loc("Saving account…"))
+                                .font(.system(size: 11)).foregroundStyle(.secondary)
+                        } else if let provider = loginController.provider {
                             Text(String(format: loc("Signing in to %@…"), provider.title))
                                 .font(.system(size: 11)).foregroundStyle(.secondary)
                         }
                         Button(loc("Cancel")) { loginController.cancel() }
+                            .disabled(loginController.isSavingAccount)
                     }
                     Spacer()
                 }
@@ -143,16 +147,7 @@ struct AccountsPane: View {
         }
         .task { await reload() }
         .onChange(of: loginController.message) { _, _ in Task { await reload() } }
-        // Explicitly adding an account makes it visible, even if its old row
-        // or provider had been hidden. AppModel refreshes after sign-in even
-        // when this pane is no longer open.
         .onChange(of: loginController.completedSignIns) { _, _ in
-            if let ref = loginController.completedAccount {
-                model.update {
-                    $0.hiddenAccounts.remove(ref.id)
-                    $0.disabledProviders.remove(ref.provider)
-                }
-            }
             Task { await reload() }
         }
         .onChange(of: appModel.lastUpdated) { _, _ in Task { await reload() } }

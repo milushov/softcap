@@ -45,7 +45,6 @@
 "Sign-in did not complete" = "Proses masuk belum selesai";
 "Copy the code from the page and paste it below" = "Salin kode dari halaman lalu tempel di bawah";
 "Sign-in timed out" = "Waktu masuk habis";
-"Account %@ added" = "Akun %@ ditambahkan";
 "+%lld more" = "%lld lagi";
 "Open Softcap to load data." = "Buka Softcap untuk memuat data.";
 "Accounts" = "Akun";
@@ -107,7 +106,6 @@
 "Almost exhausted — time to switch." = "Hampir habis — saatnya berpindah.";
 "%@ is free again" = "%@ kembali longgar";
 "The limit reset, you can come back." = "Batas telah disetel ulang, Anda bisa kembali.";
-"Something went wrong." = "Terjadi kesalahan.";
 "Sign in on your Mac — accounts sync through the keychain." = "Masuk di Mac Anda — akun disinkronkan lewat gantungan kunci.";
 "Statistics" = "Statistik";
 "How much of each weekly limit has been used, over time." = "Berapa banyak dari setiap batas mingguan yang terpakai seiring waktu.";
@@ -170,7 +168,6 @@
 "Browser accounts use live usage data. Local accounts use snapshots from session files." = "Akun browser menggunakan data penggunaan langsung. Akun lokal menggunakan cuplikan dari file sesi.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Tidak dapat membuka callback login Codex. Tutup proses login Codex lainnya dan coba lagi.";
 "Could not open the browser. Check your default browser and try again." = "Tidak dapat membuka browser. Periksa browser default dan coba lagi.";
-"Return to the app to finish signing in." = "Kembali ke aplikasi untuk menyelesaikan login.";
 "Signing in to %@…" = "Login ke %@…";
 "Sign in…" = "Masuk…";
 "local session" = "sesi lokal";
@@ -179,3 +176,8 @@
 "Codex · local session files" = "Codex · file sesi lokal";
 "Could not forget the account. Try again." = "Tidak dapat melupakan akun. Coba lagi.";
 "Show %@" = "Tampilkan %@";
+"Signed in successfully" = "Berhasil masuk";
+"Your account is connected. You can close this tab." = "Akun Anda sudah terhubung. Anda dapat menutup tab ini.";
+"Return to Softcap to try signing in again." = "Kembali ke Softcap untuk mencoba masuk lagi.";
+"Dismiss" = "Tutup";
+"Saving account…" = "Menyimpan akun…";

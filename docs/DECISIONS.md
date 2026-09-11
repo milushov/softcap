@@ -7091,3 +7091,40 @@ integration API, so response changes may require maintenance. A bad grant stays
 visible instead of falling back to potentially unrelated session data. The
 existing iCloud credential sharing still has no cross-device refresh lock.
 See `docs/authentication.md` for source references and verification boundaries.
+
+## 2026-09-11 — Browser sign-in returns to Accounts only after persistence
+
+**Decision.** Hold the loopback reply until token exchange and keychain persistence
+succeed. Then attempt to close the browser tab, activate Settings on Accounts and
+show a persistent, dismissible success banner. Wire account visibility and window
+activation in the application delegate, independent of the currently mounted pane.
+Keep the listener's header deadline separate from the sign-in attempt timeout.
+
+**Why.** An immediate browser success page can hide an exchange or save failure.
+Likewise, a ten-second connection deadline can discard the eventual response even
+though authentication succeeds. Returning to the app must work with settings closed,
+on another section or scrolled down, and must not wait for usage polling. Both
+providers share the same completion path, including Claude's manual-code success.
+
+**Cost.** Browsers may refuse `window.close()` for externally opened tabs; a
+translated completion page remains as a fallback while native activation proceeds.
+Claude's remote manual-code page cannot be closed by Softcap's callback. The app
+keeps one accepted connection until success, failure, cancellation or timeout, and
+the notification remains until dismissed or the next sign-in starts.
+
+## 2026-09-11 — A started keychain save reports its actual result
+
+**Decision.** Stop the browser-attempt timer and disable Cancel once the token
+exchange has succeeded and the keychain save starts. Display Saving account… until
+the save completes, then send the matching browser reply and update the app.
+
+**Why.** Review found that cancellation or timeout during persistence could return
+a failure page and allow a new sign-in while the old, non-cancellable system write
+was still able to save its account. A delayed-write regression covers cancellation,
+timeout, retry suppression and both successful and failed saves.
+
+**Cost.** The final local write has no application timeout or cancel action; it
+must resolve before another sign-in starts. Browser interaction and network
+exchange keep their existing timeout and cancellation behavior. This refines the
+completion boundary in the preceding decision without promising a rollback the
+system keychain cannot perform.

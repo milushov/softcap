@@ -42,18 +42,11 @@ final class AppModel: ObservableObject {
     /// It used to be a `@StateObject` inside the Accounts pane, which made it
     /// unreachable from the menu and no longer-lived than the pane: leaving
     /// that section during a sign-in destroyed the controller and the sign-in
-    /// with it. Lazy, so a launch that never signs anybody in never builds one.
-    lazy var login = makeLoginController()
+    /// with it. The delegate wires completion to preferences and the window,
+    /// so returning from the browser never depends on a mounted settings pane.
+    lazy var login = LoginController(store: store)
 
-    private func makeLoginController() -> LoginController {
-        let controller = LoginController(store: store)
-        controller.didAddAccount = { [weak self] ref in
-            Task { await self?.refreshAfterSignIn(ref) }
-        }
-        return controller
-    }
-
-    private func refreshAfterSignIn(_ ref: AccountRef) async {
+    func refreshAfterSignIn(_ ref: AccountRef) async {
         await identities.forget(ref.id)
         await refresh(.timer)
     }

@@ -59,6 +59,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             }
             .store(in: &cancellables)
 
+        model.login.didAddAccount = { [weak model, preferences] ref in
+            // Sign-in can finish with settings closed or on another pane.
+            // Reveal the account before polling, without relying on a view's
+            // onChange subscription to have existed when success arrived.
+            preferences.update {
+                $0.hiddenAccounts.remove(ref.id)
+                $0.disabledProviders.remove(ref.provider)
+            }
+            guard let model else { return }
+            model.settingsSection = .accounts
+            SettingsWindow.open()
+            Task { await model.refreshAfterSignIn(ref) }
+        }
+
         Task {
             startReporting()
             await preferences.load()

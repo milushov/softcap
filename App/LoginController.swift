@@ -15,11 +15,12 @@ import StatusUI
 final class LoginController: ObservableObject {
     static let providers: [ProviderID] = [.claude, .codex]
     @Published private(set) var isRunning = false
+    @Published private(set) var isSavingAccount = false
     @Published private(set) var provider: ProviderID?
     @Published private(set) var message: String?
     @Published private(set) var manualCodeExpected = false
     @Published private(set) var completedSignIns = 0
-    private(set) var completedAccount: AccountRef?
+    @Published private(set) var successNotice: AccountRef?
     var didAddAccount: (@MainActor (AccountRef) -> Void)?
 
     private static let log = Logger(subsystem: "app.softcap.Softcap", category: "login")
@@ -32,6 +33,7 @@ final class LoginController: ObservableObject {
     private var timeout: Task<Void, Never>?
     private var attempt: Attempt?
     private var exchanging = false
+    private var pendingBrowserReply: NWConnection?
 
     private struct Attempt {
         let id = UUID()
@@ -58,6 +60,7 @@ final class LoginController: ObservableObject {
     func start(provider: ProviderID) {
         guard !isRunning, Self.providers.contains(provider) else { return }
         message = nil
+        successNotice = nil
         guard let pair = PKCEPair.generate() else {
             message = Localization.shared("Sign-in did not complete")
             return
@@ -74,9 +77,14 @@ final class LoginController: ObservableObject {
     }
 
     func cancel() {
+        // The system keychain write cannot be interrupted or rolled back.
+        // Once it starts, report its actual outcome before allowing a retry.
+        guard !isSavingAccount else { return }
         endAttempt()
         message = nil
     }
+
+    func dismissSuccessNotice() { successNotice = nil }
 
     func submit(code raw: String) async {
         guard manualCodeExpected, let attempt, !exchanging else { return }
@@ -140,12 +148,14 @@ final class LoginController: ObservableObject {
         switch outcome {
         case .unrelated, .stateMismatch:
             // A stray request must not terminate the genuine browser attempt.
-            respond(on: connection, ok: false)
+            respond(on: connection, succeeded: false)
         case .denied:
-            respond(on: connection, ok: false)
+            respond(on: connection, succeeded: false)
             fail("Sign-in was declined.")
         case .code(let code):
-            respond(on: connection, ok: true)
+            // The browser must not close or claim success before both the
+            // exchange and the keychain write have completed.
+            pendingBrowserReply = connection
             beginExchange(code: code, attempt: attempt)
         }
     }
@@ -156,6 +166,7 @@ final class LoginController: ObservableObject {
             fail("The sign-in lost its place. Start again.")
             return
         }
+        message = nil
         exchanging = true
         manualCodeExpected = false
         listener?.stop()
@@ -170,12 +181,18 @@ final class LoginController: ObservableObject {
                 code: code, verifier: started.pair.verifier,
                 redirectURI: uri, state: started.state)
             guard attempt?.id == started.id, !Task.isCancelled else { return }
+            isSavingAccount = true
+            timeout?.cancel()
+            timeout = nil
             try await store.addLoggedInAccount(result)
             guard attempt?.id == started.id, !Task.isCancelled else { return }
-            message = String(format: Localization.shared("Account %@ added"), result.account.lastKnownName)
-            completedAccount = result.account
+            message = nil
+            successNotice = result.account
             completedSignIns += 1
+            finishBrowserReply(succeeded: true)
+            endAttempt()
             didAddAccount?(result.account)
+            return
         } catch {
             guard attempt?.id == started.id, !Task.isCancelled else { return }
             if let failure = error as? ProviderFailure {
@@ -196,16 +213,18 @@ final class LoginController: ObservableObject {
         endAttempt()
     }
 
-    private func respond(on connection: NWConnection, ok: Bool) {
-        let text = ok ? Localization.shared("Return to the app to finish signing in.")
-            : Localization.shared("Something went wrong.")
-        let body = "<html><meta charset=\"utf-8\"><body style=\"font-family:-apple-system;padding:40px\">\(text)</body></html>"
-        let status = ok ? "200 OK" : "400 Bad Request"
-        let response = "HTTP/1.1 \(status)\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: \(body.utf8.count)\r\nConnection: close\r\n\r\n\(body)"
+    private func respond(on connection: NWConnection, succeeded: Bool) {
+        let response = BrowserSignInPage.response(succeeded: succeeded)
         // Cancelling before this completion discards the browser's response.
         connection.send(content: Data(response.utf8), completion: .contentProcessed { _ in
             connection.cancel()
         })
+    }
+
+    private func finishBrowserReply(succeeded: Bool) {
+        guard let connection = pendingBrowserReply else { return }
+        pendingBrowserReply = nil
+        respond(on: connection, succeeded: succeeded)
     }
 
     private func fail(_ key: String) {
@@ -224,6 +243,9 @@ final class LoginController: ObservableObject {
     }
 
     private func endAttempt() {
+        // Cancellation, timeout and errors release a waiting browser too, but
+        // their page never runs the success-only close script.
+        finishBrowserReply(succeeded: false)
         attempt = nil
         operation?.cancel()
         operation = nil
@@ -232,6 +254,7 @@ final class LoginController: ObservableObject {
         timeout?.cancel()
         timeout = nil
         isRunning = false
+        isSavingAccount = false
         provider = nil
         manualCodeExpected = false
         exchanging = false

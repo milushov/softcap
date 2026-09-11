@@ -45,7 +45,6 @@
 "Sign-in did not complete" = "El inicio de sesión no se completó";
 "Copy the code from the page and paste it below" = "Copia el código de la página y pégalo abajo";
 "Sign-in timed out" = "Se agotó el tiempo de inicio de sesión";
-"Account %@ added" = "Cuenta %@ añadida";
 "+%lld more" = "%lld más";
 "Open Softcap to load data." = "Abre Softcap para cargar los datos.";
 "Accounts" = "Cuentas";
@@ -107,7 +106,6 @@
 "Almost exhausted — time to switch." = "Casi agotada: es hora de cambiar.";
 "%@ is free again" = "%@ está libre otra vez";
 "The limit reset, you can come back." = "El límite se restableció, puedes volver.";
-"Something went wrong." = "Algo salió mal.";
 "Sign in on your Mac — accounts sync through the keychain." = "Inicia sesión en tu Mac: las cuentas se sincronizan por el llavero.";
 "Statistics" = "Estadísticas";
 "How much of each weekly limit has been used, over time." = "Cuánto se ha usado de cada límite semanal, a lo largo del tiempo.";
@@ -170,7 +168,6 @@
 "Browser accounts use live usage data. Local accounts use snapshots from session files." = "Las cuentas del navegador usan datos de uso en directo. Las locales usan instantáneas de archivos de sesión.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "No se pudo abrir el retorno de inicio de sesión de Codex. Cierra otros inicios de sesión de Codex y vuelve a intentarlo.";
 "Could not open the browser. Check your default browser and try again." = "No se pudo abrir el navegador. Comprueba el navegador predeterminado y vuelve a intentarlo.";
-"Return to the app to finish signing in." = "Vuelve a la app para terminar de iniciar sesión.";
 "Signing in to %@…" = "Iniciando sesión en %@…";
 "Sign in…" = "Iniciar sesión…";
 "local session" = "sesión local";
@@ -179,3 +176,8 @@
 "Codex · local session files" = "Codex · archivos de sesión locales";
 "Could not forget the account. Try again." = "No se pudo olvidar la cuenta. Vuelve a intentarlo.";
 "Show %@" = "Mostrar %@";
+"Signed in successfully" = "Sesión iniciada correctamente";
+"Your account is connected. You can close this tab." = "Tu cuenta está conectada. Puedes cerrar esta pestaña.";
+"Return to Softcap to try signing in again." = "Vuelve a Softcap para intentar iniciar sesión de nuevo.";
+"Dismiss" = "Cerrar";
+"Saving account…" = "Guardando cuenta…";

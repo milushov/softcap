@@ -45,7 +45,6 @@
 "Sign-in did not complete" = "साइन इन पूरा नहीं हुआ";
 "Copy the code from the page and paste it below" = "पेज से कोड कॉपी करके नीचे चिपकाएँ";
 "Sign-in timed out" = "साइन इन का समय समाप्त";
-"Account %@ added" = "खाता %@ जोड़ा गया";
 "+%lld more" = "%lld और";
 "Open Softcap to load data." = "डेटा लोड करने के लिए Softcap खोलें।";
 "Accounts" = "खाते";
@@ -107,7 +106,6 @@
 "Almost exhausted — time to switch." = "लगभग समाप्त — बदलने का समय।";
 "%@ is free again" = "%@ फिर उपलब्ध है";
 "The limit reset, you can come back." = "सीमा रीसेट हो गई, आप लौट सकते हैं।";
-"Something went wrong." = "कुछ गड़बड़ हो गई।";
 "Sign in on your Mac — accounts sync through the keychain." = "अपने Mac पर साइन इन करें — खाते किचेन से सिंक होते हैं।";
 "Statistics" = "आँकड़े";
 "How much of each weekly limit has been used, over time." = "समय के साथ प्रत्येक साप्ताहिक सीमा का कितना उपयोग हुआ।";
@@ -170,7 +168,6 @@
 "Browser accounts use live usage data. Local accounts use snapshots from session files." = "ब्राउज़र खाते ताज़ा उपयोग डेटा दिखाते हैं। स्थानीय खाते सत्र फ़ाइलों के स्नैपशॉट दिखाते हैं।";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Codex लॉगिन का कॉलबैक नहीं खुल सका। दूसरे Codex लॉगिन बंद करके फिर कोशिश करें।";
 "Could not open the browser. Check your default browser and try again." = "ब्राउज़र नहीं खुल सका। डिफ़ॉल्ट ब्राउज़र जाँचकर फिर कोशिश करें।";
-"Return to the app to finish signing in." = "लॉगिन पूरा करने के लिए ऐप में लौटें।";
 "Signing in to %@…" = "%@ में लॉगिन हो रहा है…";
 "Sign in…" = "लॉगिन करें…";
 "local session" = "स्थानीय सत्र";
@@ -179,3 +176,8 @@
 "Codex · local session files" = "Codex · स्थानीय सत्र फ़ाइलें";
 "Could not forget the account. Try again." = "खाता हटाया नहीं जा सका। फिर कोशिश करें।";
 "Show %@" = "%@ दिखाएँ";
+"Signed in successfully" = "सफलतापूर्वक साइन इन हो गया";
+"Your account is connected. You can close this tab." = "आपका खाता जुड़ गया है। आप यह टैब बंद कर सकते हैं।";
+"Return to Softcap to try signing in again." = "दोबारा साइन इन करने के लिए Softcap पर वापस जाएँ।";
+"Dismiss" = "बंद करें";
+"Saving account…" = "खाता सहेजा जा रहा है…";

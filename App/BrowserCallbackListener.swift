@@ -7,6 +7,9 @@ import ProviderKit
 @MainActor
 final class BrowserCallbackListener {
     private var listener: NWListener?
+    private let headerTimeout: Duration
+
+    init(headerTimeout: Duration = .seconds(10)) { self.headerTimeout = headerTimeout }
 
     func start(
         port: UInt16?,
@@ -17,14 +20,16 @@ final class BrowserCallbackListener {
             host: .ipv4(.loopback), port: port.flatMap(NWEndpoint.Port.init(rawValue:)) ?? .any)
         let listener = try NWListener(using: parameters)
         self.listener = listener
+        let headerTimeout = headerTimeout
         listener.newConnectionHandler = { connection in
             Task { @MainActor in
                 connection.start(queue: .main)
-                Self.read(connection, accumulated: Data(), receive: receive)
-                Task {
-                    try? await Task.sleep(for: .seconds(10))
+                let deadline = Task {
+                    try? await Task.sleep(for: headerTimeout)
+                    guard !Task.isCancelled else { return }
                     connection.cancel()
                 }
+                Self.read(connection, accumulated: Data(), deadline: deadline, receive: receive)
             }
         }
         return try await withCheckedThrowingContinuation { continuation in
@@ -57,7 +62,7 @@ final class BrowserCallbackListener {
     }
 
     private static func read(
-        _ connection: NWConnection, accumulated: Data,
+        _ connection: NWConnection, accumulated: Data, deadline: Task<Void, Never>,
         receive: @escaping @MainActor (String, NWConnection) -> Void
     ) {
         connection.receive(minimumIncompleteLength: 1, maximumLength: 8192 - accumulated.count) {
@@ -67,11 +72,17 @@ final class BrowserCallbackListener {
                 if let data { buffer.append(data) }
                 if let request = String(data: buffer, encoding: .utf8),
                    request.contains("\r\n\r\n") || request.contains("\n\n") {
+                    // Header parsing is over. The controller now owns the
+                    // response, whose OAuth exchange can take more than ten
+                    // seconds. The attempt bounds the exchange and then waits
+                    // for the non-cancellable keychain write's real outcome.
+                    deadline.cancel()
                     receive(request, connection)
                 } else if error != nil || complete || buffer.count >= 8192 {
+                    deadline.cancel()
                     connection.cancel()
                 } else {
-                    read(connection, accumulated: buffer, receive: receive)
+                    read(connection, accumulated: buffer, deadline: deadline, receive: receive)
                 }
             }
         }

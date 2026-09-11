@@ -108,6 +108,11 @@ struct SettingsView: View {
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(20)
         }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if appModel.settingsSection == .accounts {
+                SignInSuccessBanner(login: appModel.login)
+            }
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
