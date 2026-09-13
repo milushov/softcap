@@ -7541,3 +7541,44 @@ Three of the four new guards read App sources as text rather than running them �
 `UpdateModel` reads `Bundle.main` and `UpdatesPane` is a view, and the package
 tests are the only tests this project has. A scan can prove the call is written;
 it cannot prove the screen behaves.
+
+---
+
+## 2026-09-14 — The screenshot strip scrolls because its captions refuse to wrap
+
+The five App Store teasers land in `docs/screenshots/` as WebP at 1440×900 —
+172 KB for all five. The README opens with one of them at full width and puts
+the other four in a single-row table that scrolls sideways. Each cell carries a
+one-line caption held on one line by `nowrap`, and each caption is written long
+enough to be wider than the 420 px screen above it.
+
+**Why.** GitHub styles every table in a README `width: max-content; max-width:
+100%; overflow: auto`, and every image `max-width: 100%`. The table therefore
+cannot exceed the column, and the images shrink until the row fits inside it:
+four screens asking for 420 px render at 226 px apiece, and no scrollbar ever
+appears. Images cannot force the overflow that the scrollbar depends on, because
+images are what yields. Text under `nowrap` does not yield — its width is a
+floor. A caption wider than its screen holds the column open, the screen keeps
+its full 420 px, and the row runs to 1909 px against a 1012 px column, which is
+what makes the scrollbar appear.
+
+Both rules were read from GitHub's own stylesheet rather than assumed, and the
+markup was put through GitHub's `/markdown` renderer: `nowrap` survives
+sanitising, normalised to `nowrap=""`. The layout was then measured in a browser
+against those two rules, before and after, which is where 226 px and 420 px come
+from.
+
+WebP rather than PNG because these are gradients: the same five images are about
+2.5 MB as PNG and 600 KB as JPEG, and JPEG frays the small type inside the app
+window. They live in the repository rather than on softcap.app so that the
+README works in a clone and a fork, and so that GitHub is not caching another
+host's images against a page it cannot revalidate.
+
+**Cost.** The layout is now held open by prose. Shorten a caption below 420 px
+and the screens quietly shrink back to 226 px with the scrollbar gone — a
+plausible copy edit undoes it, and nothing in the test suite notices. The
+comment above the table says so, which is the whole of the defence. The strip
+also only scrolls on github.com; in any renderer without those two rules the row
+simply fits itself to the width and nothing is lost but the scrolling. And the
+images are a copy: regenerating them means returning to the teaser HTML, which
+is not in this repository.

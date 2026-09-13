@@ -3,6 +3,46 @@
 Claude Code and OpenAI Codex subscription limits in the macOS menu bar.
 macOS 14+ · SwiftUI · WidgetKit.
 
+![Softcap in the macOS menu bar: five-hour and weekly usage, with reset
+countdowns, for four Claude and Codex accounts](docs/screenshots/01-limits.webp)
+
+## Screens
+
+<!--
+  This strip scrolls sideways on github.com, and the mechanism is easy to break
+  by accident. GitHub styles every table `width: max-content; max-width: 100%;
+  overflow: auto`, and every image `max-width: 100%`. An image therefore shrinks
+  until the row fits the column, and the row never overflows: four screens at
+  `width="420"` render at 226 px apiece, with no scrollbar. Text under `nowrap`
+  cannot shrink, so it is the caption that sets each column's floor. Each caption
+  below is one unbreakable line wider than 420 px, which holds the column open,
+  keeps the screen at its full 420 px, and pushes the row past the column so the
+  scrollbar appears. Shorten a caption and the screens quietly shrink again.
+-->
+
+<table>
+<tr>
+<td align="center" nowrap>
+<a href="docs/screenshots/02-accounts.webp"><img src="docs/screenshots/02-accounts.webp" width="420" alt="Accounts settings: four Claude and Codex accounts in one list, each with its source and a Forget button"></a>
+<br><b>Accounts</b> · Claude and Codex accounts, together in one list
+</td>
+<td align="center" nowrap>
+<a href="docs/screenshots/03-statistics.webp"><img src="docs/screenshots/03-statistics.webp" width="420" alt="Statistics settings: a week of weekly-limit usage plotted for four accounts"></a>
+<br><b>Statistics</b> · how much of each weekly limit is used, over time
+</td>
+<td align="center" nowrap>
+<a href="docs/screenshots/04-notifications.webp"><img src="docs/screenshots/04-notifications.webp" width="420" alt="Notifications settings: thresholds at 95 and 80 per cent, recovery alerts, and quiet hours"></a>
+<br><b>Notifications</b> · thresholds and recovery alerts, with quiet hours
+</td>
+<td align="center" nowrap>
+<a href="docs/screenshots/05-minimal.webp"><img src="docs/screenshots/05-minimal.webp" width="420" alt="The minimal window: account names and usage bars, without the surrounding chrome"></a>
+<br><b>Minimal window</b> · the same readings, in a window with less chrome
+</td>
+</tr>
+</table>
+
+Drag the strip sideways for the rest; each screen links to its full-size image.
+
 ## Build and run
 
 <!-- download:start -->
