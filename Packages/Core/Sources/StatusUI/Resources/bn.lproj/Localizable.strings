@@ -192,9 +192,11 @@
 "The 5-hour limit reset, you can come back." = "৫ ঘণ্টার সীমা রিসেট হয়েছে, ফিরতে পারেন।";
 "The weekly limit reset, you can come back." = "সাপ্তাহিক সীমা রিসেট হয়েছে, ফিরতে পারেন।";
 "Contribute" = "অবদান রাখুন";
-"The source is public. Read it, report what is wrong, or send a change." = "সোর্স কোড উন্মুক্ত। এটি পড়ুন, সমস্যা জানান, বা পরিবর্তন পাঠান।";
 "Repository" = "রিপোজিটরি";
 "Open the repository" = "রিপোজিটরি খুলুন";
 "Report a problem" = "সমস্যা জানান";
 "If you write code: fork the repository, make your change, and open a pull request. The README explains how to build the app and how to run its tests." = "আপনি যদি কোড লেখেন: রিপোজিটরি ফর্ক করুন, পরিবর্তন করুন এবং একটি পুল রিকোয়েস্ট খুলুন। README-তে অ্যাপ তৈরি ও টেস্ট চালানোর নিয়ম লেখা আছে।";
 "Translations matter as much as code. Every language has a catalogue of its own, and a correction to any of them is worth sending." = "অনুবাদ কোডের মতোই গুরুত্বপূর্ণ। প্রতিটি ভাষার নিজস্ব তালিকা আছে, আর তার যেকোনো সংশোধন পাঠানোর যোগ্য।";
+"Softcap is open source under the MIT licence. Read it, change it, or send a change back." = "Softcap MIT লাইসেন্সে প্রকাশিত ওপেন সোর্স সফটওয়্যার। এটি পড়ুন, বদলান, বা আপনার পরিবর্তন ফেরত পাঠান।";
+"Licence" = "লাইসেন্স";
+"Read the licence" = "লাইসেন্স পড়ুন";

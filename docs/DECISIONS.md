@@ -7672,3 +7672,44 @@ faster than the interval was never polled again. And `PopoverView` announced the
 same flag from `onAppear`, which the same `.id` teardown left saying false while
 the window was plainly open.
 
+## 2026-09-14 — MIT, and a copyright line that names nobody yet
+
+**Decision.** The repository carries a `LICENSE` file: MIT, with the holder
+written as "The Softcap Authors". The Contribute screen says so — "open source
+under the MIT licence" in place of the careful "the source is public" it was
+given while there was no licence — and adds a Licence row and a button that
+opens the file. The README gains a Licence section.
+
+**Why.** Without a licence a public repository is all rights reserved: the code
+could be read and, under GitHub's own terms, forked and sent back as a pull
+request, but nothing more. The screen was inviting contributions while the
+decision entry beside it said the code was not licensed to be reused, and that
+disagreement was the thing to remove. MIT because it is the shortest licence
+that permits the reuse this project has no reason to withhold.
+
+**Cost.** A licence cannot be withdrawn from what is already published; every
+release up to this one goes on being all rights reserved, and everything from
+here is MIT for good. The holder does not name the author: his name appears
+nowhere in this repository today — only the GitHub coordinate `milushov/softcap`
+does, and the private guard refuses the bare surname on purpose. Putting a real
+name on the copyright line would be the first time a personal name entered a
+file here, which is his decision to make and not one to take for him. "The
+Softcap Authors" is a common and workable holder in the meantime.
+
+## 2026-09-14 — A setting that governs nothing is not shown
+
+**Decision.** "Show snapshot age" appears on the Appearance screen only while at
+least one account is being read from a file rather than fetched.
+
+**Why.** The badge it governs is drawn for a reading whose freshness is
+`.snapshot`, which is what a local Codex account produces from its session
+files. Signing that account in through the browser replaces it with a live
+reading, so on a machine where every account is a browser one the switch moved
+nothing at all — whichever way it was set. It was reported as looking broken,
+which is the right reading of a control that does nothing.
+
+**Cost.** It cannot be set in advance: somebody who prefers the badge off has to
+wait until an account produces one before the switch exists to turn off. The
+stored preference is untouched while the switch is hidden, so a setting made
+earlier survives and applies the moment such an account appears again.
+

@@ -13,12 +13,18 @@ struct ContributePane: View {
 
     var body: some View {
         Pane(title: loc("Contribute"),
-             subtitle: loc("The source is public. Read it, report what is wrong, or send a change.")) {
+             subtitle: loc("Softcap is open source under the MIT licence. Read it, change it, or send a change back.")) {
             Form {
                 Section {
                     LabeledContent(loc("Repository"), value: Repository.label)
+                    // The name of the licence is not translated: MIT is what the
+                    // file is called wherever it is read.
+                    LabeledContent(loc("Licence"), value: "MIT")
                     Button(loc("Open the repository")) {
                         NSWorkspace.shared.open(Repository.page)
+                    }
+                    Button(loc("Read the licence")) {
+                        NSWorkspace.shared.open(Repository.licence)
                     }
                     Button(loc("Report a problem")) {
                         NSWorkspace.shared.open(Repository.issues)

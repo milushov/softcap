@@ -55,7 +55,15 @@ struct AppearancePane: View {
                     }
                 }
 
-                Toggle(loc("Show snapshot age"), isOn: binding(\.showSnapshotAge))
+                // Only where there is an age to show. The badge this governs is
+                // drawn for a reading taken from a file rather than fetched, so
+                // for accounts signed in through the browser — which is all of
+                // them, on most machines — the switch moved nothing whatever it
+                // was set to, and read as a setting that had stopped working.
+                // It comes back on its own when such an account appears.
+                if appModel.snapshots.contains(where: \.freshness.isStale) {
+                    Toggle(loc("Show snapshot age"), isOn: binding(\.showSnapshotAge))
+                }
             }
             .formStyle(.grouped)
             .alignedWithTheHeading()

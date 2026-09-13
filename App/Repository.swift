@@ -19,5 +19,7 @@ enum Repository {
     // unwrapped — the URL each time it was.
     static let page = URL(string: "https://github.com/\(owner)/\(name)")!
     static let issues = page.appendingPathComponent("issues")
+    /// `blob/main`, so the file is shown rather than downloaded.
+    static let licence = page.appendingPathComponent("blob/main/LICENSE")
     static let releases = ReleaseFeed.releasePage(owner: owner, repository: name)
 }

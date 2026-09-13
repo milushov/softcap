@@ -192,9 +192,11 @@
 "The 5-hour limit reset, you can come back." = "La limite de cinq heures est réinitialisée, vous pouvez revenir.";
 "The weekly limit reset, you can come back." = "La limite hebdomadaire est réinitialisée, vous pouvez revenir.";
 "Contribute" = "Contribuer";
-"The source is public. Read it, report what is wrong, or send a change." = "Le code source est public. Lisez-le, signalez ce qui ne va pas ou proposez une modification.";
 "Repository" = "Dépôt";
 "Open the repository" = "Ouvrir le dépôt";
 "Report a problem" = "Signaler un problème";
 "If you write code: fork the repository, make your change, and open a pull request. The README explains how to build the app and how to run its tests." = "Si vous écrivez du code : forkez le dépôt, faites votre modification et ouvrez une pull request. Le README explique comment compiler l'app et lancer ses tests.";
 "Translations matter as much as code. Every language has a catalogue of its own, and a correction to any of them is worth sending." = "Les traductions comptent autant que le code. Chaque langue a son propre catalogue, et la moindre correction mérite d'être envoyée.";
+"Softcap is open source under the MIT licence. Read it, change it, or send a change back." = "Softcap est un logiciel libre sous licence MIT. Lisez-le, modifiez-le, ou renvoyez votre modification.";
+"Licence" = "Licence";
+"Read the licence" = "Lire la licence";

@@ -185,3 +185,8 @@ configuration for rollback.
 - Historical [specs](docs/superpowers/specs/), [plans](docs/superpowers/plans/)
   (start with the note in that directory), and [mockups](docs/design/).
 - [Translation helper](tools/add_strings.py) — update all ten catalogues.
+
+## Licence
+
+[MIT](LICENSE). Read the source, change it, and send the change back — the
+**Contribute** screen in Settings links the repository and its issues.

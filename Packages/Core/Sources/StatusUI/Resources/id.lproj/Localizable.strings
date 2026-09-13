@@ -192,9 +192,11 @@
 "The 5-hour limit reset, you can come back." = "Batas lima jam telah disetel ulang, Anda bisa kembali.";
 "The weekly limit reset, you can come back." = "Batas mingguan telah disetel ulang, Anda bisa kembali.";
 "Contribute" = "Berkontribusi";
-"The source is public. Read it, report what is wrong, or send a change." = "Kode sumbernya publik. Baca, laporkan yang keliru, atau kirim perubahan.";
 "Repository" = "Repositori";
 "Open the repository" = "Buka repositori";
 "Report a problem" = "Laporkan masalah";
 "If you write code: fork the repository, make your change, and open a pull request. The README explains how to build the app and how to run its tests." = "Jika Anda menulis kode: fork repositorinya, buat perubahan, lalu buka pull request. README menjelaskan cara membangun aplikasi dan menjalankan pengujiannya.";
 "Translations matter as much as code. Every language has a catalogue of its own, and a correction to any of them is worth sending." = "Terjemahan sama pentingnya dengan kode. Setiap bahasa punya katalognya sendiri, dan koreksi apa pun layak dikirim.";
+"Softcap is open source under the MIT licence. Read it, change it, or send a change back." = "Softcap adalah perangkat lunak sumber terbuka dengan lisensi MIT. Baca, ubah, atau kirim balik perubahan Anda.";
+"Licence" = "Lisensi";
+"Read the licence" = "Baca lisensi";
