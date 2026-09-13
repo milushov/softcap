@@ -20,9 +20,17 @@ private final class Record: @unchecked Sendable {
 /// is a coin toss on a busy one. One of these failed once during a full build and
 /// never again in twelve tries, which is the worst kind of red: it teaches you to
 /// re-run rather than to look.
+///
+/// It then did it again on a release run, and that time it cost the release: the
+/// body of a scheduler armed at fifty milliseconds had not been entered once in
+/// five seconds — `started 0, finished 0`. The runner was executing six hundred
+/// tests in parallel, so the timer was not late, it was starved. Twenty seconds
+/// is not a guess about how slow the machine is; it is a deadline for declaring
+/// the scheduler broken, and the loop leaves the moment the condition holds, so
+/// a passing run costs exactly what it did before.
 private func waitUntil(
     _ description: String,
-    timeout: Duration = .seconds(5),
+    timeout: Duration = .seconds(20),
     _ condition: @Sendable () -> Bool
 ) async -> Bool {
     let deadline = ContinuousClock.now + timeout
