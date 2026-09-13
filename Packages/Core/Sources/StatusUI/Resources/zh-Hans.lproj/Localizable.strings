@@ -113,7 +113,6 @@
 "A break in a line is a stretch with no readings taken, not a steady reading." = "线段的断口表示那段时间没有读数，而非数值保持不变。";
 "%@ old" = "%@前";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "已有一段时间没有读取到数据，可能有登录提示正在等待。";
-"Allow keychain access" = "允许访问钥匙串";
 "Could not change launch at login. Check Login Items in System Settings." = "无法更改登录时启动。请在“系统设置”的登录项中查看。";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS 未在投递 Softcap 的通知。请在“系统设置”的“通知”中开启。";
 "%1$@: %2$@ of limit" = "%1$@：已用额度 %2$@";

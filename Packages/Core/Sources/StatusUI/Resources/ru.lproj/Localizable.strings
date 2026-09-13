@@ -113,7 +113,6 @@
 "A break in a line is a stretch with no readings taken, not a steady reading." = "Разрыв линии означает, что показаний в это время не снималось, а не что значение не менялось.";
 "%@ old" = "%@ назад";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "Показаний нет уже некоторое время. Возможно, ждёт запрос на вход.";
-"Allow keychain access" = "Разрешить доступ к связке ключей";
 "Could not change launch at login. Check Login Items in System Settings." = "Не удалось изменить запуск при входе. Проверьте объекты входа в системных настройках.";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS не доставляет уведомления Softcap. Включите их в разделе «Уведомления» системных настроек.";
 "%1$@: %2$@ of limit" = "%1$@: %2$@ лимита";

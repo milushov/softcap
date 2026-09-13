@@ -66,9 +66,14 @@ public enum Freshness: Sendable, Hashable, Codable {
 }
 
 public struct ProviderFailure: Sendable, Hashable, Codable, Error {
+    /// `needsPermission` was here until the app stopped reading any keychain
+    /// item but its own: it meant "the keychain would have to ask, and nobody is
+    /// looking", which cannot happen when the only read refuses the dialog
+    /// outright. A stored snapshot written by an older build may still name it —
+    /// `AccountSnapshot`'s decoder takes an unreadable failure as no failure, so
+    /// such a row loses its label rather than the whole row.
     public enum Kind: Sendable, Hashable, Codable {
         case needsLogin   // the token is dead, a sign-in is required
-        case needsPermission // the keychain would have to ask, and nobody is looking
         case network      // the network is unreachable
         case noData       // the source is empty
         case malformed    // the response could not be parsed

@@ -113,7 +113,6 @@
 "A break in a line is a stretch with no readings taken, not a steady reading." = "Putusnya garis berarti tidak ada pembacaan saat itu, bukan pembacaan yang tetap.";
 "%@ old" = "%@ lalu";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "Tidak ada pembacaan sejak beberapa waktu. Mungkin ada permintaan masuk yang menunggu.";
-"Allow keychain access" = "Izinkan akses Keychain";
 "Could not change launch at login. Check Login Items in System Settings." = "Tidak dapat mengubah peluncuran saat masuk. Periksa Login Items di System Settings.";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS tidak mengirimkan notifikasi Softcap. Aktifkan di bawah Notifications dalam System Settings.";
 "%1$@: %2$@ of limit" = "%1$@: %2$@ dari batas";

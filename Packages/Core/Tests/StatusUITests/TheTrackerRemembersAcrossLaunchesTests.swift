@@ -33,8 +33,16 @@ import Foundation
                 "nothing restores the baseline at launch, so a relaunch is a first run")
 
         let seeding = try Self.body(of: "private func seedTrackerFromDisk", in: source)
-        #expect(seeding.contains("SharedStore.read()"),
+        // `readLocal`, not `read`: the shared copy lives in the app group
+        // container, and reaching that at launch is what asked every reader for
+        // permission to "access data from other apps" before anything was drawn.
+        // The baseline is the app's own business and reads the app's own file.
+        #expect(seeding.contains("SharedStore.readLocal()"),
                 "the seed does not read the snapshot the last run left behind")
+        #expect(!seeding.contains("SharedStore.read()"), """
+            the seed reaches into the app group container at launch, which is the \
+            prompt this was moved out of
+            """)
         #expect(seeding.contains("capturedAt"), """
             the seed does not check how old the reading is; a transition from days ago would be announced as though it had just happened
             """)

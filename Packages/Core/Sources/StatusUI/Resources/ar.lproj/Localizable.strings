@@ -113,7 +113,6 @@
 "A break in a line is a stretch with no readings taken, not a steady reading." = "انقطاع الخط يعني عدم أخذ أي قراءات في تلك الفترة، وليس أن القراءة كانت ثابتة.";
 "%@ old" = "قبل %@";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "لم تُقرأ أي بيانات منذ فترة. قد يكون هناك طلب تسجيل دخول في الانتظار.";
-"Allow keychain access" = "السماح بالوصول إلى سلسلة المفاتيح";
 "Could not change launch at login. Check Login Items in System Settings." = "تعذّر تغيير التشغيل عند تسجيل الدخول. راجع عناصر تسجيل الدخول في إعدادات النظام.";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "لا يوصّل macOS إشعارات Softcap. فعّلها ضمن الإشعارات في إعدادات النظام.";
 "%1$@: %2$@ of limit" = "%1$@: %2$@ من الحد";

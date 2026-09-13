@@ -113,7 +113,6 @@
 "A break in a line is a stretch with no readings taken, not a steady reading." = "Une coupure dans la courbe signifie qu’aucun relevé n’a été pris, et non que la valeur était stable.";
 "%@ old" = "il y a %@";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "Rien n’a été relevé depuis un moment. Une demande de connexion attend peut-être.";
-"Allow keychain access" = "Autoriser l’accès au trousseau";
 "Could not change launch at login. Check Login Items in System Settings." = "Impossible de modifier l’ouverture à la connexion. Vérifiez les ouvertures automatiques dans Réglages Système.";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS ne délivre pas les notifications de Softcap. Activez-les sous Notifications dans Réglages Système.";
 "%1$@: %2$@ of limit" = "%1$@ : %2$@ de la limite";

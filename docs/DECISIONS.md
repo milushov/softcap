@@ -7995,3 +7995,44 @@ Showing the prompt would fix that and reintroduce a hang with no way out; the
 recoverable failure is the better of the two. If this turns out to happen in
 practice rather than in theory, the answer is an explicit action a person takes
 while watching — not a dialog raised by startup.
+
+## 2026-09-14 — The group container is opened for the widget, and only for it
+
+**Decision.** `SharedStore` grew a second location: `localURL`, in the app's own
+Application Support directory. The usage history and the snapshot the threshold
+tracker restores its baseline from moved there. The app group container is
+written only after `WidgetCenter.getCurrentConfigurations` reports a widget on
+screen, and is read only by the widget itself.
+
+**Why.** macOS guards a group container as "data from other apps" whenever the
+signature cannot prove the app belongs to the team the group is filed under, and
+an ad-hoc signature never can — it carries no team identifier. The prompt is
+attached to the code requirement, which for an ad-hoc build is the cdhash, so it
+returns after every update. It was reported three times in one night, each time
+read as the app still reaching into some other program's files after both such
+reads had been removed. It is not: the container is Softcap's own and is named
+in Softcap's own entitlements. No wording of ours reaches that dialog.
+
+Three things opened it at startup — the tracker's baseline, the history behind
+the statistics screen, and the write after every poll — and two of them are the
+app talking to itself, which needs no shared anything. Once they move out, the
+only reason left to open it is a reader in another process, and whether that
+reader exists is a question with an answer.
+
+**Cost.** Somebody who has placed a widget still meets the prompt, once per
+update. That is the honest remainder: the container really is shared then, and
+there is no way to hand a separate process data without one. It lands beside the
+widget rather than in front of a first launch, which is the difference between a
+question about something visible and a question about nothing.
+
+The history written before this does not move. It lived in the group container
+and reading it to migrate would need the permission being avoided; on the
+machine this was written for, that file did not exist at all — the writes had
+been failing for want of the very permission — so there was nothing to carry.
+Anyone whose history did survive keeps it in the old place, unread, and starts a
+new one. Rewriting the chart's past is not worth a prompt at launch.
+
+`WidgetCenter.getCurrentConfigurations` failing counts as "no widget": the
+question exists to avoid touching the container, and an unanswerable question is
+not a reason to touch it. A widget that is really there is answered for on the
+next poll, five minutes later.

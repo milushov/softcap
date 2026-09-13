@@ -19,7 +19,7 @@ private actor MemoryAccounts: KeychainAccess {
     func write(_ data: Data, service: String) async throws {
         writes += 1
         if gated { await withCheckedContinuation { pending = $0 } }
-        if fails { throw ProviderFailure(kind: .needsPermission, diagnostic: "simulated persistence failure") }
+        if fails { throw ProviderFailure(kind: .needsLogin, diagnostic: "simulated persistence failure") }
         self.data = data
     }
     func release() { pending?.resume(); pending = nil }

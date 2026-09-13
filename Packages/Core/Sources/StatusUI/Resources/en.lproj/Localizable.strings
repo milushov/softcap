@@ -113,7 +113,6 @@
 "A break in a line is a stretch with no readings taken, not a steady reading." = "A break in a line is a stretch with no readings taken, not a steady reading.";
 "%@ old" = "%@ old";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "Nothing has been read for a while. A sign-in prompt may be waiting.";
-"Allow keychain access" = "Allow keychain access";
 "Could not change launch at login. Check Login Items in System Settings." = "Could not change launch at login. Check Login Items in System Settings.";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings.";
 "%1$@: %2$@ of limit" = "%1$@: %2$@ of limit";

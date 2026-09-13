@@ -145,14 +145,40 @@ public enum SharedStore {
         return container.appendingPathComponent(fileName)
     }
 
-    /// Where the usage history lives: the same container, its own file. The
-    /// snapshot is rewritten whole on every poll; a month of readings must not
-    /// be.
-    public static var historyURL: URL? {
-        url?.deletingLastPathComponent().appendingPathComponent("history.json")
+    /// The app's own directory, which needs no app group and therefore no
+    /// permission from anybody.
+    ///
+    /// The group container is shared with the widget, and macOS guards a group
+    /// container as "data from other apps" whenever the signature cannot prove
+    /// the app belongs to the team the group is filed under — which an ad-hoc
+    /// signature never can. Reaching it at startup is what put that prompt in
+    /// front of every reader, on every update, before anything had been drawn.
+    ///
+    /// Only the widget needs the shared copy. Everything the app reads for
+    /// itself — the history behind the statistics screen, and the snapshot the
+    /// threshold tracker restores its baseline from — lives here instead.
+    public static var localURL: URL? {
+        guard let base = try? FileManager.default.url(
+            for: .applicationSupportDirectory, in: .userDomainMask,
+            appropriateFor: nil, create: true
+        ) else {
+            log.error("no application support directory — history will not be kept")
+            return nil
+        }
+        return base
+            .appendingPathComponent("app.softcap.Softcap", isDirectory: true)
+            .appendingPathComponent(fileName)
     }
 
+    /// Where the usage history lives: beside the app's own snapshot, its own
+    /// file. The snapshot is rewritten whole on every poll; a month of readings
+    /// must not be.
+    public static var historyURL: URL? {
+        localURL?.deletingLastPathComponent().appendingPathComponent("history.json")
+    }
 
+    /// Writes the copy the widget reads. Costs a look into the group container,
+    /// so the caller decides whether a widget is on screen to read it.
     public static func write(_ snapshot: SharedSnapshot) {
         guard let url else { return }
         write(snapshot, to: url)
@@ -162,6 +188,17 @@ public enum SharedStore {
     public static func read() -> SharedSnapshot? {
         guard let url else { return nil }
         return read(from: url)
+    }
+
+    /// The app's own copy — written on every poll, read at startup.
+    public static func writeLocal(_ snapshot: SharedSnapshot) {
+        guard let localURL else { return }
+        write(snapshot, to: localURL)
+    }
+
+    public static func readLocal() -> SharedSnapshot? {
+        guard let localURL else { return nil }
+        return read(from: localURL)
     }
 
     /// Writing and reading take an explicit location as well, so the exchange

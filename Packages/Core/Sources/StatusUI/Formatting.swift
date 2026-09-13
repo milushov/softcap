@@ -59,7 +59,6 @@ public extension Localization {
     func failureText(_ kind: ProviderFailure.Kind) -> String {
         switch kind {
         case .needsLogin:      self("Sign-in required")
-        case .needsPermission: self("Allow keychain access")
         case .network:         self("Network unavailable")
         case .noData:          self("No data available")
         case .malformed:       self("Unexpected response")

@@ -113,7 +113,6 @@
 "A break in a line is a stretch with no readings taken, not a steady reading." = "রেখায় ফাঁক মানে ওই সময়ে কোনো রিডিং নেওয়া হয়নি — মান স্থির ছিল তা নয়।";
 "%@ old" = "%@ আগের";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "কিছুক্ষণ ধরে কোনো রিডিং আসেনি। কোনো সাইন-ইন অনুরোধ অপেক্ষা করতে পারে।";
-"Allow keychain access" = "কীচেইন অ্যাক্সেসের অনুমতি দিন";
 "Could not change launch at login. Check Login Items in System Settings." = "লগইনে চালু করা পরিবর্তন করা যায়নি। System Settings-এ Login Items দেখুন।";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS Softcap-এর বিজ্ঞপ্তি পৌঁছে দিচ্ছে না। System Settings-এ Notifications-এর নিচে চালু করুন।";
 "%1$@: %2$@ of limit" = "%1$@: সীমার %2$@";

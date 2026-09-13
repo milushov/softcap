@@ -113,7 +113,6 @@
 "A break in a line is a stretch with no readings taken, not a steady reading." = "Uma quebra na linha indica que não houve leituras, não uma leitura estável.";
 "%@ old" = "há %@";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "Nada é lido há um tempo. Pode haver um pedido de acesso esperando.";
-"Allow keychain access" = "Permitir acesso às chaves";
 "Could not change launch at login. Check Login Items in System Settings." = "Não foi possível alterar a abertura no login. Veja os itens de início nos Ajustes do Sistema.";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "O macOS não está entregando notificações do Softcap. Ative em Notificações, nos Ajustes do Sistema.";
 "%1$@: %2$@ of limit" = "%1$@: %2$@ do limite";

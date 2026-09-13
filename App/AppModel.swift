@@ -107,7 +107,7 @@ final class AppModel: ObservableObject {
     /// produces a crossing, and the warning the app promises never arrives for
     /// that window — not late, never, until the limit resets and climbs again.
     private func seedTrackerFromDisk() {
-        guard let stored = SharedStore.read() else {
+        guard let stored = SharedStore.readLocal() else {
             Self.log.info("no stored reading to restore the baseline from")
             return
         }
@@ -521,18 +521,56 @@ final class AppModel: ObservableObject {
             || settings.authorizationStatus == .provisional
     }
 
-    /// Writes the snapshot to shared storage and asks the system to redraw the
-    /// widget. A widget is a separate process and does not fetch data itself.
+    /// Writes the reading twice, to two different places, for two different
+    /// readers.
+    ///
+    /// The app's own copy always: the threshold tracker restores its baseline
+    /// from it at the next launch, and the statistics screen draws the history
+    /// beside it. That copy lives in the app's own directory and needs nobody's
+    /// permission.
+    ///
+    /// The shared copy only while a widget is on screen to read it. A widget is
+    /// a separate process, so the only way to hand it data is the app group
+    /// container — and macOS guards a group container as "data from other apps"
+    /// unless the signature proves the app belongs to the team the group is
+    /// filed under, which an ad-hoc signature cannot. Writing it unconditionally
+    /// meant that prompt arrived on first launch, and again after every update,
+    /// for everybody — including the majority who have no widget and would never
+    /// have read what the write produced. Asked for when the widget exists, it
+    /// lands next to the thing it is for.
     private func publishToWidget(_ accounts: [AccountSnapshot]) {
-        SharedStore.write(SharedSnapshot(
+        let snapshot = SharedSnapshot(
             accounts: accounts,
             capturedAt: lastUpdated ?? Date(),
             rowLayout: preferences.rowLayout,
             showSnapshotAge: preferences.showSnapshotAge,
             languageCode: preferences.languageCode,
             pollingEvery: preferences.backgroundInterval
-        ))
-        WidgetCenter.shared.reloadAllTimelines()
+        )
+        SharedStore.writeLocal(snapshot)
+
+        Task { @MainActor in
+            guard await Self.aWidgetIsOnScreen() else { return }
+            SharedStore.write(snapshot)
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+
+    /// Whether the person has actually placed a widget.
+    ///
+    /// `false` on failure rather than `true`: the question is asked to avoid
+    /// touching the group container, and an unanswerable question is not a
+    /// reason to touch it. A widget that exists will be answered for on the next
+    /// poll.
+    private static func aWidgetIsOnScreen() async -> Bool {
+        await withCheckedContinuation { continuation in
+            WidgetCenter.shared.getCurrentConfigurations { result in
+                switch result {
+                case .success(let widgets): continuation.resume(returning: !widgets.isEmpty)
+                case .failure: continuation.resume(returning: false)
+                }
+            }
+        }
     }
 
     private func post(_ event: ThresholdEvent) {
