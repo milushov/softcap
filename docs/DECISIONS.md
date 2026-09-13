@@ -7583,6 +7583,60 @@ simply fits itself to the width and nothing is lost but the scrolling. And the
 images are a copy: regenerating them means returning to the teaser HTML, which
 is not in this repository.
 
+## 2026-09-14 — A quiet check may improve the screen and never weaken it
+
+**Decision.** Follows "The update screen asks again when it is opened", above,
+and replaces how that entry's change was built rather than what it decided. Four
+things: the screen asks while it is open rather than once when it opens; the two
+quiet checks pass through one gate that reads the switch, so it is written in one
+place; one request is out at a time; and a quiet check — failed, cancelled, or
+successful with nothing to report — may raise what is on screen and may never
+lower it.
+
+**Why.** The first version added a second caller to a path written for one, and
+fixed one of the several places that path writes state. A self-review found the
+rest of them.
+
+Asking on appear left the original complaint standing: the window that offered
+0.1.3 all evening was open all evening, and a check bound to the pane appearing
+never fires for somebody watching the screen rather than visiting it.
+
+`.task` is cancelled when its view goes. `URLSession` turns that into
+`URLError -999`, which one door down is a `ProviderFailure` indistinguishable
+from a dropped connection — so switching away from the pane logged an error,
+posted a report to the author, and rewrote the screen on the way out.
+`PollScheduler` carries a comment about this exact mistake, made once already
+against the accounts list; this is the second time.
+
+The screen-weakening rule is the general form of the guard that entry described.
+That guard named `.available` alone, so an honest red "GitHub could not be
+reached" was still replaced by the confident false claim that it had been. And
+the failure path was never the whole of it: `ReleaseFeed` maps a 404 to "nothing
+newer" on the *success* path, and a 404 is the ambiguous one — a release
+mid-publish reads the same as a repository this caller cannot see. That took a
+real offer off the screen and stamped the moment, so neither schedule would ask
+again to correct it, while the model privately went on holding the release whose
+page the escape hatch opens.
+
+The floor now measures from when the app last *asked*, not from when it last
+succeeded. `lastUpdateCheck` is stamped only by a check that finished, so
+offline — or rate limited, which is the state that repeats — every attempt read
+as overdue and every pane switch was another request.
+
+**Cost.** Two more claims about frequency had to be rewritten in ten languages,
+and they are the prominent ones: the landing page's keychain paragraph and the
+FAQ's "three things, and only three", both phrased as exhaustive statements
+about outbound traffic. With the caption and the privacy paragraph rewritten a
+second time, that is four sentences in ten languages for one behaviour — the
+price of a promise stated as a frequency. The Chinese caption also had to lose a
+"每次" the English never said, and the Indonesian one an informal "kamu" that was
+the only one in either catalogue.
+
+Six of the new guards were checked by mutation rather than by being written and
+believed: each was confirmed to go red against the bug it names. The first three
+did not — one stayed green against a mutant doing the exact opposite of what it
+asked for, because the word it searched for was still in a comment nearby.
+
 ## 2026-09-14 — The window comes out beside the Appearance screen, reconciled from one place
 
 **Decision.** While the Appearance screen is open the menu bar window is shown
