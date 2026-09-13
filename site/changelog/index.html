@@ -557,6 +557,15 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <h1>What's new</h1>
     <p class="lede">The pipeline publishes a build for every green change, so version numbers move fast and mean little. This page lists the releases that changed the app; the full feed, with checksums for every build, is on GitHub.</p>
     <article>
+      <h2>0.1.18 <time datetime="2026-09-14">14 September 2026</time></h2>
+      <p>Codex accounts now come from the browser, and only from there:</p>
+      <ul>
+        <li>Softcap no longer reads the Codex CLI's files. An account is added through the browser and read live from the service with a grant of its own, so there is no snapshot age left to explain.</li>
+        <li>The cost: usage updates on the poll rather than the instant Codex writes a line, and an account that was only ever picked up from the CLI needs one browser sign-in.</li>
+        <li>An empty window now says which kind of empty it is — still looking on a fresh install, rather than concluding that nothing is there.</li>
+      </ul>
+    </article>
+    <article>
       <h2>0.1.2 <time datetime="2026-09-13">13 September 2026</time></h2>
       <p>The first public build. Everything the landing page describes, shipping:</p>
       <ul>
