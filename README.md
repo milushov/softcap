@@ -46,9 +46,9 @@ Drag the strip sideways for the rest; each screen links to its full-size image.
 ## Build and run
 
 <!-- download:start -->
-### [⬇︎ Download Softcap 0.1.17](https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg)
+### [⬇︎ Download Softcap 0.1.18](https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg)
 
-A disk image for macOS 14 and later. Released 13 September 2026 — [all versions](https://github.com/milushov/softcap/releases/tag/v0.1.17).
+A disk image for macOS 14 and later. Released 13 September 2026 — [all versions](https://github.com/milushov/softcap/releases/tag/v0.1.18).
 <!-- download:end -->
 
 Requires **Xcode 26+ / Swift 6.2+** and **XcodeGen** (`brew install xcodegen`).
