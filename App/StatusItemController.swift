@@ -186,6 +186,60 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         popover.contentViewController?.view.window?.makeKey()
     }
 
+    #if SCREENSHOTS
+    /// Held only so the window below is not released the moment it is shown.
+    private var screenshotWindow: NSWindow?
+
+    /// Opens the window without a click.
+    ///
+    /// A screenshot run would otherwise have to find the status item on screen
+    /// and press it through the accessibility API — which needs a permission
+    /// granted to whichever terminal happens to be running the tool, and fails
+    /// silently when it is not there.
+    ///
+    /// Two ways, because the first one is not dependable while the author's own
+    /// copy is running: a status item is hosted by Control Centre, a second
+    /// copy's item can be placed where there is no room for it, and a
+    /// `.transient` popover closes itself the moment focus moves — which
+    /// activating this process does. So the popover is asked first, with its
+    /// self-closing turned off, and if it does not appear the same view is shown
+    /// in a window of its own.
+    func showPopoverForScreenshot() {
+        if let button = statusItem?.button, button.window != nil {
+            let popover = self.popover ?? makePopover()
+            self.popover = popover
+            popover.behavior = .applicationDefined
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
+            if popover.isShown { return }
+        }
+        showTheWindowOnItsOwn()
+    }
+
+    /// The same SwiftUI view the popover carries, in a plain window: no title
+    /// bar, no buttons, the system's own rounded corners and shadow. What is
+    /// lost against the real popover is the arrow pointing at the menu bar,
+    /// which a store screenshot has no room to explain anyway.
+    private func showTheWindowOnItsOwn() {
+        let host = NSHostingController(rootView: PopoverView(model: model))
+        // Without this the view is inset by the height of the title bar that is
+        // not being drawn, and the window opens with a band of empty background
+        // above its first row — which the real popover does not have.
+        host.safeAreaRegions = []
+
+        let window = NSWindow(contentViewController: host)
+        window.styleMask = [.titled, .fullSizeContentView]
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        for button in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] {
+            window.standardWindowButton(button)?.isHidden = true
+        }
+        window.appearance = NSApp.effectiveAppearance
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        screenshotWindow = window
+    }
+    #endif
+
     private func makePopover() -> NSPopover {
         let popover = NSPopover()
         // The observer above only fires on a change; a popover built after the
@@ -272,6 +326,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // Reads as an offer once there is one to make. This change, and the
         // same one in the settings footer, is the whole of how loudly a found
         // update announces itself.
+        #if !APPSTORE
         let update = NSMenuItem(
             title: updates.availableVersion.map {
                 String(format: Localization.shared("Update to %@"), $0.description)
@@ -280,6 +335,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         )
         update.target = self
         menu.addItem(update)
+        #endif
 
         menu.addItem(.separator())
 

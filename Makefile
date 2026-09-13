@@ -5,7 +5,7 @@
 # recipe that pipes.
 SHELL := /bin/bash
 
-.PHONY: test test-auth project build build-ios run run-ios lint
+.PHONY: test test-auth project build build-ios run run-ios lint archive-appstore screenshots
 
 # A link failure after an API change in Core is almost always a stale incremental
 # build, not a real error: object files still reference the previous mangled
@@ -48,6 +48,40 @@ run: build
 
 lint:
 	swiftlint --quiet || true
+
+# The build that store screenshots are taken from: fixture accounts, fixture
+# history, settings held in memory. See App/ScreenshotFixtures.swift for what it
+# refuses to touch and why.
+#
+# Its own derived data, not build/: that directory holds the app the author is
+# running, and rebuilding into it replaces a bundle a live process launched from.
+# DEBUG is defined alongside SCREENSHOTS so the error reporter stays compiled
+# out — a run that exists to be photographed should not be able to file a report.
+screenshots: project
+	@set -o pipefail; xcodebuild -project Softcap.xcodeproj -scheme Softcap \
+		-configuration Debug -derivedDataPath build-shots \
+		SWIFT_ACTIVE_COMPILATION_CONDITIONS="DEBUG SCREENSHOTS" \
+		build | grep -E "error:|warning:|BUILD"
+	@echo "built: build-shots/Build/Products/Debug/Softcap.app"
+
+# The App Store lane: the same scheme with the sandboxed entitlements swapped
+# in and the self-updater compiled out (see DECISIONS 2026-09-13). The archive
+# signs with whatever Signing.local.xcconfig names; Organizer re-signs for
+# distribution on upload. V and B are demanded rather than defaulted so every
+# archive's number is chosen on purpose, never inherited from project.yml's
+# base — the number race with the GitHub lane is decided at archive time.
+archive-appstore: project
+	@if [ -z "$(V)" ] || [ -z "$(B)" ]; then \
+		echo "usage: make archive-appstore V=0.1.4 B=1"; exit 1; fi
+	@set -o pipefail; xcodebuild -project Softcap.xcodeproj -scheme Softcap \
+		-configuration Release -derivedDataPath build \
+		-archivePath build/Softcap.xcarchive \
+		-allowProvisioningUpdates \
+		SOFTCAP_APP_ENTITLEMENTS=App/Softcap.AppStore.entitlements \
+		SWIFT_ACTIVE_COMPILATION_CONDITIONS=APPSTORE \
+		MARKETING_VERSION=$(V) CURRENT_PROJECT_VERSION=$(B) \
+		archive | grep -E "error:|ARCHIVE"
+	@echo "next: open build/Softcap.xcarchive → Organizer → Distribute App → App Store Connect"
 
 # iOS build and simulator run. The scheme has code signing disabled, so it needs
 # no certificate: the app runs in the simulator only.

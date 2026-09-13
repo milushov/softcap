@@ -7414,3 +7414,33 @@ first, and `checkout-index --all` is scoped to the directory git runs in — so
 without `-C "$root"` it wrote `Packages/` alone and refused *every* site
 commit for a missing `build.py`. A guard that fails closed on everything
 teaches `--no-verify`, which is worse than the hole it was closing.
+
+## 2026-09-13 — The App Store build is the same app, sandboxed, minus the updater
+
+**Decision.** A second distribution lane for TestFlight and, later, the Mac
+App Store: `make archive-appstore V=… B=…` builds the same Softcap scheme
+with `App/Softcap.AppStore.entitlements` — App Sandbox, network client and
+server, the shared app group — swapped in through the new
+`SOFTCAP_APP_ENTITLEMENTS` variable, and with `APPSTORE` defined, which
+compiles out the self-updater: the startup check, the menu item, the
+settings screen and the settings-footer button. `ITSAppUsesNonExemptEncryption`
+is declared false for both lanes; the app speaks HTTPS and nothing else.
+The GitHub lane is untouched: `tools/sign_app.sh` reads the unsandboxed
+entitlements by its own literal path, and the release workflow never calls
+the new target.
+
+**Why.** App Store Connect refuses a macOS upload without the sandbox, so a
+store build was never going to be the GitHub build renamed. Inside TestFlight
+and the store, updates are the platform's job — a binary that replaces
+itself both fails review and could not swap a sandboxed bundle anyway. A
+separate entitlements file, chosen per-archive on the command line, keeps
+one project and one scheme serving both lanes instead of forking either.
+
+**Cost.** The sandbox is not free: the Codex provider reads `~/.codex`,
+which a sandboxed process cannot, so the store build ships with Codex
+degraded until that provider learns a user-selected-folder grant — and
+whether reading the Claude CLI's keychain item survives the sandbox is
+untested. The store signature differs from every signature that came before
+it, so keychain "Always Allow" consents are asked once more. And there are
+now two builds to keep honest, with `#if !APPSTORE` in three files as the
+seam.

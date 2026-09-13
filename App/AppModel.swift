@@ -124,7 +124,15 @@ final class AppModel: ObservableObject {
     /// Readings kept over time, so the statistics screen has something to draw.
     /// Its own file, not the snapshot: the snapshot is rewritten whole on every
     /// poll and a month of readings must not be.
+    #if SCREENSHOTS
+    /// No file at all in a screenshot build. `UsageHistoryStore` reads and
+    /// writes nothing without a URL, so the month of real readings on this
+    /// machine is neither drawn on the statistics screen nor overwritten by the
+    /// fixtures merged in beside it.
+    let history = UsageHistoryStore(url: nil)
+    #else
     let history = UsageHistoryStore(url: SharedStore.historyURL)
+    #endif
 
     /// Codex readings update the moment they are written rather than on a timer:
     /// a live request to the service would spend the quota we are watching.
@@ -215,9 +223,45 @@ final class AppModel: ObservableObject {
         self.store = store
     }
 
+    /// True only where `SCREENSHOTS` is defined, which is `make screenshots` and
+    /// nothing else. A plain `false` in every build that ships.
+    #if SCREENSHOTS
+    private let isScreenshotRun = true
+    #else
+    private let isScreenshotRun = false
+    #endif
+
+    /// Puts the store fixtures on screen. Empty unless this is a screenshot
+    /// build, so the addresses in `ScreenshotFixtures` are in no shipped binary.
+    private func seedScreenshotFixtures() async {
+        #if SCREENSHOTS
+        snapshots = ScreenshotFixtures.accounts
+        // Derived the way a real poll derives it, rather than written out beside
+        // the fixtures: a menu bar label that disagreed with the window below it
+        // would be a lie told in a screenshot, and this is one line.
+        summary = menuBarSummary(snapshots, now: Date(), window: preferences.primaryWindow)
+        lastUpdated = Date()
+        // The statistics screen draws the history rather than the snapshots, so
+        // it needs its own fixtures — otherwise that screen alone would show the
+        // real month of readings this machine has recorded.
+        await history.merge(ScreenshotFixtures.samples, now: Date())
+        #endif
+    }
+
     func start() async {
         guard !started else { return }
         started = true
+
+        // A screenshot build stops here, before the first thing is read or
+        // written: no credential store, no keychain, no timers, no file watcher
+        // and no widget snapshot. The machine this is built on holds four real
+        // accounts, and a store listing is permanent — so the screenshot run is
+        // not trusted to merely avoid the real data, it is unable to reach it.
+        if isScreenshotRun {
+            await seedScreenshotFixtures()
+            return
+        }
+
         await requestNotificationPermission()
         seedTrackerFromDisk()
         await store.load()
@@ -468,6 +512,12 @@ final class AppModel: ObservableObject {
     /// so opening the window to look at the accounts was what stopped them
     /// loading.
     private func restartTimer() {
+        // The other door into polling, and the one `start()`'s screenshot guard
+        // does not cover: opening the window re-arms the timer through
+        // `isPopoverOpen`'s `didSet`, which would then replace the fixtures with
+        // this machine's real accounts a minute after the first screenshot.
+        if isScreenshotRun { return }
+
         let interval = isPopoverOpen
             ? preferences.foregroundInterval
             : preferences.backgroundInterval
@@ -508,6 +558,13 @@ final class AppModel: ObservableObject {
     }
 
     func accountRows() async -> [AccountsPane.AccountRow] {
+        // The Accounts screen has its own path to the data: the keychain, and a
+        // scan of `~/.codex`. A screenshot build must reach neither, so the
+        // fixtures answer here too.
+        #if SCREENSHOTS
+        if isScreenshotRun { return ScreenshotFixtures.rows }
+        #endif
+
         var rows = await store.accountStates().map { item in
             AccountsPane.AccountRow(
                 id: item.account.id,

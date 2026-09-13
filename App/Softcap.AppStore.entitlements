@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- The App Store variant. Upload validation refuses a macOS app without the
+     sandbox, so this file exists beside Softcap.entitlements rather than
+     replacing it: the GitHub build keeps the unsandboxed file, where the Codex
+     file reader still works. network.server is the OAuth callback listening on
+     localhost; without it the browser sign-in redirect has nowhere to land. -->
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	<key>com.apple.security.network.client</key>
+	<true/>
+	<key>com.apple.security.network.server</key>
+	<true/>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>$(TeamIdentifierPrefix)group.app.softcap</string>
+	</array>
+</dict>
+</plist>

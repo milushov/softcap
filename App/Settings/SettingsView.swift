@@ -34,9 +34,19 @@ struct SettingsView: View {
         .task { await model.load() }
     }
 
+    /// The App Store build has no Updates screen: those builds are updated by
+    /// TestFlight and the store, not by the app.
+    private var visibleSections: [SettingsSection] {
+        #if APPSTORE
+        SettingsSection.allCases.filter { $0 != .updates }
+        #else
+        SettingsSection.allCases
+        #endif
+    }
+
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 1) {
-            ForEach(SettingsSection.allCases) { section in
+            ForEach(visibleSections) { section in
                 Button {
                     appModel.settingsSection = section
                 } label: {
@@ -72,11 +82,13 @@ struct SettingsView: View {
     private var footer: some View {
         HStack(spacing: 6) {
             Spacer()
+            #if !APPSTORE
             Button(footerTitle) { appModel.settingsSection = .updates }
                 .buttonStyle(.plain)
                 .font(.system(size: 11.5))
                 .foregroundStyle(.secondary)
             Text(verbatim: "·").font(.system(size: 11.5)).foregroundStyle(.secondary)
+            #endif
             Text(updates.versionText)
                 .font(.system(size: 11.5))
                 .monospacedDigit()

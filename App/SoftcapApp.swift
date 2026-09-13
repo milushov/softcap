@@ -25,7 +25,13 @@ struct SoftcapApp: App {
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     let model = AppModel()
+    // A screenshot run keeps its settings in memory: see `ScreenshotFixtures`.
+    #if SCREENSHOTS
+    let preferences = PreferencesModel(
+        store: PreferencesStore(storage: ScreenshotFixtures.Storage()))
+    #else
     let preferences = PreferencesModel()
+    #endif
     let updates = UpdateModel()
 
     private var cancellables: Set<AnyCancellable> = []
@@ -84,9 +90,52 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             // The quiet check, now and once a day after. It opens nothing: at
             // most it changes the words on a menu item and in the settings
             // footer.
+            //
+            // Not in the App Store build: there updates arrive through
+            // TestFlight and the store, and a binary that replaces itself
+            // would fail review — and could not swap a sandboxed bundle anyway.
+            #if !APPSTORE
             updates.startChecking()
+            #endif
+
+            #if SCREENSHOTS
+            stageScreenshot()
+            #endif
         }
     }
+
+    #if SCREENSHOTS
+    /// Opens whatever `SOFTCAP_SHOT` names, so each screenshot is one launch
+    /// with one thing on screen and nothing to click.
+    ///
+    /// The window shape — full or minimal — is not staged here: it is a setting,
+    /// and `ScreenshotFixtures.Storage` reads `SOFTCAP_SHOT_MINIMAL` for it.
+    private func stageScreenshot() {
+        let wanted = ProcessInfo.processInfo.environment["SOFTCAP_SHOT"] ?? "window"
+        NSApp.activate(ignoringOtherApps: true)
+
+        let sections: [String: SettingsSection] = [
+            "accounts": .accounts, "statistics": .statistics, "appearance": .appearance,
+            "notifications": .notifications, "polling": .polling, "services": .services,
+            "about": .about,
+        ]
+
+        if let section = sections[wanted] {
+            model.settingsSection = section
+            SettingsWindow.open()
+        } else {
+            statusItem.showPopoverForScreenshot()
+        }
+
+        // Whatever holds the keyboard draws a focus ring, and in the sidebar
+        // that is a second highlighted row beside the selected one — which in a
+        // screenshot reads as the screen not knowing which section it is on.
+        // After the window has opened, because that is what takes the focus.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            for window in NSApp.windows { window.makeFirstResponder(nil) }
+        }
+    }
+    #endif
 
     /// Arranges for a failure to be describable, before anything can fail.
     ///
@@ -104,6 +153,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         #if !DEBUG
         let version = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String)
             ?? "unknown"
+        // The two lanes carry the same version number and are not the same
+        // program: the App Store build is sandboxed, has no updater, and reaches
+        // less of the machine. A report saying only "0.1.4" is unattributable to
+        // either — so the lane goes in `environment`, which is the axis for one
+        // codebase delivered two ways, and not in `release`, which is the unit
+        // release health and "fixed in the next version" are counted in. Two
+        // release series would make one regression read as two unrelated ones.
+        #if APPSTORE
+        let lane = "appstore"
+        #else
+        let lane = "production"
+        #endif
         Task {
             await Diagnostics.shared.start(
                 reporter: CollectorReporter(
@@ -112,6 +173,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
                     client: "softcap/\(version)"
                 ),
                 release: "softcap@\(version)",
+                environment: lane,
                 enabled: false
             )
         }
