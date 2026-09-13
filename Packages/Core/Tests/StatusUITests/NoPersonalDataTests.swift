@@ -136,27 +136,39 @@ import Foundation
     /// Asked of the running system rather than written down, so the check keeps
     /// working on another machine instead of guarding one stale name.
     @Test func noNameOfTheMachineTheRepositoryIsWrittenOn() throws {
-        var names: [String] = []
-        let host = ProcessInfo.processInfo.hostName
-            .replacingOccurrences(of: ".local", with: "")
-        names.append(host)
-        names.append(NSUserName())
-
-        // A name of three characters or fewer is as likely to be an ordinary
-        // word in prose as an identifier, and a false failure teaches people to
-        // pass --no-verify.
-        let candidates = Set(names.map { $0.lowercased() }.filter { $0.count > 3 })
-
         var offenders: [String] = []
         for file in try Self.textFiles() {
             let text = try String(contentsOf: file, encoding: .utf8).lowercased()
-            for name in candidates where text.contains(name) {
+            for name in Self.namesOfThisMachine() where text.contains(name) {
                 offenders.append("\(file.lastPathComponent): \(name)")
             }
         }
         #expect(offenders.isEmpty, """
             this machine's name or user: \(offenders.sorted().joined(separator: "; "))
             """)
+    }
+
+    /// What this machine is called, when that names a person — and nothing at
+    /// all on CI.
+    ///
+    /// A GitHub runner's user is literally named `runner`, and that word is
+    /// ordinary prose in every file that describes the workflow: the first run
+    /// after the repository was recreated failed on four of them for saying it.
+    /// The subject of this check is the author's machine, and the author's
+    /// machine is never the one CI provides — there the names identify nobody,
+    /// so there is nothing true for the check to find. It keeps doing its work
+    /// where the names are real: on the machine the repository is written on,
+    /// in the pre-commit hook and in `make test`.
+    static func namesOfThisMachine(
+        environment: [String: String] = ProcessInfo.processInfo.environment
+    ) -> Set<String> {
+        guard environment["CI"] == nil else { return [] }
+        let host = ProcessInfo.processInfo.hostName
+            .replacingOccurrences(of: ".local", with: "")
+        // A name of three characters or fewer is as likely to be an ordinary
+        // word in prose as an identifier, and a false failure teaches people to
+        // pass --no-verify.
+        return Set([host, NSUserName()].map { $0.lowercased() }.filter { $0.count > 3 })
     }
 
     /// A sibling checkout names a project that is not this one. The landing's
@@ -490,11 +502,8 @@ import Foundation
             found.append("home directory /Users/\(name)/")
         }
 
-        let machine = ProcessInfo.processInfo.hostName
-            .replacingOccurrences(of: ".local", with: "")
         let lowered = text.lowercased()
-        for name in [machine, NSUserName()].map({ $0.lowercased() })
-        where name.count > 3 && lowered.contains(name) {
+        for name in namesOfThisMachine() where lowered.contains(name) {
             found.append("this machine's name or login")
         }
 

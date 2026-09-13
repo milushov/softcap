@@ -7207,3 +7207,36 @@ button, and setup is unchanged. The startup registration of the refresh hot
 key also moves from `.timer` to `.person` — the two registrations had
 quietly disagreed, and the difference between those origins no longer
 carries the dialog.
+
+## 2026-09-13 — A concise README describes the current implementation
+
+**Decision.** Keep setup commands, feature defaults, data handling and references
+in the README. Mark iOS as a prototype and correct the linked authentication
+document: account synchronization and phone sign-in are not implemented.
+
+**Why.** The Keychain store does not enable synchronization, despite the previous
+documentation promising it. The README also described simulator signing and
+Keychain prompts incorrectly. A GitHub 404 cannot prove no release ever existed.
+
+**Cost.** Detailed development history stays in the decision log and source.
+This documentation change does not implement the missing iOS account setup.
+
+## 2026-09-13 — The machine-name guard stands down on CI
+
+**Decision.** The names `NoPersonalDataInTheRepository` scans for — this
+machine's hostname and login — come from one function, and that function
+answers with nothing when `CI` is set in the environment. Both readers use it:
+the walk over the repository's files and the scan of its commit messages.
+
+**Why.** A GitHub runner's user is literally named `runner`, and that word is
+ordinary prose in any file describing the workflow. The first run after the
+repository was recreated failed on four of them — `release.yml`,
+`sign_app.sh`, `make_dmg.sh` and this log — which killed the test job and
+skipped the release that push should have produced. The check's subject is
+the author's machine; the machine CI provides is never that one, so on CI the
+names identify nobody and the check has nothing true to find.
+
+**Cost.** On CI nothing watches for machine names, and any future commit
+message may say `runner` freely. The watch that matters is unchanged: it runs
+where the names are real — the pre-commit hook and `make test` on the machine
+the repository is written on.
