@@ -176,6 +176,12 @@
 "Codex · local session files" = "Codex · স্থানীয় সেশন ফাইল";
 "Could not forget the account. Try again." = "অ্যাকাউন্ট মুছে ফেলা যায়নি। আবার চেষ্টা করুন।";
 "Show %@" = "%@ দেখান";
+"Custom" = "কাস্টম";
+"Arrange accounts…" = "অ্যাকাউন্ট সাজান…";
+"Custom order" = "কাস্টম ক্রম";
+"Drag accounts to change their order." = "ক্রম পরিবর্তন করতে অ্যাকাউন্টগুলো টেনে সরান।";
+"Move up" = "উপরে সরান";
+"Move down" = "নিচে সরান";
 "Signed in successfully" = "সফলভাবে সাইন ইন হয়েছে";
 "Your account is connected. You can close this tab." = "আপনার অ্যাকাউন্ট সংযুক্ত হয়েছে। আপনি এই ট্যাবটি বন্ধ করতে পারেন।";
 "Return to Softcap to try signing in again." = "আবার সাইন ইন করার চেষ্টা করতে Softcap-এ ফিরে যান।";

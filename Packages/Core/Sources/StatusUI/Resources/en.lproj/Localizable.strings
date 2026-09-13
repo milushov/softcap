@@ -176,6 +176,12 @@
 "Codex · local session files" = "Codex · local session files";
 "Could not forget the account. Try again." = "Could not forget the account. Try again.";
 "Show %@" = "Show %@";
+"Custom" = "Custom";
+"Arrange accounts…" = "Arrange accounts…";
+"Custom order" = "Custom order";
+"Drag accounts to change their order." = "Drag accounts to change their order.";
+"Move up" = "Move up";
+"Move down" = "Move down";
 "Signed in successfully" = "Signed in successfully";
 "Your account is connected. You can close this tab." = "Your account is connected. You can close this tab.";
 "Return to Softcap to try signing in again." = "Return to Softcap to try signing in again.";

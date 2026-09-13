@@ -114,6 +114,7 @@ public extension Localization {
         switch value {
         case .leastLoadedFirst: self("Least loaded first")
         case .byName:           self("By name")
+        case .custom:           self("Custom")
         }
     }
 

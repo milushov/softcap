@@ -176,6 +176,12 @@
 "Codex · local session files" = "Codex · 本地会话文件";
 "Could not forget the account. Try again." = "无法移除账户。请重试。";
 "Show %@" = "显示 %@";
+"Custom" = "自定义";
+"Arrange accounts…" = "排列账户…";
+"Custom order" = "自定义顺序";
+"Drag accounts to change their order." = "拖动账户以更改顺序。";
+"Move up" = "上移";
+"Move down" = "下移";
 "Signed in successfully" = "登录成功";
 "Your account is connected. You can close this tab." = "账号已连接。你可以关闭此标签页。";
 "Return to Softcap to try signing in again." = "返回 Softcap 重试登录。";

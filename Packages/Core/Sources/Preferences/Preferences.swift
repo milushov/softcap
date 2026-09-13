@@ -22,7 +22,7 @@ public enum RowLayout: String, Codable, Sendable, CaseIterable {
 }
 
 public enum Ordering: String, Codable, Sendable, CaseIterable {
-    case leastLoadedFirst, byName
+    case leastLoadedFirst, byName, custom
 
 }
 
@@ -89,6 +89,8 @@ public struct Preferences: Codable, Sendable, Equatable {
     public var primaryWindow: PrimaryWindow
     public var rowLayout: RowLayout
     public var ordering: Ordering
+    /// Provider-qualified account IDs in the order chosen by the person.
+    public var customAccountOrder: [String]
     public var showSnapshotAge: Bool
 
     /// The window stripped to a list: one line per account, no header, no
@@ -141,6 +143,7 @@ public struct Preferences: Codable, Sendable, Equatable {
         primaryWindow: .worst,
         rowLayout: .twoWindows,
         ordering: .leastLoadedFirst,
+        customAccountOrder: [],
         showSnapshotAge: true,
         minimalWindow: false,
         notificationsEnabled: true,
@@ -169,7 +172,25 @@ public struct Preferences: Codable, Sendable, Equatable {
             .sorted(by: >)
         copy.foregroundInterval = Self.clamp(foregroundInterval)
         copy.backgroundInterval = Self.clamp(backgroundInterval)
+        copy.customAccountOrder = Self.uniqueAccountIDs(customAccountOrder)
         return copy
+    }
+
+    /// Reorders the accounts currently shown without losing the positions of
+    /// hidden or temporarily unavailable accounts.
+    public mutating func setCustomAccountOrder(_ orderedIDs: [String]) {
+        let ids = Self.uniqueAccountIDs(orderedIDs)
+        let moving = Set(ids)
+        var remaining = ids.makeIterator()
+        customAccountOrder = Self.uniqueAccountIDs(customAccountOrder).map { id in
+            moving.contains(id) ? (remaining.next() ?? id) : id
+        }
+        customAccountOrder.append(contentsOf: remaining)
+    }
+
+    private static func uniqueAccountIDs(_ ids: [String]) -> [String] {
+        var seen: Set<String> = []
+        return ids.filter { !$0.isEmpty && seen.insert($0).inserted }
     }
 
     private static func clamp(_ value: TimeInterval) -> TimeInterval {
@@ -209,6 +230,7 @@ extension Preferences {
         primaryWindow        = read(.primaryWindow, fallback.primaryWindow)
         rowLayout            = read(.rowLayout, fallback.rowLayout)
         ordering             = read(.ordering, fallback.ordering)
+        customAccountOrder   = read(.customAccountOrder, fallback.customAccountOrder)
         showSnapshotAge      = read(.showSnapshotAge, fallback.showSnapshotAge)
         minimalWindow        = read(.minimalWindow, fallback.minimalWindow)
         notificationsEnabled = read(.notificationsEnabled, fallback.notificationsEnabled)

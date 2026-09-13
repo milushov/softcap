@@ -160,6 +160,15 @@ final class AppModel: ObservableObject {
             }
             if oldValue.codexRoot != preferences.codexRoot { startWatchingCodex() }
 
+            let orderChanged = oldValue.ordering != preferences.ordering
+                || oldValue.customAccountOrder != preferences.customAccountOrder
+            if orderChanged {
+                snapshots = orderedForDisplay(
+                    snapshots, ordering: preferences.ordering,
+                    customAccountOrder: preferences.customAccountOrder
+                )
+            }
+
             // The widget is another process and carries its own copy of these
             // four. It learned of a change when the snapshot was rewritten and
             // at no other time, and the snapshot was rewritten by a poll and by
@@ -173,7 +182,8 @@ final class AppModel: ObservableObject {
                oldValue.rowLayout != preferences.rowLayout
                 || oldValue.showSnapshotAge != preferences.showSnapshotAge
                 || oldValue.languageCode != preferences.languageCode
-                || oldValue.backgroundInterval != preferences.backgroundInterval {
+                || oldValue.backgroundInterval != preferences.backgroundInterval
+                || orderChanged {
                 publishToWidget(snapshots)
             }
 
@@ -325,7 +335,10 @@ final class AppModel: ObservableObject {
         await importCodexHistoryOnce()
 
         guard let poller else { return }
-        let result = orderedForDisplay(await poller.refresh(), ordering: preferences.ordering)
+        let result = orderedForDisplay(
+            await poller.refresh(), ordering: preferences.ordering,
+            customAccountOrder: preferences.customAccountOrder
+        )
         // A failed account shows one translated sentence; the diagnostic behind
         // it exists for this line and had nowhere to go.
         //
@@ -364,7 +377,7 @@ final class AppModel: ObservableObject {
         summary = menuBarSummary(result, now: Date(), window: preferences.primaryWindow)
         lastUpdated = Date()
 
-        publishToWidget(result)
+        publishToWidget(snapshots)
         rebuildTrackerIfNeeded()
         let events = tracker.events(for: result, now: Date())
         // The reading is fed to the tracker even with notifications off:
@@ -583,7 +596,7 @@ final class AppModel: ObservableObject {
     private func publishToWidget(_ accounts: [AccountSnapshot]) {
         SharedStore.write(SharedSnapshot(
             accounts: accounts,
-            capturedAt: Date(),
+            capturedAt: lastUpdated ?? Date(),
             rowLayout: preferences.rowLayout,
             showSnapshotAge: preferences.showSnapshotAge,
             languageCode: preferences.languageCode,

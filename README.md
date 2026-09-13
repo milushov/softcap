@@ -214,6 +214,12 @@ Switches immediately, no restart. Follows the system by default.
 
 **Appearance** — system, light or dark.
 
+**Order** — least loaded first, by name, or custom. Choosing **Custom** opens a
+small account list: drag rows to arrange them, with changes saved and applied
+immediately. **Arrange accounts…** opens it again. Switching to automatic sorting
+keeps the saved arrangement, new accounts follow the saved ones, and failed readings do
+not move accounts out of their chosen positions.
+
 **Minimal window** — the limits window as a list: one line per account, and
 colour only where a limit is close. The heading and the named buttons go; the
 three actions stay as symbols, and what the row stopped saying — the service,

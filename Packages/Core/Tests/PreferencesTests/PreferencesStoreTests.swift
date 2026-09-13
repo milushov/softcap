@@ -79,7 +79,8 @@ private actor MemoryStorage: PreferencesStorage {
     chosen.menuBarContent = .percent
     chosen.primaryWindow = .weekly
     chosen.rowLayout = .rings
-    chosen.ordering = .byName
+    chosen.ordering = .custom
+    chosen.customAccountOrder = ["codex/example", "claude/x"]
     chosen.showSnapshotAge = false
     chosen.notificationsEnabled = false
     chosen.thresholds = [70, 40]
@@ -103,4 +104,19 @@ private actor MemoryStorage: PreferencesStorage {
     let store = PreferencesStore(storage: MemoryStorage())
     _ = await store.load()
     #expect(await store.current() == Preferences.defaults)
+}
+
+@Test func switchingToAutomaticOrderKeepsTheSavedArrangement() async {
+    let storage = MemoryStorage()
+    let store = PreferencesStore(storage: storage)
+    var settings = Preferences.defaults
+    settings.ordering = .custom
+    settings.setCustomAccountOrder(["codex/example", "claude/example"])
+    await store.save(settings)
+
+    settings.ordering = .byName
+    await store.save(settings)
+    let reopened = await PreferencesStore(storage: storage).load()
+    #expect(reopened.ordering == .byName)
+    #expect(reopened.customAccountOrder == ["codex/example", "claude/example"])
 }

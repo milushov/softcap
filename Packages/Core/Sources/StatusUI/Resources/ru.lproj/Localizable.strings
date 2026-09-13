@@ -176,6 +176,12 @@
 "Codex · local session files" = "Codex · локальные файлы сессий";
 "Could not forget the account. Try again." = "Не удалось удалить аккаунт. Повторите попытку.";
 "Show %@" = "Показывать %@";
+"Custom" = "Вручную";
+"Arrange accounts…" = "Изменить порядок…";
+"Custom order" = "Порядок аккаунтов";
+"Drag accounts to change their order." = "Перетаскивайте аккаунты, чтобы изменить их порядок.";
+"Move up" = "Переместить выше";
+"Move down" = "Переместить ниже";
 "Signed in successfully" = "Вход выполнен успешно";
 "Your account is connected. You can close this tab." = "Аккаунт подключён. Эту вкладку можно закрыть.";
 "Return to Softcap to try signing in again." = "Вернитесь в Softcap и попробуйте войти снова.";

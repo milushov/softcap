@@ -7092,6 +7092,27 @@ visible instead of falling back to potentially unrelated session data. The
 existing iCloud credential sharing still has no cross-device refresh lock.
 See `docs/authentication.md` for source references and verification boundaries.
 
+## 2026-09-11 — Custom order belongs to account identities
+
+**Decision.** Store the manual order as provider-qualified account IDs alongside
+the sorting mode. Choosing Custom seeds it from the current display and opens
+a compact sheet with native list reordering. Every move saves immediately;
+context-menu and accessibility actions offer the same moves. A button beside
+the setting reopens the sheet. The editor lists visible accounts and preserves
+hidden or temporarily unavailable IDs in their saved slots.
+
+**Why.** Names can change and two providers can show the same name. Usage and
+failures must not undo a manual arrangement, so failed accounts sink only in
+automatic modes. Unarranged accounts follow the saved ones by name.
+Switching to an automatic mode retains the arrangement for the next switch back.
+Order changes re-sort the current reading and republish it to the widget without
+waiting for a poll or making the old reading appear newer.
+
+**Cost.** Hidden accounts cannot be moved until shown again, and missing IDs stay
+in the preferences. The sheet edits the live order, so Done or Escape closes it
+without rolling back moves. Older preferences default to an empty arrangement
+while retaining the existing mode and other choices.
+
 ## 2026-09-11 — Browser sign-in returns to Accounts only after persistence
 
 **Decision.** Hold the loopback reply until token exchange and keychain persistence

@@ -176,6 +176,12 @@
 "Codex · local session files" = "Codex · fichiers de session locaux";
 "Could not forget the account. Try again." = "Impossible d’oublier le compte. Réessayez.";
 "Show %@" = "Afficher %@";
+"Custom" = "Personnalisé";
+"Arrange accounts…" = "Organiser les comptes…";
+"Custom order" = "Ordre personnalisé";
+"Drag accounts to change their order." = "Faites glisser les comptes pour modifier leur ordre.";
+"Move up" = "Monter";
+"Move down" = "Descendre";
 "Signed in successfully" = "Connexion réussie";
 "Your account is connected. You can close this tab." = "Votre compte est connecté. Vous pouvez fermer cet onglet.";
 "Return to Softcap to try signing in again." = "Revenez dans Softcap pour réessayer de vous connecter.";

@@ -176,6 +176,12 @@
 "Codex · local session files" = "Codex · file sesi lokal";
 "Could not forget the account. Try again." = "Tidak dapat melupakan akun. Coba lagi.";
 "Show %@" = "Tampilkan %@";
+"Custom" = "Kustom";
+"Arrange accounts…" = "Atur akun…";
+"Custom order" = "Urutan kustom";
+"Drag accounts to change their order." = "Seret akun untuk mengubah urutannya.";
+"Move up" = "Pindahkan ke atas";
+"Move down" = "Pindahkan ke bawah";
 "Signed in successfully" = "Berhasil masuk";
 "Your account is connected. You can close this tab." = "Akun Anda sudah terhubung. Anda dapat menutup tab ini.";
 "Return to Softcap to try signing in again." = "Kembali ke Softcap untuk mencoba masuk lagi.";

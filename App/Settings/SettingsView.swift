@@ -97,7 +97,7 @@ struct SettingsView: View {
                 switch appModel.settingsSection {
                 case .accounts:      AccountsPane(model: model, appModel: appModel)
                 case .statistics:    StatisticsPane(model: model, appModel: appModel)
-                case .appearance:    AppearancePane(model: model)
+                case .appearance:    AppearancePane(model: model, appModel: appModel)
                 case .notifications: NotificationsPane(model: model, appModel: appModel)
                 case .polling:       PollingPane(model: model)
                 case .updates:       UpdatesPane(updates: updates, model: model)

@@ -10,6 +10,7 @@ import ProviderKit
     #expect(p.primaryWindow == .worst)
     #expect(p.rowLayout == .twoWindows)
     #expect(p.ordering == .leastLoadedFirst)
+    #expect(p.customAccountOrder.isEmpty)
     #expect(p.showSnapshotAge)
     #expect(p.notificationsEnabled)
     #expect(p.thresholds == [95, 80])
@@ -69,6 +70,8 @@ import ProviderKit
     p.disabledProviders = [.codex]
     p.hiddenAccounts = ["claude/u-1"]
     p.codexRoot = "/tmp/codex"
+    p.ordering = .custom
+    p.customAccountOrder = ["codex/example", "claude/u-1"]
 
     let data = try JSONEncoder().encode(p)
     let back = try JSONDecoder().decode(Preferences.self, from: data)
@@ -117,6 +120,45 @@ import ProviderKit
 
 @Test func theWindowIsFullUntilSomebodyAsksOtherwise() {
     #expect(Preferences.defaults.minimalWindow == false)
+}
+
+@Suite struct CustomAccountOrdering {
+    @Test func olderSettingsKeepTheirOrderAndOtherChoices() throws {
+        let old = Data(#"{"ordering":"byName","appearance":"dark","languageCode":"ru"}"#.utf8)
+        let decoded = try JSONDecoder().decode(Preferences.self, from: old)
+        #expect(decoded.ordering == .byName)
+        #expect(decoded.customAccountOrder.isEmpty)
+        #expect(decoded.appearance == .dark)
+        #expect(decoded.languageCode == "ru")
+    }
+
+    @Test func malformedOrderDoesNotDiscardOtherSettings() throws {
+        let data = Data(#"{"ordering":"custom","customAccountOrder":false,"appearance":"dark"}"#.utf8)
+        let decoded = try JSONDecoder().decode(Preferences.self, from: data)
+        #expect(decoded.ordering == .custom)
+        #expect(decoded.customAccountOrder.isEmpty)
+        #expect(decoded.appearance == .dark)
+    }
+
+    @Test func normalizationKeepsTheFirstPositionOfEachAccount() {
+        var settings = Preferences.defaults
+        settings.customAccountOrder = ["codex/example", "", "claude/example", "codex/example"]
+        #expect(settings.normalized().customAccountOrder == ["codex/example", "claude/example"])
+    }
+
+    @Test func arrangingVisibleAccountsPreservesMissingAccountsSlots() {
+        var settings = Preferences.defaults
+        settings.customAccountOrder = ["first", "hidden", "second", "unavailable", "third"]
+        settings.setCustomAccountOrder(["third", "first", "second", "new"])
+        #expect(settings.customAccountOrder == ["third", "hidden", "first", "unavailable", "second", "new"])
+    }
+
+    @Test func anEmptyListDoesNotEraseSavedPositions() {
+        var settings = Preferences.defaults
+        settings.customAccountOrder = ["second", "first"]
+        settings.setCustomAccountOrder([])
+        #expect(settings.customAccountOrder == ["second", "first"])
+    }
 }
 
 /// The field-by-field decoder, from the other direction: a settings file

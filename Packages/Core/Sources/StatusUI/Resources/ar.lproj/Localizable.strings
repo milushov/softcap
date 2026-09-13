@@ -176,6 +176,12 @@
 "Codex · local session files" = "Codex · ملفات الجلسات المحلية";
 "Could not forget the account. Try again." = "تعذر حذف الحساب. حاول مجددًا.";
 "Show %@" = "إظهار %@";
+"Custom" = "مخصص";
+"Arrange accounts…" = "ترتيب الحسابات…";
+"Custom order" = "ترتيب مخصص";
+"Drag accounts to change their order." = "اسحب الحسابات لتغيير ترتيبها.";
+"Move up" = "نقل لأعلى";
+"Move down" = "نقل لأسفل";
 "Signed in successfully" = "تم تسجيل الدخول بنجاح";
 "Your account is connected. You can close this tab." = "تم ربط حسابك. يمكنك إغلاق علامة التبويب هذه.";
 "Return to Softcap to try signing in again." = "عُد إلى Softcap لمحاولة تسجيل الدخول مرة أخرى.";

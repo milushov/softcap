@@ -4,7 +4,9 @@ import StatusUI
 
 struct AppearancePane: View {
     @ObservedObject var model: PreferencesModel
+    @ObservedObject var appModel: AppModel
     @ObservedObject var loc = Localization.shared
+    @State private var showsAccountOrder = false
 
     var body: some View {
         Pane(title: loc("Appearance"),
@@ -42,8 +44,15 @@ struct AppearancePane: View {
                 // that vanishes reads as a bug, a grey one explains itself.
                 .disabled(model.value.minimalWindow)
 
-                Picker(loc("Order"), selection: binding(\.ordering)) {
+                Picker(loc("Order"), selection: orderingBinding) {
                     ForEach(Ordering.allCases, id: \.self) { Text(loc.title($0)).tag($0) }
+                }
+
+                if model.value.ordering == .custom {
+                    HStack {
+                        Spacer()
+                        Button(loc("Arrange accounts…")) { showsAccountOrder = true }
+                    }
                 }
 
                 Toggle(loc("Show snapshot age"), isOn: binding(\.showSnapshotAge))
@@ -51,6 +60,24 @@ struct AppearancePane: View {
             .formStyle(.grouped)
             .alignedWithTheHeading()
         }
+        .sheet(isPresented: $showsAccountOrder) {
+            AccountOrderEditor(model: model, appModel: appModel)
+        }
+    }
+
+    private var orderingBinding: Binding<Ordering> {
+        Binding(
+            get: { model.value.ordering },
+            set: { ordering in
+                model.update {
+                    if ordering == .custom, $0.customAccountOrder.isEmpty {
+                        $0.setCustomAccountOrder(appModel.snapshots.map(\.id))
+                    }
+                    $0.ordering = ordering
+                }
+                showsAccountOrder = ordering == .custom
+            }
+        )
     }
 
     /// The language is stored as a code while the enum lives in the interface

@@ -71,7 +71,10 @@ final class PhoneModel: ObservableObject {
         }
         let poller = UsagePoller(providers: providers)
 
-        snapshots = orderedForDisplay(await poller.refresh(), ordering: preferences.ordering)
+        snapshots = orderedForDisplay(
+            await poller.refresh(), ordering: preferences.ordering,
+            customAccountOrder: preferences.customAccountOrder
+        )
         lastUpdated = Date()
         publishToWidget()
     }

@@ -176,6 +176,12 @@
 "Codex · local session files" = "Codex · स्थानीय सत्र फ़ाइलें";
 "Could not forget the account. Try again." = "खाता हटाया नहीं जा सका। फिर कोशिश करें।";
 "Show %@" = "%@ दिखाएँ";
+"Custom" = "कस्टम";
+"Arrange accounts…" = "खातों का क्रम बदलें…";
+"Custom order" = "कस्टम क्रम";
+"Drag accounts to change their order." = "खातों का क्रम बदलने के लिए उन्हें खींचें।";
+"Move up" = "ऊपर ले जाएँ";
+"Move down" = "नीचे ले जाएँ";
 "Signed in successfully" = "सफलतापूर्वक साइन इन हो गया";
 "Your account is connected. You can close this tab." = "आपका खाता जुड़ गया है। आप यह टैब बंद कर सकते हैं।";
 "Return to Softcap to try signing in again." = "दोबारा साइन इन करने के लिए Softcap पर वापस जाएँ।";

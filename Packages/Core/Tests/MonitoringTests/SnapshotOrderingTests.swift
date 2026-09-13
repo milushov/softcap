@@ -13,6 +13,49 @@ private func make(_ id: String, peak: Double, failed: Bool = false) -> AccountSn
     )
 }
 
+@Test func customOrderIgnoresLoadAndFailures() {
+    let rows = [make("alpha", peak: 1), make("beta", peak: 95), make("gamma", peak: 0, failed: true)]
+    let ids = ["gamma", "beta", "alpha"]
+    let ordered = orderedForDisplay(rows, ordering: .custom, customAccountOrder: ids)
+    #expect(ordered.map(\.id) == ids)
+
+    let refreshed = [make("beta", peak: 0, failed: true), make("gamma", peak: 99), make("alpha", peak: 50)]
+    #expect(orderedForDisplay(refreshed, ordering: .custom, customAccountOrder: ids).map(\.id) == ids)
+}
+
+@Test func newAccountsFollowTheSavedOnesInNameOrder() {
+    let rows = [make("zeta", peak: 10), make("beta", peak: 0), make("alpha", peak: 99)]
+    let ordered = orderedForDisplay(rows, ordering: .custom, customAccountOrder: ["missing", "zeta"])
+    #expect(ordered.map(\.id) == ["zeta", "alpha", "beta"])
+}
+
+@Test func duplicateSavedIDsUseTheirFirstPosition() {
+    let rows = [make("alpha", peak: 0), make("beta", peak: 99)]
+    let ordered = orderedForDisplay(rows, ordering: .custom, customAccountOrder: ["beta", "alpha", "beta"])
+    #expect(ordered.map(\.id) == ["beta", "alpha"])
+}
+
+@Test func customOrderFallsBackToNamesBeforeAnyAccountsAreArranged() {
+    let ordered = orderedForDisplay(
+        [make("zeta", peak: 0), make("alpha", peak: 99, failed: true)], ordering: .custom
+    )
+    #expect(ordered.map(\.id) == ["alpha", "zeta"])
+}
+
+@Test func equalNamesHaveAStableFallbackOrderAcrossProviders() {
+    let rows = [ProviderID.codex, .claude].map { provider in
+        AccountSnapshot(
+            id: "\(provider.rawValue)/example", provider: provider,
+            displayName: "sam@example.com", planLabel: "",
+            windows: [], freshness: .live(Date(timeIntervalSince1970: 0)), failure: nil
+        )
+    }
+    #expect(orderedForDisplay(rows, ordering: .custom).map(\.id) == ["claude/example", "codex/example"])
+    #expect(orderedForDisplay(
+        rows, ordering: .custom, customAccountOrder: ["codex/example", "claude/example"]
+    ).map(\.id) == ["codex/example", "claude/example"])
+}
+
 @Test func leastLoadedComesFirst() {
     let ordered = orderedForDisplay([make("c", peak: 88), make("a", peak: 5), make("b", peak: 61)])
     #expect(ordered.map(\.id) == ["a", "b", "c"])
