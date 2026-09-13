@@ -93,19 +93,13 @@ windows are failures, never zero usage. A 401 invalidates that specific cached
 access token and retries once; network and server failures preserve the refresh
 grant. Explicit terminal refresh errors require a new sign-in.
 
-`CodexUsageProvider` continues reading local session files. Stored or hidden IDs
-are excluded from local discovery, preventing duplicate rows or a hidden account
-returning through a different source. A saved grant failure remains visible and
-does not silently substitute another account's local readings. Local history
-import and FSEvents watching are retained.
-
 The iOS poller supports saved Claude and Codex browser accounts, but the phone
 has no sign-in UI or working account sync from the Mac. `SystemKeychain` does not
 set `kSecAttrSynchronizable`, and the targets do not configure a shared Keychain
 access group. Items remain local: Apple requires
 [explicit opt-in for Keychain synchronization](https://developer.apple.com/documentation/security/ksecattrsynchronizable).
-A fresh iOS install therefore has no accounts. Local Codex file discovery stays
-on macOS. Refresh coalescing covers one credential-store instance.
+A fresh iOS install therefore has no accounts. Refresh coalescing covers one
+credential-store instance.
 
 ## Verification
 

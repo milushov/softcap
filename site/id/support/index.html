@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -578,7 +575,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       <h3>Ia meminta izin keychain saat saya menekan Segarkan</h3>
       <p>Membaca item keychain milik CLI membutuhkan izin macOS, dan Softcap hanya meminta saat Anda menyaksikan — saat Anda menekan tombolnya, tidak pernah dari pewaktu. Pilih Selalu Izinkan dan ia tidak akan bertanya lagi; tolak dan aplikasi tetap bekerja dari salinannya sendiri.</p>
       <h3>Akun Codex menampilkan pembacaan dari beberapa jam lalu</h3>
-      <p>Akun Codex lokal dibaca dari file sesi yang ditulis CLI, jadi angkanya sesegar kali terakhir CLI berjalan — karena itulah setiap permukaan menampilkan usia cuplikannya. Masukkan akun itu lewat alur browser Softcap untuk melihat penggunaan terkini terlepas dari CLI.</p>
+      <p>Softcap memeriksa sesuai jadwal, jadi sebuah pembacaan sesegar pemeriksaan terakhir yang berhasil. Angka berumur berjam-jam berarti pemeriksaan tidak tembus — paling sering izin akunnya sudah kedaluwarsa. Buka Pengaturan → Akun: baris yang perlu perhatian akan mengatakannya, dan Masuk… menyambungkannya kembali.</p>
       <h3>Notifikasi tidak datang</h3>
       <p>Periksa tiga hal: izin notifikasi macOS untuk Softcap, ambang di Pengaturan (80% dan 95% secara bawaan), dan jam tenang — tidak ada yang datang selama jam tenang aktif, dan tidak ada yang dikirim terlambat sebagai gantinya.</p>
       <h3>Menghapus akun, dan apa yang tersisa</h3>

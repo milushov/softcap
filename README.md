@@ -86,13 +86,11 @@ After saving, Softcap returns to Accounts. **Sign in…** reconnects an account;
 | Source | Readings |
 |---|---|
 | Claude | Live usage from `api.anthropic.com/api/oauth/usage`; browser grant or the active Claude Code account |
-| Codex browser account | Live usage from `chatgpt.com/backend-api/wham/usage`; ChatGPT subscription sign-in |
-| Codex local account | Identity from `~/.codex/auth.json`, snapshots from `~/.codex/sessions`; refreshed when session files change |
+| Codex | Live usage from `chatgpt.com/backend-api/wham/usage`; ChatGPT subscription sign-in |
 
-Usage checks send no prompts. Browser accounts have independent grants.
-Adding a Codex account through the browser replaces its local row with live
-usage. Local snapshots show their age; Softcap never writes Codex's `auth.json`
-or refreshes its CLI token.
+Usage checks send no prompts. Every Codex account is added through the browser
+and holds its own grant; Softcap reads no local CLI files and never touches
+Codex's own credentials.
 
 For Claude CLI access, use **Allow access…** when Accounts reports a blocked
 Keychain read. Startup, timers and **Refresh** never request that dialog.
@@ -137,8 +135,7 @@ rectangle — two of the three accessory shapes.
 
 **Account sync from the Mac and sign-in on the phone are not implemented.**
 The current Keychain store is local, so a fresh iOS install has no accounts.
-Local Codex session files remain Mac-only. Device builds need signing and
-provisioning; the Makefile targets the simulator.
+Device builds need signing and provisioning; the Makefile targets the simulator.
 
 ## Development
 

@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -562,7 +559,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <section>
       <h2>Two windows here too</h2>
       <p>A Codex subscription meters use through a five-hour window and a weekly window, each with its own capacity. Hit either and Codex stops taking work on that account until the window resets.</p>
-      <p>What makes Codex different is where the numbers live. The service reports what is left alongside its answers, and the CLI writes those readings into session files on your disk — so there are two ways to know: ask with an account of your own, or read what the CLI last saw.</p>
+      <p>What makes Codex different is where the numbers live. The service reports what is left alongside its answers, and Softcap asks for those same figures directly, with a grant of its own — no prompt sent, no model run.</p>
     </section>
     <section>
       <h2>When they reset</h2>
@@ -570,11 +567,11 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>What counts against them</h2>
-      <p>Requests and the model work they cause count. Softcap's own usage requests do not send prompts and do not run models; a local account read from session files costs exactly nothing, because it is a file on your disk.</p>
+      <p>Requests and the model work they cause count. Softcap's own usage requests do not send prompts and do not run models, so watching a limit never moves it.</p>
     </section>
     <section>
       <h2>Watching it without spending it</h2>
-      <p>Sign a Codex account in through the browser and Softcap reads its usage live. Accounts signed into the local CLI are picked up automatically and read from their session files, with the snapshot's age shown honestly beside the number. Either way: menu bar, thresholds at 80% and 95%, widgets.</p>
+      <p>Sign a Codex account in through the browser and Softcap reads its usage live, with the reading's age shown honestly beside the number. Menu bar, thresholds at 80% and 95%, widgets.</p>
       <p><a class="download" href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">Download for macOS</a></p>
     </section>
     <section>

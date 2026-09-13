@@ -150,7 +150,6 @@ final class AppModel: ObservableObject {
         tracker.restore(carried)
     }
     private let scheduler = PollScheduler()
-    private var didImportCodexHistory = false
     private let identities = ClaudeIdentityCache()
     /// Readings kept over time, so the statistics screen has something to draw.
     /// Its own file, not the snapshot: the snapshot is rewritten whole on every
@@ -165,9 +164,6 @@ final class AppModel: ObservableObject {
     let history = UsageHistoryStore(url: SharedStore.historyURL)
     #endif
 
-    /// Codex readings update the moment they are written rather than on a timer:
-    /// a live request to the service would spend the quota we are watching.
-    private var codexWatcher: SessionWatcher?
     private var started = false
     /// Whether a refresh was requested while the previous one was running.
     private var needsAnotherPass = false
@@ -207,7 +203,6 @@ final class AppModel: ObservableObject {
                 || oldValue.backgroundInterval != preferences.backgroundInterval {
                 restartTimer()
             }
-            if oldValue.codexRoot != preferences.codexRoot { startWatchingCodex() }
 
             let orderChanged = oldValue.ordering != preferences.ordering
                 || oldValue.customAccountOrder != preferences.customAccountOrder
@@ -316,7 +311,6 @@ final class AppModel: ObservableObject {
         // open. Seen twice; the second time it had been still for twenty-five
         // minutes.
         restartTimer()
-        startWatchingCodex()
         // The same origin as the re-registration in `didSet`: a hot key is a
         // person's finger. The two registrations disagreed once, and which
         // behaviour a press got depended on whether the shortcut had ever
@@ -409,7 +403,6 @@ final class AppModel: ObservableObject {
             cliAccessBlocked = false
         }
         await rebuildPoller()
-        await importCodexHistoryOnce()
 
         guard let poller else { return }
         let result = orderedForDisplay(
@@ -524,8 +517,7 @@ final class AppModel: ObservableObject {
     }
 
     private func rebuildPoller() async {
-        let allRefs = await store.knownRefs()
-        let refs = allRefs
+        let refs = await store.knownRefs()
             .filter { !preferences.hiddenAccounts.contains($0.id) }
 
         var providers: [any UsageProvider] = []
@@ -537,12 +529,7 @@ final class AppModel: ObservableObject {
             ))
         }
         if !preferences.disabledProviders.contains(.codex) {
-            let root = preferences.codexRoot.map { URL(fileURLWithPath: $0) }
             providers.append(CodexLiveUsageProvider(tokens: store, knownAccounts: refs))
-            providers.append(CodexUsageProvider(
-                fileSystem: root.map { RealCodexFileSystem(root: $0) } ?? RealCodexFileSystem(),
-                excludedAccountIDs: Set(allRefs.map(\.id)).union(preferences.hiddenAccounts)
-            ))
         }
         poller = UsagePoller(providers: providers)
     }
@@ -567,46 +554,14 @@ final class AppModel: ObservableObject {
         }
     }
 
-    /// Codex wrote its own readings into session files long before this app ran,
-    /// so the chart can start with a month of them instead of an empty frame.
-    /// Claude has no equivalent — its API answers for the present only.
-    private func importCodexHistoryOnce() async {
-        guard !didImportCodexHistory else { return }
-        didImportCodexHistory = true
-
-        let root = preferences.codexRoot.map { URL(fileURLWithPath: $0) }
-        let fileSystem = root.map { RealCodexFileSystem(root: $0) } ?? RealCodexFileSystem()
-        let provider = CodexUsageProvider(fileSystem: fileSystem)
-        guard let ref = try? await provider.discoverAccounts().first else { return }
-
-        let since = Date().addingTimeInterval(-UsageHistory.retention)
-        guard let files = try? fileSystem.sessionLines(since: since) else { return }
-        // Thinned by the same rule the app records under: Codex logs a reading
-        // on every turn, and a history holding two densities would make any
-        // statement about how much it keeps true of only half the file.
-        let samples = UsageHistory.thinned(
-            CodexHistoryImporter.samples(fromFiles: files, accountID: ref.id)
-        )
-        guard !samples.isEmpty else { return }
-        let added = await history.merge(samples, now: Date())
-        // Both numbers: the offered count is what the session files hold, the
-        // added count is what this launch changed. Reporting only the first said
-        // "imported 73" every time, having imported none of them since the first.
-        Self.log.info("""
-            imported \(added, privacy: .public) of \(samples.count, privacy: .public) \
-            codex readings
-            """)
-    }
-
     func accountRows() async -> [AccountsPane.AccountRow] {
-        // The Accounts screen has its own path to the data: the keychain, and a
-        // scan of `~/.codex`. A screenshot build must reach neither, so the
-        // fixtures answer here too.
+        // The Accounts screen has its own path to the data — the keychain — and a
+        // screenshot build must not reach it, so the fixtures answer here too.
         #if SCREENSHOTS
         if isScreenshotRun { return ScreenshotFixtures.rows }
         #endif
 
-        var rows = await store.accountStates().map { item in
+        await store.accountStates().map { item in
             AccountsPane.AccountRow(
                 id: item.account.id,
                 handle: item.account.handle,
@@ -615,16 +570,6 @@ final class AppModel: ObservableObject {
                 state: item.state
             )
         }
-        let root = preferences.codexRoot.map { URL(fileURLWithPath: $0) }
-        let local = CodexUsageProvider(
-            fileSystem: root.map { RealCodexFileSystem(root: $0) } ?? RealCodexFileSystem(),
-            excludedAccountIDs: Set(rows.map(\.id)))
-        if let ref = try? await local.discoverAccounts().first {
-            rows.append(AccountsPane.AccountRow(
-                id: ref.id, handle: ref.handle, provider: .codex,
-                displayName: ref.lastKnownName, state: .localSession))
-        }
-        return rows
     }
 
     func forgetAccount(id: String) async throws {
@@ -664,21 +609,6 @@ final class AppModel: ObservableObject {
         let settings = await UNUserNotificationCenter.current().notificationSettings()
         notificationsPermitted = settings.authorizationStatus == .authorized
             || settings.authorizationStatus == .provisional
-    }
-
-    /// The Codex sessions directory can change in settings, so the watcher is
-    /// rebuilt along with it.
-    private func startWatchingCodex() {
-        codexWatcher?.stop()
-
-        let root = preferences.codexRoot.map { URL(fileURLWithPath: $0) }
-            ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".codex")
-
-        let watcher = SessionWatcher(directory: root.appendingPathComponent("sessions")) {
-            Task { @MainActor [weak self] in await self?.refresh(.timer) }
-        }
-        watcher.start()
-        codexWatcher = watcher
     }
 
     /// Writes the snapshot to shared storage and asks the system to redraw the

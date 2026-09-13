@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -509,7 +506,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  "url":"https://softcap.app/",
  "image":"https://softcap.app/og.png",
  "description":"Aplikasi bilah menu macOS yang menampilkan sisa batas langganan Claude Code dan OpenAI Codex Anda, tanpa menghabiskan kuota yang diukurnya.",
- "featureList":["Beberapa akun Claude dan Codex sekaligus","Penggunaan Codex langsung dengan dukungan sesi lokal","Pewaktu bilah menu","Widget di macOS dan iPhone","Notifikasi ambang","Sepuluh bahasa"]}
+ "featureList":["Beberapa akun Claude dan Codex sekaligus","Penggunaan Codex secara langsung","Pewaktu bilah menu","Widget di macOS dan iPhone","Notifikasi ambang","Sepuluh bahasa"]}
 </script>
 </head>
 <body>
@@ -652,7 +649,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       Softcap membaca penggunaan langganan secara langsung untuk akun yang ditambahkan lewat browser. Permintaan ini mengambil batas tanpa mengirim prompt atau menjalankan model.
     </p>
     <p>
-      Akun Codex lokal juga berfungsi: CLI menulis pembacaannya ke <code>~/.codex/sessions</code>, dan Softcap memantau file-file itu. Pembacaan dari file adalah cuplikan, jadi setiap permukaan menampilkan kapan ia diambil. Masuklah ke akun itu lewat alur browser Softcap untuk melihat penggunaan terkini terlepas dari CLI.
+      Codex bekerja dengan cara yang sama: masuk lewat peramban dan Softcap membaca penggunaan akun itu langsung dari layanan. Tidak ada yang diambil dari berkas milik CLI, jadi apa yang Anda lihat tidak pernah bergantung pada kapan Codex terakhir dijalankan.
     </p>
   </div>
 </section>
@@ -833,7 +830,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
         <dd>Langsung, dari endpoint penggunaan OAuth.
             <a href="/id/limits/claude/">Cara kerja batas Claude →</a></dd></div>
       <div class="fact"><dt>Codex</dt>
-        <dd>Penggunaan langsung untuk akun browser. File sesi lokal dipantau dengan FSEvents, dengan usia cuplikan ditampilkan.
+        <dd>Penggunaan langsung untuk setiap akun, dibaca dari layanan dengan izin milik akun itu sendiri.
             <a href="/id/limits/codex/">Cara kerja batas Codex →</a></dd></div>
       <div class="fact"><dt>Menambahkan akun</dt>
         <dd>Pilih Claude Code atau OpenAI Codex, lalu masuk dengan OAuth dan PKCE di browser Anda sendiri. Akun CLI lokal juga terdeteksi.</dd></div>
@@ -842,7 +839,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       <div class="fact"><dt>Dependensi</dt>
         <dd>Tidak ada. Setiap import adalah framework milik Apple sendiri atau modul dari proyek ini.</dd></div>
       <div class="fact"><dt>Biaya menjalankannya</dt>
-        <dd>Satu permintaan per akun Claude per pemeriksaan. Berjarak lima menit di latar belakang, sekali semenit saat jendela terbuka — atau di mana pun antara tiga puluh detik dan satu jam, jika Anda mengaturnya. Nama dan paket akun Claude ditanyakan sekali dan disimpan selama enam jam. Setiap akun Codex tersimpan menambah satu permintaan penggunaan per pemeriksaan; pembacaan Codex lokal berasal dari disk.</dd></div>
+        <dd>Satu permintaan per akun Claude per pemeriksaan. Berjarak lima menit di latar belakang, sekali semenit saat jendela terbuka — atau di mana pun antara tiga puluh detik dan satu jam, jika Anda mengaturnya. Nama dan paket akun Claude ditanyakan sekali dan disimpan selama enam jam. Setiap akun Codex tersimpan menambah satu permintaan penggunaan per pemeriksaan.</dd></div>
       <div class="fact"><dt>Belum</dt>
         <dd>Cursor, GitHub Copilot, dan Gemini CLI. Penyedia yang tidak bisa dicek dengan akun aktif akan diam-diam menampilkan nol, dan itu lebih buruk daripada tidak sama sekali.</dd></div>
     </dl>

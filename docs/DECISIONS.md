@@ -7713,3 +7713,82 @@ wait until an account produces one before the switch exists to turn off. The
 stored preference is untouched while the switch is hidden, so a setting made
 earlier survives and applies the moment such an account appears again.
 
+
+## 2026-09-14 — Codex accounts arrive through the browser, and only through it
+
+**Decision.** Softcap no longer reads `~/.codex`. `CodexUsageProvider`, its
+`CodexFileSystem` and `RealCodexFileSystem`, `CodexHistory`, `RolloutParser` and
+`SessionWatcher` are gone, together with the `localSession` account state, the
+`codexRoot` setting and the directory picker on the Services screen. Every Codex
+account is added through the browser and read from
+`chatgpt.com/backend-api/wham/usage` with a grant of its own —
+`CodexLiveUsageProvider`, which never touched local tokens, is now the only way
+in. `CodexIdentityReader` keeps its `id_token` half, which the code exchange
+needs, and loses the `auth.json` half.
+
+This reverses the 2026-08-30 entries "Codex data is a snapshot, and the
+interface says so", "Live Codex polling rejected: it spends the very limit it
+watches", "The Codex file watcher uses FSEvents, not DispatchSource", "Core
+builds for iOS; only the Codex file reader is Mac-only", and the half of
+2026-09-10 "Saved Codex accounts read usage without a model request" that kept
+local discovery alive beside the endpoint.
+
+**Why.** The rejection that started it — that live polling spends the limit it
+watches — stopped being true on 2026-09-10, when the account usage endpoint
+turned out to read limits without an inference request. From that day the file
+reader was the second way to learn the same numbers, and the worse one: a
+reading from a file is a snapshot, and every surface had to carry its age,
+explain it in ten languages, and answer for it in the FAQ and on the support
+page. Two sources also meant two rows for one person, kept apart by an exclusion
+set, and a whole class of question about which of them was right.
+
+It was also the slow half of a first launch. Scanning the sessions directory
+happens before anything can be shown, and on a fresh install the window stood
+empty while it ran — see the entry below, which is the other half of this one.
+
+**Cost.** Usage no longer updates the moment Codex writes a line; it updates on
+the poll, up to five minutes later. That instant feedback was real and is being
+given up deliberately — the alternative was to go on reading a directory this
+app has no business in. Anybody whose Codex account was only ever picked up from
+the CLI now has no Codex row until they sign in through the browser once; there
+is no migration, because there was no credential of ours to migrate.
+
+Two things are left standing rather than followed through. `Freshness.snapshot`
+stays in the model: a snapshot written to disk by an older version decodes
+through it, and the widget may read one before the first poll of the new
+version replaces it. `showSnapshotAge` stays in the settings for the same
+reason, and costs nothing on screen — the switch is already drawn only while
+some reading is a snapshot, so it simply stops appearing. The `overflow-wrap`
+rule on code spans and its test went the other way: the rule existed for
+`~/.codex/sessions`, no code span on the landing is long enough to need it now,
+and the test said in as many words that a rule kept for nothing should be
+reconsidered rather than quietly enforced.
+
+## 2026-09-14 — An empty window says which kind of empty it is
+
+**Decision.** The window's empty state asks `lastUpdated == nil` before it says
+anything. Nothing read yet gets "Looking for your accounts…", with a line
+saying what is being done; only a poll that finished and found nothing gets
+"No accounts found" and the advice to sign in.
+
+**Why.** The first poll after a fresh install reads the keychain and asks two
+services over the network, and none of it has returned by the time somebody
+clicks the icon. Until now the window drew the same empty state regardless — a
+conclusion, stated in the one moment the app had not yet looked. It was read
+exactly as written: installed, clicked, declared broken, and put away about a
+minute before the accounts arrived. That is the report this entry comes from.
+
+The spinner in the header was already turning throughout and did not help. A
+small control in a corner does not outweigh a sentence in the middle of the
+window that says there is nothing there; the reader believes the sentence.
+
+`lastUpdated` is the distinction, and it was already in the model: `nil` until a
+poll completes, set even by one that found nothing — so no new state had to be
+invented to tell "not yet" from "nothing".
+
+**Cost.** One more state to keep true, and it fails quietly if `lastUpdated`
+ever starts being set before a poll finishes: the window would go back to
+concluding too early, in the one situation nobody tests twice. Source-scanning
+tests in `TheWindowSaysItIsStillLooking` hold the branch, its order against the
+conclusion, and the sentence itself. There is no spinner beside the new text on
+purpose — two in a window this size read as two separate things happening.

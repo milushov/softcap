@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -562,7 +559,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <section>
       <h2>Здесь тоже два окна</h2>
       <p>Подписка Codex считает расход через пятичасовое окно и недельное окно, у каждого своя ёмкость. Упрётесь в любое — и Codex перестанет брать работу на этом аккаунте, пока окно не сбросится.</p>
-      <p>Codex отличается тем, где лежат числа. Сервис сообщает остаток вместе со своими ответами, а CLI пишет эти показания в файлы сессий на вашем диске — поэтому узнать можно двумя способами: спросить своим аккаунтом или прочитать то, что последним видел CLI.</p>
+      <p>Codex отличается тем, где лежат числа. Сервис сообщает остаток вместе со своими ответами, а Softcap спрашивает те же цифры напрямую, по собственному гранту, — без промпта и без запуска модели.</p>
     </section>
     <section>
       <h2>Когда они сбрасываются</h2>
@@ -570,11 +567,11 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Что в них засчитывается</h2>
-      <p>Засчитываются запросы и работа модели, которую они вызывают. Собственные запросы Softcap о расходе не отправляют промптов и не запускают моделей; локальный аккаунт, прочитанный из файлов сессий, не стоит вообще ничего — это файл на вашем диске.</p>
+      <p>Засчитываются запросы и работа модели, которую они вызывают. Собственные запросы Softcap о расходе не отправляют промптов и не запускают моделей, поэтому наблюдение за лимитом никогда его не двигает.</p>
     </section>
     <section>
       <h2>Как следить, не тратя</h2>
-      <p>Войдите в аккаунт Codex через браузер, и Softcap будет читать его расход живьём. Аккаунты, вошедшие в локальный CLI, подхватываются автоматически и читаются из файлов сессий, а возраст снимка честно показан рядом с числом. В любом случае: строка меню, пороги на 80% и 95%, виджеты.</p>
+      <p>Войдите в аккаунт Codex через браузер, и Softcap будет читать его расход живьём, честно показывая возраст показания рядом с числом. Строка меню, пороги на 80% и 95%, виджеты.</p>
       <p><a class="download" href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">Скачать для macOS</a></p>
     </section>
     <section>

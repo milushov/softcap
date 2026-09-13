@@ -1,5 +1,4 @@
 import SwiftUI
-import AppKit
 import ProviderKit
 import Preferences
 import StatusUI
@@ -22,18 +21,7 @@ struct ServicesPane: View {
 
                 Section {
                     Toggle("OpenAI Codex", isOn: enabled(.codex))
-                    HStack {
-                        Text(model.value.codexRoot ?? "~/.codex")
-                            .font(.system(size: 11))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1).truncationMode(.middle)
-                        Spacer()
-                        Button(loc("Choose…")) { chooseCodexRoot() }
-                        if model.value.codexRoot != nil {
-                            Button(loc("Reset")) { model.update { $0.codexRoot = nil } }
-                        }
-                    }
-                    Text(loc("Browser accounts use live usage data. Local accounts use snapshots from session files."))
+                    Text(loc("Live data from the API."))
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
 
@@ -65,15 +53,5 @@ struct ServicesPane: View {
                 }
             }
         )
-    }
-
-    private func chooseCodexRoot() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.allowsMultipleSelection = false
-        panel.prompt = loc("Choose…")
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        model.update { $0.codexRoot = url.path }
     }
 }

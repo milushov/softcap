@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -516,7 +513,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"¿Dónde viven mis tokens?","acceptedAnswer":{"@type":"Answer","text":"En el llavero de macOS y en ningún otro sitio — nunca en preferencias, registros ni archivos. Al quitar una cuenta, sus credenciales salen del llavero en ese mismo momento."}},
  {"@type":"Question","name":"¿Qué sale de mi Mac?","acceptedAnswer":{"@type":"Answer","text":"Tres cosas, y solo tres: peticiones de uso a tus propios proveedores, informes de error opcionales depurados de rutas y de cualquier cosa con forma de token, y una comprobación de actualizaciones, diaria y mientras su pantalla está abierta, también opcional. Las dos últimas tienen su propio interruptor."}},
  {"@type":"Question","name":"¿Qué significan las marcas del 80% y del 95%?","acceptedAnswer":{"@type":"Answer","text":"Son los umbrales de notificación: un aviso cuando una cuenta cruza el 80% de una ventana y una última advertencia al 95% — una vez por cruce, no una vez por consulta, y nunca durante las horas de silencio. Ambos niveles se pueden cambiar."}},
- {"@type":"Question","name":"¿Por qué una lectura muestra su antigüedad?","acceptedAnswer":{"@type":"Answer","text":"Una cuenta local de Codex se lee de los archivos de sesión que escribe su CLI, así que el número es una instantánea de la última ejecución. Softcap dice qué antigüedad tiene la instantánea en lugar de fingir que es en vivo."}},
+ {"@type":"Question","name":"¿Por qué una lectura muestra su antigüedad?","acceptedAnswer":{"@type":"Answer","text":"Toda lectura se toma en un momento y se mira después. Softcap consulta según un horario, así que el número en pantalla es tan reciente como la última consulta que llegó; y cuando hace tiempo que ninguna llega, Softcap dice qué antigüedad tiene la lectura en lugar de fingir que está en vivo."}},
  {"@type":"Question","name":"¿Cuánto cuesta tenerlo funcionando?","acceptedAnswer":{"@type":"Answer","text":"La app es gratuita. En la red cuesta una petición de uso por cuenta y por consulta — cada cinco minutos en segundo plano, una vez por minuto con la ventana abierta, o el intervalo que tú fijes."}}]}
 </script>
 </head>
@@ -606,7 +603,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>¿Por qué una lectura muestra su antigüedad?</h2>
-      <p>Una cuenta local de Codex se lee de los archivos de sesión que escribe su CLI, así que el número es una instantánea de la última ejecución. Softcap dice qué antigüedad tiene la instantánea en lugar de fingir que es en vivo.</p>
+      <p>Toda lectura se toma en un momento y se mira después. Softcap consulta según un horario, así que el número en pantalla es tan reciente como la última consulta que llegó; y cuando hace tiempo que ninguna llega, Softcap dice qué antigüedad tiene la lectura en lugar de fingir que está en vivo.</p>
     </section>
     <section>
       <h2>¿Cuánto cuesta tenerlo funcionando?</h2>

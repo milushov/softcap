@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -516,7 +513,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"আমার টোকেন কোথায় থাকে?","acceptedAnswer":{"@type":"Answer","text":"macOS কীচেইনে, আর কোথাও নয় — প্রেফারেন্স, লগ বা ফাইলে কখনও নয়। অ্যাকাউন্ট সরালে তার ক্রেডেনশিয়াল সেই মুহূর্তেই কীচেইন থেকে মুছে যায়।"}},
  {"@type":"Question","name":"আমার Mac থেকে বাইরে কী যায়?","acceptedAnswer":{"@type":"Answer","text":"তিনটি জিনিস, কেবল তিনটিই: আপনার নিজের প্রদানকারীদের কাছে ব্যবহার-অনুরোধ, ঐচ্ছিক ত্রুটির প্রতিবেদন — যা থেকে পথ আর টোকেনের মতো সবকিছু আগেই সরানো হয়, আর একটি ঐচ্ছিক আপডেট-খোঁজ — প্রতিদিন, আর তার স্ক্রিন খোলা থাকাকালীন। শেষ দুটোর নিজের নিজের বন্ধ করার সুইচ আছে।"}},
  {"@type":"Question","name":"80% আর 95% চিহ্নের মানে কী?","acceptedAnswer":{"@type":"Answer","text":"সেগুলো বিজ্ঞপ্তির সীমা: কোনো অ্যাকাউন্ট যখন একটি উইন্ডোর 80% পেরোয় তখন একটা ইশারা, 95%-এ শেষ সতর্কবার্তা — প্রতিবার পেরোনোয় একবার, প্রতি যাচাইয়ে নয়, আর নীরব সময়ে কখনও নয়। দুটো মাত্রাই বদলানো যায়।"}},
- {"@type":"Question","name":"রিডিং কেন নিজের বয়স দেখায়?","acceptedAnswer":{"@type":"Answer","text":"স্থানীয় Codex অ্যাকাউন্ট পড়া হয় তার CLI যে সেশন ফাইল লেখে সেখান থেকে, তাই সংখ্যাটি CLI-র শেষ চালানোর একটি স্ন্যাপশট। সেটিকে সরাসরি বলে চালিয়ে দেওয়ার বদলে Softcap জানায় স্ন্যাপশটটি কত পুরোনো।"}},
+ {"@type":"Question","name":"রিডিং কেন নিজের বয়স দেখায়?","acceptedAnswer":{"@type":"Answer","text":"প্রতিটি পাঠ এক মুহূর্তে নেওয়া হয় এবং পরে দেখা হয়। Softcap নির্ধারিত সময়ে জিজ্ঞাসা করে, তাই পর্দার সংখ্যাটি ঠিক ততটাই টাটকা যতটা শেষ সফল জিজ্ঞাসা — আর যখন অনেকক্ষণ কোনোটি সফল হয় না, Softcap পাঠটি কত পুরোনো তা বলে দেয়, সেটিকে সরাসরি বলে চালিয়ে দেওয়ার বদলে।"}},
  {"@type":"Question","name":"এটি চালানোর খরচ কত?","acceptedAnswer":{"@type":"Answer","text":"অ্যাপটি বিনামূল্যে। নেটওয়ার্কে এর খরচ প্রতি যাচাইয়ে প্রতি অ্যাকাউন্টে একটি ব্যবহার-অনুরোধ — পটভূমিতে প্রতি পাঁচ মিনিটে, উইন্ডো খোলা থাকলে মিনিটে একবার, বা আপনি যে বিরতি ঠিক করে দেন।"}}]}
 </script>
 </head>
@@ -606,7 +603,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>রিডিং কেন নিজের বয়স দেখায়?</h2>
-      <p>স্থানীয় Codex অ্যাকাউন্ট পড়া হয় তার CLI যে সেশন ফাইল লেখে সেখান থেকে, তাই সংখ্যাটি CLI-র শেষ চালানোর একটি স্ন্যাপশট। সেটিকে সরাসরি বলে চালিয়ে দেওয়ার বদলে Softcap জানায় স্ন্যাপশটটি কত পুরোনো।</p>
+      <p>প্রতিটি পাঠ এক মুহূর্তে নেওয়া হয় এবং পরে দেখা হয়। Softcap নির্ধারিত সময়ে জিজ্ঞাসা করে, তাই পর্দার সংখ্যাটি ঠিক ততটাই টাটকা যতটা শেষ সফল জিজ্ঞাসা — আর যখন অনেকক্ষণ কোনোটি সফল হয় না, Softcap পাঠটি কত পুরোনো তা বলে দেয়, সেটিকে সরাসরি বলে চালিয়ে দেওয়ার বদলে।</p>
     </section>
     <section>
       <h2>এটি চালানোর খরচ কত?</h2>

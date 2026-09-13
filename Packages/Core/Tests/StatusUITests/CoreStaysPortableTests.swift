@@ -43,7 +43,7 @@ import Foundation
         }
         #expect(offenders.isEmpty, """
             imported on both platforms but present on one: \(offenders.sorted()) \
-            — wrap it in #if os(macOS), as SessionWatcher does for CoreServices
+            — wrap it in #if os(macOS), as KeychainAccess does for Security
             """)
     }
 

@@ -90,8 +90,6 @@
 "%lld min" = "%lld min";
 "Where data comes from. A disabled service is not polled." = "Where data comes from. A disabled service is not polled.";
 "Live data from the API." = "Live data from the API.";
-"Choose…" = "Choose…";
-"Reset" = "Reset";
 "Later" = "Later";
 "later" = "later";
 "About and data" = "About and data";
@@ -163,17 +161,13 @@
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first.";
 "Minimal window" = "Minimal window";
 "Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected.";
-"Browser accounts refresh independently. Local Codex accounts show readings from session files. Your CLI sign-ins are not changed." = "Browser accounts refresh independently. Local Codex accounts show readings from session files. Your CLI sign-ins are not changed.";
 "Saved credentials will be deleted. Your CLI sign-ins will not change." = "Saved credentials will be deleted. Your CLI sign-ins will not change.";
-"Browser accounts use live usage data. Local accounts use snapshots from session files." = "Browser accounts use live usage data. Local accounts use snapshots from session files.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again.";
 "Could not open the browser. Check your default browser and try again." = "Could not open the browser. Check your default browser and try again.";
 "Signing in to %@…" = "Signing in to %@…";
 "Sign in…" = "Sign in…";
-"local session" = "local session";
 "%@ · saved account" = "%@ · saved account";
 "%@ · sign-in required" = "%@ · sign-in required";
-"Codex · local session files" = "Codex · local session files";
 "Could not forget the account. Try again." = "Could not forget the account. Try again.";
 "Show %@" = "Show %@";
 "Custom" = "Custom";
@@ -200,3 +194,6 @@
 "Softcap is open source under the MIT licence. Read it, change it, or send a change back." = "Softcap is open source under the MIT licence. Read it, change it, or send a change back.";
 "Licence" = "Licence";
 "Read the licence" = "Read the licence";
+"Looking for your accounts…" = "Looking for your accounts…";
+"Reading the keychain and asking each service." = "Reading the keychain and asking each service.";
+"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "Browser accounts refresh independently. Your CLI sign-ins are not changed.";

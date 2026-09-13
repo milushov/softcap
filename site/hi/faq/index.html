@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -516,7 +513,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"मेरे टोकन कहाँ रहते हैं?","acceptedAnswer":{"@type":"Answer","text":"macOS कीचेन में, और कहीं नहीं — कभी भी प्राथमिकताओं, लॉग या फ़ाइलों में नहीं। खाता हटाते ही उसके क्रेडेंशियल उसी क्षण कीचेन से हट जाते हैं।"}},
  {"@type":"Question","name":"मेरे Mac से बाहर क्या जाता है?","acceptedAnswer":{"@type":"Answer","text":"तीन चीज़ें, और केवल तीन: आपके अपने प्रदाताओं को उपयोग अनुरोध, वैकल्पिक त्रुटि रिपोर्ट जिनमें से पथ और टोकन जैसी हर चीज़ हटा दी जाती है, और एक वैकल्पिक अपडेट जाँच — रोज़ाना, और जब तक उसकी स्क्रीन खुली हो। आख़िरी दोनों के अपने-अपने बंद करने के स्विच हैं।"}},
  {"@type":"Question","name":"80% और 95% के निशानों का क्या मतलब है?","acceptedAnswer":{"@type":"Answer","text":"वे सूचना की सीमाएँ हैं: जब कोई खाता किसी विंडो का 80% पार करता है तो एक इशारा, 95% पर आख़िरी चेतावनी — हर पार करने पर एक बार, हर जाँच पर नहीं, और शांत घंटों में कभी नहीं। दोनों स्तर बदले जा सकते हैं।"}},
- {"@type":"Question","name":"कोई रीडिंग अपनी आयु क्यों दिखाती है?","acceptedAnswer":{"@type":"Answer","text":"स्थानीय Codex खाता उन सत्र फ़ाइलों से पढ़ा जाता है जो उसका CLI लिखता है, इसलिए संख्या CLI के पिछले चलने का स्नैपशॉट है। Softcap उसे लाइव होने का दिखावा कराने के बजाय बताता है कि स्नैपशॉट कितना पुराना है।"}},
+ {"@type":"Question","name":"कोई रीडिंग अपनी आयु क्यों दिखाती है?","acceptedAnswer":{"@type":"Answer","text":"हर रीडिंग किसी एक क्षण पर ली जाती है और बाद में देखी जाती है। Softcap तय समय पर पूछता है, इसलिए स्क्रीन पर दिखा आंकड़ा उतना ही ताज़ा है जितनी आख़िरी सफल पूछताछ — और जब काफ़ी समय से कोई सफल नहीं हुई, तो Softcap बताता है कि रीडिंग कितनी पुरानी है, बजाय इसके कि उसे लाइव दिखाने का नाटक करे।"}},
  {"@type":"Question","name":"इसे चलाने की लागत क्या है?","acceptedAnswer":{"@type":"Answer","text":"ऐप मुफ़्त है। नेटवर्क पर इसकी लागत है हर जाँच पर प्रति खाता एक उपयोग अनुरोध — पृष्ठभूमि में हर पाँच मिनट, विंडो खुली हो तो मिनट में एक बार, या जो भी अंतराल आप तय करें।"}}]}
 </script>
 </head>
@@ -606,7 +603,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>कोई रीडिंग अपनी आयु क्यों दिखाती है?</h2>
-      <p>स्थानीय Codex खाता उन सत्र फ़ाइलों से पढ़ा जाता है जो उसका CLI लिखता है, इसलिए संख्या CLI के पिछले चलने का स्नैपशॉट है। Softcap उसे लाइव होने का दिखावा कराने के बजाय बताता है कि स्नैपशॉट कितना पुराना है।</p>
+      <p>हर रीडिंग किसी एक क्षण पर ली जाती है और बाद में देखी जाती है। Softcap तय समय पर पूछता है, इसलिए स्क्रीन पर दिखा आंकड़ा उतना ही ताज़ा है जितनी आख़िरी सफल पूछताछ — और जब काफ़ी समय से कोई सफल नहीं हुई, तो Softcap बताता है कि रीडिंग कितनी पुरानी है, बजाय इसके कि उसे लाइव दिखाने का नाटक करे।</p>
     </section>
     <section>
       <h2>इसे चलाने की लागत क्या है?</h2>

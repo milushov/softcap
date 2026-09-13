@@ -22,7 +22,6 @@ import ProviderKit
     #expect(p.refreshAfterWake)
     #expect(p.disabledProviders.isEmpty)
     #expect(p.hiddenAccounts.isEmpty)
-    #expect(p.codexRoot == nil)
 }
 
 @Test func thresholdsAreSortedDescendingAndDeduplicated() {
@@ -69,7 +68,6 @@ import ProviderKit
     p.quietHours = QuietHours(startMinute: 23 * 60, endMinute: 9 * 60)
     p.disabledProviders = [.codex]
     p.hiddenAccounts = ["claude/u-1"]
-    p.codexRoot = "/tmp/codex"
     p.ordering = .custom
     p.customAccountOrder = ["codex/example", "claude/u-1"]
 

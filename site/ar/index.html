@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -509,7 +506,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  "url":"https://softcap.app/",
  "image":"https://softcap.app/og.png",
  "description":"تطبيق لشريط قوائم macOS يعرض ما تبقى من حدود اشتراكاتك في Claude Code وOpenAI Codex، دون إنفاق الحصة التي يقيسها.",
- "featureList":["عدة حسابات Claude وCodex في آن واحد","استخدام Codex حيّ مع دعم الجلسات المحلية","مؤقّت في شريط القوائم","أدوات على macOS وiPhone","إشعارات عند الحدود","عشر لغات"]}
+ "featureList":["عدة حسابات Claude وCodex في آن واحد","استهلاك Codex المباشر","مؤقّت في شريط القوائم","أدوات على macOS وiPhone","إشعارات عند الحدود","عشر لغات"]}
 </script>
 </head>
 <body>
@@ -652,7 +649,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       يقرأ Softcap استخدام الاشتراك مباشرة للحسابات المضافة عبر المتصفح. تجلب هذه الطلبات الحدود دون إرسال موجّه أو تشغيل نموذج.
     </p>
     <p>
-      حسابات Codex المحلية تعمل أيضًا: يكتب الـ CLI قراءاته في <code>~/.codex/sessions</code>، ويراقب Softcap تلك الملفات. القراءة من ملف لقطة، لذا يعرض كل سطح متى أُخذت. سجّل دخول ذلك الحساب عبر متصفح Softcap لترى الاستخدام الحالي مستقلًا عن الـ CLI.
+      يعمل Codex بالطريقة نفسها: سجّل الدخول عبر المتصفح ليقرأ Softcap استهلاك ذلك الحساب من الخدمة مباشرة. لا يُؤخذ شيء من ملفات واجهة الأوامر نفسها، لذا فما تراه لا يتوقف أبدًا على آخر مرة عمل فيها Codex.
     </p>
   </div>
 </section>
@@ -833,7 +830,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
         <dd>حيّ، من نقطة نهاية الاستخدام عبر OAuth.
             <a href="/ar/limits/claude/">كيف تعمل حدود Claude ←</a></dd></div>
       <div class="fact"><dt>Codex</dt>
-        <dd>استخدام حيّ لحسابات المتصفح. وملفات الجلسات المحلية تُراقب عبر FSEvents، مع إظهار عمر اللقطة.
+        <dd>استهلاك مباشر لكل حساب، يُقرأ من الخدمة بتفويض الحساب نفسه.
             <a href="/ar/limits/codex/">كيف تعمل حدود Codex ←</a></dd></div>
       <div class="fact"><dt>إضافة حساب</dt>
         <dd>اختر Claude Code أو OpenAI Codex، ثم سجّل الدخول عبر OAuth وPKCE في متصفحك أنت. تُكتشف حسابات CLI المحلية أيضًا.</dd></div>
@@ -842,7 +839,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       <div class="fact"><dt>الاعتماديات</dt>
         <dd>لا شيء. كل استيراد هو إما إطار عمل من Apple نفسها أو وحدة من هذا المشروع.</dd></div>
       <div class="fact"><dt>كلفة تشغيله</dt>
-        <dd>طلب واحد لكل حساب Claude في كل استعلام. بفاصل خمس دقائق في الخلفية، ومرة في الدقيقة عندما تكون النافذة مفتوحة — أو أي فاصل بين ثلاثين ثانية وساعة إن ضبطته بنفسك. يُسأل عن اسم Claude والخطة مرة واحدة ويُحتفظ بهما ست ساعات. كل حساب Codex محفوظ يضيف طلب استخدام واحدًا في كل استعلام؛ أما قراءات Codex المحلية فتأتي من القرص.</dd></div>
+        <dd>طلب واحد لكل حساب Claude في كل استعلام. بفاصل خمس دقائق في الخلفية، ومرة في الدقيقة عندما تكون النافذة مفتوحة — أو أي فاصل بين ثلاثين ثانية وساعة إن ضبطته بنفسك. يُسأل عن اسم Claude والخطة مرة واحدة ويُحتفظ بهما ست ساعات. كل حساب Codex محفوظ يضيف طلب استخدام واحدًا في كل استعلام.</dd></div>
       <div class="fact"><dt>ليس بعد</dt>
         <dd>Cursor وGitHub Copilot وGemini CLI. مزوّد لا يمكن التحقق منه مقابل حساب حي سيعرض صفرًا بصمت، وهذا أسوأ من لا شيء.</dd></div>
     </dl>

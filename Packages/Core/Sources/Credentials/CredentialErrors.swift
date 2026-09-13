@@ -22,6 +22,5 @@ public extension CredentialStore {
         case activeInCLI   // token read from the CLI keychain, never refreshed
         case refreshed     // lives on its own refresh token copy
         case needsLogin    // no copy, nothing to refresh with
-        case localSession  // Codex's local files; no credential owned by Softcap
     }
 }

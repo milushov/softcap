@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -562,7 +559,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <section>
       <h2>这里也是两个窗口</h2>
       <p>Codex 订阅通过一个五小时窗口和一个每周窗口来计量使用，各有各的容量。撞上任何一个，Codex 就停止接受该账户的工作，直到窗口重置。</p>
-      <p>Codex 的不同之处在于数字放在哪里。服务会把剩余量随回答一起报告，CLI 再把这些读数写进你磁盘上的会话文件——于是有两种知道的办法：用自己的账户去问，或者读 CLI 最后看到的。</p>
+      <p>Codex 的不同之处在于数字存放的位置。服务在给出回答的同时报告剩余量，而 Softcap 凭自己的授权直接索取同样的数字——不发送提示词，也不运行模型。</p>
     </section>
     <section>
       <h2>何时重置</h2>
@@ -570,11 +567,11 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>什么会计入</h2>
-      <p>请求以及它们引发的模型工作会计入。Softcap 自己的用量请求不发送提示词、不运行模型；从会话文件读取的本地账户则分文不花，因为那只是你磁盘上的一个文件。</p>
+      <p>计入的是请求以及它们引发的模型工作。Softcap 自己的用量请求不发送提示词、不运行模型，因此观察额度从不会消耗它。</p>
     </section>
     <section>
       <h2>不消耗地盯着它</h2>
-      <p>通过浏览器登录一个 Codex 账户，Softcap 就能实时读取它的用量。已登录本地 CLI 的账户会被自动识别，从会话文件读取，快照有多旧就如实标在数字旁边。无论哪种方式：菜单栏、80% 和 95% 的阈值、小组件。</p>
+      <p>通过浏览器登录 Codex 账户，Softcap 便实时读取其用量，并在数字旁如实显示读数的新旧。菜单栏、80% 与 95% 阈值、小组件。</p>
       <p><a class="download" href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">下载 macOS 版</a></p>
     </section>
     <section>

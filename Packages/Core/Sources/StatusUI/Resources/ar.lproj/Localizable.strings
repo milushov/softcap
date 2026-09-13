@@ -90,8 +90,6 @@
 "%lld min" = "%lld د";
 "Where data comes from. A disabled service is not polled." = "مصدر البيانات. الخدمة المعطّلة لا يتم استعلامها.";
 "Live data from the API." = "بيانات حيّة من الواجهة البرمجية.";
-"Choose…" = "اختيار…";
-"Reset" = "إعادة تعيين";
 "Later" = "لاحقًا";
 "later" = "لاحقًا";
 "About and data" = "حول والبيانات";
@@ -163,17 +161,13 @@
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "عند حدوث عطل، يُرسَل وصف له إلى المؤلف. تُزال المسارات والعناوين وكل ما يشبه الرمز المميّز قبل ذلك.";
 "Minimal window" = "نافذة مبسطة";
 "Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "أضف حسابات Claude Code أو OpenAI Codex عبر المتصفح. تُكتشف حسابات CLI المحلية أيضًا.";
-"Browser accounts refresh independently. Local Codex accounts show readings from session files. Your CLI sign-ins are not changed." = "تتحدث حسابات المتصفح بشكل مستقل. تعرض حسابات Codex المحلية بيانات ملفات الجلسات. لا تتغير عمليات تسجيل الدخول إلى CLI.";
 "Saved credentials will be deleted. Your CLI sign-ins will not change." = "ستُحذف بيانات الاعتماد المحفوظة. لن تتغير عمليات تسجيل الدخول إلى CLI.";
-"Browser accounts use live usage data. Local accounts use snapshots from session files." = "تستخدم حسابات المتصفح بيانات استخدام مباشرة. تستخدم الحسابات المحلية لقطات من ملفات الجلسات.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "تعذر فتح مسار عودة تسجيل الدخول إلى Codex. أغلق أي عملية أخرى لتسجيل الدخول إلى Codex وحاول مجددًا.";
 "Could not open the browser. Check your default browser and try again." = "تعذر فتح المتصفح. تحقق من المتصفح الافتراضي وحاول مجددًا.";
 "Signing in to %@…" = "جارٍ تسجيل الدخول إلى %@…";
 "Sign in…" = "تسجيل الدخول…";
-"local session" = "جلسة محلية";
 "%@ · saved account" = "%@ · حساب محفوظ";
 "%@ · sign-in required" = "%@ · يلزم تسجيل الدخول";
-"Codex · local session files" = "Codex · ملفات الجلسات المحلية";
 "Could not forget the account. Try again." = "تعذر حذف الحساب. حاول مجددًا.";
 "Show %@" = "إظهار %@";
 "Custom" = "مخصص";
@@ -200,3 +194,6 @@
 "Softcap is open source under the MIT licence. Read it, change it, or send a change back." = "سوفتكاب برمجية مفتوحة المصدر برخصة MIT. اقرأها، عدّلها، أو أرسل تعديلك إلينا.";
 "Licence" = "الرخصة";
 "Read the licence" = "قراءة الرخصة";
+"Looking for your accounts…" = "جارٍ البحث عن حساباتك…";
+"Reading the keychain and asking each service." = "قراءة سلسلة المفاتيح والاستعلام من كل خدمة.";
+"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "تتحدث حسابات المتصفح بشكل مستقل. لا تتغير عمليات تسجيل الدخول إلى CLI.";

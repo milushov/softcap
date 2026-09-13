@@ -54,13 +54,11 @@ struct AccountsPane: View {
                                 .foregroundStyle(tint(for: row.state))
                             Toggle("", isOn: visible(row)).labelsHidden()
                                 .accessibilityLabel(String(format: loc("Show %@"), row.displayName))
-                            if row.state == .needsLogin || row.state == .localSession {
+                            if row.state == .needsLogin {
                                 Button(loc("Sign in…")) { loginController.start(provider: row.provider) }
                                     .disabled(loginController.isRunning)
                             }
-                            if row.state != .localSession {
-                                Button(loc("Forget…")) { pendingForget = row }
-                            }
+                            Button(loc("Forget…")) { pendingForget = row }
                         }
                         Divider()
                     }
@@ -140,7 +138,7 @@ struct AccountsPane: View {
                     Text(accountError).font(.system(size: 11)).foregroundStyle(.red)
                 }
 
-                Text(loc("Browser accounts refresh independently. Local Codex accounts show readings from session files. Your CLI sign-ins are not changed."))
+                Text(loc("Browser accounts refresh independently. Your CLI sign-ins are not changed."))
                     .font(.system(size: 11)).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -194,7 +192,6 @@ struct AccountsPane: View {
         case .activeInCLI: loc("active in CLI")
         case .refreshed:   loc("refreshed")
         case .needsLogin:  loc("sign-in needed")
-        case .localSession: loc("local session")
         }
     }
 
@@ -203,7 +200,6 @@ struct AccountsPane: View {
         case .activeInCLI: loc("Claude · token read from Claude Code")
         case .refreshed:   String(format: loc("%@ · saved account"), row.provider.title)
         case .needsLogin:  String(format: loc("%@ · sign-in required"), row.provider.title)
-        case .localSession: loc("Codex · local session files")
         }
     }
 
@@ -212,7 +208,6 @@ struct AccountsPane: View {
         case .activeInCLI: .green
         case .refreshed:   .blue
         case .needsLogin:  .red
-        case .localSession: .secondary
         }
     }
 }

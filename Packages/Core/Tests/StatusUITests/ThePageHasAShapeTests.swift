@@ -88,34 +88,6 @@ import Foundation
             """)
     }
 
-    /// `~/.codex/sessions` has nowhere to break, and at a raised minimum font
-    /// size it is wider than a phone. The width check cannot defend this: at the
-    /// 24 px bar the path still fits, and the size where it does not is one the
-    /// mock cannot hold either, so the bar cannot go there. The rule is pinned
-    /// here instead.
-    ///
-    /// The second half stops it becoming a rule nobody needs: if no code span
-    /// holds a token long enough to matter, the property is being kept for
-    /// nothing and should be reconsidered rather than quietly enforced.
-    @Test func aLongTokenInCodeCanBreak() throws {
-        let page = try String(
-            contentsOf: Self.repositoryRoot.appendingPathComponent("site/index.html"),
-            encoding: .utf8)
-
-        guard let rule = Self.firstGroup(#"(?s)\bcode\{(.*?)\}"#, in: page) else {
-            Issue.record("the page has no rule for code spans")
-            return
-        }
-        #expect(rule.contains("overflow-wrap:anywhere") || rule.contains("word-break:break-all"),
-                "a long path in a code span cannot break, and is wider than a phone")
-
-        let tokens = Self.matches(#"<code>([^<]+)</code>"#, in: page)
-        #expect(tokens.contains { $0.count >= 14 }, """
-            no code span holds a token long enough to need breaking — the rule \
-            above is being kept for nothing
-            """)
-    }
-
     /// Paper is white and a browser's print dialog has background graphics off by
     /// default, so a page read in the dark palette would put near-white text on
     /// it. Every colour here is a `light-dark()` pair following `color-scheme`,

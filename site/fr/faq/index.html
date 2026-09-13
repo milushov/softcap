@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -516,7 +513,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"Où vivent mes jetons ?","acceptedAnswer":{"@type":"Answer","text":"Dans le trousseau macOS, et nulle part ailleurs — jamais dans les préférences, les journaux ou des fichiers. Retirer un compte enlève ses identifiants du trousseau à cet instant même."}},
  {"@type":"Question","name":"Qu'est-ce qui quitte mon Mac ?","acceptedAnswer":{"@type":"Answer","text":"Trois choses, et seulement trois : les requêtes d'usage vers vos propres fournisseurs, des rapports d'erreur optionnels nettoyés des chemins et de tout ce qui a la forme d'un jeton, et une vérification des mises à jour, quotidienne et tant que son écran est ouvert, optionnelle aussi. Les deux dernières ont chacune leur interrupteur."}},
  {"@type":"Question","name":"Que signifient les repères à 80% et 95% ?","acceptedAnswer":{"@type":"Answer","text":"Ce sont les seuils de notification : une alerte quand un compte franchit 80% d'une fenêtre, un dernier avertissement à 95% — une fois par franchissement, pas une fois par relevé, et jamais pendant les heures calmes. Les deux niveaux se règlent."}},
- {"@type":"Question","name":"Pourquoi un relevé affiche-t-il son âge ?","acceptedAnswer":{"@type":"Answer","text":"Un compte Codex local est lu dans les fichiers de session qu'écrit sa CLI, donc le chiffre est un instantané de la dernière exécution. Softcap indique l'âge de cet instantané au lieu de faire croire qu'il est en direct."}},
+ {"@type":"Question","name":"Pourquoi un relevé affiche-t-il son âge ?","acceptedAnswer":{"@type":"Answer","text":"Toute lecture est prise à un instant puis consultée ensuite. Softcap interroge selon un calendrier : le nombre affiché est donc aussi frais que la dernière interrogation aboutie — et lorsqu'aucune n'aboutit depuis un moment, Softcap indique l'âge de la lecture au lieu de faire croire qu'elle est en direct."}},
  {"@type":"Question","name":"Combien coûte son fonctionnement ?","acceptedAnswer":{"@type":"Answer","text":"L'app est gratuite. Sur le réseau, elle coûte une requête d'usage par compte et par relevé — toutes les cinq minutes en arrière-plan, une fois par minute la fenêtre ouverte, ou l'intervalle que vous fixez."}}]}
 </script>
 </head>
@@ -606,7 +603,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Pourquoi un relevé affiche-t-il son âge ?</h2>
-      <p>Un compte Codex local est lu dans les fichiers de session qu'écrit sa CLI, donc le chiffre est un instantané de la dernière exécution. Softcap indique l'âge de cet instantané au lieu de faire croire qu'il est en direct.</p>
+      <p>Toute lecture est prise à un instant puis consultée ensuite. Softcap interroge selon un calendrier : le nombre affiché est donc aussi frais que la dernière interrogation aboutie — et lorsqu'aucune n'aboutit depuis un moment, Softcap indique l'âge de la lecture au lieu de faire croire qu'elle est en direct.</p>
     </section>
     <section>
       <h2>Combien coûte son fonctionnement ?</h2>

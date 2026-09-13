@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -516,7 +513,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"Where do my tokens live?","acceptedAnswer":{"@type":"Answer","text":"In the macOS keychain, and nowhere else — never in preferences, logs or files. Removing an account removes its credentials from the keychain at that moment."}},
  {"@type":"Question","name":"What leaves my Mac?","acceptedAnswer":{"@type":"Answer","text":"Three things, and only three: usage requests to your own providers, optional error reports scrubbed of paths and anything token-shaped, and an optional update check, daily and while its screen is open. The last two have their own off switches."}},
  {"@type":"Question","name":"What do the 80% and 95% marks mean?","acceptedAnswer":{"@type":"Answer","text":"Those are the notification thresholds: a nudge when an account crosses 80% of a window, a last warning at 95% — once per crossing, not once per poll, and never during quiet hours. Both levels can be changed."}},
- {"@type":"Question","name":"Why does a reading show its age?","acceptedAnswer":{"@type":"Answer","text":"A local Codex account is read from the session files its CLI writes, so the number is a snapshot from the CLI's last run. Softcap says how old the snapshot is instead of pretending it is live."}},
+ {"@type":"Question","name":"Why does a reading show its age?","acceptedAnswer":{"@type":"Answer","text":"Every reading is taken at a moment and looked at afterwards. Softcap polls on a schedule, so the number on screen is as fresh as the last poll that landed — and when none has landed for a while, Softcap says how old the reading is instead of pretending it is live."}},
  {"@type":"Question","name":"What does it cost to run?","acceptedAnswer":{"@type":"Answer","text":"The app is free. On the wire it costs one usage request per account per poll — every five minutes in the background, once a minute with the window open, or whatever interval you set."}}]}
 </script>
 </head>
@@ -606,7 +603,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Why does a reading show its age?</h2>
-      <p>A local Codex account is read from the session files its CLI writes, so the number is a snapshot from the CLI's last run. Softcap says how old the snapshot is instead of pretending it is live.</p>
+      <p>Every reading is taken at a moment and looked at afterwards. Softcap polls on a schedule, so the number on screen is as fresh as the last poll that landed — and when none has landed for a while, Softcap says how old the reading is instead of pretending it is live.</p>
     </section>
     <section>
       <h2>What does it cost to run?</h2>

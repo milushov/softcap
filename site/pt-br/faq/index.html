@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -516,7 +513,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"Onde ficam os meus tokens?","acceptedAnswer":{"@type":"Answer","text":"No chaveiro do macOS, e em nenhum outro lugar — nunca em preferências, logs ou arquivos. Remover uma conta remove as credenciais dela do chaveiro naquele momento."}},
  {"@type":"Question","name":"O que sai do meu Mac?","acceptedAnswer":{"@type":"Answer","text":"Três coisas, e só três: requisições de uso aos seus próprios provedores, relatórios de erro opcionais limpos de caminhos e de qualquer coisa parecida com um token, e uma verificação de atualização, diária e enquanto sua tela estiver aberta, opcional. As duas últimas têm seus próprios interruptores."}},
  {"@type":"Question","name":"O que significam as marcas de 80% e 95%?","acceptedAnswer":{"@type":"Answer","text":"São os limites de notificação: um aviso quando uma conta cruza 80% de uma janela, um último alerta em 95% — uma vez por cruzamento, não a cada consulta, e nunca durante o horário silencioso. Os dois níveis podem ser mudados."}},
- {"@type":"Question","name":"Por que uma leitura mostra a própria idade?","acceptedAnswer":{"@type":"Answer","text":"Uma conta Codex local é lida dos arquivos de sessão que a CLI escreve, então o número é um registro da última execução da CLI. O Softcap mostra há quanto tempo o registro foi feito, em vez de fingir que é um dado ao vivo."}},
+ {"@type":"Question","name":"Por que uma leitura mostra a própria idade?","acceptedAnswer":{"@type":"Answer","text":"Toda leitura é feita em um instante e vista depois. O Softcap consulta em um intervalo definido, então o número na tela é tão recente quanto a última consulta que chegou — e quando nenhuma chega há um tempo, o Softcap diz a idade da leitura em vez de fingir que ela está ao vivo."}},
  {"@type":"Question","name":"Quanto custa para rodar?","acceptedAnswer":{"@type":"Answer","text":"O app é gratuito. Na rede, custa uma requisição de uso por conta a cada consulta — a cada cinco minutos em segundo plano, uma vez por minuto com a janela aberta, ou no intervalo que você definir."}}]}
 </script>
 </head>
@@ -606,7 +603,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Por que uma leitura mostra a própria idade?</h2>
-      <p>Uma conta Codex local é lida dos arquivos de sessão que a CLI escreve, então o número é um registro da última execução da CLI. O Softcap mostra há quanto tempo o registro foi feito, em vez de fingir que é um dado ao vivo.</p>
+      <p>Toda leitura é feita em um instante e vista depois. O Softcap consulta em um intervalo definido, então o número na tela é tão recente quanto a última consulta que chegou — e quando nenhuma chega há um tempo, o Softcap diz a idade da leitura em vez de fingir que ela está ao vivo.</p>
     </section>
     <section>
       <h2>Quanto custa para rodar?</h2>

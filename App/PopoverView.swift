@@ -148,6 +148,22 @@ struct PopoverView: View {
 
     /// What an empty window says.
     ///
+    /// Three different things, because an empty list has three different
+    /// reasons, and stating the wrong one is worse than saying nothing.
+    ///
+    /// Nothing read yet is the first, and it used to be missing. The first poll
+    /// after a fresh install reads the keychain and asks two services over the
+    /// network; none of that has returned by the time somebody clicks the icon,
+    /// and the window answered "No accounts found" — a conclusion, drawn in the
+    /// one moment the app has not yet looked. It was read as written: installed,
+    /// clicked, declared broken, a minute before the accounts arrived. The
+    /// spinner in the header was already turning and lost the argument, as a
+    /// control in the corner does against a sentence in the middle.
+    ///
+    /// `lastUpdated` is what tells the two apart: `nil` until a poll finishes,
+    /// set even by one that found nothing. No spinner here — the header has one,
+    /// and two in a window this size read as two separate things happening.
+    ///
     /// "Sign in to Claude Code" is the right advice exactly when it is not the
     /// problem. On a machine where Claude Code is signed in and the keychain has
     /// not been allowed — which is every machine before somebody allows it — the
@@ -155,7 +171,14 @@ struct PopoverView: View {
     /// told to do it again is worse than being told nothing.
     private var empty: some View {
         VStack(spacing: 6) {
-            if model.cliAccessBlocked {
+            if model.lastUpdated == nil {
+                Text(loc("Looking for your accounts…")).font(.system(size: 12, weight: .medium))
+                Text(loc("Reading the keychain and asking each service."))
+                    .font(.system(size: 11)).foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 18)
+            } else if model.cliAccessBlocked {
                 Text(loc("No accounts found")).font(.system(size: 12, weight: .medium))
                 Text(loc("Claude Code's credentials cannot be read, so the account signed in there cannot be shown."))
                     .font(.system(size: 11)).foregroundStyle(.secondary)

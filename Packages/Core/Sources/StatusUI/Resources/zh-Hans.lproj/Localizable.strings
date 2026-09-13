@@ -90,8 +90,6 @@
 "%lld min" = "%lld 分";
 "Where data comes from. A disabled service is not polled." = "数据来源。已关闭的服务不会被轮询。";
 "Live data from the API." = "来自 API 的实时数据。";
-"Choose…" = "选择…";
-"Reset" = "重置";
 "Later" = "稍后";
 "later" = "稍后";
 "About and data" = "关于与数据";
@@ -163,17 +161,13 @@
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "出现故障时，会将故障描述发送给作者。路径、地址以及任何形似令牌的内容都会先被移除。";
 "Minimal window" = "极简窗口";
 "Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "通过浏览器添加 Claude Code 或 OpenAI Codex 账户。也会自动检测本地 CLI 账户。";
-"Browser accounts refresh independently. Local Codex accounts show readings from session files. Your CLI sign-ins are not changed." = "浏览器账户独立刷新。本地 Codex 账户显示会话文件中的数据。您的 CLI 登录不会改变。";
 "Saved credentials will be deleted. Your CLI sign-ins will not change." = "已保存的凭据将被删除。您的 CLI 登录不会改变。";
-"Browser accounts use live usage data. Local accounts use snapshots from session files." = "浏览器账户使用实时用量数据。本地账户使用会话文件中的快照。";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "无法启动 Codex 登录回调。请关闭其他 Codex 登录并重试。";
 "Could not open the browser. Check your default browser and try again." = "无法打开浏览器。请检查默认浏览器并重试。";
 "Signing in to %@…" = "正在登录 %@…";
 "Sign in…" = "登录…";
-"local session" = "本地会话";
 "%@ · saved account" = "%@ · 已保存的账户";
 "%@ · sign-in required" = "%@ · 需要登录";
-"Codex · local session files" = "Codex · 本地会话文件";
 "Could not forget the account. Try again." = "无法移除账户。请重试。";
 "Show %@" = "显示 %@";
 "Custom" = "自定义";
@@ -200,3 +194,6 @@
 "Softcap is open source under the MIT licence. Read it, change it, or send a change back." = "Softcap 是采用 MIT 许可证的开源软件。你可以阅读它、修改它，也可以把修改提交回来。";
 "Licence" = "许可证";
 "Read the licence" = "阅读许可证";
+"Looking for your accounts…" = "正在查找你的账户…";
+"Reading the keychain and asking each service." = "正在读取钥匙串并查询各项服务。";
+"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "浏览器账户独立刷新。您的 CLI 登录不会改变。";

@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -578,7 +575,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       <h3>Me pidió permiso del llavero al pulsar Actualizar</h3>
       <p>Leer el elemento del llavero de la propia CLI necesita permiso de macOS, y Softcap solo lo pide mientras estás delante — cuando pulsas el botón, nunca desde un temporizador. Elige Permitir siempre y no volverá a preguntar; recházalo y la app seguirá funcionando con sus propias copias.</p>
       <h3>Una cuenta de Codex muestra una lectura de hace horas</h3>
-      <p>Una cuenta local de Codex se lee de los archivos de sesión que escribe la CLI, así que el número es tan reciente como la última ejecución de la CLI — por eso cada superficie muestra la antigüedad de la instantánea. Entra en esa cuenta por el flujo de navegador de Softcap para ver el uso actual con independencia de la CLI.</p>
+      <p>Softcap consulta según un horario, así que una lectura es tan reciente como la última consulta que llegó. Cifras de hace horas significan que las consultas no están llegando: casi siempre la concesión de la cuenta ha caducado. Abre Ajustes → Cuentas: la fila que necesita atención lo dice, e Iniciar sesión… la reconecta.</p>
       <h3>No llegaron las notificaciones</h3>
       <p>Comprueba tres cosas: el permiso de notificaciones de macOS para Softcap, los umbrales en Ajustes (80% y 95% de fábrica) y las horas de silencio — nada llega mientras están activas, y nada se entrega más tarde para compensarlo.</p>
       <h3>Quitar una cuenta, y qué queda después</h3>

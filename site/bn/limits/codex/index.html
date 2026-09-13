@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -562,7 +559,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <section>
       <h2>এখানেও দুটি উইন্ডো</h2>
       <p>Codex-এর সাবস্ক্রিপশন ব্যবহার মাপে একটি 5 ঘণ্টার উইন্ডো আর একটি সাপ্তাহিক উইন্ডো দিয়ে, প্রত্যেকটির নিজের ক্ষমতা নিয়ে। যেকোনো একটিতে ঠেকলেই Codex ওই অ্যাকাউন্টে আর কাজ নেওয়া বন্ধ করে দেয়, যতক্ষণ উইন্ডো রিসেট না হয়।</p>
-      <p>Codex-কে আলাদা করে সংখ্যাগুলো কোথায় থাকে সেটাই। পরিষেবা তার উত্তরের সঙ্গেই জানিয়ে দেয় কতটা বাকি, আর CLI সেই রিডিং আপনার ডিস্কের সেশন ফাইলে লিখে রাখে — তাই জানার দুটি পথ: নিজের একটি অ্যাকাউন্ট দিয়ে জিজ্ঞাসা করা, বা CLI শেষ যা দেখেছে তা পড়া।</p>
+      <p>Codex-কে আলাদা করে যে জিনিসটি, তা হলো সংখ্যাগুলি কোথায় থাকে। পরিষেবা তার উত্তরের পাশেই বাকিটা জানায়, আর Softcap নিজের অনুমতি দিয়ে সেই একই সংখ্যা সরাসরি চেয়ে নেয় — কোনো প্রম্পট পাঠানো হয় না, কোনো মডেল চলে না।</p>
     </section>
     <section>
       <h2>এরা কখন রিসেট হয়</h2>
@@ -570,11 +567,11 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>সীমার হিসেবে কী গোনা হয়</h2>
-      <p>অনুরোধ আর তার ফলে মডেলের যে কাজ হয়, তা গোনা হয়। Softcap-এর নিজের ব্যবহার-অনুরোধ কোনো প্রম্পট পাঠায় না, কোনো মডেলও চালায় না; সেশন ফাইল থেকে পড়া স্থানীয় অ্যাকাউন্টে তো ঠিক কিছুই খরচ হয় না, কারণ সেটি আপনার ডিস্কে পড়ে থাকা একটি ফাইল।</p>
+      <p>অনুরোধ এবং সেগুলির ফলে হওয়া মডেলের কাজ গোনা হয়। Softcap-এর নিজের ব্যবহার-অনুরোধ কোনো প্রম্পট পাঠায় না, কোনো মডেল চালায় না — তাই কোনো সীমার দিকে নজর রাখা কখনও সেটিকে নড়ায় না।</p>
     </section>
     <section>
       <h2>খরচ না করেই নজর রাখা</h2>
-      <p>একটি Codex অ্যাকাউন্ট ব্রাউজার দিয়ে সাইন ইন করান, Softcap তার ব্যবহার সরাসরি পড়বে। স্থানীয় CLI-তে সাইন ইন করা অ্যাকাউন্ট নিজে থেকেই ধরা পড়ে আর তাদের সেশন ফাইল থেকে পড়া হয় — সংখ্যার পাশে স্ন্যাপশটের বয়স সৎভাবে দেখিয়ে। দুভাবেই: মেনু বার, 80% আর 95%-এ সীমা, উইজেট।</p>
+      <p>ব্রাউজার দিয়ে একটি Codex অ্যাকাউন্টে সাইন ইন করুন, আর Softcap তার ব্যবহার সরাসরি পড়ে, সংখ্যার পাশে পাঠের বয়স সৎভাবে দেখিয়ে। মেনু বার, ৮০% ও ৯৫%-এ সীমা, উইজেট।</p>
       <p><a class="download" href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">macOS-এর জন্য ডাউনলোড করুন</a></p>
     </section>
     <section>

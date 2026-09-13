@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -516,7 +513,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"أين تعيش رموزي؟","acceptedAnswer":{"@type":"Answer","text":"في سلسلة مفاتيح macOS، ولا مكان آخر — أبدًا لا في التفضيلات ولا السجلات ولا الملفات. وإزالة حساب تزيل بيانات اعتماده من سلسلة المفاتيح في تلك اللحظة."}},
  {"@type":"Question","name":"ما الذي يغادر جهاز Mac؟","acceptedAnswer":{"@type":"Answer","text":"ثلاثة أشياء لا غير: طلبات الاستخدام إلى مزوّديك أنت، وتقارير أخطاء اختيارية منقّاة من المسارات وكل ما يشبه الرموز، وتحقق اختياري من التحديثات، يوميًا وأثناء فتح شاشته. وللاثنين الأخيرين مفتاحا إيقاف خاصان بهما."}},
  {"@type":"Question","name":"ماذا تعني علامتا 80% و95%؟","acceptedAnswer":{"@type":"Answer","text":"تلك هي حدود الإشعارات: تنبيه أول عندما يتجاوز حساب 80% من نافذة، وتحذير أخير عند 95% — مرة عند كل تجاوز، لا مرة في كل استعلام، وأبدًا ليس أثناء ساعات الهدوء. ويمكن تغيير كلا المستويين."}},
- {"@type":"Question","name":"لماذا تعرض القراءة عمرها؟","acceptedAnswer":{"@type":"Answer","text":"حساب Codex المحلي يُقرأ من ملفات الجلسات التي يكتبها الـ CLI الخاص به، لذا فالرقم لقطة من آخر تشغيل له. يذكر Softcap كم عمر تلك اللقطة بدلًا من التظاهر بأنها حيّة."}},
+ {"@type":"Question","name":"لماذا تعرض القراءة عمرها؟","acceptedAnswer":{"@type":"Answer","text":"كل قراءة تُؤخذ في لحظة ثم يُنظر إليها بعد ذلك. يستعلم Softcap وفق جدول، لذا فالرقم على الشاشة حديث بقدر آخر استعلام نجح — وحين يمضي وقت دون أن ينجح أي استعلام، يذكر Softcap عمر القراءة بدل أن يتظاهر بأنها مباشرة."}},
  {"@type":"Question","name":"كم يكلّف تشغيله؟","acceptedAnswer":{"@type":"Answer","text":"التطبيق مجاني. وعلى الشبكة يكلّف طلب استخدام واحدًا لكل حساب في كل استعلام — كل خمس دقائق في الخلفية، ومرة في الدقيقة عندما تكون النافذة مفتوحة، أو أي فاصل تحدده بنفسك."}}]}
 </script>
 </head>
@@ -606,7 +603,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>لماذا تعرض القراءة عمرها؟</h2>
-      <p>حساب Codex المحلي يُقرأ من ملفات الجلسات التي يكتبها الـ CLI الخاص به، لذا فالرقم لقطة من آخر تشغيل له. يذكر Softcap كم عمر تلك اللقطة بدلًا من التظاهر بأنها حيّة.</p>
+      <p>كل قراءة تُؤخذ في لحظة ثم يُنظر إليها بعد ذلك. يستعلم Softcap وفق جدول، لذا فالرقم على الشاشة حديث بقدر آخر استعلام نجح — وحين يمضي وقت دون أن ينجح أي استعلام، يذكر Softcap عمر القراءة بدل أن يتظاهر بأنها مباشرة.</p>
     </section>
     <section>
       <h2>كم يكلّف تشغيله؟</h2>

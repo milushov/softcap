@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -562,7 +559,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <section>
       <h2>Duas janelas aqui também</h2>
       <p>Uma assinatura Codex mede o uso por uma janela de cinco horas e uma janela semanal, cada uma com a própria capacidade. Bata em qualquer uma e o Codex para de aceitar trabalho naquela conta até a janela redefinir.</p>
-      <p>O que torna o Codex diferente é onde os números moram. O serviço informa o que resta junto com as respostas, e a CLI escreve essas leituras em arquivos de sessão no seu disco — então há dois jeitos de saber: perguntar com uma conta sua, ou ler o que a CLI viu por último.</p>
+      <p>O que torna o Codex diferente é onde os números moram. O serviço informa o que resta junto com suas respostas, e o Softcap pede esses mesmos números diretamente, com uma concessão própria — sem prompt enviado, sem modelo rodado.</p>
     </section>
     <section>
       <h2>Quando eles redefinem</h2>
@@ -570,11 +567,11 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>O que conta contra eles</h2>
-      <p>Requisições e o trabalho de modelo que elas causam contam. As requisições de uso do próprio Softcap não enviam prompts nem executam modelos; uma conta local lida de arquivos de sessão custa exatamente nada, porque é um arquivo no seu disco.</p>
+      <p>Contam as requisições e o trabalho de modelo que elas provocam. As requisições de uso do Softcap não enviam prompts nem rodam modelos, então acompanhar um limite nunca o move.</p>
     </section>
     <section>
       <h2>Acompanhando sem gastar</h2>
-      <p>Conecte uma conta Codex pelo navegador e o Softcap lê o uso dela ao vivo. Contas conectadas na CLI local são detectadas sozinhas e lidas dos arquivos de sessão, com a idade dos dados mostrada honestamente ao lado do número. De um jeito ou de outro: barra de menus, limites em 80% e 95%, widgets.</p>
+      <p>Entre em uma conta Codex pelo navegador e o Softcap lê o uso dela ao vivo, mostrando com honestidade a idade da leitura ao lado do número. Barra de menus, limiares em 80% e 95%, widgets.</p>
       <p><a class="download" href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">Baixar para macOS</a></p>
     </section>
     <section>

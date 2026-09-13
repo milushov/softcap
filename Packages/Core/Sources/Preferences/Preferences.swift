@@ -129,7 +129,6 @@ public struct Preferences: Codable, Sendable, Equatable {
     // Services and accounts
     public var disabledProviders: Set<ProviderID>
     public var hiddenAccounts: Set<String>
-    public var codexRoot: String?
 
     /// Allowed polling bounds. More often than twice a minute is pointless:
     /// the service does not recompute limits instantly. Less often than hourly
@@ -160,8 +159,7 @@ public struct Preferences: Codable, Sendable, Equatable {
         checksForUpdates: true,
         lastUpdateCheck: nil,
         disabledProviders: [],
-        hiddenAccounts: [],
-        codexRoot: nil
+        hiddenAccounts: []
     )
 
     /// Brings values into range. Called before saving and after reading:
@@ -248,6 +246,5 @@ extension Preferences {
         lastUpdateCheck      = readOptional(.lastUpdateCheck, fallback.lastUpdateCheck)
         disabledProviders    = read(.disabledProviders, fallback.disabledProviders)
         hiddenAccounts       = read(.hiddenAccounts, fallback.hiddenAccounts)
-        codexRoot            = readOptional(.codexRoot, fallback.codexRoot)
     }
 }

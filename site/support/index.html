@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -578,7 +575,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       <h3>It asked for keychain permission when I pressed Refresh</h3>
       <p>Reading the CLI's own keychain item needs macOS's permission, and Softcap only asks while you are watching — when you press the button, never from a timer. Allow Always and it will not ask again; decline and the app keeps working from its own copies.</p>
       <h3>A Codex account shows a reading from hours ago</h3>
-      <p>A local Codex account is read from the session files the CLI writes, so the number is as fresh as the CLI's last run — that is why every surface shows the snapshot's age. Sign that account in through Softcap's browser flow to see current usage independently of the CLI.</p>
+      <p>Softcap polls on a schedule, so a reading is as fresh as the last poll that landed. Figures hours old mean the polls are not getting through — most often the account's grant has expired. Open Settings → Accounts: a row that needs attention says so, and Sign in… reconnects it.</p>
       <h3>Notifications did not arrive</h3>
       <p>Check three things: macOS notification permission for Softcap, the thresholds in Settings (80% and 95% out of the box), and quiet hours — nothing arrives while they are on, and nothing is delivered late to make up for it.</p>
       <h3>Removing an account, and what it leaves behind</h3>

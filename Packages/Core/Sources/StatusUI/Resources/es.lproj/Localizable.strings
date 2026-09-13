@@ -90,8 +90,6 @@
 "%lld min" = "%lld min";
 "Where data comes from. A disabled service is not polled." = "De dónde vienen los datos. Un servicio desactivado no se consulta.";
 "Live data from the API." = "Datos en vivo de la API.";
-"Choose…" = "Elegir…";
-"Reset" = "Restablecer";
 "Later" = "Más adelante";
 "later" = "más adelante";
 "About and data" = "Acerca de y datos";
@@ -163,17 +161,13 @@
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "Cuando algo falla, se envía al autor una descripción del fallo. Antes se eliminan las rutas, las direcciones y todo lo que parezca un token.";
 "Minimal window" = "Ventana mínima";
 "Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "Añade cuentas de Claude Code u OpenAI Codex desde el navegador. También se detectan las cuentas locales de CLI.";
-"Browser accounts refresh independently. Local Codex accounts show readings from session files. Your CLI sign-ins are not changed." = "Las cuentas del navegador se actualizan de forma independiente. Las cuentas locales de Codex muestran datos de archivos de sesión. No se cambia el acceso a la CLI.";
 "Saved credentials will be deleted. Your CLI sign-ins will not change." = "Se eliminarán las credenciales guardadas. No cambiarán tus inicios de sesión en la CLI.";
-"Browser accounts use live usage data. Local accounts use snapshots from session files." = "Las cuentas del navegador usan datos de uso en directo. Las locales usan instantáneas de archivos de sesión.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "No se pudo abrir el retorno de inicio de sesión de Codex. Cierra otros inicios de sesión de Codex y vuelve a intentarlo.";
 "Could not open the browser. Check your default browser and try again." = "No se pudo abrir el navegador. Comprueba el navegador predeterminado y vuelve a intentarlo.";
 "Signing in to %@…" = "Iniciando sesión en %@…";
 "Sign in…" = "Iniciar sesión…";
-"local session" = "sesión local";
 "%@ · saved account" = "%@ · cuenta guardada";
 "%@ · sign-in required" = "%@ · inicio de sesión necesario";
-"Codex · local session files" = "Codex · archivos de sesión locales";
 "Could not forget the account. Try again." = "No se pudo olvidar la cuenta. Vuelve a intentarlo.";
 "Show %@" = "Mostrar %@";
 "Custom" = "Personalizado";
@@ -200,3 +194,6 @@
 "Softcap is open source under the MIT licence. Read it, change it, or send a change back." = "Softcap es software de código abierto con licencia MIT. Léelo, modifícalo o envía un cambio de vuelta.";
 "Licence" = "Licencia";
 "Read the licence" = "Leer la licencia";
+"Looking for your accounts…" = "Buscando tus cuentas…";
+"Reading the keychain and asking each service." = "Leyendo el llavero y consultando cada servicio.";
+"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "Las cuentas del navegador se actualizan de forma independiente. No se cambia el acceso a la CLI.";

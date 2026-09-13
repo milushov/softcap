@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -562,7 +559,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <section>
       <h2>نافذتان هنا أيضًا</h2>
       <p>يَقيس اشتراك Codex الاستخدام عبر نافذة من خمس ساعات ونافذة أسبوعية، لكل منهما سعتها الخاصة. وببلوغ أي منهما يتوقف Codex عن قبول العمل على ذلك الحساب حتى يُعاد تعيين النافذة.</p>
-      <p>ما يميّز Codex هو مكان الأرقام. تُبلغ الخدمة عمّا تبقى إلى جانب إجاباتها، ويكتب الـ CLI تلك القراءات في ملفات جلسات على قرصك — فهناك طريقتان للمعرفة: أن تسأل بحساب خاص بك، أو أن تقرأ آخر ما رآه الـ CLI.</p>
+      <p>ما يميّز Codex هو موضع الأرقام. تُبلغ الخدمة عن المتبقي إلى جانب إجاباتها، ويطلب Softcap الأرقام نفسها مباشرة بتفويض خاص به — دون إرسال مطالبة ودون تشغيل نموذج.</p>
     </section>
     <section>
       <h2>متى يُعاد تعيينها</h2>
@@ -570,11 +567,11 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>ما الذي يُحسب عليها</h2>
-      <p>تُحسب الطلبات وما تسببه من عمل للنماذج. أما طلبات الاستخدام من Softcap فلا ترسل موجّهات ولا تشغّل نماذج؛ والحساب المحلي المقروء من ملفات الجلسات لا يكلّف شيئًا على الإطلاق، لأنه ملف على قرصك.</p>
+      <p>تُحتسب الطلبات وما تستدعيه من عمل النموذج. طلبات الاستهلاك الخاصة بـ Softcap لا ترسل مطالبات ولا تشغّل نماذج، لذا فمراقبة الحد لا تحرّكه أبدًا.</p>
     </section>
     <section>
       <h2>مراقبتها دون إنفاقها</h2>
-      <p>سجّل دخول حساب Codex عبر المتصفح فيقرأ Softcap استخدامه حيًّا. والحسابات المسجّلة في الـ CLI المحلي تُلتقط تلقائيًا وتُقرأ من ملفات جلساتها، مع إظهار عمر اللقطة بصدق إلى جانب الرقم. في الحالتين: شريط القوائم، وحدود عند 80% و95%، وأدوات.</p>
+      <p>سجّل دخول حساب Codex عبر المتصفح ليقرأ Softcap استهلاكه مباشرة، مع إظهار عمر القراءة بصدق بجانب الرقم. شريط القوائم، وعتبتا 80% و95%، والودجات.</p>
       <p><a class="download" href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">تنزيل لنظام macOS</a></p>
     </section>
     <section>

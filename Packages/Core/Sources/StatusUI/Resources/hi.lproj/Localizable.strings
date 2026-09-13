@@ -90,8 +90,6 @@
 "%lld min" = "%lld मिन";
 "Where data comes from. A disabled service is not polled." = "डेटा कहाँ से आता है। बंद सेवा की जाँच नहीं होती।";
 "Live data from the API." = "API से लाइव डेटा।";
-"Choose…" = "चुनें…";
-"Reset" = "रीसेट";
 "Later" = "बाद में";
 "later" = "बाद में";
 "About and data" = "परिचय और डेटा";
@@ -163,17 +161,13 @@
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "जब कुछ विफल होता है, तो उसका विवरण लेखक को भेजा जाता है। पथ, पते और टोकन जैसी कोई भी चीज़ पहले हटा दी जाती है।";
 "Minimal window" = "न्यूनतम विंडो";
 "Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "अपने ब्राउज़र से Claude Code या OpenAI Codex खाते जोड़ें। स्थानीय CLI खाते भी अपने आप मिल जाते हैं।";
-"Browser accounts refresh independently. Local Codex accounts show readings from session files. Your CLI sign-ins are not changed." = "ब्राउज़र से जुड़े खाते स्वतंत्र रूप से अपडेट होते हैं। स्थानीय Codex खाते सत्र फ़ाइलों का डेटा दिखाते हैं। CLI में आपका लॉगिन नहीं बदलता।";
 "Saved credentials will be deleted. Your CLI sign-ins will not change." = "सहेजे गए क्रेडेंशियल मिटा दिए जाएंगे। CLI में आपका लॉगिन नहीं बदलेगा।";
-"Browser accounts use live usage data. Local accounts use snapshots from session files." = "ब्राउज़र खाते ताज़ा उपयोग डेटा दिखाते हैं। स्थानीय खाते सत्र फ़ाइलों के स्नैपशॉट दिखाते हैं।";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Codex लॉगिन का कॉलबैक नहीं खुल सका। दूसरे Codex लॉगिन बंद करके फिर कोशिश करें।";
 "Could not open the browser. Check your default browser and try again." = "ब्राउज़र नहीं खुल सका। डिफ़ॉल्ट ब्राउज़र जाँचकर फिर कोशिश करें।";
 "Signing in to %@…" = "%@ में लॉगिन हो रहा है…";
 "Sign in…" = "लॉगिन करें…";
-"local session" = "स्थानीय सत्र";
 "%@ · saved account" = "%@ · सहेजा गया खाता";
 "%@ · sign-in required" = "%@ · लॉगिन ज़रूरी है";
-"Codex · local session files" = "Codex · स्थानीय सत्र फ़ाइलें";
 "Could not forget the account. Try again." = "खाता हटाया नहीं जा सका। फिर कोशिश करें।";
 "Show %@" = "%@ दिखाएँ";
 "Custom" = "कस्टम";
@@ -200,3 +194,6 @@
 "Softcap is open source under the MIT licence. Read it, change it, or send a change back." = "Softcap MIT लाइसेंस वाला ओपन सोर्स है। इसे पढ़ें, बदलें, या अपना बदलाव वापस भेजें।";
 "Licence" = "लाइसेंस";
 "Read the licence" = "लाइसेंस पढ़ें";
+"Looking for your accounts…" = "आपके खाते खोजे जा रहे हैं…";
+"Reading the keychain and asking each service." = "किचेन पढ़ा जा रहा है और हर सेवा से पूछा जा रहा है।";
+"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "ब्राउज़र से जुड़े खाते स्वतंत्र रूप से अपडेट होते हैं। CLI में आपका लॉगिन नहीं बदलता।";

@@ -90,8 +90,6 @@
 "%lld min" = "%lld мин";
 "Where data comes from. A disabled service is not polled." = "Откуда брать данные. Выключенный сервис не опрашивается.";
 "Live data from the API." = "Живые данные из API.";
-"Choose…" = "Выбрать…";
-"Reset" = "Сбросить";
 "Later" = "Позже";
 "later" = "позже";
 "About and data" = "О программе и данные";
@@ -163,17 +161,13 @@
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "Когда что-то ломается, описание сбоя уходит автору. Пути, адреса и всё похожее на токен удаляются до отправки.";
 "Minimal window" = "Минимальное окно";
 "Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "Добавляйте аккаунты Claude Code и OpenAI Codex через браузер. Локальные аккаунты CLI также определяются автоматически.";
-"Browser accounts refresh independently. Local Codex accounts show readings from session files. Your CLI sign-ins are not changed." = "Аккаунты из браузера обновляются независимо. Для локальных аккаунтов Codex показаны данные из файлов сессий. Вход в CLI не изменяется.";
 "Saved credentials will be deleted. Your CLI sign-ins will not change." = "Сохранённые учётные данные будут удалены. Вход в CLI не изменится.";
-"Browser accounts use live usage data. Local accounts use snapshots from session files." = "Для аккаунтов из браузера лимиты загружаются напрямую. Для локальных — читаются из файлов сессий.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Не удалось принять ответ входа Codex. Закройте другие попытки входа в Codex и повторите.";
 "Could not open the browser. Check your default browser and try again." = "Не удалось открыть браузер. Проверьте браузер по умолчанию и повторите.";
 "Signing in to %@…" = "Вход в %@…";
 "Sign in…" = "Войти…";
-"local session" = "локальная сессия";
 "%@ · saved account" = "%@ · сохранённый аккаунт";
 "%@ · sign-in required" = "%@ · требуется вход";
-"Codex · local session files" = "Codex · локальные файлы сессий";
 "Could not forget the account. Try again." = "Не удалось удалить аккаунт. Повторите попытку.";
 "Show %@" = "Показывать %@";
 "Custom" = "Вручную";
@@ -200,3 +194,6 @@
 "Softcap is open source under the MIT licence. Read it, change it, or send a change back." = "Softcap — открытое программное обеспечение под лицензией MIT. Читайте его, меняйте или присылайте свои правки.";
 "Licence" = "Лицензия";
 "Read the licence" = "Прочитать лицензию";
+"Looking for your accounts…" = "Ищем ваши аккаунты…";
+"Reading the keychain and asking each service." = "Читаем связку ключей и опрашиваем сервисы.";
+"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "Аккаунты из браузера обновляются независимо. Вход в CLI не изменяется.";

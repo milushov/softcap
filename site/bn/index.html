@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -509,7 +506,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  "url":"https://softcap.app/",
  "image":"https://softcap.app/og.png",
  "description":"macOS মেনু বারের একটি অ্যাপ, যা দেখায় আপনার Claude Code আর OpenAI Codex সাবস্ক্রিপশন সীমার কতটা বাকি — যে কোটা মাপে, তা খরচ না করেই।",
- "featureList":["একসঙ্গে কয়েকটি Claude ও Codex অ্যাকাউন্ট","স্থানীয় সেশন সমর্থনসহ সরাসরি Codex ব্যবহার","মেনু বারে টাইমার","macOS আর iPhone-এ উইজেট","সীমা পেরোনোর বিজ্ঞপ্তি","দশটি ভাষা"]}
+ "featureList":["একসঙ্গে কয়েকটি Claude ও Codex অ্যাকাউন্ট","সরাসরি Codex ব্যবহার","মেনু বারে টাইমার","macOS আর iPhone-এ উইজেট","সীমা পেরোনোর বিজ্ঞপ্তি","দশটি ভাষা"]}
 </script>
 </head>
 <body>
@@ -652,7 +649,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       ব্রাউজার দিয়ে যোগ করা অ্যাকাউন্টের সাবস্ক্রিপশন ব্যবহার Softcap সরাসরি পড়ে। এই অনুরোধগুলো কোনো প্রম্পট না পাঠিয়ে, কোনো মডেল না চালিয়েই সীমা এনে দেয়।
     </p>
     <p>
-      স্থানীয় Codex অ্যাকাউন্টও কাজ করে: CLI তার রিডিং লেখে <code>~/.codex/sessions</code>-এ, আর Softcap সেই ফাইলগুলোতে নজর রাখে। ফাইল থেকে পাওয়া রিডিং একটি স্ন্যাপশট, তাই সব জায়গাতেই দেখানো হয় সেটি কখন নেওয়া হয়েছিল। ওই অ্যাকাউন্টটি Softcap-এর ব্রাউজার প্রবাহ দিয়ে সাইন ইন করুন, তাহলে CLI-র উপর নির্ভর না করেই এখনকার ব্যবহার দেখতে পাবেন।
+      Codex একইভাবে কাজ করে: ব্রাউজারে সাইন ইন করুন, আর Softcap সেই অ্যাকাউন্টের ব্যবহার সরাসরি পরিষেবা থেকে পড়ে নেয়। CLI-এর নিজস্ব ফাইল থেকে কিছুই নেওয়া হয় না, তাই আপনি যা দেখেন তা কখনোই Codex সর্বশেষ কখন চলেছিল তার উপর নির্ভর করে না।
     </p>
   </div>
 </section>
@@ -833,7 +830,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
         <dd>সরাসরি, OAuth ব্যবহার-এনডপয়েন্ট থেকে।
             <a href="/bn/limits/claude/">Claude-এর সীমা কীভাবে কাজ করে →</a></dd></div>
       <div class="fact"><dt>Codex</dt>
-        <dd>ব্রাউজার অ্যাকাউন্টের জন্য সরাসরি ব্যবহার। স্থানীয় সেশন ফাইলে নজর রাখা হয় FSEvents দিয়ে, সঙ্গে স্ন্যাপশটের বয়স দেখিয়ে।
+        <dd>প্রতিটি অ্যাকাউন্টের জন্য সরাসরি ব্যবহার, সেই অ্যাকাউন্টের নিজস্ব অনুমতি দিয়ে পরিষেবা থেকে পড়া।
             <a href="/bn/limits/codex/">Codex-এর সীমা কীভাবে কাজ করে →</a></dd></div>
       <div class="fact"><dt>অ্যাকাউন্ট যোগ করা</dt>
         <dd>Claude Code বা OpenAI Codex বেছে নিন, তারপর নিজের ব্রাউজারেই OAuth আর PKCE দিয়ে সাইন ইন করুন। স্থানীয় CLI অ্যাকাউন্টও শনাক্ত করা হয়।</dd></div>
@@ -842,7 +839,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       <div class="fact"><dt>নির্ভরতা</dt>
         <dd>একটিও নয়। প্রতিটি import হয় Apple-এর নিজের ফ্রেমওয়ার্ক, নয়তো এই প্রকল্পেরই কোনো মডিউল।</dd></div>
       <div class="fact"><dt>চালানোর খরচ</dt>
-        <dd>প্রতি যাচাইয়ে প্রতি Claude অ্যাকাউন্টে একটি অনুরোধ। পটভূমিতে পাঁচ মিনিট অন্তর, উইন্ডো খোলা থাকলে মিনিটে একবার — বা আপনি ঠিক করে দিলে তিরিশ সেকেন্ড থেকে এক ঘণ্টার মধ্যে যেকোনো বিরতিতে। Claude-এর নাম আর প্ল্যান একবার জেনে ছয় ঘণ্টা রাখা হয়। সংরক্ষিত প্রতিটি Codex অ্যাকাউন্ট প্রতি যাচাইয়ে একটি ব্যবহার-অনুরোধ যোগ করে; স্থানীয় Codex রিডিং আসে ডিস্ক থেকে।</dd></div>
+        <dd>প্রতি যাচাইয়ে প্রতি Claude অ্যাকাউন্টে একটি অনুরোধ। পটভূমিতে পাঁচ মিনিট অন্তর, উইন্ডো খোলা থাকলে মিনিটে একবার — বা আপনি ঠিক করে দিলে তিরিশ সেকেন্ড থেকে এক ঘণ্টার মধ্যে যেকোনো বিরতিতে। Claude-এর নাম আর প্ল্যান একবার জেনে ছয় ঘণ্টা রাখা হয়। সংরক্ষিত প্রতিটি Codex অ্যাকাউন্ট প্রতি যাচাইয়ে একটি ব্যবহার-অনুরোধ যোগ করে।</dd></div>
       <div class="fact"><dt>এখনও নয়</dt>
         <dd>Cursor, GitHub Copilot আর Gemini CLI। যে প্রদানকারীকে সত্যিকারের অ্যাকাউন্ট দিয়ে যাচাই করা যায় না, সে চুপচাপ শূন্য দেখাবে — আর সেটা কিছু না দেখানোর চেয়েও খারাপ।</dd></div>
     </dl>

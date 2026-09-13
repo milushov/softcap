@@ -90,8 +90,6 @@
 "%lld min" = "%lld mnt";
 "Where data comes from. A disabled service is not polled." = "Sumber data. Layanan yang dimatikan tidak diperiksa.";
 "Live data from the API." = "Data langsung dari API.";
-"Choose…" = "Pilih…";
-"Reset" = "Atur ulang";
 "Later" = "Nanti";
 "later" = "nanti";
 "About and data" = "Tentang dan data";
@@ -163,17 +161,13 @@
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "Saat terjadi kegagalan, deskripsinya dikirim ke pembuat aplikasi. Jalur berkas, alamat, dan apa pun yang menyerupai token dihapus lebih dulu.";
 "Minimal window" = "Jendela minimal";
 "Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "Tambahkan akun Claude Code atau OpenAI Codex melalui browser. Akun CLI lokal juga terdeteksi.";
-"Browser accounts refresh independently. Local Codex accounts show readings from session files. Your CLI sign-ins are not changed." = "Akun browser diperbarui secara mandiri. Akun Codex lokal menampilkan data dari file sesi. Login CLI Anda tidak berubah.";
 "Saved credentials will be deleted. Your CLI sign-ins will not change." = "Kredensial tersimpan akan dihapus. Login CLI Anda tidak berubah.";
-"Browser accounts use live usage data. Local accounts use snapshots from session files." = "Akun browser menggunakan data penggunaan langsung. Akun lokal menggunakan cuplikan dari file sesi.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Tidak dapat membuka callback login Codex. Tutup proses login Codex lainnya dan coba lagi.";
 "Could not open the browser. Check your default browser and try again." = "Tidak dapat membuka browser. Periksa browser default dan coba lagi.";
 "Signing in to %@…" = "Login ke %@…";
 "Sign in…" = "Masuk…";
-"local session" = "sesi lokal";
 "%@ · saved account" = "%@ · akun tersimpan";
 "%@ · sign-in required" = "%@ · perlu login";
-"Codex · local session files" = "Codex · file sesi lokal";
 "Could not forget the account. Try again." = "Tidak dapat melupakan akun. Coba lagi.";
 "Show %@" = "Tampilkan %@";
 "Custom" = "Kustom";
@@ -200,3 +194,6 @@
 "Softcap is open source under the MIT licence. Read it, change it, or send a change back." = "Softcap adalah perangkat lunak sumber terbuka dengan lisensi MIT. Baca, ubah, atau kirim balik perubahan Anda.";
 "Licence" = "Lisensi";
 "Read the licence" = "Baca lisensi";
+"Looking for your accounts…" = "Mencari akun Anda…";
+"Reading the keychain and asking each service." = "Membaca Keychain dan menanyai setiap layanan.";
+"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "Akun browser diperbarui secara mandiri. Login CLI Anda tidak berubah.";

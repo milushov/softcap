@@ -91,7 +91,6 @@ private actor MemoryStorage: PreferencesStorage {
     chosen.refreshAfterWake = false
     chosen.disabledProviders = [.codex]
     chosen.hiddenAccounts = ["claude/x"]
-    chosen.codexRoot = "/somewhere/else"
 
     let storage = MemoryStorage()
     let store = PreferencesStore(storage: storage)

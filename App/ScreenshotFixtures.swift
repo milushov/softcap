@@ -83,20 +83,19 @@ enum ScreenshotFixtures {
         ]
     }
 
-    /// The Accounts screen reads the keychain and scans `~/.codex` rather than
-    /// the snapshots, so it needs the same four accounts said a second way.
+    /// The Accounts screen reads the keychain rather than the snapshots, so it
+    /// needs the same four accounts said a second way.
     ///
     /// The states are the healthy ones on purpose. `needsLogin` is a real and
     /// common state, and it draws a row asking to sign in — true of the app, and
     /// the wrong thing to put in a shop window.
     ///
-    /// They are also not interchangeable with the provider beside them. Two of
-    /// the four captions name a service themselves — `activeInCLI` reads "token
-    /// read from Claude Code" and `localSession` reads "Codex · local session
-    /// files" — because only Claude has a CLI whose keychain item this app can
-    /// read, and only Codex writes session files. The first draft of this list
-    /// gave a Codex account `activeInCLI`, and the screenshot said "Claude"
-    /// underneath an address the row had already labelled Codex.
+    /// They are also not interchangeable with the provider beside them:
+    /// `activeInCLI` names a service in its own caption — "token read from
+    /// Claude Code" — because only Claude has a CLI whose keychain item this app
+    /// can read. The first draft of this list gave a Codex account
+    /// `activeInCLI`, and the screenshot said "Claude" underneath an address the
+    /// row had already labelled Codex.
     static var rows: [AccountsPane.AccountRow] {
         [
             AccountsPane.AccountRow(
@@ -110,7 +109,7 @@ enum ScreenshotFixtures {
                 displayName: "linus@example.com", state: .refreshed),
             AccountsPane.AccountRow(
                 id: "codex/fixture-2", handle: "hedy@example.com", provider: .codex,
-                displayName: "hedy@example.com", state: .localSession),
+                displayName: "hedy@example.com", state: .refreshed),
         ]
     }
 

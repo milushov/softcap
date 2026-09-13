@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -562,7 +559,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <section>
       <h2>यहाँ भी दो विंडो</h2>
       <p>Codex की सदस्यता उपयोग को 5 घंटे की विंडो और साप्ताहिक विंडो से मापती है, हर एक की अपनी क्षमता के साथ। किसी एक से भी टकराते ही Codex उस खाते पर काम लेना बंद कर देता है, जब तक विंडो रीसेट न हो।</p>
-      <p>Codex को अलग बनाती है संख्याओं की जगह। सेवा अपने जवाबों के साथ-साथ बताती है कि कितना बचा है, और CLI वे रीडिंग आपकी डिस्क की सत्र फ़ाइलों में लिखता है — तो जानने के दो रास्ते हैं: अपने खाते से पूछें, या पढ़ें कि CLI ने पिछली बार क्या देखा था।</p>
+      <p>Codex को अलग बनाता है यह कि आंकड़े कहाँ रहते हैं। सेवा अपने उत्तरों के साथ बचा हुआ हिस्सा बताती है, और Softcap वही आंकड़े अपनी अनुमति से सीधे माँग लेता है — न कोई प्रॉम्प्ट भेजा जाता है, न कोई मॉडल चलता है।</p>
     </section>
     <section>
       <h2>ये कब रीसेट होती हैं</h2>
@@ -570,11 +567,11 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>इन पर क्या गिना जाता है</h2>
-      <p>अनुरोध और उनसे होने वाला मॉडल का काम गिना जाता है। Softcap के अपने उपयोग अनुरोध न प्रॉम्प्ट भेजते हैं, न मॉडल चलाते हैं; सत्र फ़ाइलों से पढ़ा गया स्थानीय खाता तो बिल्कुल कुछ खर्च नहीं करता, क्योंकि वह आपकी डिस्क पर पड़ी एक फ़ाइल है।</p>
+      <p>अनुरोध और उनसे होने वाला मॉडल-कार्य गिना जाता है। Softcap के अपने खपत अनुरोध न प्रॉम्प्ट भेजते हैं और न मॉडल चलाते हैं, इसलिए किसी सीमा को देखना उसे कभी नहीं हिलाता।</p>
     </section>
     <section>
       <h2>बिना खर्च किए इन पर नज़र</h2>
-      <p>Codex खाते को ब्राउज़र से साइन इन करें और Softcap उसका उपयोग लाइव पढ़ता है। स्थानीय CLI में साइन इन खाते अपने आप पकड़ में आ जाते हैं और उनकी सत्र फ़ाइलों से पढ़े जाते हैं — संख्या के बगल में स्नैपशॉट की आयु ईमानदारी से दिखाते हुए। दोनों तरह से: मेन्यू बार, 80% और 95% की सीमाएँ, विजेट।</p>
+      <p>ब्राउज़र से Codex खाते में साइन इन करें और Softcap उसकी खपत लाइव पढ़ता है, आंकड़े के बगल में रीडिंग की उम्र ईमानदारी से दिखाते हुए। मेनू बार, 80% और 95% पर सीमाएँ, विजेट।</p>
       <p><a class="download" href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">macOS के लिए डाउनलोड करें</a></p>
     </section>
     <section>

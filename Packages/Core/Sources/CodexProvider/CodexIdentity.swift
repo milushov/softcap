@@ -7,24 +7,13 @@ public struct CodexIdentity: Sendable, Hashable {
     public let planType: String?
 }
 
-/// Extracts the identity from `~/.codex/auth.json`.
+/// Extracts the identity from the `id_token` a browser sign-in returns.
 ///
-/// The JWT signature is deliberately not verified: the file already sits in the
-/// user's home directory, and all we need is a name and a plan to display.
+/// The JWT signature is deliberately not verified: the token arrives over TLS
+/// from the code exchange this app just performed, and all we need from it is a
+/// name and a plan to display.
 public enum CodexIdentityReader {
     private static let authClaimKey = "https://api.openai.com/auth"
-
-    public static func parse(authJSON: Data) throws -> CodexIdentity {
-        guard
-            let root = try? JSONSerialization.jsonObject(with: authJSON) as? [String: Any],
-            let tokens = root["tokens"] as? [String: Any],
-            let idToken = tokens["id_token"] as? String
-        else {
-            throw ProviderFailure(kind: .malformed, diagnostic: "auth.json has no tokens.id_token")
-        }
-
-        return try parse(idToken: idToken, accountID: tokens["account_id"] as? String)
-    }
 
     public static func parse(idToken: String, accountID: String? = nil) throws -> CodexIdentity {
         guard let claims = JWTClaims.decode(idToken) else {
@@ -45,5 +34,4 @@ public enum CodexIdentityReader {
             planType: auth["chatgpt_plan_type"] as? String
         )
     }
-
 }

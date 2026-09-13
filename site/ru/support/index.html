@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -578,7 +575,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       <h3>Он попросил доступ к связке ключей, когда я нажал «Обновить»</h3>
       <p>Чтобы прочитать элемент связки ключей, принадлежащий CLI, нужно разрешение macOS, и Softcap просит его только пока вы смотрите — когда вы нажали кнопку, никогда из таймера. Выберите «Всегда разрешать», и он больше не спросит; откажете — приложение продолжит работать со своими копиями.</p>
       <h3>Аккаунт Codex показывает показание многочасовой давности</h3>
-      <p>Локальный аккаунт Codex читается из файлов сессий, которые пишет CLI, поэтому число свежо ровно настолько, насколько свеж последний запуск CLI, — потому везде и показан возраст снимка. Войдите в этот аккаунт через браузерный вход Softcap, чтобы видеть текущий расход независимо от CLI.</p>
+      <p>Softcap опрашивает по расписанию, поэтому показание свежо ровно настолько, насколько свеж последний удавшийся опрос. Числа многочасовой давности означают, что опросы не проходят, — чаще всего истёк грант аккаунта. Откройте «Настройки → Аккаунты»: строка, которой нужно внимание, скажет об этом, а «Войти…» её переподключит.</p>
       <h3>Уведомления не пришли</h3>
       <p>Проверьте три вещи: разрешение macOS на уведомления для Softcap, пороги в настройках (80% и 95% из коробки) и тихие часы — пока они идут, ничего не приходит, и ничего не догоняет вас потом, чтобы это возместить.</p>
       <h3>Удаление аккаунта и что после него остаётся</h3>

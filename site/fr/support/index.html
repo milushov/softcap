@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -578,7 +575,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       <h3>Il a demandé l'autorisation du trousseau quand j'ai appuyé sur Actualiser</h3>
       <p>Lire l'entrée de trousseau de la CLI elle-même demande l'autorisation de macOS, et Softcap ne la demande que pendant que vous regardez — quand vous appuyez sur le bouton, jamais depuis un minuteur. Choisissez Toujours autoriser et il ne redemandera plus ; refusez et l'app continue de fonctionner sur ses propres copies.</p>
       <h3>Un compte Codex affiche un relevé d'il y a plusieurs heures</h3>
-      <p>Un compte Codex local est lu dans les fichiers de session qu'écrit la CLI, donc le chiffre est aussi récent que la dernière exécution de la CLI — c'est pourquoi chaque surface affiche l'âge de l'instantané. Connectez ce compte via le flux navigateur de Softcap pour voir l'usage courant indépendamment de la CLI.</p>
+      <p>Softcap interroge selon un calendrier : une lecture est donc aussi fraîche que la dernière interrogation aboutie. Des chiffres vieux de plusieurs heures signifient que les interrogations n'aboutissent pas — le plus souvent, l'autorisation du compte a expiré. Ouvrez Réglages → Comptes : la ligne qui demande votre attention le dit, et Se connecter… la reconnecte.</p>
       <h3>Les notifications ne sont pas arrivées</h3>
       <p>Vérifiez trois choses : l'autorisation de notifications macOS pour Softcap, les seuils dans les Réglages (80% et 95% par défaut) et les heures calmes — rien n'arrive tant qu'elles sont actives, et rien n'est livré plus tard pour rattraper.</p>
       <h3>Retirer un compte, et ce qu'il laisse derrière lui</h3>

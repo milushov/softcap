@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -509,7 +506,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  "url":"https://softcap.app/",
  "image":"https://softcap.app/og.png",
  "description":"Une app de barre de menus macOS qui montre ce qu'il reste de vos limites d'abonnement Claude Code et OpenAI Codex, sans dépenser le quota qu'elle mesure.",
- "featureList":["Plusieurs comptes Claude et Codex à la fois","Usage Codex en direct, avec prise en charge des sessions locales","Minuteur dans la barre de menus","Widgets sur macOS et iPhone","Notifications de seuil","Dix langues"]}
+ "featureList":["Plusieurs comptes Claude et Codex à la fois","Consommation Codex en direct","Minuteur dans la barre de menus","Widgets sur macOS et iPhone","Notifications de seuil","Dix langues"]}
 </script>
 </head>
 <body>
@@ -652,7 +649,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       Softcap lit l'usage de l'abonnement directement pour les comptes ajoutés depuis le navigateur. Ces requêtes récupèrent les limites sans envoyer de prompt ni exécuter de modèle.
     </p>
     <p>
-      Les comptes Codex locaux fonctionnent aussi : la CLI écrit ses relevés dans <code>~/.codex/sessions</code>, et Softcap surveille ces fichiers. Un relevé tiré d'un fichier est un instantané, donc chaque surface montre quand il a été pris. Connectez ce compte via le flux navigateur de Softcap pour voir l'usage courant indépendamment de la CLI.
+      Codex fonctionne de la même façon : connectez-vous dans le navigateur et Softcap lit la consommation de ce compte directement auprès du service. Rien n'est pris dans les fichiers propres de la CLI, donc ce que vous voyez ne dépend jamais de la dernière exécution de Codex.
     </p>
   </div>
 </section>
@@ -833,7 +830,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
         <dd>En direct, depuis le point d'accès d'usage OAuth.
             <a href="/fr/limits/claude/">Comment fonctionnent les limites Claude →</a></dd></div>
       <div class="fact"><dt>Codex</dt>
-        <dd>Usage en direct pour les comptes ajoutés au navigateur. Les fichiers de session locaux sont surveillés avec FSEvents, l'âge de l'instantané étant affiché.
+        <dd>Consommation en direct pour chaque compte, lue auprès du service avec l'autorisation propre au compte.
             <a href="/fr/limits/codex/">Comment fonctionnent les limites Codex →</a></dd></div>
       <div class="fact"><dt>Ajouter un compte</dt>
         <dd>Choisissez Claude Code ou OpenAI Codex, puis connectez-vous avec OAuth et PKCE dans votre propre navigateur. Les comptes locaux de la CLI sont aussi détectés.</dd></div>
@@ -842,7 +839,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       <div class="fact"><dt>Dépendances</dt>
         <dd>Aucune. Chaque import est soit un framework d'Apple, soit un module de ce projet.</dd></div>
       <div class="fact"><dt>Ce que coûte son fonctionnement</dt>
-        <dd>Une requête par compte Claude et par relevé. Toutes les cinq minutes en arrière-plan, une fois par minute la fenêtre ouverte — ou entre trente secondes et une heure, si vous le réglez. Le nom et la formule Claude sont demandés une fois et conservés six heures. Chaque compte Codex enregistré ajoute une requête d'usage par relevé ; les relevés Codex locaux viennent du disque.</dd></div>
+        <dd>Une requête par compte Claude et par relevé. Toutes les cinq minutes en arrière-plan, une fois par minute la fenêtre ouverte — ou entre trente secondes et une heure, si vous le réglez. Le nom et la formule Claude sont demandés une fois et conservés six heures. Chaque compte Codex enregistré ajoute une requête d'usage par relevé.</dd></div>
       <div class="fact"><dt>Pas encore</dt>
         <dd>Cursor, GitHub Copilot et Gemini CLI. Un fournisseur qu'on ne peut pas interroger sur un compte réel afficherait zéro en silence, ce qui est pire que rien.</dd></div>
     </dl>

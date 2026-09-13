@@ -122,22 +122,13 @@ import ClaudeProvider
         #expect(projectAgreesOnIOS, "project.yml and Package.swift disagree about the iOS floor")
     }
 
-    /// The page names three techniques by name, in the section addressed to
-    /// people who read that part — the ones a developer checks first and would
-    /// notice being wrong. Each is true today, and nothing joined the sentence to
-    /// the code: swapping FSEvents for a poll, or PKCE for a plain redirect,
-    /// leaves the page saying the old thing in confident English.
+    /// The page names techniques by name, in the section addressed to people who
+    /// read that part — the ones a developer checks first and would notice being
+    /// wrong. Each is true today, and nothing joined the sentence to the code:
+    /// swapping PKCE for a plain redirect leaves the page saying the old thing
+    /// in confident English.
     @Test func theTechniquesThePageNamesAreTheOnesInUse() throws {
         let root = Self.repositoryRoot
-
-        let watcher = try String(
-            contentsOf: root.appendingPathComponent(
-                "Packages/Core/Sources/CodexProvider/SessionWatcher.swift"),
-            encoding: .utf8)
-        #expect(watcher.contains("FSEventStreamRef"),
-                "the Codex watcher no longer uses FSEvents, which the landing names")
-        #expect(try Self.visibleSays("FSEvents"),
-                "the landing no longer names how the session files are watched")
 
         let login = try String(
             contentsOf: root.appendingPathComponent(

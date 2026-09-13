@@ -90,8 +90,6 @@
 "%lld min" = "%lld মিন";
 "Where data comes from. A disabled service is not polled." = "ডেটা কোথা থেকে আসে। বন্ধ পরিষেবা যাচাই হয় না।";
 "Live data from the API." = "API থেকে সরাসরি ডেটা।";
-"Choose…" = "বেছে নিন…";
-"Reset" = "রিসেট";
 "Later" = "পরে";
 "later" = "পরে";
 "About and data" = "সম্পর্কে ও ডেটা";
@@ -163,17 +161,13 @@
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "কিছু ব্যর্থ হলে তার বিবরণ লেখকের কাছে পাঠানো হয়। পথ, ঠিকানা এবং টোকেনের মতো যেকোনো কিছু আগেই সরিয়ে ফেলা হয়।";
 "Minimal window" = "সংক্ষিপ্ত উইন্ডো";
 "Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "ব্রাউজার দিয়ে Claude Code বা OpenAI Codex অ্যাকাউন্ট যোগ করুন। স্থানীয় CLI অ্যাকাউন্টও শনাক্ত করা হয়।";
-"Browser accounts refresh independently. Local Codex accounts show readings from session files. Your CLI sign-ins are not changed." = "ব্রাউজারের অ্যাকাউন্টগুলো স্বাধীনভাবে আপডেট হয়। স্থানীয় Codex অ্যাকাউন্ট সেশন ফাইলের তথ্য দেখায়। CLI লগইন বদলায় না।";
 "Saved credentials will be deleted. Your CLI sign-ins will not change." = "সংরক্ষিত পরিচয়পত্র মুছে যাবে। CLI লগইন বদলাবে না।";
-"Browser accounts use live usage data. Local accounts use snapshots from session files." = "ব্রাউজারের অ্যাকাউন্ট সরাসরি ব্যবহারের তথ্য দেখায়। স্থানীয় অ্যাকাউন্ট সেশন ফাইলের স্ন্যাপশট দেখায়।";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Codex লগইনের কলব্যাক খোলা যায়নি। অন্য Codex লগইন বন্ধ করে আবার চেষ্টা করুন।";
 "Could not open the browser. Check your default browser and try again." = "ব্রাউজার খোলা যায়নি। ডিফল্ট ব্রাউজার পরীক্ষা করে আবার চেষ্টা করুন।";
 "Signing in to %@…" = "%@-এ লগইন হচ্ছে…";
 "Sign in…" = "লগইন করুন…";
-"local session" = "স্থানীয় সেশন";
 "%@ · saved account" = "%@ · সংরক্ষিত অ্যাকাউন্ট";
 "%@ · sign-in required" = "%@ · লগইন প্রয়োজন";
-"Codex · local session files" = "Codex · স্থানীয় সেশন ফাইল";
 "Could not forget the account. Try again." = "অ্যাকাউন্ট মুছে ফেলা যায়নি। আবার চেষ্টা করুন।";
 "Show %@" = "%@ দেখান";
 "Custom" = "কাস্টম";
@@ -200,3 +194,6 @@
 "Softcap is open source under the MIT licence. Read it, change it, or send a change back." = "Softcap MIT লাইসেন্সে প্রকাশিত ওপেন সোর্স সফটওয়্যার। এটি পড়ুন, বদলান, বা আপনার পরিবর্তন ফেরত পাঠান।";
 "Licence" = "লাইসেন্স";
 "Read the licence" = "লাইসেন্স পড়ুন";
+"Looking for your accounts…" = "আপনার অ্যাকাউন্ট খোঁজা হচ্ছে…";
+"Reading the keychain and asking each service." = "কীচেইন পড়া হচ্ছে এবং প্রতিটি পরিষেবাকে জিজ্ঞাসা করা হচ্ছে।";
+"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "ব্রাউজারের অ্যাকাউন্টগুলো স্বাধীনভাবে আপডেট হয়। CLI লগইন বদলায় না।";

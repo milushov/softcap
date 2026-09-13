@@ -271,10 +271,7 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
-  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
-     minimum font size in the browser gets 340 px of it on a 320 px screen. */
-  overflow-wrap:anywhere}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -578,7 +575,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       <h3>Refresh চাপতেই এটি কীচেইনের অনুমতি চাইল</h3>
       <p>CLI-র নিজের কীচেইন আইটেম পড়তে macOS-এর অনুমতি লাগে, আর Softcap সেটি চায় কেবল আপনার চোখের সামনেই — যখন আপনি বোতাম চাপেন, কখনও টাইমার থেকে নয়। Always Allow বাছলে এটি আর জিজ্ঞাসা করবে না; না বললে অ্যাপ নিজের কপি দিয়েই কাজ চালিয়ে যাবে।</p>
       <h3>একটি Codex অ্যাকাউন্ট কয়েক ঘণ্টা আগের রিডিং দেখাচ্ছে</h3>
-      <p>স্থানীয় Codex অ্যাকাউন্ট পড়া হয় CLI যে সেশন ফাইল লেখে সেখান থেকে, তাই সংখ্যাটি ঠিক ততটাই টাটকা যতটা CLI-র শেষ চালানো — আর এ কারণেই সব জায়গায় স্ন্যাপশটের বয়স দেখানো হয়। ওই অ্যাকাউন্টটি Softcap-এর ব্রাউজার প্রবাহ দিয়ে সাইন ইন করুন, তাহলে CLI-র উপর নির্ভর না করেই এখনকার ব্যবহার দেখতে পাবেন।</p>
+      <p>Softcap নির্ধারিত সময়ে জিজ্ঞাসা করে, তাই একটি পাঠ ঠিক ততটাই টাটকা যতটা শেষ সফল জিজ্ঞাসা। কয়েক ঘণ্টা পুরোনো সংখ্যার মানে জিজ্ঞাসাগুলি পৌঁছাচ্ছে না — বেশিরভাগ সময় অ্যাকাউন্টের অনুমতির মেয়াদ ফুরিয়েছে। সেটিংস → অ্যাকাউন্ট খুলুন: যে সারিটির মনোযোগ দরকার সেটি তা বলে দেয়, আর সাইন ইন… সেটিকে আবার যুক্ত করে।</p>
       <h3>বিজ্ঞপ্তি আসেনি</h3>
       <p>তিনটি জিনিস দেখুন: Softcap-এর জন্য macOS-এর বিজ্ঞপ্তির অনুমতি, সেটিংসে সীমা (শুরু থেকেই 80% আর 95%), আর নীরব সময় — সেটি চালু থাকলে কিছু আসে না, আর পুষিয়ে দিতে কিছু দেরিতেও পৌঁছয় না।</p>
       <h3>অ্যাকাউন্ট সরানো, আর তাতে পিছনে কী থাকে</h3>
