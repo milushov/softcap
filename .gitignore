@@ -15,6 +15,10 @@ Signing.local.xcconfig
 .build/
 Packages/*/.build/
 build-ios/
+# Derived data from a screenshot run: `build/` above matches the `Build/`
+# inside it, but not the directory itself, and its info.plist carries the
+# home path of whoever built it.
+build-shots/
 
 # Worktrees and state written by the agent harness — 751 MB of it at the time
 # this line was added. It was ignored through .git/info/exclude, which is local

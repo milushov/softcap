@@ -49,9 +49,29 @@ import Foundation
         "sh", "plist", "entitlements", "xcconfig", "xml", "txt", "svg",
     ]
 
+    /// The one real mailbox this repository publishes, on purpose: the pages
+    /// under `site/` carry a support contact in every language, and it has to
+    /// be an address that answers. Read from the catalogue rather than spelled
+    /// out here, and deliberately so — a private value written a second way
+    /// walks straight past an exception written for the first, which is how
+    /// this exception's own first day went. The decision is in
+    /// docs/DECISIONS.md; what makes it narrow is the test below, which allows
+    /// this one address and no other.
+    private static var publishedSupportAddress: String? {
+        let catalogue = repositoryRoot
+            .appendingPathComponent("site/strings/en.json")
+        guard let data = try? Data(contentsOf: catalogue),
+              let strings = try? JSONDecoder().decode([String: String].self, from: data),
+              let address = strings["support.contact_email"],
+              address.contains("@")
+        else { return nil }   // the sentinel, before the address is chosen
+        return address
+    }
+
     @Test func exampleAddressesUseTheReservedDomains() throws {
         let pattern = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
         let regex = try NSRegularExpression(pattern: pattern)
+        let published = Self.publishedSupportAddress
         var offenders: [String] = []
 
         for file in try Self.textFiles() {
@@ -61,7 +81,8 @@ import Foundation
                 guard let found = Range(match.range, in: text) else { continue }
                 let address = String(text[found])
                 let host = address.split(separator: "@").last.map(String.init) ?? ""
-                let allowed = Self.reserved.contains { host == $0 || host.hasSuffix($0) }
+                let allowed = address == published
+                    || Self.reserved.contains { host == $0 || host.hasSuffix($0) }
                 if !allowed {
                     offenders.append("\(file.lastPathComponent): \(address)")
                 }
@@ -398,29 +419,51 @@ import Foundation
         return found
     }
 
+    /// Everything a commit here could carry, asked of git rather than guessed.
+    ///
+    /// This walked the directory tree and skipped a hand-written list of
+    /// directory names — `build`, `build-ios`, `DerivedData` and four others.
+    /// The list is a guess at what git already knows, and it was wrong the
+    /// first time somebody built into a directory not on it: a screenshot run
+    /// wrote `build-shots/`, and the suite went red on Xcode's own manifests,
+    /// reporting this machine's name from files that can never be published.
+    /// Noise like that is how a check earns the habit of being ignored.
+    ///
+    /// `--cached --others --exclude-standard` is precisely "tracked, plus
+    /// untracked that is not ignored" — the set that can reach the history,
+    /// which is the set this suite exists to police. Nothing that could be
+    /// published stops being scanned; only what git would refuse to commit.
     private static func walkTextFiles() throws -> [URL] {
-        let skipped = [
-            ".build", ".git", ".claude", "build", "build-ios", "DerivedData", ".swiftpm",
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = [
+            "-C", repositoryRoot.path,
+            "ls-files", "-z", "--cached", "--others", "--exclude-standard",
         ]
-        guard let walker = FileManager.default.enumerator(
-            at: repositoryRoot, includingPropertiesForKeys: [.isDirectoryKey]
-        ) else { return [] }
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = FileHandle.nullDevice
+        try process.run()
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
 
-        var found: [URL] = []
-        for case let url as URL in walker {
-            if skipped.contains(url.lastPathComponent) {
-                walker.skipDescendants()
-                continue
-            }
-            guard extensions.contains(url.pathExtension) else { continue }
-            guard url.lastPathComponent != "Signing.local.xcconfig" else { continue }
+        // A git that answers with nothing must not read as a clean tree: the
+        // floor in `textFiles()` catches it, and this keeps the reason honest.
+        guard process.terminationStatus == 0,
+              let listing = String(data: data, encoding: .utf8)
+        else { return [] }
+
+        return listing.split(separator: "\0").map(String.init).compactMap { path in
+            let url = repositoryRoot.appendingPathComponent(path)
+            guard extensions.contains(url.pathExtension) else { return nil }
+            guard url.lastPathComponent != "Signing.local.xcconfig" else { return nil }
             // This file states the shapes the others must not contain; scanning
             // it reports every pattern as a finding against itself.
             guard url.lastPathComponent != URL(fileURLWithPath: #filePath).lastPathComponent
-            else { continue }
-            found.append(url)
+            else { return nil }
+            guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+            return url
         }
-        return found
     }
 
     private static var repositoryRoot: URL {
