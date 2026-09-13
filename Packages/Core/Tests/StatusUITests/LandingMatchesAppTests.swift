@@ -459,10 +459,10 @@ import Foundation
 
         // The lines carry the colours the legend promises. Checked separately
         // because everything below reads the legend, and the legend is a row of
-        // dots: pointing `.chart .l1` at `--id-2` draws the line for one account
+        // dots: pointing `.a1 .line` at `--id-2` draws the line for one account
         // in another's colour, leaves every assertion here true, and makes the
         // key beneath the drawing a lie about the drawing.
-        let lines = Self.matches(#"\.chart \.l(\d)\{stroke:var\(--id-(\d)\)\}"#,
+        let lines = Self.matches(#"\.a(\d) \.line,\.a\d \.glow,\.a\d \.reset\{stroke:var\(--id-(\d)\)\}"#,
                                  in: page, groups: 2)
         #expect(lines.count >= 3, "found \(lines.count) chart lines to check")
         for line in lines {

@@ -318,9 +318,37 @@ footer{padding:52px 0 64px;color:var(--fg-3);font-size:13px}
 .brand .ink{stroke:#ffffff}
 .chart .grid{stroke:var(--line)}
 .chart .axis{fill:var(--fg-3)}
-.chart .l1{stroke:var(--id-1)}
-.chart .l2{stroke:var(--id-2)}
-.chart .l3{stroke:var(--id-3)}
+.stats{display:flex;flex-wrap:wrap;gap:10px 30px;list-style:none;margin:0 0 20px;padding:0}
+.stats li{font-family:var(--mono);font-size:12px;color:var(--fg-3);letter-spacing:.01em}
+.stats b{display:block;font-size:22px;font-weight:640;color:var(--fg);letter-spacing:-.02em;font-family:var(--sans)}
+.chart .limits line{stroke:var(--fg-3);stroke-dasharray:3 5;opacity:.5}
+.chart .limits text{fill:var(--fg-3);font-size:9px;font-family:var(--mono)}
+.acct .line{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.acct .glow{fill:none;stroke-width:6;stroke-linecap:round;opacity:.16}
+.acct .reset{fill:none;stroke-width:1;opacity:.35}
+.acct .fill{opacity:.75}
+.a1 .line,.a1 .glow,.a1 .reset{stroke:var(--id-1)}
+.a2 .line,.a2 .glow,.a2 .reset{stroke:var(--id-2)}
+.a3 .line,.a3 .glow,.a3 .reset{stroke:var(--id-3)}
+.f1 stop{stop-color:var(--id-1)}
+.f2 stop{stop-color:var(--id-2)}
+.f3 stop{stop-color:var(--id-3)}
+stop.top{stop-opacity:.24}
+stop.bot{stop-opacity:0}
+.acct:hover .line{stroke-width:3}
+.acct:hover .glow{opacity:.3}
+/* The draw-in exists only for readers who have not asked for calm. The line
+   is dashed to its own length via pathLength="1", so one rule paces every
+   curve; the group fades while the stroke travels. */
+@media (prefers-reduced-motion: no-preference){
+  .acct{animation:appear .9s ease-out both}
+  .acct .line{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.6s cubic-bezier(.4,0,.2,1) forwards}
+  .a1 .line{animation-delay:.1s}
+  .a2 .line{animation-delay:.3s}
+  .a3 .line{animation-delay:.5s}
+}
+@keyframes appear{from{opacity:0}}
+@keyframes draw{to{stroke-dashoffset:0}}
 
 /* ---------- the appearance switch ---------- */
 .themes{border:0;margin:0;padding:0;display:flex;gap:0;align-items:center}
@@ -538,35 +566,96 @@ footer p{margin:0 0 6px;max-width:60ch}
 <section>
   <div class="wrap">
     <p class="eyebrow">Over time</p>
-    <h2>Where the week actually went</h2>
+    <h2>Three subscriptions, one month, zero spent to know it</h2>
     <p>
       One line per account. Colour means <strong>which account</strong> here and
       <strong>how loaded</strong> everywhere else, so the two scales never borrow from each other.
+      The plans renew on different days — so at any hour, the picture says which account is fresh.
     </p>
 
     <div class="chart">
-      <svg viewBox="0 0 720 200" role="img" aria-label="Weekly usage over a month: one line per account.">
-        <g class="grid" stroke="#26262f" stroke-width="1">
+      <ul class="stats">
+        <li><b>3</b> accounts</li>
+        <li><b>7</b> resets in 28 days</li>
+        <li><b>0</b> quota spent measuring</li>
+      </ul>
+      <svg viewBox="0 0 720 210" role="img" aria-label="A month of weekly limits for three accounts: curves climbing between resets, with notification thresholds marked at 80 and 95 percent.">
+        <defs>
+          <linearGradient id="fill1" class="f1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" class="top"/><stop offset="1" class="bot"/>
+          </linearGradient>
+          <linearGradient id="fill2" class="f2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" class="top"/><stop offset="1" class="bot"/>
+          </linearGradient>
+          <linearGradient id="fill3" class="f3" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" class="top"/><stop offset="1" class="bot"/>
+          </linearGradient>
+        </defs>
+        <g class="grid" stroke-width="1">
           <line x1="42" y1="16" x2="704" y2="16"/><line x1="42" y1="60" x2="704" y2="60"/>
           <line x1="42" y1="104" x2="704" y2="104"/><line x1="42" y1="148" x2="704" y2="148"/>
           <line x1="42" y1="172" x2="704" y2="172"/>
         </g>
-        <g class="axis" fill="#828291" font-size="10" font-family="ui-monospace,monospace" text-anchor="end">
+        <g class="axis" font-size="10" font-family="ui-monospace,monospace" text-anchor="end">
           <text x="34" y="20">100%</text><text x="34" y="64">75%</text>
           <text x="34" y="108">50%</text><text x="34" y="152">25%</text><text x="34" y="176">0%</text>
         </g>
-        <g fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M60.0 172.0 L126.0 121.7 L180.0 90.9 L180.0 172.0 L180.0 172.0 L257.0 103.3 L320.0 61.2 L320.0 172.0 L320.0 172.0 L397.0 129.4 L460.0 103.4 L460.0 172.0 L460.0 172.0 L537.0 111.1 L600.0 73.7 L600.0 172.0 L600.0 172.0 L633.0 146.9 L660.0 131.4"
-                class="l1" stroke="#5c8cd9"/>
-          <path d="M60.0 172.0 L93.0 135.2 L120.0 112.7 L120.0 172.0 L120.0 172.0 L197.0 82.1 L260.0 26.9 L260.0 172.0 L260.0 172.0 L337.0 75.3 L400.0 16.0 L400.0 172.0 L400.0 172.0 L477.0 86.9 L540.0 34.7 L540.0 172.0 L540.0 172.0 L606.0 79.1 L660.0 22.2"
-                class="l2" stroke="#8c73cc"/>
-          <path d="M60.0 172.0 L104.0 154.6 L140.0 143.9 L140.0 172.0 L140.0 172.0 L217.0 142.0 L280.0 123.6" class="l3" stroke="#4da1ae"/>
-          <path d="M440.0 172.0 L517.0 148.8 L580.0 134.6 L580.0 172.0 L580.0 172.0 L624.0 159.4 L660.0 151.7" class="l3" stroke="#4da1ae"/>
+        <g class="limits">
+          <line x1="42" y1="47.2" x2="704" y2="47.2"/>
+          <line x1="42" y1="23.8" x2="704" y2="23.8"/>
+          <text x="704" y="43.5" text-anchor="end">80% · first nudge</text>
+          <text x="704" y="20" text-anchor="end">95% · last warning</text>
         </g>
-        <g class="axis" fill="#828291" font-size="10" font-family="ui-monospace,monospace" text-anchor="middle">
-          <text x="90" y="194">4 Aug</text><text x="230" y="194">11 Aug</text>
-          <text x="370" y="194">18 Aug</text><text x="510" y="194">25 Aug</text>
-          <text x="650" y="194">31 Aug</text>
+        <g class="acct a1">
+          <path class="fill" fill="url(#fill1)" d="M81.4 172.0 C92.1 164.7 102.9 157.2 113.6 150.2 C124.3 143.1 135.0 137.4 145.7 129.9 C156.4 122.3 167.1 114.4 177.9 104.9 C185.7 98.0 193.6 88.9 201.4 81.5 C210.7 72.8 220.0 64.9 229.3 56.6 L229.3 172.0 L81.4 172.0 Z"/>
+          <path class="fill" fill="url(#fill1)" d="M231.4 172.0 C242.1 165.8 252.9 161.1 263.6 153.3 C274.3 145.5 285.0 134.3 295.7 125.2 C306.4 116.1 317.1 107.3 327.9 98.7 C338.6 90.1 349.3 85.7 360.0 73.7 C366.4 66.5 372.9 55.0 379.3 45.6 L379.3 172.0 L231.4 172.0 Z"/>
+          <path class="fill" fill="url(#fill1)" d="M381.4 172.0 C392.1 164.2 402.9 157.2 413.6 148.6 C424.3 140.0 435.0 130.1 445.7 120.5 C456.4 110.9 467.1 101.0 477.9 90.9 C488.6 80.7 499.3 71.8 510.0 59.7 C516.4 52.4 522.9 43.0 529.3 34.7 L529.3 172.0 L381.4 172.0 Z"/>
+          <path class="fill" fill="url(#fill1)" d="M531.4 172.0 C542.1 163.7 552.9 156.1 563.6 147.0 C574.3 137.9 585.0 128.3 595.7 117.4 C606.4 106.5 617.1 93.0 627.9 81.5 C638.6 70.1 649.3 59.7 660.0 48.8 L660.0 172.0 L531.4 172.0 Z"/>
+          <path class="glow" d="M81.4 172.0 C92.1 164.7 102.9 157.2 113.6 150.2 C124.3 143.1 135.0 137.4 145.7 129.9 C156.4 122.3 167.1 114.4 177.9 104.9 C185.7 98.0 193.6 88.9 201.4 81.5 C210.7 72.8 220.0 64.9 229.3 56.6"/>
+          <path class="glow" d="M231.4 172.0 C242.1 165.8 252.9 161.1 263.6 153.3 C274.3 145.5 285.0 134.3 295.7 125.2 C306.4 116.1 317.1 107.3 327.9 98.7 C338.6 90.1 349.3 85.7 360.0 73.7 C366.4 66.5 372.9 55.0 379.3 45.6"/>
+          <path class="glow" d="M381.4 172.0 C392.1 164.2 402.9 157.2 413.6 148.6 C424.3 140.0 435.0 130.1 445.7 120.5 C456.4 110.9 467.1 101.0 477.9 90.9 C488.6 80.7 499.3 71.8 510.0 59.7 C516.4 52.4 522.9 43.0 529.3 34.7"/>
+          <path class="glow" d="M531.4 172.0 C542.1 163.7 552.9 156.1 563.6 147.0 C574.3 137.9 585.0 128.3 595.7 117.4 C606.4 106.5 617.1 93.0 627.9 81.5 C638.6 70.1 649.3 59.7 660.0 48.8"/>
+          <path class="line" pathLength="1" d="M81.4 172.0 C92.1 164.7 102.9 157.2 113.6 150.2 C124.3 143.1 135.0 137.4 145.7 129.9 C156.4 122.3 167.1 114.4 177.9 104.9 C185.7 98.0 193.6 88.9 201.4 81.5 C210.7 72.8 220.0 64.9 229.3 56.6"/>
+          <path class="line" pathLength="1" d="M231.4 172.0 C242.1 165.8 252.9 161.1 263.6 153.3 C274.3 145.5 285.0 134.3 295.7 125.2 C306.4 116.1 317.1 107.3 327.9 98.7 C338.6 90.1 349.3 85.7 360.0 73.7 C366.4 66.5 372.9 55.0 379.3 45.6"/>
+          <path class="line" pathLength="1" d="M381.4 172.0 C392.1 164.2 402.9 157.2 413.6 148.6 C424.3 140.0 435.0 130.1 445.7 120.5 C456.4 110.9 467.1 101.0 477.9 90.9 C488.6 80.7 499.3 71.8 510.0 59.7 C516.4 52.4 522.9 43.0 529.3 34.7"/>
+          <path class="line" pathLength="1" d="M531.4 172.0 C542.1 163.7 552.9 156.1 563.6 147.0 C574.3 137.9 585.0 128.3 595.7 117.4 C606.4 106.5 617.1 93.0 627.9 81.5 C638.6 70.1 649.3 59.7 660.0 48.8"/>
+          <path class="reset" d="M229.3 56.6 L229.3 172.0"/>
+          <path class="reset" d="M379.3 45.6 L379.3 172.0"/>
+          <path class="reset" d="M529.3 34.7 L529.3 172.0"/>
+        </g>
+        <g class="acct a2">
+          <path class="fill" fill="url(#fill2)" d="M60.0 75.3 C69.3 69.0 78.6 62.8 87.9 56.6 C97.1 50.3 106.4 43.6 115.7 37.8 C125.0 32.1 134.3 27.4 143.6 22.2 L143.6 172.0 L60.0 172.0 Z"/>
+          <path class="fill" fill="url(#fill2)" d="M145.7 172.0 C156.4 160.6 167.1 149.4 177.9 137.7 C188.6 126.0 199.3 113.2 210.0 101.8 C220.7 90.4 231.4 79.2 242.1 69.0 C252.9 58.9 263.6 51.3 274.3 41.0 C280.7 34.8 287.1 27.4 293.6 20.7 L293.6 172.0 L145.7 172.0 Z"/>
+          <path class="fill" fill="url(#fill2)" d="M295.7 172.0 C306.4 159.5 317.1 146.5 327.9 134.6 C338.6 122.6 349.3 110.9 360.0 100.2 C370.7 89.6 381.4 80.2 392.1 70.6 C402.9 61.0 413.6 51.5 424.3 42.5 C430.7 37.1 437.1 32.1 443.6 26.9 L443.6 172.0 L295.7 172.0 Z"/>
+          <path class="fill" fill="url(#fill2)" d="M445.7 172.0 C456.4 161.6 467.1 151.5 477.9 140.8 C488.6 130.1 499.3 119.0 510.0 108.0 C520.7 97.1 531.4 85.9 542.1 75.3 C552.9 64.6 563.6 54.9 574.3 44.1 C580.7 37.6 587.1 30.6 593.6 23.8 L593.6 172.0 L445.7 172.0 Z"/>
+          <path class="fill" fill="url(#fill2)" d="M595.7 172.0 C602.9 163.2 610.0 154.1 617.1 145.5 C624.3 136.9 631.4 128.8 638.6 120.5 C645.7 112.2 652.9 103.9 660.0 95.6 L660.0 172.0 L595.7 172.0 Z"/>
+          <path class="glow" d="M60.0 75.3 C69.3 69.0 78.6 62.8 87.9 56.6 C97.1 50.3 106.4 43.6 115.7 37.8 C125.0 32.1 134.3 27.4 143.6 22.2"/>
+          <path class="glow" d="M145.7 172.0 C156.4 160.6 167.1 149.4 177.9 137.7 C188.6 126.0 199.3 113.2 210.0 101.8 C220.7 90.4 231.4 79.2 242.1 69.0 C252.9 58.9 263.6 51.3 274.3 41.0 C280.7 34.8 287.1 27.4 293.6 20.7"/>
+          <path class="glow" d="M295.7 172.0 C306.4 159.5 317.1 146.5 327.9 134.6 C338.6 122.6 349.3 110.9 360.0 100.2 C370.7 89.6 381.4 80.2 392.1 70.6 C402.9 61.0 413.6 51.5 424.3 42.5 C430.7 37.1 437.1 32.1 443.6 26.9"/>
+          <path class="glow" d="M445.7 172.0 C456.4 161.6 467.1 151.5 477.9 140.8 C488.6 130.1 499.3 119.0 510.0 108.0 C520.7 97.1 531.4 85.9 542.1 75.3 C552.9 64.6 563.6 54.9 574.3 44.1 C580.7 37.6 587.1 30.6 593.6 23.8"/>
+          <path class="glow" d="M595.7 172.0 C602.9 163.2 610.0 154.1 617.1 145.5 C624.3 136.9 631.4 128.8 638.6 120.5 C645.7 112.2 652.9 103.9 660.0 95.6"/>
+          <path class="line" pathLength="1" d="M60.0 75.3 C69.3 69.0 78.6 62.8 87.9 56.6 C97.1 50.3 106.4 43.6 115.7 37.8 C125.0 32.1 134.3 27.4 143.6 22.2"/>
+          <path class="line" pathLength="1" d="M145.7 172.0 C156.4 160.6 167.1 149.4 177.9 137.7 C188.6 126.0 199.3 113.2 210.0 101.8 C220.7 90.4 231.4 79.2 242.1 69.0 C252.9 58.9 263.6 51.3 274.3 41.0 C280.7 34.8 287.1 27.4 293.6 20.7"/>
+          <path class="line" pathLength="1" d="M295.7 172.0 C306.4 159.5 317.1 146.5 327.9 134.6 C338.6 122.6 349.3 110.9 360.0 100.2 C370.7 89.6 381.4 80.2 392.1 70.6 C402.9 61.0 413.6 51.5 424.3 42.5 C430.7 37.1 437.1 32.1 443.6 26.9"/>
+          <path class="line" pathLength="1" d="M445.7 172.0 C456.4 161.6 467.1 151.5 477.9 140.8 C488.6 130.1 499.3 119.0 510.0 108.0 C520.7 97.1 531.4 85.9 542.1 75.3 C552.9 64.6 563.6 54.9 574.3 44.1 C580.7 37.6 587.1 30.6 593.6 23.8"/>
+          <path class="line" pathLength="1" d="M595.7 172.0 C602.9 163.2 610.0 154.1 617.1 145.5 C624.3 136.9 631.4 128.8 638.6 120.5 C645.7 112.2 652.9 103.9 660.0 95.6"/>
+          <path class="reset" d="M143.6 22.2 L143.6 172.0"/>
+          <path class="reset" d="M293.6 20.7 L293.6 172.0"/>
+          <path class="reset" d="M443.6 26.9 L443.6 172.0"/>
+          <path class="reset" d="M593.6 23.8 L593.6 172.0"/>
+        </g>
+        <g class="acct a3">
+          <path class="fill" fill="url(#fill3)" d="M60.0 159.5 C74.3 156.4 88.6 153.3 102.9 150.2 C117.1 147.0 131.4 143.7 145.7 140.8 C160.0 137.9 174.3 135.6 188.6 133.0 C202.9 130.4 217.1 127.5 231.4 125.2 C245.7 122.9 260.0 121.0 274.3 119.0 L274.3 172.0 L60.0 172.0 Z"/>
+          <path class="fill" fill="url(#fill3)" d="M467.1 172.0 C481.4 167.8 495.7 163.4 510.0 159.5 C524.3 155.6 538.6 152.0 552.9 148.6 C567.1 145.2 581.4 142.1 595.7 139.2 C610.0 136.4 624.3 135.3 638.6 131.4 C645.7 129.5 652.9 126.2 660.0 123.6 L660.0 172.0 L467.1 172.0 Z"/>
+          <path class="glow" d="M60.0 159.5 C74.3 156.4 88.6 153.3 102.9 150.2 C117.1 147.0 131.4 143.7 145.7 140.8 C160.0 137.9 174.3 135.6 188.6 133.0 C202.9 130.4 217.1 127.5 231.4 125.2 C245.7 122.9 260.0 121.0 274.3 119.0"/>
+          <path class="glow" d="M467.1 172.0 C481.4 167.8 495.7 163.4 510.0 159.5 C524.3 155.6 538.6 152.0 552.9 148.6 C567.1 145.2 581.4 142.1 595.7 139.2 C610.0 136.4 624.3 135.3 638.6 131.4 C645.7 129.5 652.9 126.2 660.0 123.6"/>
+          <path class="line" pathLength="1" d="M60.0 159.5 C74.3 156.4 88.6 153.3 102.9 150.2 C117.1 147.0 131.4 143.7 145.7 140.8 C160.0 137.9 174.3 135.6 188.6 133.0 C202.9 130.4 217.1 127.5 231.4 125.2 C245.7 122.9 260.0 121.0 274.3 119.0"/>
+          <path class="line" pathLength="1" d="M467.1 172.0 C481.4 167.8 495.7 163.4 510.0 159.5 C524.3 155.6 538.6 152.0 552.9 148.6 C567.1 145.2 581.4 142.1 595.7 139.2 C610.0 136.4 624.3 135.3 638.6 131.4 C645.7 129.5 652.9 126.2 660.0 123.6"/>
+        </g>
+        <g class="axis" font-size="10" font-family="ui-monospace,monospace" text-anchor="middle">
+          <text class="when" x="60" y="200">16 Aug</text><text class="when" x="210" y="200">23 Aug</text>
+          <text class="when" x="360" y="200">30 Aug</text><text class="when" x="510" y="200">6 Sep</text>
+          <text class="when" x="660" y="200">13 Sep</text>
         </g>
       </svg>
       <div class="legend">
@@ -577,8 +666,8 @@ footer p{margin:0 0 6px;max-width:60ch}
     </div>
 
     <p style="margin-top:20px">
-      Each tooth is one week's allowance. They renew on different days, so the teeth do not line
-      up — which is the point: it tells you which account is fresh today. A break, like
+      The dashed guides are where notifications fire: a nudge at 80%, a last warning at 95%.
+      Every drop is a week's allowance renewing. And a break, like
       <b style="color:var(--id-3);font-weight:400">alex</b>'s, is a stretch with nothing measured;
       drawing across it would claim a reading nobody took.
     </p>

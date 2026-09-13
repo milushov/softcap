@@ -425,7 +425,7 @@ echo "→ checking the chart still looks like this month"
 # whose only picture of "over time" ends last spring reads as abandoned, and
 # nothing was watching for it. A warning rather than a failure — a stale
 # illustration is no reason to refuse an unrelated fix — but a loud one.
-newest=$(grep -o '<text x="[0-9]*" y="194">[^<]*</text>' "$HERE/index.html" \
+newest=$(grep -o '<text class="when"[^>]*>[^<]*</text>' "$HERE/index.html" \
          | tail -1 | sed 's/.*>\(.*\)<.*/\1/')
 if [ -z "$newest" ]; then
   # Looking in the wrong place must not read as "nothing to report".
