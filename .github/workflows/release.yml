@@ -55,9 +55,31 @@ jobs:
         id: v
         run: |
           set -euo pipefail
-          # Single source of truth for the marketing version is project.yml;
-          # the run number distinguishes builds made from it.
-          BASE=$(grep -m1 'MARKETING_VERSION:' project.yml | sed 's/.*"\(.*\)".*/\1/')
+          # The marketing version belongs to the macOS target, and it is read
+          # from that target's block rather than from the first line in the file
+          # that happens to mention one. `grep -m1` took whichever target came
+          # first: moving SoftcapiOS above Softcap — a reordering that changes
+          # nothing about either — would have published 1.0.N in place of 0.1.N.
+          # The updater compares numerically, so every installed copy would be
+          # offered a version nothing published afterwards could supersede, and
+          # no later release could take it back.
+          BASE=$(awk '
+            $0 == "  Softcap:"                         { inside = 1; next }
+            /^  [A-Za-z]/                              { inside = 0 }
+            inside && /^[[:space:]]*MARKETING_VERSION:/ {
+                line = $0
+                sub(/^[^:]*:[[:space:]]*/, "", line)
+                gsub(/"/, "", line)
+                print line
+                exit
+            }
+          ' project.yml)
+          # A version that could not be read is not one to guess at: a build
+          # numbered ".7" alone sorts below everything ever published.
+          if ! [[ "$BASE" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
+            echo "::error::project.yml's Softcap target names no MARKETING_VERSION (read '$BASE')"
+            exit 1
+          fi
           VERSION="${BASE}.${{ github.run_number }}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION"    >> "$GITHUB_OUTPUT"
