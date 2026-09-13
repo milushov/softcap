@@ -1,0 +1,6 @@
+favicon.ico
+icon.svg
+index.html
+og.png
+robots.txt
+sitemap.xml
