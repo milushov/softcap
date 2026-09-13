@@ -12,9 +12,12 @@ enum Repository {
     static let name = "softcap"
 
     /// What a person is shown rather than a URL to read aloud.
-    static var label: String { "github.com/\(owner)/\(name)" }
+    static let label = "github.com/\(owner)/\(name)"
 
-    static var page: URL { URL(string: "https://github.com/\(owner)/\(name)")! }
-    static var issues: URL { page.appendingPathComponent("issues") }
-    static var releases: URL { ReleaseFeed.releasePage(owner: owner, repository: name) }
+    // `let`, not a computed `var`: a view's body is read on every redraw, and
+    // these would have re-interpolated the text and re-parsed — and force
+    // unwrapped — the URL each time it was.
+    static let page = URL(string: "https://github.com/\(owner)/\(name)")!
+    static let issues = page.appendingPathComponent("issues")
+    static let releases = ReleaseFeed.releasePage(owner: owner, repository: name)
 }

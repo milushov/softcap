@@ -26,8 +26,13 @@ struct PopoverView: View {
         .environment(\.locale, loc.activeLocale)
         .environment(\.layoutDirection, loc.layoutDirection ?? .leftToRight)
         .id(loc.language)
-        .onAppear { model.isPopoverOpen = true }
-        .onDisappear { model.isPopoverOpen = false }
+        // Whether the window is open is the popover's own business, and
+        // `StatusItemController` hears it first-hand as its delegate. Said from
+        // here as well it was said wrongly: this view carries `.id(loc.language)`
+        // two lines down, so picking a language rebuilds it — and SwiftUI puts
+        // the replacement on screen before it takes the old one off, which left
+        // the flag false while the window was plainly open. Polling then dropped
+        // to the background interval in front of somebody watching it.
         .onReceive(tick) { now = $0 }
     }
 

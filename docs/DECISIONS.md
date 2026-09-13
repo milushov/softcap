@@ -7582,3 +7582,39 @@ also only scrolls on github.com; in any renderer without those two rules the row
 simply fits itself to the width and nothing is lost but the scrolling. And the
 images are a copy: regenerating them means returning to the teaser HTML, which
 is not in this repository.
+
+## 2026-09-14 — The window comes out beside the Appearance screen, reconciled from one place
+
+**Decision.** While the Appearance screen is open the menu bar window is shown
+and pinned with `.applicationDefined`, which is what stops a `.transient`
+popover closing itself the moment a control in settings takes the focus. One
+pass, `syncAppearancePreview`, decides: it runs after anything that could change
+the answer — the count of screens asking, the app going to the front or leaving
+it, a window finishing its close — and reads the answer when it runs rather than
+carrying one decided earlier. It pins only a window it opened itself, never one
+already on screen, and a dismissal by hand outranks a screen that is still
+asking until that screen asks again.
+
+**Why.** Every control on that screen changes something invisible from it, and
+the window that would show it closed at the first click. The shape of the
+solution is the part worth writing down: the first version had three separate
+hops onto the main actor, each acting on a value captured when it was sent.
+Hops are not ordered against each other, so two sidebar clicks could run the
+close after the open and leave nothing on screen with nothing left to ask for
+it. And asking for the count rather than a flag is what survives a language
+change — `SettingsView` carries `.id(loc.language)`, so choosing a language
+destroys and rebuilds the screen, and SwiftUI puts the replacement up before it
+takes the old one down. A flag was set true by the arriving screen and false by
+the departing one, which closed the window in front of somebody who had just
+asked to see it change. Reported from use, not found by reading.
+
+**Cost.** Four pieces of state where a boolean looked like enough, and a rule
+about hand dismissal that has to be explained rather than guessed. Two things
+this made ordinary rather than rare had to be fixed with it: `isPopoverOpen`
+restarted the poll on every write, including writes of the value it already
+held, and the preview writes it on every switch between applications — a
+restart cancels the sleep already running, so somebody moving back and forth
+faster than the interval was never polled again. And `PopoverView` announced the
+same flag from `onAppear`, which the same `.id` teardown left saying false while
+the window was plainly open.
+

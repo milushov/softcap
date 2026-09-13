@@ -114,13 +114,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         let wanted = ProcessInfo.processInfo.environment["SOFTCAP_SHOT"] ?? "window"
         NSApp.activate(ignoringOtherApps: true)
 
-        let sections: [String: SettingsSection] = [
-            "accounts": .accounts, "statistics": .statistics, "appearance": .appearance,
-            "notifications": .notifications, "polling": .polling, "services": .services,
-            "about": .about,
-        ]
-
-        if let section = sections[wanted] {
+        // Asked of the enum rather than a list written out beside it. The list
+        // was a copy of the raw values and went stale the moment a ninth screen
+        // arrived: `SOFTCAP_SHOT=contribute` fell through to the else branch and
+        // quietly photographed the menu bar window instead of the new screen.
+        if let section = SettingsSection(rawValue: wanted) {
             model.settingsSection = section
             SettingsWindow.open()
         } else {

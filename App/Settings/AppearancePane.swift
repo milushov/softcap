@@ -69,8 +69,8 @@ struct AppearancePane: View {
         // window that would show it closes itself the moment this one is
         // clicked. Asking for it on the way in and letting it go on the way out
         // covers leaving for another screen and closing settings alike.
-        .onAppear { appModel.wantsAppearancePreview = true }
-        .onDisappear { appModel.wantsAppearancePreview = false }
+        .onAppear { appModel.askForAppearancePreview() }
+        .onDisappear { appModel.releaseAppearancePreview() }
     }
 
     private var orderingBinding: Binding<Ordering> {

@@ -34,15 +34,36 @@ final class AppModel: ObservableObject {
     /// no way to reach inside it otherwise.
     @Published var settingsSection: SettingsSection = .accounts
 
-    /// Whether the Appearance screen is asking for the window to be on screen
-    /// beside it, so a change can be seen rather than imagined.
+    /// How many Appearance screens are asking for the window to be on screen
+    /// beside them, so a change can be seen rather than imagined.
     ///
-    /// Set by that screen when it appears and cleared when it goes away, and
-    /// read by `StatusItemController`, which owns the window. It travels through
-    /// the model rather than reaching for the controller directly: the panes are
-    /// built from settings and know nothing about the status item, and every
-    /// other thing the menu bar does for a pane already comes this way.
-    @Published var wantsAppearancePreview = false
+    /// A count rather than a flag, because two of those screens overlap. Picking
+    /// a language rebuilds the whole settings tree — `SettingsView` carries
+    /// `.id(loc.language)` so that every string is read again — and SwiftUI puts
+    /// the replacement on screen before it takes the old one off. A flag was set
+    /// true by the arriving screen and then false by the departing one, so
+    /// choosing a language closed the window while the screen that wanted it was
+    /// still on show, and nothing was left to ask again. A count cannot be left
+    /// that way round: it goes to two and back to one, and never reaches zero.
+    ///
+    /// Read by `StatusItemController`, which owns the window. It travels through
+    /// the model rather than reaching for the controller directly, because the
+    /// panes are built from settings and are handed no way to reach the status
+    /// item — `settingsSection` above crosses the same gap, in the other
+    /// direction, for the same reason.
+    @Published private(set) var appearancePreviewRequests = 0
+
+    func askForAppearancePreview() {
+        appearancePreviewRequests += 1
+    }
+
+    /// Never below zero: a screen that went away without having asked — a state
+    /// restoration, a rebuild this code has not met — would otherwise leave the
+    /// count negative, and every later request would have to climb out of it
+    /// before the window could appear again.
+    func releaseAppearancePreview() {
+        appearancePreviewRequests = max(0, appearancePreviewRequests - 1)
+    }
 
     /// Shared by account management, browser sign-in and polling.
     let store: CredentialStore
@@ -154,7 +175,17 @@ final class AppModel: ObservableObject {
 
     /// Once a minute while the window is open, once every five minutes in the
     /// background.
-    var isPopoverOpen = false { didSet { restartTimer() } }
+    /// Only a change restarts the poll. Written the same value twice it used to
+    /// restart anyway, and a restart cancels the sleep that was already running
+    /// and begins the interval again from zero — so a window told to open while
+    /// it was open pushed the next reading a full minute further away. The
+    /// preview beside the Appearance screen made that ordinary: it opens and
+    /// closes the window on every switch between this app and another, and
+    /// somebody moving back and forth faster than the interval was never read
+    /// again. `preferences` below carries the same guard, for the same reason.
+    var isPopoverOpen = false {
+        didSet { if oldValue != isPopoverOpen { restartTimer() } }
+    }
 
     /// Settings that affect polling and display. Supplied by the settings window.
     ///

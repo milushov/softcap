@@ -112,7 +112,24 @@ struct SettingsView: View {
                 case .appearance:    AppearancePane(model: model, appModel: appModel)
                 case .notifications: NotificationsPane(model: model, appModel: appModel)
                 case .polling:       PollingPane(model: model)
-                case .updates:       UpdatesPane(updates: updates, model: model)
+                // Empty in a store build, with every other route to it.
+                //
+                // The sidebar filters this section out, the footer button and
+                // the menu item are both `#if !APPSTORE`, and `startChecking()`
+                // never runs. This case alone was reachable in principle, and it
+                // stopped being harmless the day rendering the pane became a
+                // request: a store build stamps no check at all, so `isStale`
+                // would find every single open overdue — in a sandboxed app that
+                // cannot install an update and promises never to ask about one.
+                //
+                // The case stays so the switch stays exhaustive; what it builds
+                // is what changes.
+                case .updates:
+                    #if APPSTORE
+                    EmptyView()
+                    #else
+                    UpdatesPane(updates: updates, model: model)
+                    #endif
                 case .services:      ServicesPane(model: model)
                 case .contribute:    ContributePane()
                 case .about:         AboutPane(model: model, appModel: appModel)
@@ -131,7 +148,7 @@ struct SettingsView: View {
 }
 
 /// A shared section wrapper: title, explanation and content.
-/// Extracted so the eight screens do not drift apart in padding and sizing.
+/// Extracted so the nine screens do not drift apart in padding and sizing.
 struct Pane<Content: View>: View {
     let title: String
     let subtitle: String
@@ -153,7 +170,7 @@ struct Pane<Content: View>: View {
 extension View {
     /// Cancels the inset a grouped `Form` adds to its own rows.
     ///
-    /// Six of the eight screens are built from a `Form`; the other two are not,
+    /// Seven of the nine screens are built from a `Form`; the other two are not,
     /// and their content lines up with the screen's heading because the detail
     /// area's padding is the only thing between them. The six did not: the
     /// `Form` added twenty points of its own, so every box sat indented from the

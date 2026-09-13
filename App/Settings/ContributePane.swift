@@ -25,13 +25,21 @@ struct ContributePane: View {
                     }
                 }
 
+                // One row holding two paragraphs, not two rows. A grouped Form
+                // rules a hairline between its rows, which is right when a
+                // caption sits under the control it explains — the shape every
+                // other pane here uses. With no control above them the rule
+                // divided one thought into two, and read as two settings whose
+                // switches had failed to draw.
                 Section {
-                    Text(loc("If you write code: fork the repository, make your change, and open a pull request. The README explains how to build the app and how to run its tests."))
-                        .font(.system(size: 11)).foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text(loc("Translations matter as much as code. Every language has a catalogue of its own, and a correction to any of them is worth sending."))
-                        .font(.system(size: 11)).foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(loc("If you write code: fork the repository, make your change, and open a pull request. The README explains how to build the app and how to run its tests."))
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(loc("Translations matter as much as code. Every language has a catalogue of its own, and a correction to any of them is worth sending."))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .font(.system(size: 11)).foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .formStyle(.grouped)

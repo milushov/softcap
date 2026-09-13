@@ -2,9 +2,9 @@ import Testing
 import Foundation
 
 /// A grouped `Form` insets its rows by twenty points of its own, on top of the
-/// padding the detail area already applies. Two of the eight settings screens
+/// padding the detail area already applies. Two of the nine settings screens
 /// are built without one, and their content sat directly under the screen's
-/// heading; the other six were indented from it by that twenty.
+/// heading; the other seven were indented from it by that twenty.
 ///
 /// Nobody notices one screen at a time. It is obvious the moment two are
 /// compared, and it was noticed that way.
