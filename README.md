@@ -6,9 +6,9 @@ macOS 14+ · SwiftUI · WidgetKit.
 ## Build and run
 
 <!-- download:start -->
-### [⬇︎ Download Softcap 0.1.4](https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg)
+### [⬇︎ Download Softcap 0.1.5](https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg)
 
-A disk image for macOS 14 and later. Released 13 September 2026 — [all versions](https://github.com/milushov/softcap/releases/tag/v0.1.4).
+A disk image for macOS 14 and later. Released 13 September 2026 — [all versions](https://github.com/milushov/softcap/releases/tag/v0.1.5).
 <!-- download:end -->
 
 Requires **Xcode 26+ / Swift 6.2+** and **XcodeGen** (`brew install xcodegen`).
