@@ -71,18 +71,21 @@ screenshots: project
 # archive's number is chosen on purpose, never inherited from project.yml's
 # base — the number race with the GitHub lane is decided at archive time.
 #
-# Unsigned, exactly as the workflow archives it. The signature is applied at
-# export, by Apple's cloud signing, so this step needs no certificate — and
-# building it the same way here as on a runner is the point: the two paths
-# diverging is what cost three red releases before they were made one.
+# Ad-hoc signed, exactly as the workflow archives it, and for the reason given
+# there: an ad-hoc signature needs no certificate but still embeds the
+# entitlements, which an unsigned build does not — and a build without them is
+# refused by the store with "App sandbox not enabled". The real signature is
+# applied at export by Apple's cloud signing. Building it the same way here as
+# on a runner is the point: the two paths diverging is what made four releases
+# red in a row, each hiding the next fault.
 archive-appstore: project
 	@if [ -z "$(V)" ] || [ -z "$(B)" ]; then \
 		echo "usage: make archive-appstore V=0.1.4 B=1"; exit 1; fi
 	@set -o pipefail; xcodebuild -project Softcap.xcodeproj -scheme Softcap \
 		-configuration Release -derivedDataPath build \
 		-archivePath build/Softcap.xcarchive \
-		CODE_SIGN_IDENTITY="" \
-		CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+		CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual \
+		PROVISIONING_PROFILE_SPECIFIER="" \
 		SOFTCAP_APP_ENTITLEMENTS=App/Softcap.AppStore.entitlements \
 		SWIFT_ACTIVE_COMPILATION_CONDITIONS=APPSTORE \
 		MARKETING_VERSION=$(V) CURRENT_PROJECT_VERSION=$(B) \

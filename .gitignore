@@ -19,6 +19,11 @@ build-ios/
 # inside it, but not the directory itself, and its info.plist carries the
 # home path of whoever built it.
 build-shots/
+# And any other one. Every derived data directory holds an info.plist naming
+# the home it was built in, so each new `build-something` a person invents is
+# a guard failure waiting to happen — it caught two within an hour of the rule
+# above being written for the first of them.
+build-*/
 
 # Worktrees and state written by the agent harness — 751 MB of it at the time
 # this line was added. It was ignored through .git/info/exclude, which is local

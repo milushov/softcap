@@ -344,22 +344,23 @@ jobs:
             -authenticationKeyPath "$KEY" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER="" \
             SOFTCAP_APP_ENTITLEMENTS=App/Softcap.AppStore.entitlements \
             SWIFT_ACTIVE_COMPILATION_CONDITIONS=APPSTORE \
             MARKETING_VERSION="$V" \
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             archive | grep -E "error:|ARCHIVE"
 
-          # The team goes in the export options rather than the archive.
-          # Signing.xcconfig asks for manual signing, so a runner holding no
-          # certificate at all cannot archive signed — it looks for "Mac
-          # Development" and fails. Archiving unsigned works, but then the
-          # archive records no team and the export fails with "No Team Found in
-          # Archive", because DEVELOPMENT_TEAM is not written when signing is
-          # off. Naming it here covers both, and the export is where the real
-          # signature is applied anyway.
+          # Ad-hoc above, and a team here, because a runner holds no certificate
+          # and each simpler answer fails differently. Archiving with the
+          # project's manual identity looks for "Mac Development" and finds
+          # none. Archiving with signing switched off gets past that, and Apple
+          # then rejects the upload with "App sandbox not enabled": entitlements
+          # are applied while signing, so an unsigned build carries none, and
+          # the export cannot add what was never there. Ad-hoc costs no
+          # certificate and embeds them — the export replaces the signature and
+          # keeps them. What ad-hoc does not record is the team, hence this.
           cp tools/ExportOptions.AppStore.plist "$RUNNER_TEMP/ExportOptions.plist"
           /usr/libexec/PlistBuddy -c "Add :teamID string $TEAM_ID" \
             "$RUNNER_TEMP/ExportOptions.plist"
