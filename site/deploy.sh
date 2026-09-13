@@ -36,19 +36,28 @@ fi
 SERVICE="softcap-site"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Everything the site serves. Listed rather than globbed: the directory also holds the deploy
-# script, the Caddyfile, the compose file and the template the preview image is rendered from, and
-# none of those belong on a public host.
-SERVED=(index.html icon.svg favicon.ico og.png robots.txt sitemap.xml)
+# Everything the site serves, straight from the manifest the build writes —
+# eighty pages in ten languages plus the five assets. Listed rather than
+# globbed for the same reason as ever: the directory also holds the deploy
+# script, the Caddyfile, the compose file, the templates and the catalogues,
+# and none of those belong on a public host.
+if [ ! -s "$HERE/manifest.txt" ]; then
+  echo "  site/manifest.txt is missing or empty — run python3 site/build.py first" >&2
+  exit 1
+fi
+SERVED=()
+while IFS= read -r line; do [ -n "$line" ] && SERVED+=("$line"); done < "$HERE/manifest.txt"
 
 # Everything below reads this list: what is copied, what is deleted from the
 # server, and what is verified afterwards. Empty, the verification loop would
 # find no fault and report success — and `rsync -az --delete` would be left with
 # one argument and no sources, pointed at the live site's directory. The second
 # of those is worse than the first, and both are prevented here rather than
-# discovered.
-if [ "${#SERVED[@]}" -lt 5 ]; then
-  echo "  the served-file list has ${#SERVED[@]} entries — refusing to copy, delete or verify" >&2
+# discovered. Eighty-five is what a full build writes today; anything below it
+# means a build that did not finish, not a smaller site.
+if [ "${#SERVED[@]}" -lt 85 ]; then
+  echo "  the manifest lists ${#SERVED[@]} entries, fewer than the 85 a full build writes —" >&2
+  echo "  refusing to copy, delete or verify against it" >&2
   exit 1
 fi
 
@@ -73,22 +82,32 @@ fi
 snapshot_current() {
   ssh $SSH_OPTS "$HOST" "
     set -e; cd $REMOTE
-    if [ -d dist ] && [ \$(ls -1 dist | wc -l) -ge ${#SERVED[@]} ]; then
+    if [ -d dist ] && [ \$(find dist -type f | wc -l) -ge 6 ]; then
       mkdir -p prev/dist
       rsync -a --delete dist/ prev/dist/
       for f in Caddyfile docker-compose.yml; do
         [ -f \$f ] && cp -p \$f prev/\$f
       done
+      # The snapshot says how big it is. The site grew from six files to
+      # eighty-five in one day; a rollback comparing against today's count
+      # would refuse yesterday's perfectly good site, and one comparing
+      # against a constant would restore half a tree without noticing.
+      find prev/dist -type f | wc -l | tr -d ' ' > prev/COUNT
       true
     fi"
 }
 
 roll_back() {
   echo "→ putting the previous version back"
-  local held
-  held=$(ssh $SSH_OPTS "$HOST" "ls -1 $REMOTE/prev/dist 2>/dev/null | wc -l" || echo 0)
-  if [ "$held" -lt "${#SERVED[@]}" ]; then
-    echo "  $REMOTE/prev/dist holds $held files, fewer than the ${#SERVED[@]} served —" >&2
+  local held expected
+  held=$(ssh $SSH_OPTS "$HOST" "find $REMOTE/prev/dist -type f 2>/dev/null | wc -l" || echo 0)
+  # Compared against the snapshot's own record of itself, written when it was
+  # taken — not against today's manifest, which may be the wrong size for the
+  # version being restored. Six covers snapshots older than the COUNT file.
+  expected=$(ssh $SSH_OPTS "$HOST" "cat $REMOTE/prev/COUNT 2>/dev/null" || echo 6)
+  case "$expected" in ''|*[!0-9]*) expected=6 ;; esac
+  if [ "$held" -lt "$expected" ]; then
+    echo "  $REMOTE/prev/dist holds $held files, fewer than the $expected it recorded —" >&2
     echo "  restoring it would take the site down. Nothing was changed." >&2
     exit 1
   fi
@@ -237,7 +256,14 @@ ssh $SSH_OPTS "$HOST" "mkdir -p $REMOTE/dist"
 snapshot_current
 
 echo "→ shipping files to $HOST:$REMOTE"
-rsync -az -e "ssh $SSH_OPTS" --delete "${SERVED[@]/#/$HERE/}" "$HOST:$REMOTE/dist/"
+# Staged locally exactly as served, then synced as one tree — so `--delete`
+# on the second rsync means "not in the manifest, not on the host", which is
+# the sentence it should mean. The stage directory is fresh per run (nothing
+# here deletes anything local, on principle) and TMPDIR is the OS's to sweep.
+STAGE="${TMPDIR:-/tmp}/softcap-stage-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$STAGE"
+rsync -a --files-from="$HERE/manifest.txt" "$HERE/" "$STAGE/"
+rsync -az -e "ssh $SSH_OPTS" --delete "$STAGE/" "$HOST:$REMOTE/dist/"
 rsync -az -e "ssh $SSH_OPTS" "$HERE/Caddyfile" "$HERE/docker-compose.yml" "$HOST:$REMOTE/"
 
 echo "→ starting the container"
@@ -364,6 +390,12 @@ expect_header() {
 }
 expect_header "https://$DOMAIN/" Cache-Control "no-cache"
 expect_header "https://$DOMAIN/index.html" Cache-Control "no-cache"
+# One sample per shape the new matcher covers: a top directory, a nested one,
+# a translated root and a translated nested one.
+expect_header "https://$DOMAIN/faq/" Cache-Control "no-cache"
+expect_header "https://$DOMAIN/limits/claude/" Cache-Control "no-cache"
+expect_header "https://$DOMAIN/ru/" Cache-Control "no-cache"
+expect_header "https://$DOMAIN/ru/limits/claude/" Cache-Control "no-cache"
 for asset in og.png icon.svg favicon.ico; do
   expect_header "https://$DOMAIN/$asset" Cache-Control "public, max-age=604800"
 done

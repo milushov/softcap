@@ -9,12 +9,12 @@
 	header /icon.svg Cache-Control "public, max-age=604800"
 	header /og.png Cache-Control "public, max-age=604800"
 	header /favicon.ico Cache-Control "public, max-age=604800"
-	# Both spellings of the page. A `header` matcher tests the request path, and
-	# everybody arrives at `/` — so writing only `/index.html` left the one
-	# document that changes as the one with no Cache-Control at all, falling back
-	# to the browser's heuristic: a fraction of the time since Last-Modified,
-	# which grows as the page gets older. Verified against the live site.
-	@page path / /index.html
+	# Every spelling of every page. A `header` matcher tests the request path;
+	# the site is now a tree of directories each holding an index.html, and a
+	# reader arrives at `/`, `/ru/`, `/privacy/` — or, typing precisely, at the
+	# file itself. Four shapes cover all of them, so no HTML answer is ever left
+	# to the browser's caching heuristic. The assets above keep their week.
+	@page path / */ /index.html */index.html
 	header @page Cache-Control "no-cache"
 
 	# The page runs no JavaScript, loads no font, embeds no frame and posts no form, so the policy

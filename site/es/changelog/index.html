@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Softcap — novedades</title>
+<meta name="description" content="Qué cambió en cada versión de Softcap que cambió algo — con el feed de versiones para cada compilación y sus sumas de verificación.">
+<link rel="canonical" href="https://softcap.app/es/changelog/">
+<link rel="alternate" hreflang="en" href="https://softcap.app/changelog/">
+<link rel="alternate" hreflang="ru" href="https://softcap.app/ru/changelog/">
+<link rel="alternate" hreflang="es" href="https://softcap.app/es/changelog/">
+<link rel="alternate" hreflang="fr" href="https://softcap.app/fr/changelog/">
+<link rel="alternate" hreflang="ar" href="https://softcap.app/ar/changelog/">
+<link rel="alternate" hreflang="bn" href="https://softcap.app/bn/changelog/">
+<link rel="alternate" hreflang="hi" href="https://softcap.app/hi/changelog/">
+<link rel="alternate" hreflang="id" href="https://softcap.app/id/changelog/">
+<link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/changelog/">
+<link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/changelog/">
+<link rel="alternate" hreflang="x-default" href="https://softcap.app/changelog/">
+<meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e0e12" media="(prefers-color-scheme: dark)">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Softcap">
+<meta property="og:description" content="Qué cambió en cada versión que cambió algo.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://softcap.app/es/changelog/">
+<meta property="og:site_name" content="Softcap">
+<meta property="og:image" content="https://softcap.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="La ventana de Softcap con tres cuentas y sus límites de cinco horas y semanales.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Softcap">
+<meta name="twitter:description" content="Qué cambió en cada versión que cambió algo.">
+<meta name="twitter:image" content="https://softcap.app/og.png">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<style>
+:root{
+  /* One definition per colour, both values side by side. `light-dark()` picks by
+     the used `color-scheme`, so the three-way switch below is a single property
+     rather than three copies of the palette — and no script, which is what keeps
+     the Content-Security-Policy at `default-src 'none'`. */
+  color-scheme:light dark;
+
+  --ink:      light-dark(#fbfbfd, #0e0e12);
+  --ink-2:    light-dark(#f3f3f7, #15151b);
+  --card:     light-dark(#ffffff, #1a1a21);
+  --line:     light-dark(#e3e3ea, #26262f);
+  --edge:     light-dark(#d9d9e2, #2b2b35);
+  --divider:  light-dark(#ececf1, #23232c);
+  --track:    light-dark(#e6e6ec, #2c2c36);
+  --hair:     light-dark(#dedee6, #33333e);
+  --code-bg:  light-dark(#f2f2f6, #1e1e26);
+  --code-line:light-dark(#e4e4ec, #292933);
+  --strip:    light-dark(rgba(0,0,0,.035), rgba(255,255,255,.055));
+  --strip-on: light-dark(rgba(0,0,0,.075), rgba(255,255,255,.09));
+  --strip-line:light-dark(rgba(0,0,0,.055), rgba(255,255,255,.05));
+  --cast:     light-dark(rgba(0,0,0,.16), rgba(0,0,0,.75));
+  --glow:     light-dark(rgba(52,199,89,.05), rgba(52,199,89,.055));
+
+  /* Contrast against the page, the card and the chart panel is 5.09, 4.57 and
+     4.81 to one in the dark palette — all above the 4.5 that small text needs.
+     The light values were measured the same way against #fbfbfd: 12.9, 7.4 and
+     5.1. The muted grey this replaced measured 3.67, and it was carrying the
+     section labels, the footer and every caption: exactly the small text where
+     it matters most. */
+  --fg:   light-dark(#16161c, #e9e9ee);
+  --fg-2: light-dark(#4a4a56, #9a9aa6);
+  --fg-3: light-dark(#6b6b79, #828291);
+
+  /* Severity doubles as fill and as text, so the light values are the darker
+     ones a white background needs: #34c759 on white is 2.3 to one and would be
+     unreadable as a percentage. */
+  --accent:light-dark(#1a7f37, #34c759);
+  --ok:    light-dark(#1a7f37, #34c759);
+  --warn:  light-dark(#946400, #e5c04b);
+  --hot:   light-dark(#a8500b, #e8963c);
+  --crit:  light-dark(#c32b1f, #e8574a);
+
+  /* Identity, for the chart. Cool on purpose: load is warm everywhere else and
+     the two scales must not borrow from each other. */
+  --id-1:light-dark(#3b5fa8, #5c8cd9);
+  --id-2:light-dark(#6b4fa8, #8c73cc);
+  --id-3:light-dark(#2c7883, #4da1ae);
+  --id-4:light-dark(#96477f, #b873a6);
+
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
+}
+/* The switch. `color-scheme` is the only thing that changes; every token follows
+   it. Checked state lives on a radio, so this needs no script and survives the
+   policy that forbids one. It does not survive a reload — a landing page has no
+   business writing storage, and the third choice is the reader's own setting. */
+html:has(#t-light:checked){color-scheme:light}
+html:has(#t-dark:checked){color-scheme:dark}
+
+*{box-sizing:border-box}
+/* `color-scheme` on :root above lets the browser paint the scrollbar, the
+   selection and any native control to match whichever palette is in use. */
+html{-webkit-text-size-adjust:100%}
+::selection{background:rgba(52,199,89,.28)}
+body{
+  margin:0;background:var(--ink);color:var(--fg);font-family:var(--sans);
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+/* Links exist now — the release does too. Plain links take the accent quietly;
+   the one filled button on the page is the download, because there is exactly
+   one action a visitor can take that the page should be selling. */
+a{color:var(--accent);text-decoration:underline;
+  text-decoration-color:color-mix(in srgb,var(--accent) 35%,transparent);
+  text-underline-offset:3px}
+a:hover{text-decoration-color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+.cta{margin-top:30px}
+.download{
+  display:inline-block;background:var(--accent);color:light-dark(#ffffff,#0e0e12);
+  font-weight:600;font-size:15px;letter-spacing:-.01em;text-decoration:none;
+  padding:11px 22px;border-radius:999px;
+}
+.download:hover{filter:brightness(1.07);text-decoration:none}
+.download:active{transform:translateY(1px)}
+.download:focus-visible{outline-offset:3px}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+.rule{height:1px;background:var(--line);border:0;margin:0}
+
+/* ---------- header ---------- */
+header{padding:34px 0 0}
+/* Wraps rather than overflowing. At the default size the two sit on one line
+   with room to spare; a reader who has set a larger minimum font size in the
+   browser makes the three labels grow, and on a 320 px screen the switch ran
+   87 px past the edge and the whole page scrolled sideways. Nothing saw it,
+   because the width check renders at the default size. */
+.head-row{display:flex;align-items:center;justify-content:space-between;
+  gap:12px 16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;font-weight:600;letter-spacing:-.01em}
+.brand svg{display:block}
+.brand span{font-size:16.5px}
+
+/* ---------- hero ---------- */
+.hero{padding:76px 0 64px}
+h1{
+  font-size:clamp(34px,6.2vw,58px);line-height:1.08;letter-spacing:-.032em;
+  font-weight:640;margin:0 0 22px;max-width:22ch;
+}
+/* The second phrase is its own line by construction, not by luck. Sized in `ch`
+   the headline breaks wherever the reader's font happens to run out of room —
+   in a wider fallback than SF it split "on one / screen." across two lines and
+   lost the rhythm the two halves are written for. */
+h1 em{display:block;font-style:normal;color:var(--fg-3)}
+.lede{font-size:clamp(16.5px,2.1vw,19px);color:var(--fg-2);max-width:58ch;margin:0 0 8px;line-height:1.62}
+.note{margin-top:30px;font-family:var(--mono);font-size:12.5px;color:var(--fg-3);letter-spacing:.01em}
+.note b{color:var(--accent);font-weight:500}
+
+/* ---------- the window mock ---------- */
+.stage{
+  margin:56px 0 0;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  background:
+    radial-gradient(120% 90% at 50% 0%,var(--glow),transparent 62%),
+    var(--ink-2);
+}
+/* The menu bar is what you actually look at all day — the window only opens when
+   you ask it to. Showing the strip says "this lives up there" faster than the
+   sentence above it does. */
+.menubar{
+  display:flex;align-items:center;justify-content:flex-end;gap:17px;
+  height:26px;padding:0 14px;background:var(--strip);
+  border-bottom:1px solid var(--strip-line);
+  font-size:11.5px;color:var(--fg-2);
+}
+.menubar .item{display:flex;align-items:center;gap:5px;opacity:.5}
+/* How far the status item's centre sits from the right edge — measured in the
+   browser, not guessed. The pointer is placed from it; the window is not.
+   macOS does the same thing: a popover whose item is near the screen edge slides
+   inwards to fit and leaves the pointer behind on the item. */
+.stage{--anchor:160px}
+.menubar .self{
+  display:inline-flex;align-items:center;gap:5px;
+  opacity:1;color:var(--fg);font-variant-numeric:tabular-nums;
+  padding:2px 7px;border-radius:5px;background:var(--strip-on);
+}
+.menubar svg{display:block}
+.desk{
+  padding:0 24px 44px 0;display:flex;flex-direction:column;align-items:flex-end;
+  position:relative;
+}
+/* The stage is a desktop, and two thirds of it were empty at desktop widths —
+   a flat grey rectangle reading as something that failed to load rather than as
+   a desk. A desk is where the widget lives, and the page describes one in words
+   without ever showing it. Same account and same figures as the window beside
+   it: the busiest is what the small size shows. */
+.widget{
+  position:absolute;left:74px;top:50%;transform:translateY(-54%);
+  width:156px;height:156px;
+  border-radius:19px;background:var(--card);border:1px solid var(--edge);
+  box-shadow:0 18px 40px -16px var(--cast);
+  padding:13px;display:flex;flex-direction:column;
+}
+.widget .cap{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--fg-3)}
+.widget .cap svg{display:block;flex:none}
+.widget .big{
+  margin-top:auto;font-size:30px;font-weight:600;letter-spacing:-.02em;
+  line-height:1.05;font-variant-numeric:tabular-nums;color:var(--crit);
+}
+.widget .who2{font-size:10px;color:var(--fg-3);margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.widget .left{font-size:10px;color:var(--fg-3);font-variant-numeric:tabular-nums}
+.pointer{
+  width:0;height:0;margin-right:calc(var(--anchor) - 24px - 8px);
+  border-left:8px solid transparent;border-right:8px solid transparent;
+  border-bottom:8px solid var(--edge);
+}
+/* Too narrow to hang the window off a point: centre it and drop the pointer,
+   which would otherwise aim at nothing. */
+@media(max-width:760px){
+  .desk{align-items:center;padding-right:0;padding-left:0}
+  .pointer{display:none}
+  .widget{display:none}
+}
+.win{
+  width:322px;max-width:100%;background:var(--card);border:1px solid var(--edge);border-radius:13px;
+  /* A picture of a window 322 px across cannot also be legible at a 32 px
+     minimum font size — the badge and the footer run past its edge and take the
+     page sideways with them. Clipped rather than allowed to do that: the mock is
+     decorative, it carries an `aria-label` sentence, and nothing is clipped at
+     any size where it still reads as a window. */
+  overflow:hidden;
+  box-shadow:0 26px 60px -18px var(--cast);
+  overflow:hidden;font-size:13px;
+}
+.win-head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:12px 13px 10px;font-size:12.5px;font-weight:600;letter-spacing:-.005em;
+}
+.win-head span{font-weight:400;color:var(--fg-3);font-size:11px;font-variant-numeric:tabular-nums}
+.row{padding:9px 13px 11px;border-top:1px solid var(--divider)}
+.row-top{display:flex;align-items:center;gap:9px}
+.badge{
+  width:20px;height:20px;border-radius:5px;border:1px solid var(--hair);
+  display:grid;place-items:center;flex:none;color:var(--fg-3);
+}
+.badge svg{display:block}
+.who{min-width:0;flex:1}
+.who b{display:block;font-size:12.5px;font-weight:600;letter-spacing:-.005em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who i{display:block;font-style:normal;font-size:10.5px;color:var(--fg-3);margin-top:1px}
+.tag{
+  font-size:9.5px;font-weight:600;padding:2px 5px;border-radius:4px;flex:none;
+  background:rgba(232,150,60,.16);color:var(--hot);
+}
+.meter{display:flex;align-items:center;gap:8px;margin-top:6px;font-variant-numeric:tabular-nums}
+.meter .k{width:34px;font-size:10.5px;color:var(--fg-3)}
+.bar{flex:1;height:4px;border-radius:2px;background:var(--track);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:2px}
+.meter .v{width:38px;text-align:right;font-size:11px}
+.meter .t{width:62px;text-align:right;font-size:11px;color:var(--fg-3)}
+.win-foot{
+  display:flex;justify-content:space-between;padding:9px 13px 11px;
+  border-top:1px solid var(--divider);font-size:11.5px;color:var(--fg-3);
+}
+.win-foot b{font-weight:400;color:var(--fg-2)}
+
+/* ---------- sections ---------- */
+section{padding:66px 0}
+.eyebrow{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--fg-3);margin:0 0 14px;
+}
+h2{font-size:clamp(23px,3.4vw,31px);line-height:1.2;letter-spacing:-.024em;font-weight:620;margin:0 0 16px;max-width:22ch}
+section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
+section p:last-child{margin-bottom:0}
+strong{color:var(--fg);font-weight:600}
+code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
+  /* `~/.codex/sessions` has nowhere to break, and a reader who has set a large
+     minimum font size in the browser gets 340 px of it on a 320 px screen. */
+  overflow-wrap:anywhere}
+
+.grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
+@media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
+.cell{background:var(--ink);padding:24px 22px}
+.cell h3{margin:0 0 8px;font-size:15px;font-weight:600;letter-spacing:-.01em}
+.cell p{font-size:14.5px;margin:0;color:var(--fg-2)}
+
+/* ---------- chart ---------- */
+.chart{margin-top:34px;border:1px solid var(--line);border-radius:12px;background:var(--ink-2);padding:22px}
+.chart svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font-size:12px;color:var(--fg-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;display:block}
+
+/* ---------- facts ---------- */
+.facts{margin-top:30px;border-top:1px solid var(--line)}
+.fact{display:grid;gap:4px;padding:15px 0;border-bottom:1px solid var(--line)}
+@media(min-width:720px){.fact{grid-template-columns:210px 1fr;gap:26px;align-items:baseline}}
+.fact dt{font-family:var(--mono);font-size:12px;color:var(--fg-3);letter-spacing:.01em}
+.fact dd{margin:0;color:var(--fg-2);font-size:14.5px}
+
+footer{padding:52px 0 64px;color:var(--fg-3);font-size:13px}
+
+/* On a phone the window mock plus two sets of padding is wider than the screen:
+   322 + 24·2 + 28·2 comes to 426 px against a 390 px viewport, and the page
+   scrolls sideways. The mock shrinks and the padding narrows instead. */
+@media(max-width:520px){
+  .wrap{padding:0 18px}
+  .stage{padding:26px 12px;border-radius:13px}
+  .win{font-size:12.5px}
+  section{padding:52px 0}
+  .hero{padding:56px 0 44px}
+}
+
+/* A presentation attribute cannot read a custom property, so the colours the two
+   drawings use are set here instead. The attributes are left in place: they are
+   what anything reading the SVG without the stylesheet gets. */
+/* The mark does not follow the palette. An app icon looks the same on any
+   wallpaper, in the Dock and in the browser tab — that is what makes it an icon.
+   Themed for one release, it went pale-plate and dark-ring in light mode: a
+   different mark from `icon.svg`, sitting beside a tab showing the real one.
+   These four values are `icon.svg`'s own, and a test holds them to it. */
+/* Drawn at 26 px, below the 40 the mark thins at — the same rule `icon.svg`
+   carries as a media query and `make-favicon.sh` bakes into the .ico. Without
+   it the tab and the header, inches apart on one screen, show two different
+   marks: one ring up there and two down here. */
+.brand .inner{display:none}
+.brand .outer{stroke-width:7}
+.brand .plate{fill:#1c1c22}
+.brand .hush{stroke:#ffffff;stroke-opacity:.12}
+.brand .arc{stroke:#34c759}
+.brand .ink{stroke:#ffffff}
+.chart .grid{stroke:var(--line)}
+.chart .axis{fill:var(--fg-3)}
+.stats{display:flex;flex-wrap:wrap;gap:10px 30px;list-style:none;margin:0 0 20px;padding:0}
+.stats li{font-family:var(--mono);font-size:12px;color:var(--fg-3);letter-spacing:.01em}
+.stats b{display:block;font-size:22px;font-weight:640;color:var(--fg);letter-spacing:-.02em;font-family:var(--sans)}
+.chart .limits line{stroke:var(--fg-3);stroke-dasharray:3 5;opacity:.5}
+.chart .limits text{fill:var(--fg-3);font-size:9px;font-family:var(--mono)}
+.acct .line{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.acct .glow{fill:none;stroke-width:6;stroke-linecap:round;opacity:.16}
+.acct .reset{fill:none;stroke-width:1;opacity:.35}
+.acct .fill{opacity:.75}
+.a1 .line,.a1 .glow,.a1 .reset{stroke:var(--id-1)}
+.a2 .line,.a2 .glow,.a2 .reset{stroke:var(--id-2)}
+.a3 .line,.a3 .glow,.a3 .reset{stroke:var(--id-3)}
+.f1 stop{stop-color:var(--id-1)}
+.f2 stop{stop-color:var(--id-2)}
+.f3 stop{stop-color:var(--id-3)}
+stop.top{stop-opacity:.24}
+stop.bot{stop-opacity:0}
+.acct:hover .line{stroke-width:3}
+.acct:hover .glow{opacity:.3}
+/* The draw-in exists only for readers who have not asked for calm. The line
+   is dashed to its own length via pathLength="1", so one rule paces every
+   curve; the group fades while the stroke travels. */
+@media (prefers-reduced-motion: no-preference){
+  .acct{animation:appear .9s ease-out both}
+  .acct .line{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.6s cubic-bezier(.4,0,.2,1) forwards}
+  .a1 .line{animation-delay:.1s}
+  .a2 .line{animation-delay:.3s}
+  .a3 .line{animation-delay:.5s}
+}
+@keyframes appear{from{opacity:0}}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* ---------- the appearance switch ---------- */
+.themes{border:0;margin:0;padding:0;display:flex;gap:0;align-items:center}
+.themes legend{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.themes input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+/* Logical rather than physical, because this row reverses on the Arabic
+   pages: written as `border-right-width` and `border-radius:7px 0 0 7px` the
+   segmented switch kept its rounding and its seam on the left, which in a
+   right-to-left run is the inside edge — three boxes with a doubled border
+   in the middle and square ends where the corners belong. */
+.themes label{
+  font-family:var(--mono);font-size:11px;letter-spacing:.02em;color:var(--fg-3);
+  padding:4px 9px;cursor:pointer;border:1px solid var(--line);border-inline-end-width:0;
+  background:transparent;user-select:none;line-height:1.4;
+}
+.themes label:first-of-type{border-start-start-radius:7px;border-end-start-radius:7px}
+.themes label:last-of-type{
+  border-start-end-radius:7px;border-end-end-radius:7px;border-inline-end-width:1px;
+}
+.themes input:checked + label{background:var(--strip-on);color:var(--fg)}
+.themes input:focus-visible + label{outline:2px solid var(--accent);outline-offset:1px}
+.themes label:hover{color:var(--fg-2)}
+
+/* After the rules above, not before: at equal specificity the later one wins,
+   and the first attempt at this sat in the earlier media block and changed
+   nothing at all. The switch is three words side by side, and at a large
+   minimum font size they stop fitting — at 32 px the fieldset alone measured
+   311 of a 320 px screen. */
+@media(max-width:520px){
+  .themes label{padding:4px 5px;letter-spacing:0}
+  /* And it wraps, because in some languages three words do not fit a row at
+     any padding. English reads `auto light dark`; Russian reads
+     `системное светлое тёмное`, which at a 24 px minimum font size measured
+     352 px of a 305 px screen — the switch alone, wider than the phone.
+     Wrapped it stops being one segmented control, so each label takes its
+     own border and its own corners: a shared seam drawn across a line break
+     is a border into the middle of nothing. */
+  .themes{flex-wrap:wrap;gap:5px;justify-content:flex-end}
+  .themes label{border-inline-end-width:1px;border-radius:7px}
+}
+footer p{margin:0 0 6px;max-width:60ch}
+
+/* ---------- footer nav, breadcrumbs, legal pages ---------- */
+.site-map{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 24px;font-size:12.5px}
+.site-map a{color:var(--fg-3);text-decoration:none}
+.site-map a:hover{color:var(--fg-2);text-decoration:underline}
+.crumbs{display:flex;gap:8px;align-items:center;font-family:var(--mono);font-size:11.5px;
+  color:var(--fg-3);letter-spacing:.01em;padding:34px 0 0}
+.crumbs a{color:var(--fg-3);text-decoration:none}
+.crumbs a:hover{color:var(--fg-2);text-decoration:underline}
+.legal{padding:28px 0 66px}
+.legal h1{font-size:clamp(27px,4.4vw,38px);line-height:1.14;letter-spacing:-.026em;
+  font-weight:640;margin:18px 0 10px;max-width:26ch}
+.legal .updated{font-family:var(--mono);font-size:12px;color:var(--fg-3);margin:0 0 34px}
+/* The date above a legal page is a stamp and reads as one in mono. The
+   sentence above an explainer is prose and was wearing the stamp's clothes:
+   12px monospace, wrapping mid-phrase. */
+.legal .lede{font-size:17px;line-height:1.6;color:var(--fg-2);max-width:62ch;margin:0 0 34px}
+.legal section{padding:0;margin:0 0 34px}
+.legal h2{font-size:19px;margin:0 0 10px;max-width:44ch}
+.legal h3{font-size:15px;font-weight:600;letter-spacing:-.01em;margin:22px 0 6px}
+.legal p,.legal li{color:var(--fg-2);max-width:68ch}
+.legal ul{margin:0 0 15px;padding-inline-start:22px}
+.legal li{margin:0 0 7px}
+.legal article{border-top:1px solid var(--line);padding:22px 0 6px}
+.legal article:first-of-type{border-top:0;padding-top:0}
+.legal time{font-family:var(--mono);font-size:12px;color:var(--fg-3)}
+
+/* ---------- the language picker ---------- */
+/* Built on <details>/<summary> so it works with the script policy the page
+   keeps: this is the control that fixes "I cannot read this page", and it is
+   the one control that must not depend on anything optional. */
+/* Wraps, for the same reason `.head-row` does. The appearance switch alone
+   measured 222 px of a 320 px screen at a 24 px minimum font size; the
+   language picker beside it took the pair to 310 and the page sideways.
+   Given permission to wrap they stack instead, and neither is ever the
+   widest thing on the page. */
+.head-tools{display:flex;align-items:center;justify-content:flex-end;
+  gap:10px;flex-wrap:wrap}
+details.lang{position:relative}
+details.lang summary{
+  list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.02em;color:var(--fg-3);
+  padding:4px 9px;border:1px solid var(--line);border-radius:7px;user-select:none;line-height:1.4;
+}
+details.lang summary::-webkit-details-marker{display:none}
+details.lang summary:hover{color:var(--fg-2)}
+details.lang[open] summary{background:var(--strip-on);color:var(--fg)}
+.lang-panel{
+  position:absolute;inset-inline-end:0;top:calc(100% + 6px);z-index:5;min-width:232px;
+  background:var(--card);border:1px solid var(--edge);border-radius:10px;
+  box-shadow:0 18px 40px -16px var(--cast);padding:6px;
+}
+.foot-lang{margin-top:18px}
+.foot-lang .lang-panel{top:auto;bottom:calc(100% + 6px);inset-inline-end:auto;inset-inline-start:0}
+.lang-row{
+  display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:7px;
+  color:var(--fg);text-decoration:none;font-size:13px;
+}
+a.lang-row:hover{background:var(--strip);text-decoration:none}
+.lang-row .code{font-family:var(--mono);font-size:10.5px;color:var(--fg-3);width:24px;flex:none}
+.lang-row .names{display:flex;flex-direction:column;gap:1px;min-width:0}
+.lang-row .names span:last-child{font-size:10.5px;color:var(--fg-3)}
+.lang-row[aria-current]{background:var(--strip-on)}
+@media(max-width:520px){
+  details.lang summary{padding:4px 6px;letter-spacing:0}
+  /* Opens in place rather than hanging off the control.
+     The panel was anchored to the summary's inline-end, which is right in
+     English and left in Arabic — and on a narrow screen the header wraps and
+     the whole cluster changes sides, so on the Arabic pages the panel opened
+     from x=256 rightwards and ended at 488 on a 305 px screen. Anchoring is
+     what fails here, not the side it picks: below this width the panel takes
+     the full column and pushes the page down, which cannot leave the screen
+     in either direction. */
+  details.lang{width:100%}
+  details.lang summary{display:flex;justify-content:space-between}
+  .lang-panel{position:static;min-width:0;width:100%;margin-top:6px;box-shadow:none}
+  .foot-lang .lang-panel{margin-top:6px}
+}
+
+/* ---------- paper ---------- */
+/*
+   Paper is white, and a browser's print dialog has "Background graphics" off by
+   default — so a page read in the dark palette would print near-white text onto
+   it. Every colour here is a `light-dark()` pair following `color-scheme`, so
+   pinning that to light flips the whole palette in one line; the two rules below
+   it beat the switch, which would otherwise still be holding the reader's choice.
+
+   The switch itself goes: three radio buttons are not something paper can offer.
+   Everything else stays, including the window mock — without background graphics
+   its bars drop out and the percentages beside them remain, which is the part
+   worth reading anyway.
+*/
+@media print {
+  :root, html:has(#t-light:checked), html:has(#t-dark:checked) { color-scheme: light }
+  body { background: #fff; color: #16161c }
+  .themes { display: none }
+  .stage { break-inside: avoid }
+  section { padding: 28px 0 }
+}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+ {"@type":"ListItem","position":1,"name":"Resumen","item":"https://softcap.app/es/"},
+ {"@type":"ListItem","position":2,"name":"Novedades","item":"https://softcap.app/es/changelog/"}]}
+</script>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="head-row">
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true">
+        <rect class="plate" width="64" height="64" rx="14.3" fill="#1c1c22"/>
+        <circle class="hush outer" cx="32" cy="32" r="21" fill="none" stroke="#ffffff" stroke-opacity=".12" stroke-width="5"/>
+        <circle class="arc outer" cx="32" cy="32" r="21" fill="none" stroke="#34c759" stroke-width="5"
+                stroke-linecap="round" stroke-dasharray="85.8 131.9" transform="rotate(-90 32 32)"/>
+        <circle class="hush inner" cx="32" cy="32" r="11.5" fill="none" stroke="#ffffff" stroke-opacity=".12" stroke-width="3.6"/>
+        <circle class="ink inner" cx="32" cy="32" r="11.5" fill="none" stroke="#ffffff" stroke-width="3.6"
+                stroke-linecap="round" stroke-dasharray="21.7 50.5" transform="rotate(-90 32 32)"/>
+      </svg>
+      <span>Softcap</span>
+    </div>
+    <div class="head-tools">
+    <details class="lang">
+      <summary aria-label="Idioma"><span>ES</span><bdi dir="ltr">+9</bdi></summary>
+      <div class="lang-panel">
+        <a class="lang-row" lang="en" hreflang="en" href="/changelog/"><span class="code">EN</span><span class="names"><span>English</span><span>English</span></span></a>
+        <a class="lang-row" lang="ru" hreflang="ru" href="/ru/changelog/"><span class="code">RU</span><span class="names"><span>Русский</span><span>Russian</span></span></a>
+        <span class="lang-row" aria-current="true"><span class="code">ES</span><span class="names"><span>Español</span><span>Spanish</span></span></span>
+        <a class="lang-row" lang="fr" hreflang="fr" href="/fr/changelog/"><span class="code">FR</span><span class="names"><span>Français</span><span>French</span></span></a>
+        <a class="lang-row" lang="ar" hreflang="ar" href="/ar/changelog/"><span class="code">AR</span><span class="names"><span>العربية</span><span>Arabic</span></span></a>
+        <a class="lang-row" lang="bn" hreflang="bn" href="/bn/changelog/"><span class="code">BN</span><span class="names"><span>বাংলা</span><span>Bengali</span></span></a>
+        <a class="lang-row" lang="hi" hreflang="hi" href="/hi/changelog/"><span class="code">HI</span><span class="names"><span>हिन्दी</span><span>Hindi</span></span></a>
+        <a class="lang-row" lang="id" hreflang="id" href="/id/changelog/"><span class="code">ID</span><span class="names"><span>Bahasa Indonesia</span><span>Indonesian</span></span></a>
+        <a class="lang-row" lang="pt-BR" hreflang="pt-BR" href="/pt-br/changelog/"><span class="code">PT</span><span class="names"><span>Português (Brasil)</span><span>Portuguese (Brazil)</span></span></a>
+        <a class="lang-row" lang="zh-Hans" hreflang="zh-Hans" href="/zh-hans/changelog/"><span class="code">ZH</span><span class="names"><span>中文（简体）</span><span>Chinese (Simplified)</span></span></a>
+      </div>
+    </details>
+    <!-- Three, because the app offers three: system, light and dark. The radios
+         carry the state; `html:has(…:checked)` sets `color-scheme` and every
+         token follows. No script, so the policy stays `default-src 'none'`. -->
+    <fieldset class="themes">
+      <legend>Apariencia</legend>
+      <input type="radio" name="theme" id="t-system" checked><label for="t-system">auto</label>
+      <input type="radio" name="theme" id="t-light"><label for="t-light">claro</label>
+      <input type="radio" name="theme" id="t-dark"><label for="t-dark">oscuro</label>
+    </fieldset>
+    </div>
+    </div>
+  </div>
+</header>
+<main>
+<div class="wrap">
+  <nav class="crumbs" aria-label="Estás aquí"><a href="/es/">Resumen</a><span>/</span><span aria-current="page">Novedades</span></nav>
+  <article class="legal">
+    <h1>Novedades</h1>
+    <p class="lede">La cadena de publicación saca una compilación por cada cambio en verde, así que los números de versión avanzan rápido y dicen poco. Esta página enumera las versiones que cambiaron la app; el feed completo, con sumas de verificación de cada compilación, está en GitHub.</p>
+    <article>
+      <h2>0.1.2 <time datetime="2026-09-13">13 de septiembre de 2026</time></h2>
+      <p>La primera compilación pública. Todo lo que describe la página principal, ya funcionando:</p>
+      <ul>
+        <li>Varias cuentas de Claude y Codex a la vez, añadidas desde el navegador o detectadas de una CLI local.</li>
+        <li>Un temporizador en la barra de menús — cuenta atrás, porcentaje, ambos o solo el icono — y un atajo a tu elección para abrir la ventana.</li>
+        <li>Widgets en los cuatro tamaños en macOS; pantalla de inicio y pantalla bloqueada en iPhone.</li>
+        <li>Notificaciones de umbral al 80% y al 95%, o en los niveles que elijas, con horas de silencio.</li>
+        <li>Diez idiomas de interfaz, incluido el árabe dispuesto de derecha a izquierda.</li>
+        <li>Credenciales solo en el llavero; informes de error y comprobación de actualizaciones, ambos opcionales, ambos depurados o desactivables.</li>
+      </ul>
+      <p>Por ahora las compilaciones se firman de forma ad hoc, así que el primer arranque pide clic derecho y Abrir — la página de soporte explica las dos maneras.</p>
+    </article>
+    <section style="margin-top:34px">
+      <p>Cada compilación, incluidas las que no cambiaron nada en la app, aparece con sus sumas de verificación en <a href="https://github.com/milushov/softcap/releases">la página de versiones</a>.</p>
+    </section>
+  </article>
+</div>
+</main>
+<footer>
+  <div class="wrap">
+    <nav class="site-map" aria-label="Todas las páginas">
+      <a href="/es/">Resumen</a>
+      <a href="/es/faq/">Preguntas frecuentes</a>
+      <a href="/es/changelog/">Novedades</a>
+      <a href="/es/limits/claude/">Límites de Claude</a>
+      <a href="/es/limits/codex/">Límites de Codex</a>
+      <a href="/es/support/">Soporte</a>
+      <a href="/es/privacy/">Privacidad</a>
+      <a href="/es/terms/">Términos</a>
+    </nav>
+    <p>Softcap funciona todo el día en la máquina en la que se escribió — y ahora también en la tuya.
+       <a href="https://github.com/milushov/softcap/releases">Notas de la versión</a>.</p>
+    <p style="margin-top:14px;color:var(--fg-3)">Sin afiliación con Anthropic ni OpenAI.</p>
+    <div class="foot-lang"><details class="lang">
+      <summary aria-label="Idioma"><span>ES</span><bdi dir="ltr">+9</bdi></summary>
+      <div class="lang-panel">
+        <a class="lang-row" lang="en" hreflang="en" href="/changelog/"><span class="code">EN</span><span class="names"><span>English</span><span>English</span></span></a>
+        <a class="lang-row" lang="ru" hreflang="ru" href="/ru/changelog/"><span class="code">RU</span><span class="names"><span>Русский</span><span>Russian</span></span></a>
+        <span class="lang-row" aria-current="true"><span class="code">ES</span><span class="names"><span>Español</span><span>Spanish</span></span></span>
+        <a class="lang-row" lang="fr" hreflang="fr" href="/fr/changelog/"><span class="code">FR</span><span class="names"><span>Français</span><span>French</span></span></a>
+        <a class="lang-row" lang="ar" hreflang="ar" href="/ar/changelog/"><span class="code">AR</span><span class="names"><span>العربية</span><span>Arabic</span></span></a>
+        <a class="lang-row" lang="bn" hreflang="bn" href="/bn/changelog/"><span class="code">BN</span><span class="names"><span>বাংলা</span><span>Bengali</span></span></a>
+        <a class="lang-row" lang="hi" hreflang="hi" href="/hi/changelog/"><span class="code">HI</span><span class="names"><span>हिन्दी</span><span>Hindi</span></span></a>
+        <a class="lang-row" lang="id" hreflang="id" href="/id/changelog/"><span class="code">ID</span><span class="names"><span>Bahasa Indonesia</span><span>Indonesian</span></span></a>
+        <a class="lang-row" lang="pt-BR" hreflang="pt-BR" href="/pt-br/changelog/"><span class="code">PT</span><span class="names"><span>Português (Brasil)</span><span>Portuguese (Brazil)</span></span></a>
+        <a class="lang-row" lang="zh-Hans" hreflang="zh-Hans" href="/zh-hans/changelog/"><span class="code">ZH</span><span class="names"><span>中文（简体）</span><span>Chinese (Simplified)</span></span></a>
+      </div>
+    </details></div>
+  </div>
+</footer>
+
+</body>
+</html>

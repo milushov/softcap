@@ -37,11 +37,23 @@ fi
 
 [ -x "$CHROME" ] || { echo "Chrome not found; set CHROME" >&2; exit 1; }
 
+# Which pages to render. The landing in the four scripts that break layouts
+# differently — English as written, Russian for word length, Arabic for
+# direction, Bengali for tall stacked glyphs — and the two longest English
+# subpages. Override with PAGES for a one-off look at something else.
+PAGES=${PAGES:-index.html ru/index.html ar/index.html bn/index.html faq/index.html limits/claude/index.html}
+for PAGE in $PAGES; do
+  [ -f "$HERE/$PAGE" ] || { echo "$PAGE is not built — run python3 site/build.py first" >&2; exit 1; }
+done
+
 # One working directory, overwritten each run. Nothing is deleted: a stale copy
 # of a page is harmless, and a delete in a script is not worth the risk.
 WORK="${TMPDIR:-/tmp}/softcap-widths"
 mkdir -p "$WORK"
-cp "$HERE/index.html" "$WORK/page.html"
+
+for PAGE in $PAGES; do
+echo "$PAGE"
+cp "$HERE/$PAGE" "$WORK/page.html"
 
 # The parent reaches into each frame's document directly — with
 # --allow-file-access-from-files a file:// parent may read a file:// child, so
@@ -117,11 +129,12 @@ for MIN in 0 24; do
           --dump-dom "file://$WORK/frames.html" 2>/dev/null \
         | sed -n 's/.*<pre id="out">\([^<]*\)<\/pre>.*/\1/p' | head -1)
 
-  [ -n "$OUT" ] || { echo "the check produced no result $LABEL" >&2; exit 1; }
+  [ -n "$OUT" ] || { echo "the check produced no result for $PAGE $LABEL" >&2; exit 1; }
   printf '%s\n' "$OUT" | tr '/' '\n' | sed '/^$/d;s/^ *//;s/^/  /'
   case "$OUT" in
-    *FAILED*) exit 1 ;;
+    *FAILED*) echo "  ^ in $PAGE $LABEL" >&2; exit 1 ;;
     *"all clear"*) ;;
-    *) echo "unrecognised result $LABEL" >&2; exit 1 ;;
+    *) echo "unrecognised result for $PAGE $LABEL" >&2; exit 1 ;;
   esac
+done
 done

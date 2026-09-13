@@ -1,11 +1,1044 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://softcap.app/</loc></url>
-  <url><loc>https://softcap.app/changelog/</loc></url>
-  <url><loc>https://softcap.app/faq/</loc></url>
-  <url><loc>https://softcap.app/limits/claude/</loc></url>
-  <url><loc>https://softcap.app/limits/codex/</loc></url>
-  <url><loc>https://softcap.app/privacy/</loc></url>
-  <url><loc>https://softcap.app/support/</loc></url>
-  <url><loc>https://softcap.app/terms/</loc></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url><loc>https://softcap.app/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/"/>
+  </url>
+  <url><loc>https://softcap.app/ru/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/"/>
+  </url>
+  <url><loc>https://softcap.app/es/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/"/>
+  </url>
+  <url><loc>https://softcap.app/fr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/"/>
+  </url>
+  <url><loc>https://softcap.app/ar/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/"/>
+  </url>
+  <url><loc>https://softcap.app/bn/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/"/>
+  </url>
+  <url><loc>https://softcap.app/hi/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/"/>
+  </url>
+  <url><loc>https://softcap.app/id/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/"/>
+  </url>
+  <url><loc>https://softcap.app/pt-br/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/"/>
+  </url>
+  <url><loc>https://softcap.app/zh-hans/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/"/>
+  </url>
+  <url><loc>https://softcap.app/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/privacy/"/>
+  </url>
+  <url><loc>https://softcap.app/ru/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/privacy/"/>
+  </url>
+  <url><loc>https://softcap.app/es/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/privacy/"/>
+  </url>
+  <url><loc>https://softcap.app/fr/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/privacy/"/>
+  </url>
+  <url><loc>https://softcap.app/ar/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/privacy/"/>
+  </url>
+  <url><loc>https://softcap.app/bn/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/privacy/"/>
+  </url>
+  <url><loc>https://softcap.app/hi/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/privacy/"/>
+  </url>
+  <url><loc>https://softcap.app/id/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/privacy/"/>
+  </url>
+  <url><loc>https://softcap.app/pt-br/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/privacy/"/>
+  </url>
+  <url><loc>https://softcap.app/zh-hans/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/privacy/"/>
+  </url>
+  <url><loc>https://softcap.app/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/support/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/support/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/support/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/support/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/support/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/support/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/support/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/support/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/support/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/support/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/support/"/>
+  </url>
+  <url><loc>https://softcap.app/ru/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/support/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/support/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/support/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/support/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/support/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/support/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/support/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/support/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/support/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/support/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/support/"/>
+  </url>
+  <url><loc>https://softcap.app/es/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/support/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/support/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/support/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/support/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/support/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/support/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/support/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/support/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/support/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/support/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/support/"/>
+  </url>
+  <url><loc>https://softcap.app/fr/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/support/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/support/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/support/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/support/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/support/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/support/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/support/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/support/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/support/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/support/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/support/"/>
+  </url>
+  <url><loc>https://softcap.app/ar/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/support/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/support/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/support/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/support/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/support/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/support/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/support/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/support/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/support/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/support/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/support/"/>
+  </url>
+  <url><loc>https://softcap.app/bn/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/support/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/support/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/support/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/support/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/support/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/support/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/support/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/support/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/support/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/support/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/support/"/>
+  </url>
+  <url><loc>https://softcap.app/hi/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/support/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/support/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/support/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/support/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/support/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/support/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/support/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/support/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/support/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/support/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/support/"/>
+  </url>
+  <url><loc>https://softcap.app/id/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/support/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/support/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/support/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/support/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/support/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/support/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/support/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/support/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/support/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/support/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/support/"/>
+  </url>
+  <url><loc>https://softcap.app/pt-br/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/support/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/support/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/support/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/support/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/support/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/support/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/support/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/support/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/support/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/support/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/support/"/>
+  </url>
+  <url><loc>https://softcap.app/zh-hans/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/support/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/support/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/support/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/support/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/support/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/support/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/support/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/support/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/support/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/support/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/support/"/>
+  </url>
+  <url><loc>https://softcap.app/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/terms/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/terms/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/terms/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/terms/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/terms/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/terms/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/terms/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/terms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/terms/"/>
+  </url>
+  <url><loc>https://softcap.app/ru/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/terms/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/terms/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/terms/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/terms/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/terms/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/terms/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/terms/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/terms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/terms/"/>
+  </url>
+  <url><loc>https://softcap.app/es/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/terms/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/terms/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/terms/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/terms/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/terms/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/terms/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/terms/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/terms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/terms/"/>
+  </url>
+  <url><loc>https://softcap.app/fr/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/terms/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/terms/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/terms/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/terms/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/terms/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/terms/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/terms/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/terms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/terms/"/>
+  </url>
+  <url><loc>https://softcap.app/ar/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/terms/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/terms/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/terms/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/terms/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/terms/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/terms/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/terms/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/terms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/terms/"/>
+  </url>
+  <url><loc>https://softcap.app/bn/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/terms/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/terms/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/terms/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/terms/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/terms/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/terms/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/terms/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/terms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/terms/"/>
+  </url>
+  <url><loc>https://softcap.app/hi/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/terms/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/terms/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/terms/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/terms/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/terms/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/terms/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/terms/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/terms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/terms/"/>
+  </url>
+  <url><loc>https://softcap.app/id/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/terms/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/terms/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/terms/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/terms/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/terms/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/terms/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/terms/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/terms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/terms/"/>
+  </url>
+  <url><loc>https://softcap.app/pt-br/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/terms/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/terms/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/terms/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/terms/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/terms/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/terms/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/terms/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/terms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/terms/"/>
+  </url>
+  <url><loc>https://softcap.app/zh-hans/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/terms/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/terms/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/terms/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/terms/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/terms/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/terms/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/terms/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/terms/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/terms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/terms/"/>
+  </url>
+  <url><loc>https://softcap.app/faq/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/faq/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/faq/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/faq/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/faq/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/faq/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/faq/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/faq/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/faq/"/>
+  </url>
+  <url><loc>https://softcap.app/ru/faq/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/faq/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/faq/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/faq/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/faq/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/faq/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/faq/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/faq/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/faq/"/>
+  </url>
+  <url><loc>https://softcap.app/es/faq/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/faq/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/faq/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/faq/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/faq/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/faq/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/faq/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/faq/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/faq/"/>
+  </url>
+  <url><loc>https://softcap.app/fr/faq/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/faq/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/faq/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/faq/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/faq/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/faq/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/faq/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/faq/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/faq/"/>
+  </url>
+  <url><loc>https://softcap.app/ar/faq/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/faq/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/faq/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/faq/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/faq/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/faq/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/faq/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/faq/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/faq/"/>
+  </url>
+  <url><loc>https://softcap.app/bn/faq/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/faq/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/faq/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/faq/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/faq/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/faq/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/faq/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/faq/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/faq/"/>
+  </url>
+  <url><loc>https://softcap.app/hi/faq/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/faq/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/faq/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/faq/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/faq/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/faq/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/faq/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/faq/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/faq/"/>
+  </url>
+  <url><loc>https://softcap.app/id/faq/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/faq/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/faq/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/faq/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/faq/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/faq/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/faq/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/faq/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/faq/"/>
+  </url>
+  <url><loc>https://softcap.app/pt-br/faq/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/faq/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/faq/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/faq/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/faq/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/faq/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/faq/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/faq/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/faq/"/>
+  </url>
+  <url><loc>https://softcap.app/zh-hans/faq/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/faq/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/faq/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/faq/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/faq/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/faq/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/faq/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/faq/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/faq/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/faq/"/>
+  </url>
+  <url><loc>https://softcap.app/changelog/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/changelog/"/>
+  </url>
+  <url><loc>https://softcap.app/ru/changelog/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/changelog/"/>
+  </url>
+  <url><loc>https://softcap.app/es/changelog/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/changelog/"/>
+  </url>
+  <url><loc>https://softcap.app/fr/changelog/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/changelog/"/>
+  </url>
+  <url><loc>https://softcap.app/ar/changelog/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/changelog/"/>
+  </url>
+  <url><loc>https://softcap.app/bn/changelog/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/changelog/"/>
+  </url>
+  <url><loc>https://softcap.app/hi/changelog/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/changelog/"/>
+  </url>
+  <url><loc>https://softcap.app/id/changelog/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/changelog/"/>
+  </url>
+  <url><loc>https://softcap.app/pt-br/changelog/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/changelog/"/>
+  </url>
+  <url><loc>https://softcap.app/zh-hans/changelog/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/changelog/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/changelog/"/>
+  </url>
+  <url><loc>https://softcap.app/limits/claude/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/claude/"/>
+  </url>
+  <url><loc>https://softcap.app/ru/limits/claude/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/claude/"/>
+  </url>
+  <url><loc>https://softcap.app/es/limits/claude/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/claude/"/>
+  </url>
+  <url><loc>https://softcap.app/fr/limits/claude/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/claude/"/>
+  </url>
+  <url><loc>https://softcap.app/ar/limits/claude/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/claude/"/>
+  </url>
+  <url><loc>https://softcap.app/bn/limits/claude/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/claude/"/>
+  </url>
+  <url><loc>https://softcap.app/hi/limits/claude/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/claude/"/>
+  </url>
+  <url><loc>https://softcap.app/id/limits/claude/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/claude/"/>
+  </url>
+  <url><loc>https://softcap.app/pt-br/limits/claude/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/claude/"/>
+  </url>
+  <url><loc>https://softcap.app/zh-hans/limits/claude/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/claude/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/claude/"/>
+  </url>
+  <url><loc>https://softcap.app/limits/codex/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/codex/"/>
+  </url>
+  <url><loc>https://softcap.app/ru/limits/codex/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/codex/"/>
+  </url>
+  <url><loc>https://softcap.app/es/limits/codex/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/codex/"/>
+  </url>
+  <url><loc>https://softcap.app/fr/limits/codex/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/codex/"/>
+  </url>
+  <url><loc>https://softcap.app/ar/limits/codex/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/codex/"/>
+  </url>
+  <url><loc>https://softcap.app/bn/limits/codex/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/codex/"/>
+  </url>
+  <url><loc>https://softcap.app/hi/limits/codex/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/codex/"/>
+  </url>
+  <url><loc>https://softcap.app/id/limits/codex/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/codex/"/>
+  </url>
+  <url><loc>https://softcap.app/pt-br/limits/codex/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/codex/"/>
+  </url>
+  <url><loc>https://softcap.app/zh-hans/limits/codex/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://softcap.app/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://softcap.app/ru/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://softcap.app/es/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://softcap.app/fr/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://softcap.app/ar/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://softcap.app/bn/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://softcap.app/hi/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://softcap.app/id/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/limits/codex/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://softcap.app/limits/codex/"/>
+  </url>
 </urlset>

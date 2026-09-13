@@ -7,6 +7,15 @@
 <meta name="description" content="How to reach the author, what Softcap requires, how to open an ad-hoc-signed build, and fixes for the things people actually hit.">
 <link rel="canonical" href="https://softcap.app/support/">
 <link rel="alternate" hreflang="en" href="https://softcap.app/support/">
+<link rel="alternate" hreflang="ru" href="https://softcap.app/ru/support/">
+<link rel="alternate" hreflang="es" href="https://softcap.app/es/support/">
+<link rel="alternate" hreflang="fr" href="https://softcap.app/fr/support/">
+<link rel="alternate" hreflang="ar" href="https://softcap.app/ar/support/">
+<link rel="alternate" hreflang="bn" href="https://softcap.app/bn/support/">
+<link rel="alternate" hreflang="hi" href="https://softcap.app/hi/support/">
+<link rel="alternate" hreflang="id" href="https://softcap.app/id/support/">
+<link rel="alternate" hreflang="pt-BR" href="https://softcap.app/pt-br/support/">
+<link rel="alternate" hreflang="zh-Hans" href="https://softcap.app/zh-hans/support/">
 <link rel="alternate" hreflang="x-default" href="https://softcap.app/support/">
 <meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0e0e12" media="(prefers-color-scheme: dark)">
@@ -356,13 +365,20 @@ stop.bot{stop-opacity:0}
 .themes{border:0;margin:0;padding:0;display:flex;gap:0;align-items:center}
 .themes legend{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .themes input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+/* Logical rather than physical, because this row reverses on the Arabic
+   pages: written as `border-right-width` and `border-radius:7px 0 0 7px` the
+   segmented switch kept its rounding and its seam on the left, which in a
+   right-to-left run is the inside edge — three boxes with a doubled border
+   in the middle and square ends where the corners belong. */
 .themes label{
   font-family:var(--mono);font-size:11px;letter-spacing:.02em;color:var(--fg-3);
-  padding:4px 9px;cursor:pointer;border:1px solid var(--line);border-right-width:0;
+  padding:4px 9px;cursor:pointer;border:1px solid var(--line);border-inline-end-width:0;
   background:transparent;user-select:none;line-height:1.4;
 }
-.themes label:first-of-type{border-radius:7px 0 0 7px}
-.themes label:last-of-type{border-radius:0 7px 7px 0;border-right-width:1px}
+.themes label:first-of-type{border-start-start-radius:7px;border-end-start-radius:7px}
+.themes label:last-of-type{
+  border-start-end-radius:7px;border-end-end-radius:7px;border-inline-end-width:1px;
+}
 .themes input:checked + label{background:var(--strip-on);color:var(--fg)}
 .themes input:focus-visible + label{outline:2px solid var(--accent);outline-offset:1px}
 .themes label:hover{color:var(--fg-2)}
@@ -374,6 +390,15 @@ stop.bot{stop-opacity:0}
    311 of a 320 px screen. */
 @media(max-width:520px){
   .themes label{padding:4px 5px;letter-spacing:0}
+  /* And it wraps, because in some languages three words do not fit a row at
+     any padding. English reads `auto light dark`; Russian reads
+     `системное светлое тёмное`, which at a 24 px minimum font size measured
+     352 px of a 305 px screen — the switch alone, wider than the phone.
+     Wrapped it stops being one segmented control, so each label takes its
+     own border and its own corners: a shared seam drawn across a line break
+     is a border into the middle of nothing. */
+  .themes{flex-wrap:wrap;gap:5px;justify-content:flex-end}
+  .themes label{border-inline-end-width:1px;border-radius:7px}
 }
 footer p{margin:0 0 6px;max-width:60ch}
 
@@ -389,8 +414,12 @@ footer p{margin:0 0 6px;max-width:60ch}
 .legal h1{font-size:clamp(27px,4.4vw,38px);line-height:1.14;letter-spacing:-.026em;
   font-weight:640;margin:18px 0 10px;max-width:26ch}
 .legal .updated{font-family:var(--mono);font-size:12px;color:var(--fg-3);margin:0 0 34px}
+/* The date above a legal page is a stamp and reads as one in mono. The
+   sentence above an explainer is prose and was wearing the stamp's clothes:
+   12px monospace, wrapping mid-phrase. */
+.legal .lede{font-size:17px;line-height:1.6;color:var(--fg-2);max-width:62ch;margin:0 0 34px}
 .legal section{padding:0;margin:0 0 34px}
-.legal h2{font-size:19px;margin:0 0 10px}
+.legal h2{font-size:19px;margin:0 0 10px;max-width:44ch}
 .legal h3{font-size:15px;font-weight:600;letter-spacing:-.01em;margin:22px 0 6px}
 .legal p,.legal li{color:var(--fg-2);max-width:68ch}
 .legal ul{margin:0 0 15px;padding-inline-start:22px}
@@ -403,7 +432,13 @@ footer p{margin:0 0 6px;max-width:60ch}
 /* Built on <details>/<summary> so it works with the script policy the page
    keeps: this is the control that fixes "I cannot read this page", and it is
    the one control that must not depend on anything optional. */
-.head-tools{display:flex;align-items:center;gap:10px}
+/* Wraps, for the same reason `.head-row` does. The appearance switch alone
+   measured 222 px of a 320 px screen at a 24 px minimum font size; the
+   language picker beside it took the pair to 310 and the page sideways.
+   Given permission to wrap they stack instead, and neither is ever the
+   widest thing on the page. */
+.head-tools{display:flex;align-items:center;justify-content:flex-end;
+  gap:10px;flex-wrap:wrap}
 details.lang{position:relative}
 details.lang summary{
   list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
@@ -431,6 +466,18 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 .lang-row[aria-current]{background:var(--strip-on)}
 @media(max-width:520px){
   details.lang summary{padding:4px 6px;letter-spacing:0}
+  /* Opens in place rather than hanging off the control.
+     The panel was anchored to the summary's inline-end, which is right in
+     English and left in Arabic — and on a narrow screen the header wraps and
+     the whole cluster changes sides, so on the Arabic pages the panel opened
+     from x=256 rightwards and ended at 488 on a 305 px screen. Anchoring is
+     what fails here, not the side it picks: below this width the panel takes
+     the full column and pushes the page down, which cannot leave the screen
+     in either direction. */
+  details.lang{width:100%}
+  details.lang summary{display:flex;justify-content:space-between}
+  .lang-panel{position:static;min-width:0;width:100%;margin-top:6px;box-shadow:none}
+  .foot-lang .lang-panel{margin-top:6px}
 }
 
 /* ---------- paper ---------- */
@@ -478,7 +525,21 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       <span>Softcap</span>
     </div>
     <div class="head-tools">
-    
+    <details class="lang">
+      <summary aria-label="Language"><span>EN</span><bdi dir="ltr">+9</bdi></summary>
+      <div class="lang-panel">
+        <span class="lang-row" aria-current="true"><span class="code">EN</span><span class="names"><span>English</span><span>English</span></span></span>
+        <a class="lang-row" lang="ru" hreflang="ru" href="/ru/support/"><span class="code">RU</span><span class="names"><span>Русский</span><span>Russian</span></span></a>
+        <a class="lang-row" lang="es" hreflang="es" href="/es/support/"><span class="code">ES</span><span class="names"><span>Español</span><span>Spanish</span></span></a>
+        <a class="lang-row" lang="fr" hreflang="fr" href="/fr/support/"><span class="code">FR</span><span class="names"><span>Français</span><span>French</span></span></a>
+        <a class="lang-row" lang="ar" hreflang="ar" href="/ar/support/"><span class="code">AR</span><span class="names"><span>العربية</span><span>Arabic</span></span></a>
+        <a class="lang-row" lang="bn" hreflang="bn" href="/bn/support/"><span class="code">BN</span><span class="names"><span>বাংলা</span><span>Bengali</span></span></a>
+        <a class="lang-row" lang="hi" hreflang="hi" href="/hi/support/"><span class="code">HI</span><span class="names"><span>हिन्दी</span><span>Hindi</span></span></a>
+        <a class="lang-row" lang="id" hreflang="id" href="/id/support/"><span class="code">ID</span><span class="names"><span>Bahasa Indonesia</span><span>Indonesian</span></span></a>
+        <a class="lang-row" lang="pt-BR" hreflang="pt-BR" href="/pt-br/support/"><span class="code">PT</span><span class="names"><span>Português (Brasil)</span><span>Portuguese (Brazil)</span></span></a>
+        <a class="lang-row" lang="zh-Hans" hreflang="zh-Hans" href="/zh-hans/support/"><span class="code">ZH</span><span class="names"><span>中文（简体）</span><span>Chinese (Simplified)</span></span></a>
+      </div>
+    </details>
     <!-- Three, because the app offers three: system, light and dark. The radios
          carry the state; `html:has(…:checked)` sets `color-scheme` and every
          token follows. No script, so the policy stays `default-src 'none'`. -->
@@ -497,10 +558,10 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
   <nav class="crumbs" aria-label="You are here"><a href="/">Overview</a><span>/</span><span aria-current="page">Support</span></nav>
   <article class="legal">
     <h1>Support</h1>
-    <p class="updated">One person writes Softcap; the same person answers.</p>
+    <p class="lede">One person writes Softcap; the same person answers.</p>
     <section>
       <h2>How to reach me</h2>
-      <p>Write to <a href="mailto:§EMAIL§">§EMAIL§</a>, or open an issue at <a href="https://github.com/milushov/softcap/issues">github.com/milushov/softcap/issues</a>.</p>
+      <p>Write to <a href="mailto:lapster.me@gmail.com">lapster.me@gmail.com</a>, or open an issue at <a href="https://github.com/milushov/softcap/issues">github.com/milushov/softcap/issues</a>.</p>
       <p>Mail is read within a day or two; a fix depends on what broke. An issue with the failing account's provider, the app version and what you expected to happen is the fastest kind to act on.</p>
     </section>
     <section>
@@ -547,7 +608,21 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <p>Softcap runs all day on the machine it was written on — and now on yours too.
        <a href="https://github.com/milushov/softcap/releases">Release notes</a>.</p>
     <p style="margin-top:14px;color:var(--fg-3)">Not affiliated with Anthropic or OpenAI.</p>
-    <div class="foot-lang"></div>
+    <div class="foot-lang"><details class="lang">
+      <summary aria-label="Language"><span>EN</span><bdi dir="ltr">+9</bdi></summary>
+      <div class="lang-panel">
+        <span class="lang-row" aria-current="true"><span class="code">EN</span><span class="names"><span>English</span><span>English</span></span></span>
+        <a class="lang-row" lang="ru" hreflang="ru" href="/ru/support/"><span class="code">RU</span><span class="names"><span>Русский</span><span>Russian</span></span></a>
+        <a class="lang-row" lang="es" hreflang="es" href="/es/support/"><span class="code">ES</span><span class="names"><span>Español</span><span>Spanish</span></span></a>
+        <a class="lang-row" lang="fr" hreflang="fr" href="/fr/support/"><span class="code">FR</span><span class="names"><span>Français</span><span>French</span></span></a>
+        <a class="lang-row" lang="ar" hreflang="ar" href="/ar/support/"><span class="code">AR</span><span class="names"><span>العربية</span><span>Arabic</span></span></a>
+        <a class="lang-row" lang="bn" hreflang="bn" href="/bn/support/"><span class="code">BN</span><span class="names"><span>বাংলা</span><span>Bengali</span></span></a>
+        <a class="lang-row" lang="hi" hreflang="hi" href="/hi/support/"><span class="code">HI</span><span class="names"><span>हिन्दी</span><span>Hindi</span></span></a>
+        <a class="lang-row" lang="id" hreflang="id" href="/id/support/"><span class="code">ID</span><span class="names"><span>Bahasa Indonesia</span><span>Indonesian</span></span></a>
+        <a class="lang-row" lang="pt-BR" hreflang="pt-BR" href="/pt-br/support/"><span class="code">PT</span><span class="names"><span>Português (Brasil)</span><span>Portuguese (Brazil)</span></span></a>
+        <a class="lang-row" lang="zh-Hans" hreflang="zh-Hans" href="/zh-hans/support/"><span class="code">ZH</span><span class="names"><span>中文（简体）</span><span>Chinese (Simplified)</span></span></a>
+      </div>
+    </details></div>
   </div>
 </footer>
 

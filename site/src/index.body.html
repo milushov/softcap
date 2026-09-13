@@ -13,7 +13,9 @@
     <p class="note">{{index.note}}</p>
   </div>
 
-  <div class="stage">
+  <!-- The mock and the chart depict the English app and its data, so they
+       keep left-to-right layout on every page, the Arabic one included. -->
+  <div class="stage" dir="ltr">
     <div class="menubar" aria-hidden="true">
       <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 4h8M2 6h8M2 8h5"/></svg></span>
       <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="3" width="9" height="6" rx="1.4"/><path d="M11 5v2"/></svg></span>
@@ -120,7 +122,7 @@
       {{index.time_lede}}
     </p>
 
-    <div class="chart">
+    <div class="chart" dir="ltr">
       <ul class="stats">
         <li><b>3</b> {{index.stat_accounts}}</li>
         <li><b>7</b> {{index.stat_resets}}</li>

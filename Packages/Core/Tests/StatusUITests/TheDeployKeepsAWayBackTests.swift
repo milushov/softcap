@@ -33,12 +33,18 @@ import Foundation
         let body = try Self.body(of: "roll_back()", in: script)
 
         #expect(body.contains("prev/dist"), "the rollback does not read the snapshot")
-        // The comparison itself, not a mention of it. Written as `contains` of the
-        // bare `${#SERVED[@]}` this passed with the floor removed, because the
-        // refusal message names the same count two lines further down.
-        #expect(body.contains(#"-lt "${#SERVED[@]}""#), """
-            the rollback does not compare what it holds against the number of files \
-            the site serves
+        // The comparison itself, not a mention of it — the same rule as ever.
+        // The floor moved when the site grew from six files to eighty-five:
+        // a snapshot now records its own size in prev/COUNT when it is taken,
+        // and the rollback compares what it holds against that record, so a
+        // rollback across the growth neither refuses the old small site nor
+        // restores half of a new large one.
+        #expect(body.contains("prev/COUNT"), """
+            the rollback does not read the snapshot's own record of its size
+            """)
+        #expect(body.contains(#"-lt "$expected""#), """
+            the rollback does not compare what it holds against what the snapshot \
+            recorded when it was taken
             """)
         #expect(body.contains("Nothing was changed"),
                 "the rollback does not say that a refusal changed nothing")

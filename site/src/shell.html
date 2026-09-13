@@ -355,13 +355,20 @@ stop.bot{stop-opacity:0}
 .themes{border:0;margin:0;padding:0;display:flex;gap:0;align-items:center}
 .themes legend{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .themes input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+/* Logical rather than physical, because this row reverses on the Arabic
+   pages: written as `border-right-width` and `border-radius:7px 0 0 7px` the
+   segmented switch kept its rounding and its seam on the left, which in a
+   right-to-left run is the inside edge — three boxes with a doubled border
+   in the middle and square ends where the corners belong. */
 .themes label{
   font-family:var(--mono);font-size:11px;letter-spacing:.02em;color:var(--fg-3);
-  padding:4px 9px;cursor:pointer;border:1px solid var(--line);border-right-width:0;
+  padding:4px 9px;cursor:pointer;border:1px solid var(--line);border-inline-end-width:0;
   background:transparent;user-select:none;line-height:1.4;
 }
-.themes label:first-of-type{border-radius:7px 0 0 7px}
-.themes label:last-of-type{border-radius:0 7px 7px 0;border-right-width:1px}
+.themes label:first-of-type{border-start-start-radius:7px;border-end-start-radius:7px}
+.themes label:last-of-type{
+  border-start-end-radius:7px;border-end-end-radius:7px;border-inline-end-width:1px;
+}
 .themes input:checked + label{background:var(--strip-on);color:var(--fg)}
 .themes input:focus-visible + label{outline:2px solid var(--accent);outline-offset:1px}
 .themes label:hover{color:var(--fg-2)}
@@ -373,6 +380,15 @@ stop.bot{stop-opacity:0}
    311 of a 320 px screen. */
 @media(max-width:520px){
   .themes label{padding:4px 5px;letter-spacing:0}
+  /* And it wraps, because in some languages three words do not fit a row at
+     any padding. English reads `auto light dark`; Russian reads
+     `системное светлое тёмное`, which at a 24 px minimum font size measured
+     352 px of a 305 px screen — the switch alone, wider than the phone.
+     Wrapped it stops being one segmented control, so each label takes its
+     own border and its own corners: a shared seam drawn across a line break
+     is a border into the middle of nothing. */
+  .themes{flex-wrap:wrap;gap:5px;justify-content:flex-end}
+  .themes label{border-inline-end-width:1px;border-radius:7px}
 }
 footer p{margin:0 0 6px;max-width:60ch}
 
@@ -388,8 +404,12 @@ footer p{margin:0 0 6px;max-width:60ch}
 .legal h1{font-size:clamp(27px,4.4vw,38px);line-height:1.14;letter-spacing:-.026em;
   font-weight:640;margin:18px 0 10px;max-width:26ch}
 .legal .updated{font-family:var(--mono);font-size:12px;color:var(--fg-3);margin:0 0 34px}
+/* The date above a legal page is a stamp and reads as one in mono. The
+   sentence above an explainer is prose and was wearing the stamp's clothes:
+   12px monospace, wrapping mid-phrase. */
+.legal .lede{font-size:17px;line-height:1.6;color:var(--fg-2);max-width:62ch;margin:0 0 34px}
 .legal section{padding:0;margin:0 0 34px}
-.legal h2{font-size:19px;margin:0 0 10px}
+.legal h2{font-size:19px;margin:0 0 10px;max-width:44ch}
 .legal h3{font-size:15px;font-weight:600;letter-spacing:-.01em;margin:22px 0 6px}
 .legal p,.legal li{color:var(--fg-2);max-width:68ch}
 .legal ul{margin:0 0 15px;padding-inline-start:22px}
@@ -402,7 +422,13 @@ footer p{margin:0 0 6px;max-width:60ch}
 /* Built on <details>/<summary> so it works with the script policy the page
    keeps: this is the control that fixes "I cannot read this page", and it is
    the one control that must not depend on anything optional. */
-.head-tools{display:flex;align-items:center;gap:10px}
+/* Wraps, for the same reason `.head-row` does. The appearance switch alone
+   measured 222 px of a 320 px screen at a 24 px minimum font size; the
+   language picker beside it took the pair to 310 and the page sideways.
+   Given permission to wrap they stack instead, and neither is ever the
+   widest thing on the page. */
+.head-tools{display:flex;align-items:center;justify-content:flex-end;
+  gap:10px;flex-wrap:wrap}
 details.lang{position:relative}
 details.lang summary{
   list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
@@ -430,6 +456,18 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 .lang-row[aria-current]{background:var(--strip-on)}
 @media(max-width:520px){
   details.lang summary{padding:4px 6px;letter-spacing:0}
+  /* Opens in place rather than hanging off the control.
+     The panel was anchored to the summary's inline-end, which is right in
+     English and left in Arabic — and on a narrow screen the header wraps and
+     the whole cluster changes sides, so on the Arabic pages the panel opened
+     from x=256 rightwards and ended at 488 on a 305 px screen. Anchoring is
+     what fails here, not the side it picks: below this width the panel takes
+     the full column and pushes the page down, which cannot leave the screen
+     in either direction. */
+  details.lang{width:100%}
+  details.lang summary{display:flex;justify-content:space-between}
+  .lang-panel{position:static;min-width:0;width:100%;margin-top:6px;box-shadow:none}
+  .foot-lang .lang-panel{margin-top:6px}
 }
 
 /* ---------- paper ---------- */

@@ -21,6 +21,21 @@ set -euo pipefail
 root="$(git rev-parse --show-toplevel)"
 cd "$root/Packages/Core"
 
+# The pages are generated. A template edited without its regenerated pages —
+# or a built page edited by hand — drifts apart silently, and the suite below
+# reads the built pages as the truth. `--check` renders into a temporary
+# directory and compares byte for byte, in well under a second.
+if git diff --cached --name-only --diff-filter=ACMD | grep -q '^site/'; then
+  if ! drift=$(python3 "$root/site/build.py" --check 2>&1); then
+    echo "" >&2
+    echo "commit refused: the built pages do not match their sources" >&2
+    echo "$drift" | head -8 >&2
+    echo "" >&2
+    echo "run python3 site/build.py and stage the result" >&2
+    exit 1
+  fi
+fi
+
 # Named once, so the failures below can quote it.
 SUITE="NoPersonalDataInTheRepository"
 

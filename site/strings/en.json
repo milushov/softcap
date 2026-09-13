@@ -204,7 +204,7 @@
   "support.a_remove": "Remove the account in Settings: its credentials leave your keychain at that moment. The CLI it came from stays signed in — Softcap held its own copy, not the CLI's.",
   "support.a_reports": "Both switches are in Settings. With them off, the only traffic the app makes is the usage requests to your own providers.",
   "support.a_snapshot": "A local Codex account is read from the session files the CLI writes, so the number is as fresh as the CLI's last run — that is why every surface shows the snapshot's age. Sign that account in through Softcap's browser flow to see current usage independently of the CLI.",
-  "support.contact_email": "§EMAIL§",
+  "support.contact_email": "lapster.me@gmail.com",
   "support.contact_h": "How to reach me",
   "support.contact_issues": "github.com/milushov/softcap/issues",
   "support.contact_mid": ", or open an issue at",
