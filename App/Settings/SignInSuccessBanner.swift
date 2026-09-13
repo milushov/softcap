@@ -32,7 +32,14 @@ struct SignInSuccessBanner: View {
             }
             .padding(12)
             .background(.green.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
-            .padding(.horizontal, 20).padding(.top, 12)
+            // Both vertical edges, not just the top. This sits in the detail
+            // view's top safe area, and the bottom of that area is where the
+            // scrolling content begins — macOS draws its edge separator on that
+            // line. With padding on the top alone the box was pressed against
+            // that line: twelve points of air above it and none below.
+            // Horizontally twenty, which is what the pane behind it uses, so the
+            // banner and the heading under it share one left edge.
+            .padding(.horizontal, 20).padding(.vertical, 12)
         }
     }
 }
