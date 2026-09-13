@@ -51,6 +51,23 @@ Drag the strip sideways for the rest; each screen links to its full-size image.
 A disk image for macOS 14 and later. Released 13 September 2026 — [all versions](https://github.com/milushov/softcap/releases/tag/v0.1.19).
 <!-- download:end -->
 
+### Opening it the first time
+
+Current builds are signed ad-hoc rather than with an Apple Developer ID, so
+macOS refuses the first launch. Right-click the app, choose **Open**, and
+confirm once — that is the whole ritual. The terminal way, if you prefer it:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/Softcap.app
+```
+
+The same ad-hoc signature is why macOS asks — once per update, and worded as
+though the app were reaching into somebody else's data — to let Softcap use its
+own App Group container, the one holding the widget's snapshot. Nothing outside
+the app is read. A Developer ID signature removes both prompts, and the
+[release workflow](.github/workflows/release.yml) switches to one as soon as the
+signing secrets are configured.
+
 Requires **Xcode 26+ / Swift 6.2+** and **XcodeGen** (`brew install xcodegen`).
 For signed macOS builds, configure your development certificate and team in
 `Signing.local.xcconfig` (git-ignored); see [Signing.xcconfig](Signing.xcconfig).
