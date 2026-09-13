@@ -93,9 +93,23 @@ body{
   margin:0;background:var(--ink);color:var(--fg);font-family:var(--sans);
   font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
 }
-/* No `a` rule, because there is not a link on this page. The app is not released,
-   the source is not public, and a button that goes nowhere is worse here than a
-   plain sentence saying so. Deliberate, not an oversight. */
+/* Links exist now — the release does too. Plain links take the accent quietly;
+   the one filled button on the page is the download, because there is exactly
+   one action a visitor can take that the page should be selling. */
+a{color:var(--accent);text-decoration:underline;
+  text-decoration-color:color-mix(in srgb,var(--accent) 35%,transparent);
+  text-underline-offset:3px}
+a:hover{text-decoration-color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+.cta{margin-top:30px}
+.download{
+  display:inline-block;background:var(--accent);color:light-dark(#ffffff,#0e0e12);
+  font-weight:600;font-size:15px;letter-spacing:-.01em;text-decoration:none;
+  padding:11px 22px;border-radius:999px;
+}
+.download:hover{filter:brightness(1.07);text-decoration:none}
+.download:active{transform:translateY(1px)}
+.download:focus-visible{outline-offset:3px}
 .wrap{max-width:980px;margin:0 auto;padding:0 28px}
 .rule{height:1px;background:var(--line);border:0;margin:0}
 
@@ -407,7 +421,8 @@ footer p{margin:0 0 6px;max-width:60ch}
       Softcap sits in the menu bar and shows every plan at once: what is spent, what resets when,
       which account to open next.
     </p>
-    <p class="note">macOS · menu bar, widget, and an iPhone app</p>
+    <p class="cta"><a class="download" href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">Download for macOS</a></p>
+    <p class="note">macOS 14+ · menu bar, widgets, and an iPhone app</p>
   </div>
 
   <div class="stage">
@@ -658,7 +673,8 @@ footer p{margin:0 0 6px;max-width:60ch}
 </main>
 <footer>
   <div class="wrap">
-    <p>Softcap runs all day on the machine it was written on.</p>
+    <p>Softcap runs all day on the machine it was written on — and now on yours too.
+       <a href="https://github.com/milushov/softcap/releases">Release notes</a>.</p>
     <p style="margin-top:14px;color:var(--fg-3)">Not affiliated with Anthropic or OpenAI.</p>
   </div>
 </footer>

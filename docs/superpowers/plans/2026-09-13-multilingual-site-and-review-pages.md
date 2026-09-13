@@ -366,13 +366,12 @@ etc.), not restate it.
 - [ ] **Step 2: Write the three bodies + en strings**
 
 Content per the spec's "The pages" section, structured as `<section><h2>`
-blocks mirroring the landing's type scale. Support's contact paragraph uses
-the placeholder key `support.contact_email` whose en value is, until Task 9,
-the literal `support@softcap.app` **stand-in? No — stand-ins lie.** Instead
-the paragraph is written with the `{{support.contact_email}}` token and
-`en.json` carries an empty-string sentinel `"§EMAIL§"`; `build.py` fails on
+blocks mirroring the landing's type scale. Support's contact paragraph is
+written with the `{{support.contact_email}}` token; a mailbox-shaped
+stand-in would trip the personal-data guard and lie besides, so `en.json`
+carries the sentinel `"§EMAIL§"` until Task 9 — `build.py` fails on
 unresolved `{{`, not on sentinel text, and Task 9 replaces the sentinel in
-all ten catalogues in the same commit that allowlists it. The GitHub issues
+all ten catalogues in the same commit that allowlists the real address. The GitHub issues
 link `https://github.com/milushov/softcap/issues` appears beside it from the
 start.
 
