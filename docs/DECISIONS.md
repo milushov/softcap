@@ -7476,3 +7476,29 @@ key those secrets hold is an account credential in a public repository's
 settings — it is not in the tree, but it is one misconfigured workflow away from
 a log, which is the reason to scope the key to this app rather than reuse an
 Admin one.
+
+## 2026-09-13 — A Contribute screen, and the repository named once
+
+**Decision.** A ninth settings section: where the app comes from, a button to
+the repository, a button to its issues, and two paragraphs on sending a change
+— one for code, one for translations. The coordinates live in
+`App/Repository.swift` and `UpdateModel` now reads them from there instead of
+holding its own copy.
+
+**Why.** The repository went public today and nothing inside the app said so.
+About answers "what does this app keep, and where"; it is the wrong place for
+"whose is it, and can I help", and the second question would have been buried
+under the first. The coordinates moved because two screens now need them and a
+pair of words written out twice is how a link goes on pointing at the old place
+after a move — the release workflow had that exact bug about the version number
+this morning.
+
+**Cost.** A ninth row in a sidebar that was already long, and seven more strings
+in ten catalogues. The wording is "the source is public", not "open source",
+and that is not a style choice: the repository carries no licence file, so the
+code can be read but is not licensed to be copied, modified or redistributed.
+Calling it open source would invite work nobody is permitted to reuse. Until a
+licence lands the page says only what is true; adding one is the author's
+decision and a permanent one, since a licence cannot be withdrawn from what has
+already been published.
+

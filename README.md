@@ -72,8 +72,8 @@ after CLI token rotation. Browser grants avoid that dependency.
 | Statistics | Weekly-limit charts over the last week or month; local Codex history imported on launch |
 | Updates | Daily GitHub check by default; installation starts from the menu or Settings → Updates |
 
-Settings open with **⌘,**. Eight sections: Accounts, Statistics, Appearance,
-Notifications, Polling and launch, Updates, Services, About and data.
+Settings open with **⌘,**. Nine sections: Accounts, Statistics, Appearance,
+Notifications, Polling and launch, Updates, Services, Contribute, About and data.
 
 History keeps a reading when usage moves by a point, at most every five minutes,
 plus one every half hour regardless while polling; pruned after 35 days.

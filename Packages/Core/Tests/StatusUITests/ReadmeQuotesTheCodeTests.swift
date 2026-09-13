@@ -38,14 +38,16 @@ import Foundation
 
     /// One pane file per section, plus About. "Seven" is a number somebody will
     /// add an eighth to — and somebody did, when app updates needed a screen of
-    /// their own and the one called Updates turned out to be about polling.
+    /// their own and the one called Updates turned out to be about polling. Then
+    /// a ninth, when the repository went public and there was somewhere to send
+    /// a person who wanted to change the thing they were reading about.
     @Test func theSettingsSectionsAreCounted() throws {
         let panes = try FileManager.default
             .contentsOfDirectory(at: Self.root.appendingPathComponent("App/Settings"),
                                  includingPropertiesForKeys: nil)
             .filter { $0.lastPathComponent.hasSuffix("Pane.swift") }
-        #expect(panes.count == 8, "there are \(panes.count) panes, not eight")
-        #expect(try Self.readmeSays("Eight sections"),
+        #expect(panes.count == 9, "there are \(panes.count) panes, not nine")
+        #expect(try Self.readmeSays("Nine sections"),
                 "the README no longer counts the settings sections")
     }
 

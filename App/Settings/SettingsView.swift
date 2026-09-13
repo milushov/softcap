@@ -114,6 +114,7 @@ struct SettingsView: View {
                 case .polling:       PollingPane(model: model)
                 case .updates:       UpdatesPane(updates: updates, model: model)
                 case .services:      ServicesPane(model: model)
+                case .contribute:    ContributePane()
                 case .about:         AboutPane(model: model, appModel: appModel)
                 }
             }

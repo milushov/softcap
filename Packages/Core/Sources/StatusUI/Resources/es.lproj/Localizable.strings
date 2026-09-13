@@ -191,3 +191,10 @@
 "%1$@: %2$@ of the weekly limit" = "%1$@: %2$@ del límite semanal";
 "The 5-hour limit reset, you can come back." = "El límite de cinco horas se restableció, puedes volver.";
 "The weekly limit reset, you can come back." = "El límite semanal se restableció, puedes volver.";
+"Contribute" = "Contribuir";
+"The source is public. Read it, report what is wrong, or send a change." = "El código fuente es público. Léelo, informa de lo que falle o envía un cambio.";
+"Repository" = "Repositorio";
+"Open the repository" = "Abrir el repositorio";
+"Report a problem" = "Informar de un problema";
+"If you write code: fork the repository, make your change, and open a pull request. The README explains how to build the app and how to run its tests." = "Si programas: haz un fork del repositorio, aplica tu cambio y abre un pull request. El README explica cómo compilar la app y cómo ejecutar sus pruebas.";
+"Translations matter as much as code. Every language has a catalogue of its own, and a correction to any of them is worth sending." = "Las traducciones importan tanto como el código. Cada idioma tiene su propio catálogo, y cualquier corrección merece enviarse.";

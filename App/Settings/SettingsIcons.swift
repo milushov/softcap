@@ -2,7 +2,8 @@ import SwiftUI
 import StatusUI
 
 enum SettingsSection: String, CaseIterable, Identifiable {
-    case accounts, statistics, appearance, notifications, polling, updates, services, about
+    case accounts, statistics, appearance, notifications, polling, updates, services,
+         contribute, about
 
     var id: String { rawValue }
 
@@ -17,6 +18,7 @@ enum SettingsSection: String, CaseIterable, Identifiable {
         case .polling:       "Polling and launch"
         case .updates:       "Updates"
         case .services:      "Services"
+        case .contribute:    "Contribute"
         case .about:         "About"
         }
     }
@@ -35,6 +37,8 @@ enum SettingsSection: String, CaseIterable, Identifiable {
         case .polling:       "arrow.clockwise"
         case .updates:       "arrow.down.circle"
         case .services:      "square.grid.2x2"
+        // Not a heart: the page asks for work, not for affection.
+        case .contribute:    "chevron.left.forwardslash.chevron.right"
         case .about:         "info.circle"
         }
     }

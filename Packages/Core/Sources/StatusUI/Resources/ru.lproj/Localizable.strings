@@ -191,3 +191,10 @@
 "%1$@: %2$@ of the weekly limit" = "%1$@: %2$@ недельного лимита";
 "The 5-hour limit reset, you can come back." = "Пятичасовой лимит сбросился, можно возвращаться.";
 "The weekly limit reset, you can come back." = "Недельный лимит сбросился, можно возвращаться.";
+"Contribute" = "Участие";
+"The source is public. Read it, report what is wrong, or send a change." = "Исходный код открыт для чтения. Прочитайте его, сообщите об ошибке или пришлите правку.";
+"Repository" = "Репозиторий";
+"Open the repository" = "Открыть репозиторий";
+"Report a problem" = "Сообщить о проблеме";
+"If you write code: fork the repository, make your change, and open a pull request. The README explains how to build the app and how to run its tests." = "Если вы пишете код: сделайте форк репозитория, внесите правку и откройте пул-реквест. В README описано, как собрать приложение и запустить его тесты.";
+"Translations matter as much as code. Every language has a catalogue of its own, and a correction to any of them is worth sending." = "Перевод важен не меньше кода. У каждого языка свой каталог строк, и поправка в любом из них стоит того, чтобы её прислать.";

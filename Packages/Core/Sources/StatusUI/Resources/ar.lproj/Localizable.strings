@@ -191,3 +191,10 @@
 "%1$@: %2$@ of the weekly limit" = "%1$@: %2$@ من الحد الأسبوعي";
 "The 5-hour limit reset, you can come back." = "أُعيد تعيين حد الساعات الخمس، يمكنك العودة.";
 "The weekly limit reset, you can come back." = "أُعيد تعيين الحد الأسبوعي، يمكنك العودة.";
+"Contribute" = "المساهمة";
+"The source is public. Read it, report what is wrong, or send a change." = "الشيفرة المصدرية متاحة للجميع. اقرأها، أبلغ عن أي خلل، أو أرسل تعديلاً.";
+"Repository" = "المستودع";
+"Open the repository" = "فتح المستودع";
+"Report a problem" = "الإبلاغ عن مشكلة";
+"If you write code: fork the repository, make your change, and open a pull request. The README explains how to build the app and how to run its tests." = "إن كنت تكتب الشيفرة: انسخ المستودع، أجرِ تعديلك، ثم افتح طلب سحب. يشرح ملف README كيفية بناء التطبيق وتشغيل اختباراته.";
+"Translations matter as much as code. Every language has a catalogue of its own, and a correction to any of them is worth sending." = "الترجمات لا تقل أهمية عن الشيفرة. لكل لغة ملفها الخاص، وأي تصحيح فيها يستحق الإرسال.";

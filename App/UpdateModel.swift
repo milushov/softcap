@@ -40,8 +40,6 @@ final class UpdateModel: ObservableObject {
     /// restart. The model does not own the settings store.
     var recordCheck: ((Date) -> Void)?
 
-    private static let owner = "milushov"
-    private static let repository = "softcap"
     private static let log = Logger(subsystem: "app.softcap.Softcap", category: "updates")
 
     private let http: any HTTPClient
@@ -71,7 +69,7 @@ final class UpdateModel: ObservableObject {
     var versionText: String { runningVersion?.description ?? "—" }
 
     var releasePage: URL {
-        ReleaseFeed.releasePage(owner: Self.owner, repository: Self.repository)
+        Repository.releases
     }
 
     /// Where the escape hatch goes: the page of the release that was being
@@ -172,7 +170,7 @@ final class UpdateModel: ObservableObject {
             return
         }
 
-        let url = ReleaseFeed.latestURL(owner: Self.owner, repository: Self.repository)
+        let url = ReleaseFeed.latestURL(owner: Repository.owner, repository: Repository.name)
         do {
             let (data, status) = try await http.get(url, headers: [
                 "Accept": "application/vnd.github+json",

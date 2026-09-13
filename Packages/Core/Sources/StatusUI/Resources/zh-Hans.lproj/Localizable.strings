@@ -191,3 +191,10 @@
 "%1$@: %2$@ of the weekly limit" = "%1$@：每周额度已用 %2$@";
 "The 5-hour limit reset, you can come back." = "5小时额度已重置，可以回来了。";
 "The weekly limit reset, you can come back." = "每周额度已重置，可以回来了。";
+"Contribute" = "参与贡献";
+"The source is public. Read it, report what is wrong, or send a change." = "源代码是公开的。你可以阅读它、报告问题，或者提交修改。";
+"Repository" = "代码仓库";
+"Open the repository" = "打开代码仓库";
+"Report a problem" = "报告问题";
+"If you write code: fork the repository, make your change, and open a pull request. The README explains how to build the app and how to run its tests." = "如果你会写代码：复刻仓库，做出修改，然后提交拉取请求。README 说明了如何构建应用和运行测试。";
+"Translations matter as much as code. Every language has a catalogue of its own, and a correction to any of them is worth sending." = "翻译和代码同样重要。每种语言都有自己的词条文件，对其中任何一处的修正都值得提交。";

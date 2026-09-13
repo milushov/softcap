@@ -191,3 +191,10 @@
 "%1$@: %2$@ of the weekly limit" = "%1$@: साप्ताहिक सीमा का %2$@";
 "The 5-hour limit reset, you can come back." = "5 घंटे की सीमा रीसेट हो गई, आप लौट सकते हैं।";
 "The weekly limit reset, you can come back." = "साप्ताहिक सीमा रीसेट हो गई, आप लौट सकते हैं।";
+"Contribute" = "योगदान करें";
+"The source is public. Read it, report what is wrong, or send a change." = "सोर्स कोड सार्वजनिक है। इसे पढ़ें, कोई गड़बड़ी हो तो बताएं, या बदलाव भेजें।";
+"Repository" = "रिपॉज़िटरी";
+"Open the repository" = "रिपॉज़िटरी खोलें";
+"Report a problem" = "समस्या की सूचना दें";
+"If you write code: fork the repository, make your change, and open a pull request. The README explains how to build the app and how to run its tests." = "अगर आप कोड लिखते हैं: रिपॉज़िटरी को फ़ोर्क करें, अपना बदलाव करें और पुल रिक्वेस्ट खोलें। README में बताया गया है कि ऐप कैसे बनाएं और टेस्ट कैसे चलाएं।";
+"Translations matter as much as code. Every language has a catalogue of its own, and a correction to any of them is worth sending." = "अनुवाद कोड जितने ही ज़रूरी हैं। हर भाषा की अपनी सूची है, और उनमें से किसी में भी सुधार भेजने लायक है।";
