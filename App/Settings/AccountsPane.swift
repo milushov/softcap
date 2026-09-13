@@ -125,7 +125,7 @@ struct AccountsPane: View {
                         // person asking for it, which is exactly when it should
                         // appear.
                         Button(loc("Allow access…")) {
-                            Task { await appModel.refresh(.person); await reload() }
+                            Task { await appModel.refresh(.allowingAccess); await reload() }
                         }
                         .disabled(appModel.isRefreshing)
                     }

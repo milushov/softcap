@@ -190,9 +190,8 @@ final class AppModel: ObservableObject {
             // Hiding an account, or switching a service off, is applied where
             // the poller is built — so the switch took effect at the next poll,
             // and until then the window went on showing what somebody had just
-            // hidden. As a timer poll rather than a person's: flipping a switch
-            // in settings is not a request for keychain access, and a dialog
-            // nobody asked for is the one thing a poll here must not raise.
+            // hidden. As a timer poll: flipping a switch in settings is the
+            // machinery reacting, not a person pressing Refresh.
             if oldValue.hiddenAccounts != preferences.hiddenAccounts
                 || oldValue.disabledProviders != preferences.disabledProviders {
                 Task { await refresh(.timer) }
@@ -233,8 +232,12 @@ final class AppModel: ObservableObject {
         // minutes.
         restartTimer()
         startWatchingCodex()
+        // The same origin as the re-registration in `didSet`: a hot key is a
+        // person's finger. The two registrations disagreed once, and which
+        // behaviour a press got depended on whether the shortcut had ever
+        // been changed in settings.
         HotKeyCenter.shared.register(preferences.refreshHotKey, id: HotKeyID.refresh) {
-            Task { @MainActor [weak self] in await self?.refresh(.timer) }
+            Task { @MainActor [weak self] in await self?.refresh(.person) }
         }
 
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -253,25 +256,11 @@ final class AppModel: ObservableObject {
         Task { await refresh(.timer) }
     }
 
-    /// Who set a poll going.
-    ///
-    /// It decides one thing: whether the keychain may put a dialog on screen.
-    /// A poll from a timer must not — the call blocks until the dialog is
-    /// answered and nobody is looking for it — while a poll somebody asked for
-    /// should, because they are watching.
-    ///
-    /// Written as an argument rather than a second method because the two
-    /// methods were called `refresh` and `refreshNow`, and the menu's Refresh
-    /// picked the wrong one: the same command as the window's button, quietly
-    /// unable to do what the button does. A name one letter apart is not a
-    /// choice anybody makes on purpose.
-    enum PollOrigin {
-        case timer
-        case person
-    }
-
+    /// `origin` decides one thing: whether this poll may put the keychain's
+    /// access dialog on screen. The table lives on `PollOrigin`, where a test
+    /// holds it: only the Allow access… button's origin answers yes.
     func refresh(_ origin: PollOrigin) async {
-        if origin == .person { await store.setPromptAllowed(true) }
+        await store.setPromptAllowed(origin.mayRaiseTheKeychainDialog)
         defer { Task { await store.setPromptAllowed(false) } }
         await poll()
     }
@@ -312,15 +301,18 @@ final class AppModel: ObservableObject {
         // refreshes, about every eight hours. Skipping the read is what turns
         // "allow once at setup" into something that is actually true.
         //
-        // A person who asked is the exception: they may be importing the CLI's
-        // account for the first time, and the dialog lands while they are
-        // watching for it.
+        // The person pressing "Allow access…" is the exception: they are
+        // importing the CLI's account, and the dialog lands while they are
+        // watching for it. A plain Refresh is not that person. It used to be —
+        // any poll a person started could open the item — and with all four
+        // accounts holding grants of their own, every press of Refresh asked
+        // for the login keychain password, for an item nothing needed.
         //
         // Both conditions are read before the test rather than inside it: `||`
         // takes its right side as an autoclosure, which cannot be awaited in.
         let somethingStillNeedsTheCLI = await store.dependsOnCLI()
-        let personAsked = await store.isPromptAllowed
-        if somethingStillNeedsTheCLI || personAsked {
+        let personGrantingAccess = await store.isPromptAllowed
+        if somethingStillNeedsTheCLI || personGrantingAccess {
             await syncWithCLI()
         } else {
             // Nothing depends on Claude Code's item any more, so nothing is

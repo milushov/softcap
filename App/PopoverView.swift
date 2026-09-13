@@ -157,7 +157,7 @@ struct PopoverView: View {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 18)
-                Button(loc("Allow access…")) { Task { await model.refresh(.person) } }
+                Button(loc("Allow access…")) { Task { await model.refresh(.allowingAccess) } }
                     .disabled(model.isRefreshing)
                     .padding(.top, 2)
             } else {

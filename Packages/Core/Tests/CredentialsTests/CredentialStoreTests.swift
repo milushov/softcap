@@ -263,12 +263,14 @@ private func makeStore(
                 "a poll asked the keychain for permission to put a dialog on screen")
     }
 
-    @Test func aRefreshTheUserAskedForMayShowTheDialog() async {
+    /// The switch is thrown by `PollOrigin.allowingAccess` alone — the person
+    /// pressing "Allow access…" — and this is the read it exists for.
+    @Test func anExplicitGrantMayShowTheDialog() async {
         let (store, keychain) = await prepared()
         await store.setPromptAllowed(true)
         try? await store.syncWithCLI(profileUUID: "u-1", displayName: "a@example.com")
         let asked = await keychain.lastPromptRequest
-        #expect(asked == true, "an action the person took was still not allowed to ask")
+        #expect(asked == true, "the grant the person was making was still not allowed to ask")
     }
 
     /// Left up, the switch would let the next timer tick raise the dialog this

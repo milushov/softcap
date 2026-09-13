@@ -15,8 +15,10 @@ public protocol KeychainAccess: Sendable {
     /// app frozen behind it. Passing `false` turns that wait into an immediate
     /// error the interface can show.
     ///
-    /// `true` belongs to actions a person just took, where the dialog appears
-    /// while they are watching.
+    /// `true` belongs to the moment a person explicitly grants the read — the
+    /// Allow access… button — where the dialog appears while they are watching
+    /// for it. A person merely refreshing is not that moment: wanting fresh
+    /// numbers is not consent to a password dialog.
     func read(service: String, promptIfNeeded: Bool) async throws -> Data?
     func write(_ data: Data, service: String) async throws
 }

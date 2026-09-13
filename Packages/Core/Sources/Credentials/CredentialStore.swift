@@ -318,12 +318,13 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
     ///
     /// Off by default: reads happen on a five-minute timer, and a keychain
     /// dialog raised by a timer is one nobody is looking for — it blocks the
-    /// read until answered, and the answer never comes. Raised only around
-    /// something a person just asked for, where the dialog lands in front of
-    /// them.
+    /// read until answered, and the answer never comes. Raised only while a
+    /// person is explicitly granting access — the Allow access… button —
+    /// where the dialog lands in front of them. A person pressing Refresh
+    /// does not raise it: they asked for numbers, not for a password prompt.
     private var promptAllowed = false
 
-    /// Raised around something the person just asked for, and lowered after.
+    /// Raised around the explicit grant, and lowered after.
     ///
     /// A closure taking the whole poll would read better, but a poll is a
     /// `@MainActor` method and handing it to this actor is not something the

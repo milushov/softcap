@@ -7175,3 +7175,35 @@ as the fallback for window kinds this build has never heard of, so they remain
 in the catalogues too. A recovery keeps its unnamed title — the window is
 named in the body — so two recoveries arriving together still need their
 bodies to tell apart.
+
+## 2026-09-11 — Refresh is not consent to the keychain dialog
+
+**Decision.** Only the "Allow access…" buttons may let the keychain put its
+access dialog on screen. `PollOrigin` moves into `Credentials` and gains a
+third case, `allowingAccess`; the store's prompt switch now follows
+`origin.mayRaiseTheKeychainDialog`, which is true for that case alone. A
+person's Refresh — the popover's button, the menu command, the hot key —
+polls with the dialog forbidden, exactly like the timer. Tests hold both
+halves: a compiled table in `CredentialsTests`, and a scanner in
+`StatusUITests` proving every `.allowingAccess` sits on an Allow access…
+button, every such button passes it, and nothing in the app raises the
+store's switch by hand.
+
+**Why.** The switch went up for any poll a person started, and the poll took
+the raised switch as its reason to open Claude Code's item even when no
+account depended on it. With all four accounts signed in through the
+browser, every press of Refresh demanded the login keychain password — for
+an item the poll had no reason to touch. securityd's log showed the prompt
+raised from exactly that path, and no reads at all from the timer. "A
+person acted" and "a person asked to open another app's item" are different
+consents, and only the button that says "Allow access…" means the second
+one.
+
+**Cost.** Importing the CLI's account now goes through Allow access… alone:
+a machine whose accounts all hold their own grants no longer notices a new
+CLI sign-in on Refresh. While anything still depends on the CLI the polls
+keep reconciling with it silently, the blocked state still surfaces the
+button, and setup is unchanged. The startup registration of the refresh hot
+key also moves from `.timer` to `.person` — the two registrations had
+quietly disagreed, and the difference between those origins no longer
+carries the dialog.
