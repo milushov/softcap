@@ -7263,3 +7263,110 @@ certificate without the notary account deliberately keeps publishing ad-hoc
 builds. And until a Developer ID certificate exists at all, every ad-hoc
 install will refuse the first signed update — `signatureChanged` is doing its
 job — and take the release page instead.
+
+## 2026-09-13 — The landing sells a download because one exists
+
+**Decision.** The hero carries a Download button pointing at
+`releases/latest/download/Softcap.dmg`, the footer links the release notes,
+and the page has links at all — reversing both halves of the 31 August
+entry "The README offered a download that had never existed": the page no
+longer says "in development", and the deliberate zero-link architecture ends.
+The README-and-page agreement guard stays exactly as it was.
+
+**Why.** v0.1.2 and v0.1.3 were published today and the README already
+pointed at them, so `onlyOneOfThemCanBeRight` was red: the page was the one
+lying. The link is `latest` rather than a number because the pipeline
+publishes on every push and a pinned number would stale within hours.
+
+**Cost.** The first click a visitor makes now meets Gatekeeper's ad-hoc
+dialog — the support page documents the right-click ritual, and that is the
+honest state of signing until a Developer ID exists. And a page with links
+must now keep them working; the deploy's verification loop covers its own
+pages but GitHub's URLs are taken on faith.
+
+## 2026-09-13 — The site is generated into ten committed languages
+
+**Decision.** `site/` builds from one shell, eight body templates and ten
+string catalogues (`site/build.py`, python3, standard library); the eighty
+rendered pages, the multilingual sitemap and the served-files manifest are
+committed. Parity of keys and `{{…}}` tokens across catalogues is enforced
+by the build and by `SiteCataloguesAgree`; `build.py --check` runs from the
+pre-commit hook and from the tests, so the committed pages cannot drift from
+their sources. Language switching is plain links in a `<details>` picker —
+the page keeps running no JavaScript. Slugs stay English in every language;
+`hreflang` carries the language signal.
+
+**Why.** The app ships in ten languages and the site spoke one; App Store
+review needs support, privacy and terms pages, which tripled the page count
+in one day. Hand-maintaining eighty copies is not a thing that stays true,
+and this repository already trusts catalogues-plus-parity-tests — the app
+proved the pattern.
+
+**Cost.** A copy edit now churns dozens of generated files in the diff, and
+every English change leaves nine catalogues stale in meaning until someone
+retranslates — the parity floor catches missing keys and broken tokens, not
+outdated prose. The build needs python3 wherever commits are made, and the
+site-touching pre-commit gained about a second.
+
+## 2026-09-13 — The support address is published on purpose
+
+**Decision.** The personal-data guard's mail rule gains an allowlist of
+exactly one string: the Gmail address the author designated as the support
+contact. It appears on the support, privacy and terms pages in all ten
+languages. The private hook layer strips the same literal before scanning.
+
+**Why.** App Store review requires a working support contact, and a support
+page whose address is `example.com` is a lie in the one place a stuck person
+looks. The guard exists to stop values that identify by accident; this one
+identifies on purpose, which is what publishing a contact means.
+
+**Cost.** One permanently public mailbox, harvested by every crawler that
+reads the site — that is the price of having a support address at all. And
+the guard now contains an allowlist, which is a thing that can grow; it is
+held to one literal, and widening it is a decision for this log, not a
+convenience for a commit.
+
+## 2026-09-13 — The chart trades teeth for curves, not truth for gloss
+
+**Decision.** The landing's usage chart is redrawn for appeal: monotone
+cubic curves through the same weekly readings, gradient fills, a soft glow,
+the notification thresholds drawn as labelled guides at 80% and 95%, stat
+chips above, and a draw-in animation behind `prefers-reduced-motion`. The
+resets remain vertical drops, the unmeasured stretch remains a gap, and the
+caption still says why. The window of data moves to the four weeks ending
+13 September.
+
+**Why.** The author chose marketing presentation over the didactic sawtooth
+when offered both. The redesign keeps every claim checkable: curves
+interpolate between the same readings straight lines did, and nothing is
+drawn where nothing was measured. The thresholds earn their place by tying
+the picture to the feature the page sells beneath it.
+
+**Cost.** Smooth curves read more confident than a handful of weekly
+readings strictly warrants, and the drawing is several kilobytes heavier.
+The tooth-by-tooth explanation of weekly allowances is gone from the copy;
+the FAQ carries the mechanics now.
+
+## 2026-09-13 — The personal-data guard asks git what is publishable
+
+**Decision.** `NoPersonalDataInTheRepository` no longer walks the directory
+tree skipping a hand-written list of directory names. It asks git instead:
+`ls-files --cached --others --exclude-standard` — tracked files, plus
+untracked ones that are not ignored. That is exactly the set a commit can
+carry, which is the set the suite exists to police.
+
+**Why.** The list named seven directories — `.build`, `build`, `build-ios`,
+`DerivedData` and three more — and it was a guess at something git already
+knows. It went stale the first time somebody built into a directory not on
+it: a screenshot run wrote `build-shots/`, and the suite went red on Xcode's
+own manifests, reporting this machine's name out of files that can never
+reach the history. A check that cries wolf about unpublishable files is a
+check people learn to wave through, and this is the one check whose failure
+once cost a rewrite of the whole history.
+
+**Cost.** The scan now shells out to git and inherits its opinions: a file
+that is ignored is not scanned, so ignoring something private hides it from
+the guard as well as from the commit. That is the correct trade — an ignored
+file cannot be published — but it means `.gitignore` is now part of this
+suite's surface. `build-shots/` was added to it in the same change, because
+its `info.plist` carried a home path and nothing ignored it.
