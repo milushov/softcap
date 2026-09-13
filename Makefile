@@ -70,13 +70,19 @@ screenshots: project
 # distribution on upload. V and B are demanded rather than defaulted so every
 # archive's number is chosen on purpose, never inherited from project.yml's
 # base — the number race with the GitHub lane is decided at archive time.
+#
+# Unsigned, exactly as the workflow archives it. The signature is applied at
+# export, by Apple's cloud signing, so this step needs no certificate — and
+# building it the same way here as on a runner is the point: the two paths
+# diverging is what cost three red releases before they were made one.
 archive-appstore: project
 	@if [ -z "$(V)" ] || [ -z "$(B)" ]; then \
 		echo "usage: make archive-appstore V=0.1.4 B=1"; exit 1; fi
 	@set -o pipefail; xcodebuild -project Softcap.xcodeproj -scheme Softcap \
 		-configuration Release -derivedDataPath build \
 		-archivePath build/Softcap.xcarchive \
-		-allowProvisioningUpdates \
+		CODE_SIGN_IDENTITY="" \
+		CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
 		SOFTCAP_APP_ENTITLEMENTS=App/Softcap.AppStore.entitlements \
 		SWIFT_ACTIVE_COMPILATION_CONDITIONS=APPSTORE \
 		MARKETING_VERSION=$(V) CURRENT_PROJECT_VERSION=$(B) \
@@ -94,13 +100,19 @@ archive-appstore: project
 # everything in it. ASC_KEY_PATH points at the .p8 file, which never belongs in
 # a checkout at all.
 upload-appstore: archive-appstore
-	@if [ -z "$(ASC_KEY_ID)" ] || [ -z "$(ASC_ISSUER_ID)" ] || [ -z "$(ASC_KEY_PATH)" ]; then \
-		echo "usage: ASC_KEY_ID=… ASC_ISSUER_ID=… ASC_KEY_PATH=/path/AuthKey_….p8 \\"; \
-		echo "       make upload-appstore V=0.1.5 B=1"; exit 1; fi
+	@if [ -z "$(ASC_KEY_ID)" ] || [ -z "$(ASC_ISSUER_ID)" ] || [ -z "$(ASC_KEY_PATH)" ] \
+	   || [ -z "$(ASC_TEAM_ID)" ]; then \
+		echo "usage: ASC_KEY_ID=… ASC_ISSUER_ID=… ASC_TEAM_ID=… \\"; \
+		echo "       ASC_KEY_PATH=/path/AuthKey_….p8 make upload-appstore V=0.1.5 B=1"; \
+		exit 1; fi
+	@# The team is named here rather than in the checked-in plist: it is the
+	@# Apple team identifier, and this repository publishes what it holds.
+	@cp tools/ExportOptions.AppStore.plist build/ExportOptions.plist
+	@/usr/libexec/PlistBuddy -c "Add :teamID string $(ASC_TEAM_ID)" build/ExportOptions.plist
 	@set -o pipefail; xcodebuild -exportArchive \
 		-archivePath build/Softcap.xcarchive \
 		-exportPath build/appstore-export \
-		-exportOptionsPlist tools/ExportOptions.AppStore.plist \
+		-exportOptionsPlist build/ExportOptions.plist \
 		-allowProvisioningUpdates \
 		-authenticationKeyPath "$(ASC_KEY_PATH)" \
 		-authenticationKeyID "$(ASC_KEY_ID)" \

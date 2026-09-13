@@ -330,17 +330,30 @@ jobs:
             -authenticationKeyPath "$KEY" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
-            DEVELOPMENT_TEAM="$TEAM_ID" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
             SOFTCAP_APP_ENTITLEMENTS=App/Softcap.AppStore.entitlements \
             SWIFT_ACTIVE_COMPILATION_CONDITIONS=APPSTORE \
             MARKETING_VERSION="$V" \
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             archive | grep -E "error:|ARCHIVE"
 
+          # The team goes in the export options rather than the archive.
+          # Signing.xcconfig asks for manual signing, so a runner holding no
+          # certificate at all cannot archive signed — it looks for "Mac
+          # Development" and fails. Archiving unsigned works, but then the
+          # archive records no team and the export fails with "No Team Found in
+          # Archive", because DEVELOPMENT_TEAM is not written when signing is
+          # off. Naming it here covers both, and the export is where the real
+          # signature is applied anyway.
+          cp tools/ExportOptions.AppStore.plist "$RUNNER_TEMP/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c "Add :teamID string $TEAM_ID" \
+            "$RUNNER_TEMP/ExportOptions.plist"
+
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/Softcap.xcarchive" \
             -exportPath "$RUNNER_TEMP/appstore-export" \
-            -exportOptionsPlist tools/ExportOptions.AppStore.plist \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$KEY" \
             -authenticationKeyID "$ASC_KEY_ID" \
