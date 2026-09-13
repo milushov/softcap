@@ -7370,3 +7370,47 @@ the guard as well as from the commit. That is the correct trade — an ignored
 file cannot be published — but it means `.gitignore` is now part of this
 suite's surface. `build-shots/` was added to it in the same change, because
 its `info.plist` carried a home path and nothing ignored it.
+
+## 2026-09-13 — Catalogue values are markup, except inside an attribute
+
+**Decision.** Values in `site/strings/*.json` are substituted into the page
+unescaped, because they carry `<em>`, `<code>` and `<bdi>` on purpose. Inside
+an HTML attribute they are substituted through `{{attr:…}}`, which escapes
+`&`, `<`, `>` and the double quote — and `build.py` refuses to render a
+template that puts any other catalogue token inside an attribute, so the rule
+is enforced rather than remembered. The apostrophe is deliberately not
+escaped: every attribute in these templates is double-quoted, and escaping it
+would churn the French pages for something no browser shows.
+
+**Why.** Eight slots took a translated value into an attribute —
+`meta description`, both social descriptions, four `aria-label`s and the
+preview's `alt`. One quotation mark in one translation ends the attribute
+early and the rest of that sentence becomes markup. Nothing in the tree
+contains one today; nothing stopped the next translator from writing one, and
+the failure would have been a broken `<head>` on one page of one language,
+which is the kind of thing nobody looks at.
+
+**Cost.** Two spellings of the same substitution to keep straight, and a
+build that fails on a template written the old way — deliberately, since the
+alternative is a rule in a comment. Values that legitimately want markup in an
+attribute are now impossible, which is correct and would otherwise have been a
+convenient hole.
+
+## 2026-09-13 — The pre-commit freshness check reads the index, not the disk
+
+**Decision.** The hook checks generated pages against their sources in the
+*staged* tree: it writes the index to a temporary directory with
+`git checkout-index` and runs `build.py --check` there.
+
+**Why.** Run against the working tree it answers a question nobody asked.
+Stage an edited template, leave its regenerated pages unstaged, and the check
+passes — disk is consistent — while the commit that results is not, and the
+inconsistency only surfaces for whoever checks that commit out. The test suite
+still checks the working tree, which is its own correct question.
+
+**Cost.** A full index checkout per site-touching commit. And a trap found by
+testing the fix rather than trusting it: the hook `cd`s into `Packages/Core`
+first, and `checkout-index --all` is scoped to the directory git runs in — so
+without `-C "$root"` it wrote `Packages/` alone and refused *every* site
+commit for a missing `build.py`. A guard that fails closed on everything
+teaches `--no-verify`, which is worse than the hole it was closing.
