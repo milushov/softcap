@@ -30,7 +30,11 @@ lands in one deploy rather than incrementally.
 
 - Every page in the ten app languages: `en`, `ru`, `es`, `fr`, `ar`, `bn`,
   `hi`, `id`, `pt-BR`, `zh-Hans`.
-- Four pages per language: the landing, `privacy`, `support`, `terms`.
+- Eight pages per language: the landing, `privacy`, `support`, `terms`,
+  plus the search-facing set — `faq`, `changelog`, and two explainers,
+  `limits/claude` and `limits/codex`, on the questions people actually
+  search for (what the five-hour and weekly limits are, when they reset,
+  how to see what is left without spending it).
 - A language picker on every page that works with JavaScript disabled.
 - A chart that sells the product without claiming a reading nobody took.
 - A download button, because the download now exists.
@@ -41,6 +45,11 @@ lands in one deploy rather than incrementally.
 
 - No JavaScript anywhere. The CSP stays `default-src 'none'`.
 - No per-language preview images: `og.png` stays English for all locales.
+- No comparison ("vs") pages, no blog, no doorway pages. Every SEO page
+  states facts the guard suites could check; a page that exists only to
+  rank is the kind of page this site refuses to be.
+- No localized URL slugs: paths stay English everywhere (`/ru/limits/claude/`),
+  and `hreflang` carries the language signal.
 - No translation of brand names (`Claude`, `Codex` — same rule as the app) and
   no localization of the window mock, which depicts an English macOS UI.
 - No server-side language negotiation. Caddy serves files; the picker is links.
@@ -54,12 +63,13 @@ site/
   src/
     shell.html          the shared frame: head, picker, footer
     index.body.html     per-page bodies with {{key}} placeholders
+    faq.body.html … changelog, limits/claude, limits/codex likewise
     privacy.body.html
     support.body.html
     terms.body.html
   strings/
     en.json … zh-Hans.json   ten catalogues, identical key sets
-  build.py              renders 40 pages + sitemap.xml + manifest.txt
+  build.py              renders 80 pages + sitemap.xml + manifest.txt
   manifest.txt          every served path, one per line (generated)
   index.html            generated: English landing at its historic path
   privacy/index.html    generated …and so on for every page and language
@@ -80,7 +90,7 @@ site/
   other languages under lowercase directories (`/ru/`, `/pt-br/`,
   `/zh-hans/`, …). Every page carries the full `hreflang` cluster plus
   `x-default` (pointing at English), its own `og:locale`, its own canonical.
-  `sitemap.xml` lists all 40 pages.
+  `sitemap.xml` lists all 80 pages.
 - **RTL**: the Arabic pages set `dir="rtl"` on `<html>`. The stylesheet moves
   to logical properties where a physical one would mirror wrongly; the window
   mock is wrapped in `dir="ltr"` on purpose. Numbers adjacent to `+` or `%`
@@ -117,6 +127,33 @@ Softcap specifically:
 - The support address is published deliberately. The repository guard that
   forbids mail addresses gains a documented exception for exactly that one
   string, recorded in `docs/DECISIONS.md`; nothing else is loosened.
+
+## The search-facing pages and technical SEO
+
+- **`faq`**: ten-plus real questions with real answers (what gets measured,
+  what leaves the machine, why a snapshot has an age, what the thresholds
+  mean, what happens on rotation), each pair also emitted as `FAQPage`
+  JSON-LD so the answer can appear on the results page itself. The support
+  page keeps only troubleshooting; product questions move here and the two
+  pages link each other.
+- **`changelog`**: one entry per published release, drawn from the real
+  release notes — versions, dates, and what changed in a sentence or three.
+  It exists because a dated page that changes with every release is the
+  freshness signal a one-page site never sends.
+- **`limits/claude`, `limits/codex`**: plain explanations of how each
+  provider's subscription limits behave (five-hour session and weekly caps,
+  offset resets, where the numbers come from) and, at the end, how Softcap
+  shows them. They target the searches people make when they hit a limit;
+  they earn the click by answering before they sell.
+- **Structured data**: the landing keeps `SoftwareApplication`; `faq` adds
+  `FAQPage`; every page below the root adds `BreadcrumbList`. Localized
+  strings enter JSON-LD through a JSON-escaping substitution in the
+  builder, never by hand.
+- **`sitemap.xml`** upgrades to the multilingual form: every URL entry
+  carries `xhtml:link` alternates for all ten languages plus `x-default`.
+- **Internal links**: the footer grows a small nav naming every page; the
+  landing's feature copy links the two explainers where it mentions limits;
+  breadcrumbs make every page reachable in two clicks from any other.
 
 ## The chart
 
@@ -161,8 +198,8 @@ Same section, new drawing, at `viewBox` around 720×240:
   the root page to every HTML path (`/`, `*/`, `/index.html`,
   `*/index.html`); the three long-cached assets keep their week.
 - **deploy.sh**: the hand-written `SERVED` array is replaced by
-  `site/manifest.txt`. The floor check requires at least 45 entries
-  (40 pages + 5 assets); the copy, the deletion protection, the
+  `site/manifest.txt`. The floor check requires at least 85 entries
+  (80 pages + 5 assets); the copy, the deletion protection, the
   post-deploy digest loop and the header checks all iterate the manifest.
   The snapshot/`--rollback` path already covers the whole `dist/` tree and
   needs only the floor number updated.
@@ -203,5 +240,5 @@ verified by the script's own digest loop.
   and the catalogues make it cheap.
 - **RTL regressions**: bounded by the logical-properties pass and the Arabic
   render in check-widths.
-- **A 45-file deploy**: the rollback restores the entire previous tree in
+- **An 85-file deploy**: the rollback restores the entire previous tree in
   one step, and the deploy refuses to start from an empty manifest.
