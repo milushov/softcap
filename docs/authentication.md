@@ -99,10 +99,13 @@ returning through a different source. A saved grant failure remains visible and
 does not silently substitute another account's local readings. Local history
 import and FSEvents watching are retained.
 
-Saved Codex accounts also participate in iOS polling. Local file discovery stays
-on macOS. As with existing Claude accounts, refresh coalescing covers one store
-instance; it does not provide a distributed lock across devices sharing iCloud
-Keychain.
+The iOS poller supports saved Claude and Codex browser accounts, but the phone
+has no sign-in UI or working account sync from the Mac. `SystemKeychain` does not
+set `kSecAttrSynchronizable`, and the targets do not configure a shared Keychain
+access group. Items remain local: Apple requires
+[explicit opt-in for Keychain synchronization](https://developer.apple.com/documentation/security/ksecattrsynchronizable).
+A fresh iOS install therefore has no accounts. Local Codex file discovery stays
+on macOS. Refresh coalescing covers one credential-store instance.
 
 ## Verification
 
