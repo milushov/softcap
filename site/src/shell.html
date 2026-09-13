@@ -4,24 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{page:title}}</title>
-<meta name="description" content="{{page:meta_description}}">
+<meta name="description" content="{{attr:meta_description}}">
 <link rel="canonical" href="{{canonical}}">
 {{alternates}}
 <meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0e0e12" media="(prefers-color-scheme: dark)">
 <meta property="og:locale" content="{{og_locale}}">
 <meta property="og:title" content="Softcap">
-<meta property="og:description" content="{{page:og_description}}">
+<meta property="og:description" content="{{attr:og_description}}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{{canonical}}">
 <meta property="og:site_name" content="Softcap">
 <meta property="og:image" content="https://softcap.app/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="{{shell.og_image_alt}}">
+<meta property="og:image:alt" content="{{attr:shell.og_image_alt}}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Softcap">
-<meta name="twitter:description" content="{{page:og_description}}">
+<meta name="twitter:description" content="{{attr:og_description}}">
 <meta name="twitter:image" content="https://softcap.app/og.png">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
@@ -528,7 +528,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 {{body}}
 <footer>
   <div class="wrap">
-    <nav class="site-map" aria-label="{{shell.site_map_label}}">
+    <nav class="site-map" aria-label="{{attr:shell.site_map_label}}">
       <a href="/{{lang_prefix}}">{{shell.nav_index}}</a>
       <a href="/{{lang_prefix}}faq/">{{shell.nav_faq}}</a>
       <a href="/{{lang_prefix}}changelog/">{{shell.nav_changelog}}</a>

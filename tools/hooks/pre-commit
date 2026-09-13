@@ -25,13 +25,28 @@ cd "$root/Packages/Core"
 # or a built page edited by hand — drifts apart silently, and the suite below
 # reads the built pages as the truth. `--check` renders into a temporary
 # directory and compares byte for byte, in well under a second.
+#
+# Checked against the STAGED tree, not the working one. Run against the files
+# on disk it answers a question nobody asked: staging an edited template and
+# leaving its regenerated pages unstaged passes, because disk is consistent —
+# and the commit that results is not. `checkout-index` writes what is about to
+# be committed, and build.py reads its own directory, so the copy checks the
+# copy. The directory is left for the OS to sweep, as the deploy's staging is.
 if git diff --cached --name-only --diff-filter=ACMD | grep -q '^site/'; then
-  if ! drift=$(python3 "$root/site/build.py" --check 2>&1); then
+  staged="${TMPDIR:-/tmp}/softcap-staged-$$"
+  mkdir -p "$staged"
+  # `-C "$root"`, because this script ran `cd Packages/Core` above and
+  # `--all` is scoped to the directory git is invoked from: from there it
+  # writes `Packages/` and nothing else, and the check below then fails on a
+  # missing build.py — refusing every site commit, for a reason that has
+  # nothing to do with the pages. Found by staging a template on purpose.
+  git -C "$root" checkout-index --all --prefix="$staged/"
+  if ! drift=$(python3 "$staged/site/build.py" --check 2>&1); then
     echo "" >&2
     echo "commit refused: the built pages do not match their sources" >&2
     echo "$drift" | head -8 >&2
     echo "" >&2
-    echo "run python3 site/build.py and stage the result" >&2
+    echo "run python3 site/build.py and stage the result — all of it" >&2
     exit 1
   fi
 fi

@@ -14,18 +14,29 @@ edit cannot land without its regenerated pages.
 
 Substitution is plain text, standard library only, deterministic:
 
-    {{key}}         the catalogue value
+    {{key}}         the catalogue value, as markup
     {{page:K}}      the value of `<page>.K` for the page being rendered
+    {{attr:K}}      the value, HTML-escaped, for use inside an attribute;
+                    K is tried against `<page>.K` first, then as a full key
     {{json:key}}    the value, JSON-escaped, for use inside JSON-LD
-    {{lang}} {{dir_attr}} {{og_locale}} {{canonical}} {{page_path}} {{root}}
+    {{lang}} {{dir_attr}} {{og_locale}} {{canonical}} {{page_path}} {{lang_prefix}}
     {{head_extra}}  `src/<page>.head.html`, when the page has one
     {{body}}        the page's body template
+
+Catalogue values are markup on purpose — they carry `<em>`, `<code>` and the
+like — so nothing is escaped by default. Inside an attribute that is a hole:
+one quotation mark in one translation ends the attribute early and the rest
+of the sentence becomes markup. `{{attr:…}}` is the escaped form, and
+`check_attribute_slots` below refuses to build a template that puts an
+unescaped catalogue token in an attribute, so remembering is not required.
 
 A `{{` surviving into output is an error, not a page. Exit codes: 2 when the
 catalogues disagree about keys or placeholders, 1 when `--check` finds drift.
 """
 
+import html
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -90,7 +101,7 @@ def picker(page, current, langs):
                         f'href="/{lang_dir(lang)}{page_path(page)}">{inner}</a>')
     body = "\n".join(rows)
     return (f'<details class="lang">\n'
-            f'      <summary aria-label="{{{{shell.language}}}}">'
+            f'      <summary aria-label="{{{{attr:shell.language}}}}">'
             f'<span>{code_label(current)}</span>'
             f'<bdi dir="ltr">+{len(langs) - 1}</bdi></summary>\n'
             f'      <div class="lang-panel">\n{body}\n      </div>\n'
@@ -121,6 +132,30 @@ def body_template(page):
 def head_template(page):
     path = SRC / (page.replace("/", ".") + ".head.html")
     return path if path.exists() else None
+
+
+# Tokens the builder computes itself, rather than reading from a catalogue.
+# Each is a URL, a language tag or a path segment this file assembles, so none
+# can carry a quotation mark and each is safe in an attribute unescaped.
+COMPUTED = {"lang", "dir_attr", "og_locale", "canonical", "page_path",
+            "lang_prefix", "alternates", "picker", "head_extra", "body"}
+
+ATTRIBUTE = re.compile(r'\b[A-Za-z-]+="([^"]*)"')
+TOKEN = re.compile(r"\{\{([^}]*)\}\}")
+
+
+def check_attribute_slots(text, where):
+    """Refuse a template that drops an unescaped catalogue value into an
+    attribute. The escaped form `{{attr:…}}` exists for exactly that slot."""
+    for match in ATTRIBUTE.finditer(text):
+        for token in TOKEN.findall(match.group(1)):
+            if token.startswith("attr:") or token in COMPUTED:
+                continue
+            line = text.count("\n", 0, match.start()) + 1
+            die(f"{where} line {line}: {{{{{token}}}}} sits inside an "
+                f"attribute unescaped — write {{{{attr:{token.split(':')[-1]}}}}} "
+                f"instead, or one quotation mark in one translation ends the "
+                f"attribute early", 2)
 
 
 def tokens_of(value):
@@ -163,19 +198,19 @@ def render_page(page, lang, langs, catalogues):
     shell = (SRC / "shell.html").read_text(encoding="utf-8")
     body = body_template(page).read_text(encoding="utf-8")
     head = head_template(page)
+    check_attribute_slots(shell, "src/shell.html")
+    check_attribute_slots(body, body_template(page).name)
     out = shell.replace("{{head_extra}}",
                         head.read_text(encoding="utf-8") if head else "")
     out = out.replace("{{body}}", body)
 
     directory = lang_dir(lang) + page_path(page)
-    depth = directory.count("/")
     substitutions = {
         "{{lang}}": lang,
         "{{dir_attr}}": ' dir="rtl"' if lang in RTL else "",
         "{{og_locale}}": OG_LOCALE[lang],
         "{{canonical}}": f"{ORIGIN}/{directory}",
         "{{page_path}}": page_path(page),
-        "{{root}}": "../" * depth,
         "{{lang_prefix}}": lang_dir(lang),
         "{{alternates}}": alternates(page, langs),
         "{{picker}}": picker(page, lang, langs),
@@ -185,6 +220,21 @@ def render_page(page, lang, langs, catalogues):
 
     catalogue = catalogues[lang]
     prefix = page_key(page) + "."
+
+    def escaped(match):
+        name = match.group(1)
+        for candidate in (prefix + name, name):
+            if candidate in catalogue:
+                # `&`, `<`, `>` and the double quote, and deliberately not the
+                # apostrophe: every attribute in these templates is written
+                # with double quotes — the guard below only recognises that
+                # shape — and escaping `l'app` to `l&#x27;app` would churn the
+                # French pages for nothing a browser can see.
+                return html.escape(catalogue[candidate], quote=False).replace('"', "&quot;")
+        die(f"{directory or './'}index.html asks for {{{{attr:{name}}}}} and "
+            f"neither {prefix + name} nor {name} is in {lang}.json", 2)
+
+    out = re.sub(r"\{\{attr:([^}]+)\}\}", escaped, out)
     # Longest keys first, so a key that begins with another key's name can
     # never be half-replaced through it.
     for key in sorted(catalogue, key=len, reverse=True):

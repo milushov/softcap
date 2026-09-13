@@ -74,7 +74,6 @@ import Foundation
         let expected = try Self.builtLanguages().count + 1  // + x-default
         for page in try Self.builtPages() {
             let html = try String(contentsOf: Self.site(page), encoding: .utf8)
-            let count = html.components(separatedBy: "hreflang=\"").count - 1
             // The picker's rows carry hreflang too; the head's cluster is the
             // <link> form, so count those alone.
             let links = html.components(separatedBy: "<link rel=\"alternate\" hreflang=\"").count - 1
@@ -82,7 +81,17 @@ import Foundation
                 \(page) lists \(links) alternates, and \(expected) languages \
                 (with x-default) are rendered
                 """)
-            #expect(count >= links, "hreflang appeared fewer times than its own links on \(page)")
+            // And the picker's own links say what they lead to. This began as
+            // `count >= links` over every hreflang on the page, which compared
+            // a set with a subset of itself and could not fail — a check in the
+            // shape of a check. A picker row without `lang`/`hreflang` hands a
+            // screen reader the wrong pronunciation for the one control a
+            // reader who cannot read this page is looking for.
+            for row in Self.matches(#"<a class="lang-row"[^>]*>"#, in: html, whole: true) {
+                #expect(row.contains("lang=") && row.contains("hreflang="), """
+                    \(page) has a picker row that does not name its language: \(row)
+                    """)
+            }
             for address in Self.matches(#"<link rel="alternate" hreflang="[^"]+" href="https://softcap\.app/([^"]*)""#,
                                         in: html) {
                 let target = address.isEmpty ? "index.html" : address + "index.html"
@@ -107,18 +116,26 @@ import Foundation
     /// is how Arabic writes it.
     @Test func rightToLeftCataloguesIsolateLatinTokensEndingInAPlus() throws {
         for (lang, catalogue) in try Self.catalogues() where Self.rightToLeft.contains(lang) {
-            for (key, value) in catalogue where !Self.matches(#"[0-9]\+"#, in: value).isEmpty {
-                #expect(value.contains("<bdi"), """
-                    \(lang).json \(key) puts a + after a number without a <bdi> \
-                    around it — right-to-left rendering moves that + to the other \
-                    end of the phrase: \(value.prefix(60))
+            for (key, value) in catalogue {
+                // Every isolated span removed first, so what remains is the
+                // text that is actually exposed to the paragraph's direction.
+                // Asking only whether the value contains a `<bdi>` somewhere
+                // passed a sentence that isolated one token and left another
+                // bare — which is the case this exists to catch.
+                let exposed = value.replacingOccurrences(
+                    of: #"<bdi[^>]*>.*?</bdi>"#, with: "",
+                    options: [.regularExpression])
+                #expect(Self.matches(#"[0-9]\+"#, in: exposed).isEmpty, """
+                    \(lang).json \(key) leaves a + after a number outside a <bdi> — \
+                    right-to-left rendering moves that + to the other end of the \
+                    phrase: \(value.prefix(60))
                     """)
             }
         }
     }
 
     @Test func theArabicPagesReadRightToLeft() throws {
-        guard try Self.catalogues()["ar"] != nil else { return }
+        guard try Self.builtLanguages().contains("ar") else { return }
         let html = try String(contentsOf: Self.site("ar/index.html"), encoding: .utf8)
         #expect(html.contains(#"<html lang="ar" dir="rtl">"#),
                 "the Arabic landing does not declare dir=\"rtl\"")
