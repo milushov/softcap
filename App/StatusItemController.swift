@@ -23,6 +23,12 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private var tick: Timer?
     private var appearanceObserver: NSKeyValueObservation?
 
+    /// Whether the window on screen is the one the Appearance screen asked for.
+    private var isPreviewing = false
+    /// Whether ending that preview should close the window — false when it was
+    /// already open, because then it is not this controller's to close.
+    private var closesWhenPreviewEnds = false
+
     init(model: AppModel, preferences: PreferencesModel, updates: UpdateModel) {
         self.model = model
         self.preferences = preferences
@@ -62,6 +68,41 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 self?.popover?.appearance = app.effectiveAppearance
             }
         }
+
+        // The Appearance screen asks for the window; this is where it arrives.
+        //
+        // Deferred onto the next turn rather than acted on inside the sink: the
+        // flag is set from `onAppear`, so the work would otherwise run in the
+        // middle of a SwiftUI update — and showing the popover publishes
+        // `isPopoverOpen` straight back into that update.
+        model.$wantsAppearancePreview
+            .removeDuplicates()
+            .sink { [weak self] wants in
+                Task { @MainActor [weak self] in
+                    if wants { self?.beginAppearancePreview() }
+                    else { self?.endAppearancePreview() }
+                }
+            }
+            .store(in: &cancellables)
+
+        // The preview belongs to this app being in front. A window told not to
+        // close itself has no opinion about that: switched away from, it would
+        // go on floating over whatever the person moved to. It comes back when
+        // they return, because the screen that asked for it is still open.
+        NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)
+            .sink { [weak self] _ in
+                Task { @MainActor [weak self] in self?.endAppearancePreview() }
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)
+            .sink { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    guard let self, self.model.wantsAppearancePreview else { return }
+                    self.beginAppearancePreview()
+                }
+            }
+            .store(in: &cancellables)
 
         // The label beside the icon is recomputed on every data update and
         // whenever the "In the menu bar" setting changes.
@@ -184,6 +225,43 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // Without activation the window appears but the keyboard stays with
         // whatever app was frontmost.
         popover.contentViewController?.view.window?.makeKey()
+    }
+
+    // MARK: - the window beside the settings screen
+
+    /// Brings the window out while the Appearance screen is open.
+    ///
+    /// `.applicationDefined` is what makes this possible at all. A `.transient`
+    /// popover closes itself as soon as the focus moves, and moving the focus is
+    /// exactly what clicking a control in settings does — so the window a person
+    /// is trying to watch would vanish at the first thing they changed. The
+    /// behaviour is put back when the preview ends, so an ordinary click on the
+    /// status item still opens a window that closes by itself.
+    ///
+    /// The keyboard stays where it is. `togglePopover` makes the popover's window
+    /// key because somebody opening it means to use it; here they mean to use
+    /// settings, and taking the keyboard away would leave the controls they are
+    /// working in unable to answer.
+    func beginAppearancePreview() {
+        guard !isPreviewing, let button = statusItem?.button else { return }
+        let popover = self.popover ?? makePopover()
+        self.popover = popover
+
+        isPreviewing = true
+        closesWhenPreviewEnds = !popover.isShown
+        popover.behavior = .applicationDefined
+        if !popover.isShown {
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
+        }
+    }
+
+    /// Lets it go again, and gives the window back its own judgement about when
+    /// to close.
+    func endAppearancePreview() {
+        guard isPreviewing else { return }
+        isPreviewing = false
+        popover?.behavior = .transient
+        if closesWhenPreviewEnds { popover?.performClose(nil) }
     }
 
     #if SCREENSHOTS
@@ -398,6 +476,14 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     func popoverDidClose(_ notification: Notification) {
         model.isPopoverOpen = false
+        // However it closed — the preview ended, or the status item was clicked
+        // while one was running — the preview is over. Without this the window
+        // would keep the behaviour the preview gave it, and the next ordinary
+        // click would open one that no longer closes by itself.
+        if isPreviewing {
+            isPreviewing = false
+            popover?.behavior = .transient
+        }
     }
 
     func popoverDidShow(_ notification: Notification) {

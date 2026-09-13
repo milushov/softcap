@@ -34,6 +34,16 @@ final class AppModel: ObservableObject {
     /// no way to reach inside it otherwise.
     @Published var settingsSection: SettingsSection = .accounts
 
+    /// Whether the Appearance screen is asking for the window to be on screen
+    /// beside it, so a change can be seen rather than imagined.
+    ///
+    /// Set by that screen when it appears and cleared when it goes away, and
+    /// read by `StatusItemController`, which owns the window. It travels through
+    /// the model rather than reaching for the controller directly: the panes are
+    /// built from settings and know nothing about the status item, and every
+    /// other thing the menu bar does for a pane already comes this way.
+    @Published var wantsAppearancePreview = false
+
     /// Shared by account management, browser sign-in and polling.
     let store: CredentialStore
 

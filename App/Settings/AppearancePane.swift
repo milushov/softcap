@@ -63,6 +63,14 @@ struct AppearancePane: View {
         .sheet(isPresented: $showsAccountOrder) {
             AccountOrderEditor(model: model, appModel: appModel)
         }
+        // The window comes out while this screen is open. Every control here
+        // changes something a person cannot see from here — the appearance, what
+        // the menu bar says, whether the rows are the compact ones — and the
+        // window that would show it closes itself the moment this one is
+        // clicked. Asking for it on the way in and letting it go on the way out
+        // covers leaving for another screen and closing settings alike.
+        .onAppear { appModel.wantsAppearancePreview = true }
+        .onDisappear { appModel.wantsAppearancePreview = false }
     }
 
     private var orderingBinding: Binding<Ordering> {
