@@ -7444,3 +7444,35 @@ untested. The store signature differs from every signature that came before
 it, so keychain "Always Allow" consents are asked once more. And there are
 now two builds to keep honest, with `#if !APPSTORE` in three files as the
 seam.
+
+## 2026-09-13 — One run publishes both channels, because the number is the run
+
+**Decision.** The release workflow uploads the App Store build to TestFlight in
+the same run that publishes the GitHub release, from the same commit and under
+the same version string. Three secrets configure it — `ASC_KEY_ID`,
+`ASC_ISSUER_ID`, `ASC_KEY_P8` — and the step says so and skips when any is
+missing, the same shape the Developer ID block uses. `make upload-appstore`
+stays for building a store archive by hand, but it is no longer how a published
+build is made. Xcode Cloud was considered and rejected.
+
+**Why.** The version is `0.1.<github.run_number>`: it does not exist until the
+run starts, so nothing outside that run can know it — it can only predict it.
+A prediction that loses a race gives one string to two different binaries, and
+that is not a hypothesis. TestFlight 0.1.5 and the 0.1.5 published on GitHub
+were built from different commits, because three pushes landed between the
+number being chosen and the archive being uploaded. Moving the store lane into
+the run makes agreement structural rather than a convention somebody has to
+remember. Xcode Cloud would have been a second system with its own trigger and
+its own numbering, which is the defect being fixed, and its one real advantage —
+no certificates to store — turned out not to be an advantage at all: cloud
+signing gives the same thing to any runner holding an App Store Connect key,
+and no distribution certificate exists on the author's machine either.
+
+**Cost.** Every release now also spends a TestFlight build and several minutes
+of a macOS runner on a second archive. The store lane depends on Apple's cloud
+signing being reachable; when it is not, the step fails after the GitHub release
+is already published, which is the right way round but still a red run. And the
+key those secrets hold is an account credential in a public repository's
+settings — it is not in the tree, but it is one misconfigured workflow away from
+a log, which is the reason to scope the key to this app rather than reuse an
+Admin one.

@@ -263,6 +263,83 @@ jobs:
             dist/Softcap.dmg
             dist/SHA256SUMS.txt
 
+      # The store build is published by the same run, and that is the whole
+      # point of it being here rather than anywhere else. The version is
+      # `0.1.<run number>` — a number that exists only inside this run, so
+      # anything building the store lane elsewhere, a second CI or a laptop,
+      # has to predict it. A prediction that loses the race gives one string to
+      # two different binaries, which is not hypothetical: TestFlight 0.1.5 and
+      # the 0.1.5 published here were built from different commits, because
+      # three pushes landed between choosing the number and using it.
+      #
+      # No certificate in a secret, unlike the Developer ID block above.
+      # `-allowProvisioningUpdates` with an App Store Connect key uses cloud
+      # signing, where the private key stays with Apple and the runner receives
+      # only a signature — so these three are the whole configuration:
+      #
+      #   ASC_KEY_ID      the key's ten-character identifier
+      #   ASC_ISSUER_ID   the issuer UUID, from Users and Access → Integrations
+      #   ASC_KEY_P8      the contents of the AuthKey_….p8 file
+      #
+      # Last, and never blocking: the GitHub release is already published by
+      # now, so a refused upload costs the store lane and nothing else.
+      - name: Publish to TestFlight
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          missing=()
+          [ -n "${ASC_KEY_ID:-}" ]    || missing+=(ASC_KEY_ID)
+          [ -n "${ASC_ISSUER_ID:-}" ] || missing+=(ASC_ISSUER_ID)
+          [ -n "${ASC_KEY_P8:-}" ]    || missing+=(ASC_KEY_P8)
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::notice::Not publishing to TestFlight — not configured: ${missing[*]}."
+            exit 0
+          fi
+
+          # altool looks for the key by name in a handful of fixed directories
+          # and takes no path, so this is where it has to be written.
+          mkdir -p "$HOME/private_keys"
+          KEY="$HOME/private_keys/AuthKey_$ASC_KEY_ID.p8"
+          printf '%s' "$ASC_KEY_P8" > "$KEY"
+          chmod 600 "$KEY"
+          trap 'rm -P "$KEY"' EXIT
+
+          V="${{ steps.v.outputs.version }}"
+
+          # Its own derived data: the Developer ID build above is still on disk
+          # and is a different app — sandboxed here, and with the updater
+          # compiled out by APPSTORE.
+          xcodebuild -project Softcap.xcodeproj -scheme Softcap \
+            -configuration Release -derivedDataPath build-appstore \
+            -archivePath "$RUNNER_TEMP/Softcap.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            SOFTCAP_APP_ENTITLEMENTS=App/Softcap.AppStore.entitlements \
+            SWIFT_ACTIVE_COMPILATION_CONDITIONS=APPSTORE \
+            MARKETING_VERSION="$V" \
+            CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            archive | grep -E "error:|ARCHIVE"
+
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Softcap.xcarchive" \
+            -exportPath "$RUNNER_TEMP/appstore-export" \
+            -exportOptionsPlist tools/ExportOptions.AppStore.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            | grep -E "error:|Exported|EXPORT"
+
+          xcrun altool --upload-app \
+            -f "$RUNNER_TEMP/appstore-export/Softcap.pkg" -t macos \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          echo "::notice::Uploaded $V (build ${{ github.run_number }}) to TestFlight."
+
       # The download URL is fixed, so this only refreshes the version and date
       # shown next to it. It rewrites one marked block and commits nothing when
       # that block is unchanged.

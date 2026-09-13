@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- How the App Store archive is exported.
+
+     `automatic` signing rather than the project's manual setting: the archive is
+     built with this machine's development identity, and the export is where it
+     is re-signed for distribution. Automatic lets xcodebuild create the two
+     distribution certificates and the profiles the first time, given an App
+     Store Connect key — which is the whole reason this lane needs no
+     certificates prepared by hand.
+
+     `uploadSymbols` off: the symbols would be uploaded to Apple's crash service,
+     and this app reports its own failures to its own collector. -->
+<plist version="1.0">
+<dict>
+	<key>method</key>
+	<string>app-store-connect</string>
+	<key>destination</key>
+	<string>export</string>
+	<key>signingStyle</key>
+	<string>automatic</string>
+	<key>uploadSymbols</key>
+	<false/>
+	<key>manageAppVersionAndBuildNumber</key>
+	<false/>
+</dict>
+</plist>

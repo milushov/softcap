@@ -5,7 +5,7 @@
 # recipe that pipes.
 SHELL := /bin/bash
 
-.PHONY: test test-auth project build build-ios run run-ios lint archive-appstore screenshots
+.PHONY: test test-auth project build build-ios run run-ios lint archive-appstore screenshots upload-appstore
 
 # A link failure after an API change in Core is almost always a stale incremental
 # build, not a real error: object files still reference the previous mangled
@@ -81,7 +81,36 @@ archive-appstore: project
 		SWIFT_ACTIVE_COMPILATION_CONDITIONS=APPSTORE \
 		MARKETING_VERSION=$(V) CURRENT_PROJECT_VERSION=$(B) \
 		archive | grep -E "error:|ARCHIVE"
-	@echo "next: open build/Softcap.xcarchive → Organizer → Distribute App → App Store Connect"
+	@echo "next: make upload-appstore V=$(V) B=$(B)"
+
+# Exports the archive and sends it to App Store Connect, without Xcode.
+#
+# Signing needs no preparation: `-allowProvisioningUpdates` with an App Store
+# Connect key lets xcodebuild mint the distribution and installer certificates
+# and both provisioning profiles on first use — this account had none.
+#
+# The key is named by environment rather than written here: ASC_KEY_ID and
+# ASC_ISSUER_ID identify an Apple account, and this repository publishes
+# everything in it. ASC_KEY_PATH points at the .p8 file, which never belongs in
+# a checkout at all.
+upload-appstore: archive-appstore
+	@if [ -z "$(ASC_KEY_ID)" ] || [ -z "$(ASC_ISSUER_ID)" ] || [ -z "$(ASC_KEY_PATH)" ]; then \
+		echo "usage: ASC_KEY_ID=… ASC_ISSUER_ID=… ASC_KEY_PATH=/path/AuthKey_….p8 \\"; \
+		echo "       make upload-appstore V=0.1.5 B=1"; exit 1; fi
+	@set -o pipefail; xcodebuild -exportArchive \
+		-archivePath build/Softcap.xcarchive \
+		-exportPath build/appstore-export \
+		-exportOptionsPlist tools/ExportOptions.AppStore.plist \
+		-allowProvisioningUpdates \
+		-authenticationKeyPath "$(ASC_KEY_PATH)" \
+		-authenticationKeyID "$(ASC_KEY_ID)" \
+		-authenticationKeyIssuerID "$(ASC_ISSUER_ID)" \
+		| grep -E "error:|Exported|EXPORT"
+	@# Silent, and deliberately: make would otherwise echo the recipe, and the
+	@# issuer id names the Apple account. A build log is a thing people paste.
+	@xcrun altool --upload-app -f build/appstore-export/Softcap.pkg -t macos \
+		--apiKey "$(ASC_KEY_ID)" --apiIssuer "$(ASC_ISSUER_ID)"
+	@echo "uploaded; the build appears under TestFlight once Apple finishes processing it"
 
 # iOS build and simulator run. The scheme has code signing disabled, so it needs
 # no certificate: the app runs in the simulator only.

@@ -52,6 +52,10 @@ targets:
         # exemption. Declared so App Store Connect never parks a build in
         # "Missing Compliance" waiting for the question to be answered by hand.
         ITSAppUsesNonExemptEncryption: false
+        # Required by the store, and only by the store: an upload without it is
+        # refused at validation rather than at review. It must agree with the
+        # primary category on the listing, which is Developer Tools.
+        LSApplicationCategoryType: public.app-category.developer-tools
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.softcap.Softcap
