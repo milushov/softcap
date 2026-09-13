@@ -61,6 +61,21 @@ if [ "${#SERVED[@]}" -lt 85 ]; then
   exit 1
 fi
 
+# The address a reader actually visits, for a path in the manifest.
+#
+# Every page is `<dir>/index.html` and is linked, sitemapped and canonicalised
+# as `/<dir>/` — so checking `/<dir>/index.html` checks a path nothing uses and
+# leaves the one that everything uses untested. It is not the same request:
+# the directory form is Caddy resolving an index, and that resolution is a
+# thing that can break on its own.
+page_url() {
+  case "$1" in
+    index.html) printf 'https://%s/' "$DOMAIN" ;;
+    */index.html) printf 'https://%s/%s' "$DOMAIN" "${1%index.html}" ;;
+    *) printf 'https://%s/%s' "$DOMAIN" "$1" ;;
+  esac
+}
+
 # ---------------------------------------------------------------------------
 # Going back.
 #
@@ -137,8 +152,8 @@ roll_back() {
   local bad=0
   for f in "${SERVED[@]}"; do
     local code
-    code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 15 "https://$DOMAIN/$f" || echo 000)
-    [ "$code" = "200" ] || { echo "  /$f answered $code" >&2; bad=1; }
+    code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 15 "$(page_url "$f")" || echo 000)
+    [ "$code" = "200" ] || { echo "  $(page_url "$f") answered $code" >&2; bad=1; }
   done
   curl -sS --max-time 15 "https://$DOMAIN/" | grep -q "</html>" \
     || { echo "  the page served is not whole" >&2; bad=1; }
@@ -175,7 +190,7 @@ live_status() {
     # first version of this recognised that constant, which works and reads like
     # a riddle.
     code=$(curl -sS -o "$WORK/live" -w "%{http_code}" --max-time 20 \
-             "https://$DOMAIN/$f" 2>/dev/null || echo 000)
+             "$(page_url "$f")" 2>/dev/null || echo 000)
     if [ "$code" != "200" ]; then
       printf "  %-14s answered %s\n" "$f" "$code" >&2; unreachable=1; continue
     fi
@@ -348,10 +363,7 @@ sleep 3
 # there, not that it is the thing that was sent.
 failed=0
 for f in "${SERVED[@]}"; do
-  case "$f" in
-    index.html) url="https://$DOMAIN/" ;;
-    *)          url="https://$DOMAIN/$f" ;;
-  esac
+  url=$(page_url "$f")
   code=$(try_twice fetch_code "$url")
   if [ "$code" != "200" ]; then
     echo "  $url → HTTP $code" >&2; failed=1; continue
