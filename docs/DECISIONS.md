@@ -8036,3 +8036,55 @@ new one. Rewriting the chart's past is not worth a prompt at launch.
 question exists to avoid touching the container, and an unanswerable question is
 not a reason to touch it. A widget that is really there is answered for on the
 next poll, five minutes later.
+
+## 2026-09-14 — App Review is answered about the listening entitlement, not obeyed
+
+**Decision.** App Review's automated analysis refused the store build:
+`com.apple.security.network.server` is present and "does not appear to have
+matching functionality". The entitlement stays. The reply is written down
+instead — `docs/APP-REVIEW-NETWORK-SERVER.md` holds both texts the letter asks
+for, the one to send in Resolution Center and the one to paste into App Review
+Information so the next submission carries the answer with it. The comment at
+the top of `App/Softcap.AppStore.entitlements` now says why the key is there
+and points at that file, and `TheLoopbackEntitlementIsEarned` fails if the key
+is removed, if the listener stops binding the loopback, if any other lane
+starts asking to listen, or if the reply goes missing.
+
+**Why.** Because the letter is wrong, and this was measured rather than argued.
+An ad-hoc-signed bundle carrying `com.apple.security.app-sandbox` and
+`com.apple.security.network.client` was asked to listen nine different ways —
+four raw POSIX binds, on `127.0.0.1:0`, on `127.0.0.1:1455`, on `0.0.0.0:0` and
+on `[::1]:0`, and five `NWListener` constructions including the one
+`App/BrowserCallbackListener.swift` actually uses. All nine fail with
+`errno=1`, Operation not permitted, at `bind`; all nine answer `OK` once
+`network.server` is added. The denial is on the syscall, not on any one API, so
+the receiver cannot be written a different way — it can only be removed.
+Signing in is a PKCE redirect back to
+`http://localhost:<port>/callback` — the loopback redirect RFC 8252 §7.3
+describes for native apps, and the only redirect those two OAuth clients have
+registered — so without the bind there is nowhere for the browser to return to.
+Deleting the key is the obvious reading of the rejection and it is the one
+thing that breaks the app. Two likelier-sounding readings were checked and are
+also wrong: expanding the uploaded `Softcap.pkg` shows `network.server` on
+`Softcap.app` and not on the embedded `SoftcapWidget.appex`, so no target is
+carrying it idly; and the store binary holds the same twelve `NWListener`
+references the Developer ID one does, so nothing about the store lane compiles
+the listener out. Guessing at why the scan missed it is cheap to check too:
+`nm -u` on the shipped binary lists twelve `NWListener` symbols, all
+Swift-mangled Network.framework symbols, and not `nw_listener_create` or
+`bind` — which is what a scan for C entry points would be looking for. The
+reply says so, because a reviewer reading it should not have to take the claim
+on faith.
+
+**Cost.** A round trip with review, and the same round trip again on any
+submission where the notes do not stop the automated check. The alternative was
+priced before it was rejected: without the listener, Claude degrades to
+`OAuthEndpoints.manualRedirect`, where the provider shows the code and the
+person pastes it in, and Codex loses sign-in outright — its client only accepts
+`http://localhost:1455/auth/callback` and `CodexOAuth.manualRedirectURI` is
+nil. A feature removed to satisfy a check that is wrong is worse than the
+check. And the guard is a floor: it holds the entitlement to a loopback
+listener that exists, and it would keep holding it if the providers ever
+registered a redirect that is not loopback — at which point the right change is
+to delete these checks and the key together, which is written into the suite so
+it is not discovered later.

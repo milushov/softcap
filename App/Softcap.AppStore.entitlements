@@ -2,9 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!-- The App Store variant. Upload validation refuses a macOS app without the
      sandbox, so this file exists beside Softcap.entitlements rather than
-     replacing it: the GitHub build keeps the unsandboxed file, where the Codex
-     file reader still works. network.server is the OAuth callback listening on
-     localhost; without it the browser sign-in redirect has nowhere to land. -->
+     replacing it: the GitHub build keeps the unsandboxed file.
+
+     Do not delete com.apple.security.network.server. App Review rejects this
+     build automatically, saying the entitlement has no matching functionality;
+     it does, and removing it breaks signing in. Signing in is a PKCE redirect
+     back to http://localhost:<port>/callback, which BrowserCallbackListener
+     accepts with NWListener bound to the IPv4 loopback. Measured, not assumed:
+     a sandboxed bundle without this key was asked to listen nine ways, four of
+     them raw POSIX binds, and every one failed at bind with errno 1, Operation
+     not permitted; with the key added all nine succeed. The denial is on the
+     syscall, so there is no other way to write the receiver — only not to have
+     one. Claude would fall back to pasting the code by hand; Codex has no
+     fallback and would lose sign-in altogether.
+
+     The reply to send App Review is docs/APP-REVIEW-NETWORK-SERVER.md. -->
 <plist version="1.0">
 <dict>
 	<key>com.apple.security.app-sandbox</key>
