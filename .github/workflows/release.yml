@@ -280,6 +280,15 @@ jobs:
       #   ASC_KEY_ID      the key's ten-character identifier
       #   ASC_ISSUER_ID   the issuer UUID, from Users and Access → Integrations
       #   ASC_KEY_P8      the contents of the AuthKey_….p8 file
+      #   MACOS_TEAM_ID   the ten-character team identifier
+      #
+      # The team is a secret rather than a build setting because this repository
+      # is public and the rule against publishing the Apple team identifier has
+      # no exception for a workflow file. It is passed at archive time, not at
+      # export: the identifier is stamped into the archive, and an archive built
+      # without it fails the export with "No Team Found in Archive" — which is
+      # what a runner does by default, since Signing.local.xcconfig holds the
+      # team on the author's machine and is git-ignored.
       #
       # Last, and never blocking: the GitHub release is already published by
       # now, so a refused upload costs the store lane and nothing else.
@@ -288,12 +297,14 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          TEAM_ID: ${{ secrets.MACOS_TEAM_ID }}
         run: |
           set -euo pipefail
           missing=()
           [ -n "${ASC_KEY_ID:-}" ]    || missing+=(ASC_KEY_ID)
           [ -n "${ASC_ISSUER_ID:-}" ] || missing+=(ASC_ISSUER_ID)
           [ -n "${ASC_KEY_P8:-}" ]    || missing+=(ASC_KEY_P8)
+          [ -n "${TEAM_ID:-}" ]       || missing+=(MACOS_TEAM_ID)
           if [ "${#missing[@]}" -gt 0 ]; then
             echo "::notice::Not publishing to TestFlight — not configured: ${missing[*]}."
             exit 0
@@ -319,6 +330,7 @@ jobs:
             -authenticationKeyPath "$KEY" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
             SOFTCAP_APP_ENTITLEMENTS=App/Softcap.AppStore.entitlements \
             SWIFT_ACTIVE_COMPILATION_CONDITIONS=APPSTORE \
             MARKETING_VERSION="$V" \
