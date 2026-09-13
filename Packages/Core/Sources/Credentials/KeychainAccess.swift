@@ -2,69 +2,26 @@ import Foundation
 import Security
 import ProviderKit
 
-public protocol KeychainAccess: Sendable {
-    /// Reads an item.
-    ///
-    /// `promptIfNeeded` decides what happens when the keychain would have to ask
-    /// the person for permission — which it does for an item another app owns,
-    /// once, until they choose "Always Allow".
-    ///
-    /// A poll must pass `false`. `SecItemCopyMatching` blocks until the dialog is
-    /// answered, and a dialog raised by a five-minute timer is one nobody is
-    /// looking for: watched sitting unanswered for eighty-four minutes with the
-    /// app frozen behind it. Passing `false` turns that wait into an immediate
-    /// error the interface can show.
-    ///
-    /// `true` belongs to the moment a person explicitly grants the read — the
-    /// Allow access… button — where the dialog appears while they are watching
-    /// for it. A person merely refreshing is not that moment: wanting fresh
-    /// numbers is not consent to a password dialog.
-    func read(service: String, promptIfNeeded: Bool) async throws -> Data?
-    func write(_ data: Data, service: String) async throws
-}
-
-public extension KeychainAccess {
-    /// Defaults to not asking. The unattended path is the common one, and the
-    /// dangerous default is the one that blocks.
-    func read(service: String) async throws -> Data? {
-        try await read(service: service, promptIfNeeded: false)
-    }
-}
-
-/// Which keychain statuses mean "a person would have to allow this".
+/// Reads and writes the one keychain item this app owns.
 ///
-/// Written down separately because the obvious one is not the one that arrives.
-/// Reading an item another app owns with user interaction switched off returns
-/// **`errSecAuthFailed` (-25293)**, not `errSecInteractionNotAllowed` (-25308) —
-/// checked against the running app, where the CLI's item answered -25293 while
-/// the app's own item answered 0. Matching only the obvious status left the
-/// refusal reported as an ordinary read failure, which advises signing in again:
-/// the one action that cannot help.
-public enum KeychainRefusal {
-    /// The failure to throw, or `nil` if this status is not a refusal.
-    ///
-    /// `errSecAuthFailed` covers both cases and both mean the same thing to the
-    /// app: with interaction off it is the dialog that was not shown, and with
-    /// interaction on it is the dialog that was answered with Deny. Either way
-    /// the way forward is to allow access, not to sign in.
-    public static func failure(for status: OSStatus) -> ProviderFailure? {
-        switch status {
-        case errSecInteractionNotAllowed:
-            return ProviderFailure(kind: .needsPermission,
-                                   diagnostic: "keychain would have prompted; not asking from a poll")
-        case errSecAuthFailed:
-            return ProviderFailure(kind: .needsPermission,
-                                   diagnostic: "keychain access not granted (-25293)")
-        default:
-            return nil
-        }
-    }
+/// There used to be a second item in play — the one Claude Code keeps its own
+/// credentials in — and reading an item another app owns is what the keychain
+/// puts a dialog on screen for. That read is gone: every account now arrives
+/// through the browser and lives in this app's own item, which needs no
+/// permission from anybody. `promptIfNeeded` went with it, along with the
+/// statuses that meant "somebody would have to allow this": there is no longer
+/// a caller who would want the dialog, so the read simply never waits for one.
+/// See `read(service:)` for why refusing it is safer than showing it.
+public protocol KeychainAccess: Sendable {
+    /// Reads an item. `nil` when there is none under that service.
+    func read(service: String) async throws -> Data?
+    func write(_ data: Data, service: String) async throws
 }
 
 public struct SystemKeychain: KeychainAccess {
     public init() {}
 
-    public func read(service: String, promptIfNeeded: Bool) throws -> Data? {
+    public func read(service: String) throws -> Data? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -72,25 +29,36 @@ public struct SystemKeychain: KeychainAccess {
             kSecMatchLimit as String: kSecMatchLimitOne,
         ]
 
-        // Process-wide and restored immediately, because it has to be: the flag
-        // belongs to the process, not to the call, and leaving it off would deny
-        // the dialog to the places that want it.
+        // The read never blocks on a dialog.
         //
-        // macOS only. The dialog it suppresses is the access-control prompt of
-        // the file-based keychain, which asks before letting one app read an
-        // item another app owns — reading the CLI's credentials is exactly that.
-        // iOS has no such prompt and no such function.
+        // `SecItemCopyMatching` waits, uncancellably, until the keychain's
+        // access prompt is answered — and this app has no Dock icon, so a
+        // prompt can open behind whatever is in front and be answered by
+        // nobody. The one read this app makes happens inside `load()`, on the
+        // actor every later call goes through, so a wait there is the whole
+        // credential store stopped for as long as it lasts. That was watched
+        // happening for eighty-four minutes when a foreign item was still being
+        // read.
+        //
+        // The prompt can still arise for the app's own item: the ACL is bound
+        // to the signature that created it, and an ad-hoc signature changes
+        // with every build. Refused rather than shown, the read throws, `load`
+        // records the item as present-but-unreadable, and nothing is written
+        // over it — the accounts are still there for a build that can open it.
+        // Blocking instead would trade a recoverable state for a hung app.
+        //
+        // Process-wide and restored immediately, because the flag belongs to
+        // the process rather than to the call.
         #if os(macOS)
-        if !promptIfNeeded { SecKeychainSetUserInteractionAllowed(false) }
+        SecKeychainSetUserInteractionAllowed(false)
         #endif
         var item: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &item)
         #if os(macOS)
-        if !promptIfNeeded { SecKeychainSetUserInteractionAllowed(true) }
+        SecKeychainSetUserInteractionAllowed(true)
         #endif
 
         if status == errSecItemNotFound { return nil }
-        if let refusal = KeychainRefusal.failure(for: status) { throw refusal }
         guard status == errSecSuccess, let data = item as? Data else {
             throw ProviderFailure(kind: .needsLogin, diagnostic: "keychain read failed, \(status)")
         }

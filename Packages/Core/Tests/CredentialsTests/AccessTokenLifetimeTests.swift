@@ -40,7 +40,7 @@ private actor CountingRefresher: TokenRefreshing {
 
 private actor PlainKeychain: KeychainAccess {
     private var items: [String: Data] = [:]
-    func read(service: String, promptIfNeeded: Bool) throws -> Data? { items[service] }
+    func read(service: String) throws -> Data? { items[service] }
     func write(_ data: Data, service: String) throws { items[service] = data }
 }
 
@@ -62,8 +62,7 @@ private actor PlainKeychain: KeychainAccess {
         _ clock: TestClock, _ refresher: CountingRefresher
     ) async -> CredentialStore {
         let store = CredentialStore(
-            keychain: PlainKeychain(), refresher: refresher,
-            cacheWindow: 0, now: { clock.now }
+            keychain: PlainKeychain(), refresher: refresher, now: { clock.now }
         )
         try? await store.addLoggedInAccount(
             uuid: "u-1", displayName: "sam@example.com", refreshToken: "rt"
@@ -174,7 +173,7 @@ private actor PlainKeychain: KeychainAccess {
         let refresher = CountingRefresher(lifetime: 28800, rotation: "rt-2")
 
         let first = CredentialStore(
-            keychain: keychain, refresher: refresher, cacheWindow: 0, now: { clock.now }
+            keychain: keychain, refresher: refresher, now: { clock.now }
         )
         try await first.addLoggedInAccount(
             uuid: "u-1", displayName: "sam@example.com", refreshToken: "rt"
@@ -184,7 +183,7 @@ private actor PlainKeychain: KeychainAccess {
         // The relaunch: a new store over the same keychain, five minutes later.
         clock.advance(300)
         let second = CredentialStore(
-            keychain: keychain, refresher: refresher, cacheWindow: 0, now: { clock.now }
+            keychain: keychain, refresher: refresher, now: { clock.now }
         )
         await second.load()
         let after = try await second.accessToken(for: "u-1")
@@ -207,7 +206,7 @@ private actor PlainKeychain: KeychainAccess {
         let refresher = CountingRefresher(lifetime: 3600, rotation: "rt-2")
 
         let first = CredentialStore(
-            keychain: keychain, refresher: refresher, cacheWindow: 0, now: { clock.now }
+            keychain: keychain, refresher: refresher, now: { clock.now }
         )
         try await first.addLoggedInAccount(
             uuid: "u-1", displayName: "sam@example.com", refreshToken: "rt"
@@ -216,7 +215,7 @@ private actor PlainKeychain: KeychainAccess {
 
         clock.advance(4000)          // past the hour the token was good for
         let second = CredentialStore(
-            keychain: keychain, refresher: refresher, cacheWindow: 0, now: { clock.now }
+            keychain: keychain, refresher: refresher, now: { clock.now }
         )
         await second.load()
         _ = try await second.accessToken(for: "u-1")
@@ -273,8 +272,7 @@ private actor PlainKeychain: KeychainAccess {
         let clock = TestClock()
         let refresher = CountingRefresher(lifetime: 3600)
         let store = CredentialStore(
-            keychain: PlainKeychain(), refresher: refresher,
-            cacheWindow: 0, now: { clock.now }
+            keychain: PlainKeychain(), refresher: refresher, now: { clock.now }
         )
         try await store.addLoggedInAccount(
             uuid: "u-1", displayName: "sam@example.com", refreshToken: "rt"

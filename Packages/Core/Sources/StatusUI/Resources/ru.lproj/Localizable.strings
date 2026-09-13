@@ -59,10 +59,8 @@
 "Forget…" = "Забыть…";
 "Forget" = "Забыть";
 "Forget %@?" = "Забыть %@?";
-"active in CLI" = "активен в CLI";
 "refreshed" = "продлевается";
 "sign-in needed" = "нужен вход";
-"Claude · token read from Claude Code" = "Claude · токен читается из Claude Code";
 "An event fires when a threshold is crossed upward, not on every poll above it." = "Событие приходит на пересечении порога снизу вверх, а не при каждом опросе выше него.";
 "Notify" = "Уведомлять";
 "Thresholds" = "Пороги";
@@ -99,7 +97,6 @@
 "Forget all accounts…" = "Забыть все аккаунты…";
 "Forget all accounts?" = "Забыть все аккаунты?";
 "Forget all" = "Забыть все";
-"Removes only the token copies this app keeps. Your Claude Code sign-in is untouched." = "Удалит только копии токенов, которые хранит это приложение. Вход в Claude Code это не затронет.";
 "Almost exhausted — time to switch." = "Аккаунт почти исчерпан — пора переключаться.";
 "%@ is free again" = "%@ снова свободен";
 "The limit reset, you can come back." = "Лимит сбросился, можно возвращаться.";
@@ -117,8 +114,6 @@
 "%@ old" = "%@ назад";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "Показаний нет уже некоторое время. Возможно, ждёт запрос на вход.";
 "Allow keychain access" = "Разрешить доступ к связке ключей";
-"Claude Code's credentials cannot be read, so the account signed in there cannot be shown." = "Учётные данные Claude Code не читаются, поэтому вошедший там аккаунт показать нельзя.";
-"Allow access…" = "Разрешить доступ…";
 "Could not change launch at login. Check Login Items in System Settings." = "Не удалось изменить запуск при входе. Проверьте объекты входа в системных настройках.";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS не доставляет уведомления Softcap. Включите их в разделе «Уведомления» системных настроек.";
 "%1$@: %2$@ of limit" = "%1$@: %2$@ лимита";
@@ -159,8 +154,6 @@
 "Send error reports" = "Отправлять отчёты об ошибках";
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "Когда что-то ломается, описание сбоя уходит автору. Пути, адреса и всё похожее на токен удаляются до отправки.";
 "Minimal window" = "Минимальное окно";
-"Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "Добавляйте аккаунты Claude Code и OpenAI Codex через браузер. Локальные аккаунты CLI также определяются автоматически.";
-"Saved credentials will be deleted. Your CLI sign-ins will not change." = "Сохранённые учётные данные будут удалены. Вход в CLI не изменится.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Не удалось принять ответ входа Codex. Закройте другие попытки входа в Codex и повторите.";
 "Could not open the browser. Check your default browser and try again." = "Не удалось открыть браузер. Проверьте браузер по умолчанию и повторите.";
 "Signing in to %@…" = "Вход в %@…";
@@ -195,5 +188,8 @@
 "Read the licence" = "Прочитать лицензию";
 "Looking for your accounts…" = "Ищем ваши аккаунты…";
 "Reading the keychain and asking each service." = "Читаем связку ключей и опрашиваем сервисы.";
-"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "Аккаунты из браузера обновляются независимо. Вход в CLI не изменяется.";
-"Sign in to Claude Code, or add an account in Settings." = "Войдите в Claude Code или добавьте аккаунт в настройках.";
+"Add an account in Settings — Softcap opens your browser to sign in." = "Добавьте аккаунт в настройках — Softcap откроет браузер для входа.";
+"Removes only the credentials this app saved. Nothing you signed into elsewhere is affected." = "Удаляются только учётные данные, сохранённые этим приложением. Входы в других программах не затрагиваются.";
+"Add Claude Code or OpenAI Codex accounts through your browser." = "Добавляйте аккаунты Claude Code или OpenAI Codex через браузер.";
+"Saved credentials will be deleted. Nothing you signed into elsewhere is affected." = "Сохранённые учётные данные будут удалены. Входы в других программах не затрагиваются.";
+"Every account holds its own credential and refreshes on its own." = "У каждого аккаунта свои учётные данные, и обновляется он сам по себе.";

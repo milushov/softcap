@@ -26,8 +26,6 @@ final class AppModel: ObservableObject {
     @Published private(set) var lastUpdated: Date?
     /// What the system allows, as opposed to what the settings ask for.
     @Published private(set) var notificationsPermitted = true
-    /// Whether the keychain is refusing to let us see Claude Code's account.
-    @Published private(set) var cliAccessBlocked = false
 
     /// Which settings screen to show. Published rather than held by the view:
     /// the menu bar opens that window through the system's ⌘, menu item and has
@@ -79,7 +77,7 @@ final class AppModel: ObservableObject {
 
     func refreshAfterSignIn(_ ref: AccountRef) async {
         await identities.forget(ref.id)
-        await refresh(.timer)
+        await refresh()
     }
     private var poller: UsagePoller?
     private var tracker = ThresholdTracker()
@@ -238,14 +236,14 @@ final class AppModel: ObservableObject {
             // machinery reacting, not a person pressing Refresh.
             if oldValue.hiddenAccounts != preferences.hiddenAccounts
                 || oldValue.disabledProviders != preferences.disabledProviders {
-                Task { await refresh(.timer) }
+                Task { await refresh() }
             }
             if oldValue.refreshHotKey != preferences.refreshHotKey {
                 // Registration lives here, not in the settings scene: that one
                 // is created lazily, so the shortcut did nothing until the window
                 // was opened once.
                 HotKeyCenter.shared.register(preferences.refreshHotKey, id: HotKeyID.refresh) {
-                    Task { @MainActor [weak self] in await self?.refresh(.person) }
+                    Task { @MainActor [weak self] in await self?.refresh() }
                 }
             }
         }
@@ -316,7 +314,7 @@ final class AppModel: ObservableObject {
         // behaviour a press got depended on whether the shortcut had ever
         // been changed in settings.
         HotKeyCenter.shared.register(preferences.refreshHotKey, id: HotKeyID.refresh) {
-            Task { @MainActor [weak self] in await self?.refresh(.person) }
+            Task { @MainActor [weak self] in await self?.refresh() }
         }
 
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -324,7 +322,7 @@ final class AppModel: ObservableObject {
         ) { [weak self] _ in
             Task { @MainActor in
                 guard let self, self.preferences.refreshAfterWake else { return }
-                await self.refresh(.timer)
+                await self.refresh()
             }
         }
 
@@ -332,15 +330,16 @@ final class AppModel: ObservableObject {
         // The timer above is already ticking, and `RefreshGate` lets a later tick
         // past a poll that has been stuck too long — so the app recovers by
         // itself the moment whatever blocked it lets go.
-        Task { await refresh(.timer) }
+        Task { await refresh() }
     }
 
-    /// `origin` decides one thing: whether this poll may put the keychain's
-    /// access dialog on screen. The table lives on `PollOrigin`, where a test
-    /// holds it: only the Allow access… button's origin answers yes.
-    func refresh(_ origin: PollOrigin) async {
-        await store.setPromptAllowed(origin.mayRaiseTheKeychainDialog)
-        defer { Task { await store.setPromptAllowed(false) } }
+    /// A poll, whoever asked for it.
+    ///
+    /// This used to take a `PollOrigin`, whose whole job was to decide whether
+    /// the poll might put the keychain's access dialog on screen. No poll opens
+    /// another app's keychain item any more, so no poll can raise that dialog,
+    /// and there is nothing left for the caller to say.
+    func refresh() async {
         await poll()
     }
 
@@ -367,40 +366,6 @@ final class AppModel: ObservableObject {
             isRefreshing = false
         }
 
-        // The CLI is reconciled before a poll only while something still depends
-        // on it: that is how an account just signed into gets picked up, and how
-        // the copy of its refresh token stays current while it is still active.
-        //
-        // Once every account carries a grant of this app's own there is nothing
-        // in Claude Code's keychain item the app does not already have, and
-        // opening it is all cost. macOS checks a foreign item against its access
-        // list on every read, and the grant that check looks for does not survive
-        // the item's owner rewriting it — which Claude Code does each time it
-        // refreshes, about every eight hours. Skipping the read is what turns
-        // "allow once at setup" into something that is actually true.
-        //
-        // The person pressing "Allow access…" is the exception: they are
-        // importing the CLI's account, and the dialog lands while they are
-        // watching for it. A plain Refresh is not that person. It used to be —
-        // any poll a person started could open the item — and with all four
-        // accounts holding grants of their own, every press of Refresh asked
-        // for the login keychain password, for an item nothing needed.
-        //
-        // Both conditions are read before the test rather than inside it: `||`
-        // takes its right side as an autoclosure, which cannot be awaited in.
-        let somethingStillNeedsTheCLI = await store.dependsOnCLI()
-        let personGrantingAccess = await store.isPromptAllowed
-        if somethingStillNeedsTheCLI || personGrantingAccess {
-            await syncWithCLI()
-        } else {
-            // Nothing depends on Claude Code's item any more, so nothing is
-            // blocked on it. `cliAccessBlocked` is only ever assigned inside
-            // `syncWithCLI`, so skipping that call would freeze the flag at
-            // whatever the last poll left — and a reader who fixed the problem by
-            // signing every account in would go on being told, by the Accounts
-            // screen and the empty state both, that credentials cannot be read.
-            cliAccessBlocked = false
-        }
         await rebuildPoller()
 
         guard let poller else { return }
@@ -461,60 +426,6 @@ final class AppModel: ObservableObject {
         }
     }
 
-    /// Asks Anthropic who is signed in to the CLI and hands the answer to the store.
-    /// Reconciles with whatever account Claude Code is signed into.
-    ///
-    /// The keychain refusing to be read without a dialog is kept rather than
-    /// swallowed. It is the normal answer when permission has not been granted,
-    /// and its effect is that an account signed into with `/login` never appears
-    /// — while the Accounts screen goes on promising that it will. Every other
-    /// reason to give up here is ordinary: the CLI may simply not be signed in.
-    private func syncWithCLI() async {
-        let token: String
-        do {
-            token = try await store.currentCLIToken()
-            cliAccessBlocked = false
-        } catch let failure as ProviderFailure where failure.kind == .needsPermission {
-            cliAccessBlocked = true
-            return
-        } catch {
-            cliAccessBlocked = false
-            return
-        }
-        let headers = [
-            "Authorization": "Bearer \(token)",
-            "anthropic-beta": "oauth-2025-04-20",
-            "User-Agent": OAuthEndpoints.userAgent,
-        ]
-        guard
-            let url = URL(string: "https://api.anthropic.com/api/oauth/profile"),
-            let (data, code) = try? await URLSessionHTTPClient().get(url, headers: headers),
-            code == 200,
-            let profile = try? ClaudeProfileResponse.parse(data)
-        else { return }
-
-        // Not swallowed. This call is how an account keeps a copy of its refresh
-        // token while it is still the active one, and that copy is the whole
-        // reason a plan stays visible after `/login` moves on. A failure here is
-        // invisible until the switch happens, and by then the account is gone
-        // for good — which this project has watched happen once already.
-        //
-        // The next poll tries again, so a passing failure costs nothing. A
-        // lasting one has no separate warning of its own: it means the app
-        // cannot write its own keychain item, and reading it would be failing
-        // too, which the rows already say.
-        do {
-            try await store.syncWithCLI(
-                profileUUID: profile.uuid, displayName: profile.displayName
-            )
-        } catch {
-            Self.log.error("""
-                could not keep the CLI account's token copy: \
-                \(String(describing: error), privacy: .public)
-                """)
-        }
-    }
-
     private func rebuildPoller() async {
         let refs = await store.knownRefs()
             .filter { !preferences.hiddenAccounts.contains($0.id) }
@@ -549,7 +460,7 @@ final class AppModel: ObservableObject {
             ? preferences.foregroundInterval
             : preferences.backgroundInterval
         scheduler.restart(every: interval) { [weak self] in
-            await self?.refresh(.timer)
+            await self?.refresh()
         }
     }
 
@@ -576,14 +487,14 @@ final class AppModel: ObservableObject {
         await identities.forget(id)
         // `.timer`: the person asked to forget an account, not to be asked for
         // permission to read one.
-        await refresh(.timer)
+        await refresh()
     }
 
     func forgetAllAccounts() async {
         for ref in await store.knownRefs() {
             try? await store.forget(id: ref.id)
         }
-        await refresh(.timer)
+        await refresh()
     }
 
     /// Without permission the system silently drops every notification and

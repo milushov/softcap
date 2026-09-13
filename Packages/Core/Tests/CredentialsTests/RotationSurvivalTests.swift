@@ -50,7 +50,7 @@ private actor FlakyKeychain: KeychainAccess {
     private var failing = false
 
     func setFailing(_ on: Bool) { failing = on }
-    func read(service: String, promptIfNeeded: Bool) throws -> Data? { items[service] }
+    func read(service: String) throws -> Data? { items[service] }
     func write(_ data: Data, service: String) throws {
         if failing {
             throw ProviderFailure(kind: .noData, diagnostic: "keychain refused the write")
@@ -61,7 +61,7 @@ private actor FlakyKeychain: KeychainAccess {
 
 private actor PlainKeychain: KeychainAccess {
     private var items: [String: Data] = [:]
-    func read(service: String, promptIfNeeded: Bool) throws -> Data? { items[service] }
+    func read(service: String) throws -> Data? { items[service] }
     func write(_ data: Data, service: String) throws { items[service] = data }
 }
 
@@ -104,7 +104,7 @@ private func eventually(
         let clock = TestClock()
         let gate = GatedRefresher()
         let store = CredentialStore(
-            keychain: PlainKeychain(), refresher: gate, cacheWindow: 0, now: { clock.now }
+            keychain: PlainKeychain(), refresher: gate, now: { clock.now }
         )
         try await store.addLoggedInAccount(
             uuid: "u-1", displayName: "sam@example.com", refreshToken: "rt"
@@ -139,7 +139,7 @@ private func eventually(
         let keychain = FlakyKeychain()
         let refresher = SpendingRefresher()
         let store = CredentialStore(
-            keychain: keychain, refresher: refresher, cacheWindow: 0, now: { clock.now }
+            keychain: keychain, refresher: refresher, now: { clock.now }
         )
         try await store.addLoggedInAccount(
             uuid: "u-1", displayName: "sam@example.com", refreshToken: "rt"
@@ -159,7 +159,7 @@ private func eventually(
         // holds: the rotation, or the token the server retired.
         clock.advance(4000)
         let relaunched = CredentialStore(
-            keychain: keychain, refresher: refresher, cacheWindow: 0, now: { clock.now }
+            keychain: keychain, refresher: refresher, now: { clock.now }
         )
         await relaunched.load()
         _ = try await relaunched.accessToken(for: "u-1")
@@ -185,7 +185,7 @@ private func eventually(
         let clock = TestClock()
         let gate = GatedRefresher()
         let store = CredentialStore(
-            keychain: PlainKeychain(), refresher: gate, cacheWindow: 0, now: { clock.now }
+            keychain: PlainKeychain(), refresher: gate, now: { clock.now }
         )
         try await store.addLoggedInAccount(
             uuid: "u-1", displayName: "sam@example.com", refreshToken: "rt"

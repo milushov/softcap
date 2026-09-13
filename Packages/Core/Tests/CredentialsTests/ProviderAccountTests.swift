@@ -6,7 +6,7 @@ import ProviderKit
 private actor AccountKeychain: KeychainAccess {
     private var data: Data?
     private(set) var foreignReads = 0
-    func read(service: String, promptIfNeeded: Bool) throws -> Data? {
+    func read(service: String) throws -> Data? {
         if service != CredentialStore.ownService { foreignReads += 1; return nil }
         return data
     }
@@ -74,8 +74,8 @@ private func waitForCall(_ service: AccountRefresher) async -> Bool {
         await reopened.load()
         #expect(try await reopened.accessToken(for: grant(.codex).account) == "initial")
         #expect(await refresh.calls.isEmpty)
-        #expect(await !reopened.dependsOnCLI())
-        #expect(await reopened.accountStates().first?.state == .refreshed)
+        let states = await reopened.accountStates()
+        #expect(states.first?.state == .refreshed)
         #expect(await keychain.foreignReads == 0)
     }
 
@@ -97,7 +97,7 @@ private func waitForCall(_ service: AccountRefresher) async -> Bool {
         await gate.release()
         _ = await pending.result
         #expect(try await store.accessToken(for: grant(.codex).account) == "initial")
-        let saved = try #require(await keychain.read(service: CredentialStore.ownService, promptIfNeeded: false))
+        let saved = try #require(await keychain.read(service: CredentialStore.ownService))
         #expect(try JSONDecoder().decode([StoredAccount].self, from: saved).first?.refreshToken == "new")
     }
 
@@ -111,7 +111,8 @@ private func waitForCall(_ service: AccountRefresher) async -> Bool {
         }
         #expect(await reject.calls.count == 1)
         #expect(await keychain.foreignReads == 0)
-        #expect(await store.accountStates().first?.state == .needsLogin)
+        let states = await store.accountStates()
+        #expect(states.first?.state == .needsLogin)
     }
 
     @Test func invalidatingAnOldAccessTokenDoesNotDiscardANewerOne() async throws {

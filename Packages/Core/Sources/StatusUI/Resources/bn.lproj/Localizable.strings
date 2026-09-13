@@ -59,10 +59,8 @@
 "Forget…" = "ভুলে যান…";
 "Forget" = "ভুলে যান";
 "Forget %@?" = "%@ ভুলে যাবেন?";
-"active in CLI" = "CLI-তে সক্রিয়";
 "refreshed" = "নবায়ন হচ্ছে";
 "sign-in needed" = "সাইন ইন দরকার";
-"Claude · token read from Claude Code" = "Claude · টোকেন Claude Code থেকে পড়া হয়";
 "An event fires when a threshold is crossed upward, not on every poll above it." = "ইভেন্ট আসে যখন সীমা উপরের দিকে অতিক্রম হয়, প্রতিবার নয়।";
 "Notify" = "জানান";
 "Thresholds" = "সীমা";
@@ -99,7 +97,6 @@
 "Forget all accounts…" = "সব অ্যাকাউন্ট ভুলে যান…";
 "Forget all accounts?" = "সব অ্যাকাউন্ট ভুলে যাবেন?";
 "Forget all" = "সব ভুলে যান";
-"Removes only the token copies this app keeps. Your Claude Code sign-in is untouched." = "শুধু এই অ্যাপের রাখা টোকেন কপি মুছবে। Claude Code-এ সাইন ইন অক্ষত থাকবে।";
 "Almost exhausted — time to switch." = "প্রায় শেষ — বদলানোর সময়।";
 "%@ is free again" = "%@ আবার মুক্ত";
 "The limit reset, you can come back." = "সীমা রিসেট হয়েছে, ফিরতে পারেন।";
@@ -117,8 +114,6 @@
 "%@ old" = "%@ আগের";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "কিছুক্ষণ ধরে কোনো রিডিং আসেনি। কোনো সাইন-ইন অনুরোধ অপেক্ষা করতে পারে।";
 "Allow keychain access" = "কীচেইন অ্যাক্সেসের অনুমতি দিন";
-"Claude Code's credentials cannot be read, so the account signed in there cannot be shown." = "Claude Code-এর ক্রেডেনশিয়াল পড়া যাচ্ছে না, তাই সেখানে সাইন-ইন করা অ্যাকাউন্ট দেখানো যাচ্ছে না।";
-"Allow access…" = "অ্যাক্সেসের অনুমতি দিন…";
 "Could not change launch at login. Check Login Items in System Settings." = "লগইনে চালু করা পরিবর্তন করা যায়নি। System Settings-এ Login Items দেখুন।";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS Softcap-এর বিজ্ঞপ্তি পৌঁছে দিচ্ছে না। System Settings-এ Notifications-এর নিচে চালু করুন।";
 "%1$@: %2$@ of limit" = "%1$@: সীমার %2$@";
@@ -159,8 +154,6 @@
 "Send error reports" = "ত্রুটির প্রতিবেদন পাঠান";
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "কিছু ব্যর্থ হলে তার বিবরণ লেখকের কাছে পাঠানো হয়। পথ, ঠিকানা এবং টোকেনের মতো যেকোনো কিছু আগেই সরিয়ে ফেলা হয়।";
 "Minimal window" = "সংক্ষিপ্ত উইন্ডো";
-"Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "ব্রাউজার দিয়ে Claude Code বা OpenAI Codex অ্যাকাউন্ট যোগ করুন। স্থানীয় CLI অ্যাকাউন্টও শনাক্ত করা হয়।";
-"Saved credentials will be deleted. Your CLI sign-ins will not change." = "সংরক্ষিত পরিচয়পত্র মুছে যাবে। CLI লগইন বদলাবে না।";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Codex লগইনের কলব্যাক খোলা যায়নি। অন্য Codex লগইন বন্ধ করে আবার চেষ্টা করুন।";
 "Could not open the browser. Check your default browser and try again." = "ব্রাউজার খোলা যায়নি। ডিফল্ট ব্রাউজার পরীক্ষা করে আবার চেষ্টা করুন।";
 "Signing in to %@…" = "%@-এ লগইন হচ্ছে…";
@@ -195,5 +188,8 @@
 "Read the licence" = "লাইসেন্স পড়ুন";
 "Looking for your accounts…" = "আপনার অ্যাকাউন্ট খোঁজা হচ্ছে…";
 "Reading the keychain and asking each service." = "কীচেইন পড়া হচ্ছে এবং প্রতিটি পরিষেবাকে জিজ্ঞাসা করা হচ্ছে।";
-"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "ব্রাউজারের অ্যাকাউন্টগুলো স্বাধীনভাবে আপডেট হয়। CLI লগইন বদলায় না।";
-"Sign in to Claude Code, or add an account in Settings." = "Claude Code-এ সাইন ইন করুন, বা সেটিংস-এ একটি অ্যাকাউন্ট যোগ করুন।";
+"Add an account in Settings — Softcap opens your browser to sign in." = "সেটিংসে একটি অ্যাকাউন্ট যোগ করুন — Softcap সাইন ইনের জন্য ব্রাউজার খুলবে।";
+"Removes only the credentials this app saved. Nothing you signed into elsewhere is affected." = "শুধু এই অ্যাপের সংরক্ষিত শংসাপত্র মুছে যায়। অন্য কোথাও করা সাইন-ইন অক্ষত থাকে।";
+"Add Claude Code or OpenAI Codex accounts through your browser." = "ব্রাউজার দিয়ে Claude Code বা OpenAI Codex অ্যাকাউন্ট যোগ করুন।";
+"Saved credentials will be deleted. Nothing you signed into elsewhere is affected." = "সংরক্ষিত শংসাপত্র মুছে ফেলা হবে। অন্য কোথাও করা সাইন-ইন অক্ষত থাকে।";
+"Every account holds its own credential and refreshes on its own." = "প্রতিটি অ্যাকাউন্টের নিজস্ব শংসাপত্র আছে এবং তা নিজে থেকেই রিফ্রেশ হয়।";

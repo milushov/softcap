@@ -19,8 +19,11 @@ public struct StoredAccount: Sendable, Codable, Hashable {
     public let id: String
     public let handle: String
     public var displayName: String
-    /// A copy of the refresh token, taken while the account was active in the
-    /// CLI. `syncWithCLI` exists for its sake.
+    /// The refresh token this app may spend — for a browser account, a grant of
+    /// its own. On a list written before `tokenOrigin` existed it may be a copy
+    /// taken from Claude Code, which `accessToken(for:)` refuses to spend: the
+    /// server rotates a refresh token when it is used, and spending that one
+    /// would sign the CLI out.
     public var refreshToken: String?
     /// Optional on purpose, and it must stay that way.
     ///
@@ -30,8 +33,11 @@ public struct StoredAccount: Sendable, Codable, Hashable {
     /// from destroying it. A required field here would put every existing
     /// install into that state at once: no accounts, and no way to add one.
     ///
-    /// `nil` means the list predates this field, and the only origin it could
-    /// have had is the CLI: the browser path is what introduced it.
+    /// `nil` means the list predates this field and says nothing about where
+    /// the token came from — a browser sign-in made by a build from that week
+    /// recorded nothing either. It is refused rather than guessed at: of the
+    /// two possible mistakes, only spending a CLI copy signs somebody else's
+    /// tool out.
     public var tokenOrigin: TokenOrigin?
 
     /// The access token the last refresh returned, and the moment it stops

@@ -59,10 +59,8 @@
 "Forget…" = "हटाएँ…";
 "Forget" = "हटाएँ";
 "Forget %@?" = "%@ हटाएँ?";
-"active in CLI" = "CLI में सक्रिय";
 "refreshed" = "नवीनीकृत";
 "sign-in needed" = "साइन इन चाहिए";
-"Claude · token read from Claude Code" = "Claude · टोकन Claude Code से पढ़ा जाता है";
 "An event fires when a threshold is crossed upward, not on every poll above it." = "घटना तब आती है जब सीमा ऊपर की ओर पार होती है, हर बार नहीं।";
 "Notify" = "सूचित करें";
 "Thresholds" = "सीमाएँ";
@@ -99,7 +97,6 @@
 "Forget all accounts…" = "सभी खाते हटाएँ…";
 "Forget all accounts?" = "सभी खाते हटाएँ?";
 "Forget all" = "सभी हटाएँ";
-"Removes only the token copies this app keeps. Your Claude Code sign-in is untouched." = "केवल इस ऐप की रखी टोकन प्रतियाँ हटेंगी। Claude Code का साइन इन अछूता रहेगा।";
 "Almost exhausted — time to switch." = "लगभग समाप्त — बदलने का समय।";
 "%@ is free again" = "%@ फिर उपलब्ध है";
 "The limit reset, you can come back." = "सीमा रीसेट हो गई, आप लौट सकते हैं।";
@@ -117,8 +114,6 @@
 "%@ old" = "%@ पुराना";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "कुछ समय से कोई रीडिंग नहीं मिली। कोई साइन-इन संकेत प्रतीक्षा में हो सकता है।";
 "Allow keychain access" = "कीचेन एक्सेस की अनुमति दें";
-"Claude Code's credentials cannot be read, so the account signed in there cannot be shown." = "Claude Code के क्रेडेंशियल पढ़े नहीं जा सकते, इसलिए वहाँ साइन-इन खाता नहीं दिखाया जा सकता।";
-"Allow access…" = "एक्सेस की अनुमति दें…";
 "Could not change launch at login. Check Login Items in System Settings." = "लॉगिन पर लॉन्च नहीं बदला जा सका। System Settings में Login Items देखें।";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS, Softcap की सूचनाएँ नहीं पहुँचा रहा। System Settings में Notifications के अंतर्गत इन्हें चालू करें।";
 "%1$@: %2$@ of limit" = "%1$@: सीमा का %2$@";
@@ -159,8 +154,6 @@
 "Send error reports" = "त्रुटि रिपोर्ट भेजें";
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "जब कुछ विफल होता है, तो उसका विवरण लेखक को भेजा जाता है। पथ, पते और टोकन जैसी कोई भी चीज़ पहले हटा दी जाती है।";
 "Minimal window" = "न्यूनतम विंडो";
-"Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "अपने ब्राउज़र से Claude Code या OpenAI Codex खाते जोड़ें। स्थानीय CLI खाते भी अपने आप मिल जाते हैं।";
-"Saved credentials will be deleted. Your CLI sign-ins will not change." = "सहेजे गए क्रेडेंशियल मिटा दिए जाएंगे। CLI में आपका लॉगिन नहीं बदलेगा।";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Codex लॉगिन का कॉलबैक नहीं खुल सका। दूसरे Codex लॉगिन बंद करके फिर कोशिश करें।";
 "Could not open the browser. Check your default browser and try again." = "ब्राउज़र नहीं खुल सका। डिफ़ॉल्ट ब्राउज़र जाँचकर फिर कोशिश करें।";
 "Signing in to %@…" = "%@ में लॉगिन हो रहा है…";
@@ -195,5 +188,8 @@
 "Read the licence" = "लाइसेंस पढ़ें";
 "Looking for your accounts…" = "आपके खाते खोजे जा रहे हैं…";
 "Reading the keychain and asking each service." = "किचेन पढ़ा जा रहा है और हर सेवा से पूछा जा रहा है।";
-"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "ब्राउज़र से जुड़े खाते स्वतंत्र रूप से अपडेट होते हैं। CLI में आपका लॉगिन नहीं बदलता।";
-"Sign in to Claude Code, or add an account in Settings." = "Claude Code में साइन इन करें, या सेटिंग्ज़ में खाता जोड़ें।";
+"Add an account in Settings — Softcap opens your browser to sign in." = "सेटिंग्स में खाता जोड़ें — Softcap साइन इन के लिए ब्राउज़र खोलेगा।";
+"Removes only the credentials this app saved. Nothing you signed into elsewhere is affected." = "केवल इस ऐप के सहेजे गए क्रेडेंशियल हटते हैं। कहीं और किए गए साइन-इन पर असर नहीं पड़ता।";
+"Add Claude Code or OpenAI Codex accounts through your browser." = "ब्राउज़र से Claude Code या OpenAI Codex खाते जोड़ें।";
+"Saved credentials will be deleted. Nothing you signed into elsewhere is affected." = "सहेजे गए क्रेडेंशियल हटा दिए जाएंगे। कहीं और किए गए साइन-इन पर असर नहीं पड़ता।";
+"Every account holds its own credential and refreshes on its own." = "हर खाते के अपने क्रेडेंशियल हैं और वह स्वयं रिफ़्रेश होता है।";

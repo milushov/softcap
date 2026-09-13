@@ -666,12 +666,12 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 <section>
   <div class="wrap">
     <p class="eyebrow">Beberapa paket</p>
-    <h2>Tidak akan membuat CLI Anda keluar</h2>
+    <h2>Ia tidak pernah menyentuh CLI Anda</h2>
     <p>
-      Keychain Anda hanya menyimpan token untuk paket tempat Anda sedang masuk, dan menyegarkannya bisa merotasi token itu di server — membuat Claude Code keluar. Pemantau yang mengeluarkan Anda dari hal yang dipantaunya lebih buruk daripada tidak ada sama sekali.
+      Pemantau yang mengeluarkan Anda dari hal yang dipantaunya lebih buruk daripada tidak ada sama sekali. Softcap tidak membaca kredensial milik Claude Code atau Codex dan tidak menyimpan salinannya — jadi keluar di sana, atau berganti akun, tidak mengubah apa pun di sini.
     </p>
     <p>
-      Karena itu akun aktif bersifat <strong>hanya-baca</strong> di sini, dan Softcap menyimpan salinan refresh token-nya sendiri untuk saat Anda berpindah dengan <code>/login</code>. Salinan itu hanya bisa diambil saat Softcap berjalan, jadi masuklah ke setiap paket dengan cara biasa selagi aplikasi terbuka — satu pemeriksaan kemudian salinannya tersimpan, dan semuanya tetap tampil bersama di layar. Membaca item keychain milik CLI membutuhkan izin macOS, yang diminta Softcap saat Anda menekan tombol — tidak pernah dari pewaktu yang tidak diawasi siapa pun.
+      Setiap langganan ditambahkan sekali lewat peramban dan menyimpan izinnya sendiri, sehingga beberapa paket tampil bersama di layar dan masing-masing diperbarui sendiri — entah CLI sedang berjalan atau tidak, dan dengan akun apa pun ia masuk.
     </p>
   </div>
 </section>
@@ -840,7 +840,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
         <dd>Penggunaan langsung untuk setiap akun, dibaca dari layanan dengan izin milik akun itu sendiri.
             <a href="/id/limits/codex/">Cara kerja batas Codex →</a></dd></div>
       <div class="fact"><dt>Menambahkan akun</dt>
-        <dd>Pilih Claude Code atau OpenAI Codex, lalu masuk dengan OAuth dan PKCE di browser Anda sendiri. Akun CLI lokal juga terdeteksi.</dd></div>
+        <dd>Pilih Claude Code atau OpenAI Codex, lalu masuk dengan OAuth dan PKCE di peramban Anda sendiri.</dd></div>
       <div class="fact"><dt>Inti</dt>
         <dd>Paket Swift tanpa AppKit dan tanpa string untuk manusia. Jendela, widget, dan ponsel berbagi satu tampilan baris.</dd></div>
       <div class="fact"><dt>Dependensi</dt>

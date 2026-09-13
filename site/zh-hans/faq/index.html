@@ -515,8 +515,8 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"Softcap 到底测量什么？","acceptedAnswer":{"@type":"Answer","text":"对你添加的每个账户，它都会显示订阅运行的两个窗口：5小时额度和每周额度——用了多少、还剩多少、各自何时重置。"}},
  {"@type":"Question","name":"检查额度会消耗额度吗？","acceptedAnswer":{"@type":"Answer","text":"不会。Softcap 用你自己的凭据读取用量端点；这些请求不携带提示词、不运行模型，所以它们所描述的额度不会因为被描述而消耗。"}},
  {"@type":"Question","name":"支持哪些服务商？","acceptedAnswer":{"@type":"Answer","text":"Claude 和 OpenAI Codex，各自可同时添加多个账户。Cursor、GitHub Copilot 和 Gemini CLI 暂不支持：无法对照真实账户核对的服务商会悄悄显示零，那比没有更糟。"}},
- {"@type":"Question","name":"必须通过浏览器登录吗？","acceptedAnswer":{"@type":"Answer","text":"通过浏览器用 OAuth 登录会给 Softcap 一份自己的授权，独立于任何 CLI。已登录本地 CLI 的账户也会被检测并直接读取，完全不需要登录。"}},
- {"@type":"Question","name":"它会把我的 CLI 登出吗？","acceptedAnswer":{"@type":"Answer","text":"不会。你的 CLI 所登录的账户在 Softcap 里是只读的，应用自己保存所需内容的副本——刷新永远不会轮换 CLI 的令牌。"}},
+ {"@type":"Question","name":"必须通过浏览器登录吗？","acceptedAnswer":{"@type":"Answer","text":"在浏览器中通过 OAuth 登录，会让 Softcap 获得属于自己的授权。这是添加账户的唯一方式：不会从任何 CLI 中识别账户，也不会读取属于它的任何凭据。"}},
+ {"@type":"Question","name":"它会让我的 CLI 退出登录吗？","acceptedAnswer":{"@type":"Answer","text":"不会。Softcap 从不读取或写入你的 CLI 凭据——它只持有你在浏览器中授予的权限，刷新它不会触及这台机器上的其他任何东西。"}},
  {"@type":"Question","name":"我的令牌存在哪里？","acceptedAnswer":{"@type":"Answer","text":"在 macOS 钥匙串里，别无他处——从不写进偏好设置、日志或文件。移除账户的那一刻，它的凭据就从钥匙串中删除。"}},
  {"@type":"Question","name":"有什么会离开我的 Mac？","acceptedAnswer":{"@type":"Answer","text":"三样，只有三样：发往你自己服务商的用量请求；可选的错误报告，发送前会清除路径和任何形似令牌的内容；以及可选的更新检查，每天一次，以及在更新页面打开时。后两样各有自己的开关。"}},
  {"@type":"Question","name":"80% 和 95% 的标记是什么意思？","acceptedAnswer":{"@type":"Answer","text":"那是通知阈值：账户越过某个窗口的 80% 时提醒一次，95% 时最后警告一次——每次越过只通知一次，而不是每次轮询都通知，免打扰时段内绝不打扰。两个水平都可以修改。"}},
@@ -590,11 +590,11 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>必须通过浏览器登录吗？</h2>
-      <p>通过浏览器用 OAuth 登录会给 Softcap 一份自己的授权，独立于任何 CLI。已登录本地 CLI 的账户也会被检测并直接读取，完全不需要登录。</p>
+      <p>在浏览器中通过 OAuth 登录，会让 Softcap 获得属于自己的授权。这是添加账户的唯一方式：不会从任何 CLI 中识别账户，也不会读取属于它的任何凭据。</p>
     </section>
     <section>
-      <h2>它会把我的 CLI 登出吗？</h2>
-      <p>不会。你的 CLI 所登录的账户在 Softcap 里是只读的，应用自己保存所需内容的副本——刷新永远不会轮换 CLI 的令牌。</p>
+      <h2>它会让我的 CLI 退出登录吗？</h2>
+      <p>不会。Softcap 从不读取或写入你的 CLI 凭据——它只持有你在浏览器中授予的权限，刷新它不会触及这台机器上的其他任何东西。</p>
     </section>
     <section>
       <h2>我的令牌存在哪里？</h2>

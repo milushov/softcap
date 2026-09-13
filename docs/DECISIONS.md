@@ -7853,3 +7853,145 @@ the small hours is dated the day before. The alternative was to teach the
 workflow the author's timezone, which is a fact about one machine written into
 something that runs on somebody else's, and it would have made the README and
 the release feed disagree instead.
+
+## 2026-09-14 — Softcap opens one keychain item, and it is its own
+
+**Decision.** The read of `Claude Code-credentials` is gone, and with it
+`dependsOnCLI`, `syncWithCLI`, `currentCLIToken`, the CLI response cache, the
+`activeInCLI` account state, `PollOrigin` and its `allowingAccess` case, the
+`promptIfNeeded` argument on `KeychainAccess`, the process-wide
+`SecKeychainSetUserInteractionAllowed` switch, `KeychainRefusal`, the
+`cliAccessBlocked` flag and the "Allow access…" button on both screens that
+carried it. `SystemKeychain` now reads and writes `StatusChecker-accounts` and
+has no code path to any other item.
+
+Every account, Claude and Codex alike, is added through the browser and holds a
+grant issued to this app. `refresh(_:)` lost its argument: its only job was to
+say whether that poll might raise the keychain dialog, and no poll can any more.
+
+This reverses "The active Claude account is read-only" and "Subscriptions
+accumulate through a token copy, not a separate sign-in", both 2026-08-30, and
+finishes what "Codex accounts arrive through the browser, and only through it"
+started this morning — that entry took the file reader from Codex and left the
+keychain read on Claude, which was half of what was asked for.
+
+**Why.** It was asked for, twice, and the second time after a screenshot of the
+window saying "Claude Code's credentials cannot be read". But the reason it is
+right rather than merely requested is that the read had stopped paying for
+itself. macOS re-checks a foreign keychain item against its access list on every
+read, and the grant that check looks for does not survive the item's owner
+rewriting it — which Claude Code does whenever it refreshes, about every eight
+hours. "Allow once at setup" was never true; it was allow again, and again. The
+rest of the machinery existed to manage that: a poll origin to decide who was
+allowed to raise a dialog, a refusal type to tell "not allowed" from "broken", a
+flag to remember the refusal, and two screens explaining it in ten languages.
+
+The feature it bought was an account appearing without being signed into. That
+is worth something, and browser sign-in — which did not exist when this was
+designed — does the same job once instead of every eight hours.
+
+**Cost.** An account that used to arrive by itself must now be signed into
+through the browser once. Anybody upgrading loses the row until they do.
+
+A stored token copied from the CLI is never spent again: the server rotates a
+refresh token on use, and spending one would sign Claude Code out. The app could
+previously read the CLI's item and see what it had done; it cannot now, so
+`accessToken(for:)` refuses any account whose `tokenOrigin` is not `ownGrant` —
+including `nil` — and `accountStates` reports it as `needsLogin` rather than
+`refreshed`. That is a row asking for a sign-in it did not ask for yesterday,
+which is the honest version of a row that would otherwise promise a reading it
+can never produce.
+
+`nil` means a list written before the field existed, and it is worth being
+precise about what that does and does not say. It is not proof of a CLI copy: a
+browser sign-in made between the first public commit and the day `tokenOrigin`
+arrived recorded nothing either, and nothing backfills the field afterwards. So
+`nil` is genuinely unknown, and it is refused rather than guessed at — of the
+two possible mistakes only one signs somebody else's tool out. No released build
+is in that window, so the reach of this is one unnecessary sign-in on a machine
+that ran a pre-release build.
+
+`StoredAccount.tokenOrigin` stays, and stays optional. It no longer selects
+between two ways of getting a token — there is one — but it is what marks a
+record as unspendable, and making it required would render every existing
+install's list undecodable at once.
+
+## 2026-09-14 — The support page answers the dialog people actually meet
+
+**Decision.** "It asked for keychain permission when I pressed Refresh" is
+replaced by "It asked to access data from other apps", and the answer explains
+the App Group container, the ad-hoc signature, and what declining costs.
+
+**Why.** The old question described a dialog that can no longer appear — the
+entry above removed the read that raised it. The one people do meet is the TCC
+prompt, and its wording is actively misleading here: it says the app wants data
+from other apps, when the container is Softcap's own and is named in its own
+entitlements. What macOS cannot do is confirm the app belongs to the team the
+container is filed under, because these builds are signed ad-hoc and carry no
+team identifier. The author met it himself and read it as the app still reaching
+into a CLI's files after both reads had been removed.
+
+The README says the same thing beside the download link, because that is where
+somebody meets it, and a support page nobody has opened yet cannot answer it.
+
+**Cost.** The explanation is only true while the builds are ad-hoc; a Developer
+ID signature would remove the prompt and leave two pages explaining something
+that no longer happens. That is a better problem than the present one, and the
+workflow already switches as soon as the signing secrets exist.
+
+## 2026-09-14 — A keychain read that failed is not an item that is empty
+
+**Decision.** `CredentialStore.load` no longer takes both answers through one
+`try?`. A read that throws sets `storedButUnreadable`, the same flag a blob this
+build cannot decode sets, and `persist` then refuses every write. Only a read
+that comes back with nothing — `errSecItemNotFound`, a fresh install — leaves
+the list empty and writable.
+
+**Why.** The entry above removed `KeychainRefusal`, which was the one piece of
+code that could tell a refused read from an ordinary failure. Nothing downstream
+noticed, because `load` had never distinguished either of them from an absent
+item: it asked for the data, and anything other than data meant "no accounts
+yet". A locked keychain at launch, or an access check this build's signature no
+longer satisfies, therefore produced an empty list that was safe to write over —
+and the first sign-in afterwards would encode that empty list into the item
+holding the only copy of every account's refresh token. A refresh token is
+issued once. There is nowhere to fetch the lost ones from, which is the same
+argument the undecodable-blob case was already written on; it simply had one of
+its two doors open.
+
+**Cost.** On a machine where the keychain cannot be read at all, adding an
+account now fails with `WouldOverwriteUnreadableAccounts` until the next launch,
+where before it appeared to work. That is the right way round — the previous
+behaviour looked like success and destroyed credentials — but it does mean a
+first-run failure on a locked keychain is now visible rather than silent.
+
+## 2026-09-14 — The one keychain read refuses the dialog rather than waiting for it
+
+**Decision.** `SystemKeychain.read` brackets `SecItemCopyMatching` with
+`SecKeychainSetUserInteractionAllowed(false)`, as it did before the entry above
+removed the bracket along with `promptIfNeeded`. A read that would need a prompt
+fails instead, `load()` records the item as present-but-unreadable, and nothing
+is written over it.
+
+**Why.** Removing the bracket rested on "no foreign item, so no prompt", which
+is not the whole rule. The keychain's access list is bound to the signature that
+created the item, and an ad-hoc signature changes with every build — so the
+app's *own* item can refuse a later build, and asking is exactly what macOS
+would do next. `SecItemCopyMatching` waits uncancellably for the answer, this
+app has no Dock icon so the prompt can open behind whatever is in front, and the
+read happens on the actor every later credential call goes through. That is the
+whole store stopped for as long as nobody answers. It was watched lasting
+eighty-four minutes when a foreign item was still being read.
+
+The read is also the only one left: `load()`, once, at startup. There is no
+timer path into the keychain any more, which is what makes refusing the prompt
+cheap — the failure is recoverable rather than repeated.
+
+**Cost.** A person whose own item has become unreadable is never asked whether
+to allow it, and sees an empty account list with nothing on screen explaining
+why. The accounts are intact and a build that can open the item shows them
+again, but from inside the window that is indistinguishable from having none.
+Showing the prompt would fix that and reintroduce a hang with no way out; the
+recoverable failure is the better of the two. If this turns out to happen in
+practice rather than in theory, the answer is an explicit action a person takes
+while watching — not a dialog raised by startup.

@@ -31,7 +31,7 @@ struct AccountsPane: View {
 
     var body: some View {
         Pane(title: loc("Accounts"),
-             subtitle: loc("Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected.")) {
+             subtitle: loc("Add Claude Code or OpenAI Codex accounts through your browser.")) {
             VStack(alignment: .leading, spacing: 10) {
                 if rows.isEmpty {
                     Text(loc("No accounts yet"))
@@ -105,30 +105,6 @@ struct AccountsPane: View {
                     }
                 }
 
-                // The subtitle above promises that accounts signed into with
-                // `/login` turn up on their own. They do not when the keychain
-                // refuses to be read, and until now nothing said so — the list
-                // simply stayed short.
-                if appModel.cliAccessBlocked {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(loc("Claude Code's credentials cannot be read, so the account signed in there cannot be shown."))
-                            .font(.system(size: 11))
-                            .foregroundStyle(Severity.hot.tint)
-                            .fixedSize(horizontal: false, vertical: true)
-
-                        // The instruction used to be a sentence telling the reader
-                        // to go and press Refresh in another window. The button is
-                        // the same act, next to the problem it solves: a poll is
-                        // not allowed to raise the keychain dialog, and this is a
-                        // person asking for it, which is exactly when it should
-                        // appear.
-                        Button(loc("Allow access…")) {
-                            Task { await appModel.refresh(.allowingAccess); await reload() }
-                        }
-                        .disabled(appModel.isRefreshing)
-                    }
-                }
-
                 if let message = loginController.message {
                     Text(message)
                         .font(.system(size: 11)).foregroundStyle(.secondary)
@@ -138,7 +114,7 @@ struct AccountsPane: View {
                     Text(accountError).font(.system(size: 11)).foregroundStyle(.red)
                 }
 
-                Text(loc("Browser accounts refresh independently. Your CLI sign-ins are not changed."))
+                Text(loc("Every account holds its own credential and refreshes on its own."))
                     .font(.system(size: 11)).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -152,7 +128,7 @@ struct AccountsPane: View {
         .alert(item: $pendingForget) { row in
             Alert(
                 title: Text(String(format: loc("Forget %@?"), row.displayName)),
-                message: Text(loc("Saved credentials will be deleted. Your CLI sign-ins will not change.")),
+                message: Text(loc("Saved credentials will be deleted. Nothing you signed into elsewhere is affected.")),
                 primaryButton: .destructive(Text(loc("Forget"))) {
                     Task { await forget(row) }
                 },
@@ -189,7 +165,6 @@ struct AccountsPane: View {
 
     private func badge(for state: CredentialStore.AccountState) -> String {
         switch state {
-        case .activeInCLI: loc("active in CLI")
         case .refreshed:   loc("refreshed")
         case .needsLogin:  loc("sign-in needed")
         }
@@ -197,7 +172,6 @@ struct AccountsPane: View {
 
     private func caption(for row: AccountRow) -> String {
         switch row.state {
-        case .activeInCLI: loc("Claude · token read from Claude Code")
         case .refreshed:   String(format: loc("%@ · saved account"), row.provider.title)
         case .needsLogin:  String(format: loc("%@ · sign-in required"), row.provider.title)
         }
@@ -205,7 +179,6 @@ struct AccountsPane: View {
 
     private func tint(for state: CredentialStore.AccountState) -> Color {
         switch state {
-        case .activeInCLI: .green
         case .refreshed:   .blue
         case .needsLogin:  .red
         }

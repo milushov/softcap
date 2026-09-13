@@ -98,21 +98,23 @@ The [release workflow](.github/workflows/release.yml) builds macOS on pushes to
 Open **Settings → Accounts → Add account…**, choose **Claude Code** or
 **OpenAI Codex**, and sign in in the browser. Repeat for each subscription.
 After saving, Softcap returns to Accounts. **Sign in…** reconnects an account;
-**Forget…** removes its saved Softcap credentials without signing the CLI out.
+**Forget…** removes its saved Softcap credentials.
 
 | Source | Readings |
 |---|---|
-| Claude | Live usage from `api.anthropic.com/api/oauth/usage`; browser grant or the active Claude Code account |
-| Codex | Live usage from `chatgpt.com/backend-api/wham/usage`; ChatGPT subscription sign-in |
+| Claude | Live usage from `api.anthropic.com/api/oauth/usage`; browser grant |
+| Codex | Live usage from `chatgpt.com/backend-api/wham/usage`; browser grant |
 
-Usage checks send no prompts. Every Codex account is added through the browser
-and holds its own grant; Softcap reads no local CLI files and never touches
-Codex's own credentials.
+Every account is added through the browser and holds a grant of its own. Softcap
+reads one keychain item — the one it writes itself — and no files belonging to
+either CLI, so nothing here asks for permission and usage checks send no
+prompts. Signing out of a CLI, or signing into a different account there,
+changes nothing in Softcap.
 
-For Claude CLI access, use **Allow access…** when Accounts reports a blocked
-Keychain read. Startup, timers and **Refresh** never request that dialog.
-The active CLI grant is read-only; imported accounts may need another sign-in
-after CLI token rotation. Browser grants avoid that dependency.
+A list written by an older build may hold a token copied from Claude Code.
+Softcap never spends one: the server rotates a refresh token when it is used,
+which would sign the CLI out. Such a row asks to be signed in through the
+browser once, and then holds a credential of its own.
 
 ## Features and defaults
 

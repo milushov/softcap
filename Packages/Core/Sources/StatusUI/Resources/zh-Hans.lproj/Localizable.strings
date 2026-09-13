@@ -59,10 +59,8 @@
 "Forget…" = "移除…";
 "Forget" = "移除";
 "Forget %@?" = "要移除 %@ 吗？";
-"active in CLI" = "CLI 中活跃";
 "refreshed" = "自动续期";
 "sign-in needed" = "需要登录";
-"Claude · token read from Claude Code" = "Claude · 从 Claude Code 读取令牌";
 "An event fires when a threshold is crossed upward, not on every poll above it." = "事件在越过阈值时触发一次，而不是每次轮询都触发。";
 "Notify" = "发送通知";
 "Thresholds" = "阈值";
@@ -99,7 +97,6 @@
 "Forget all accounts…" = "移除所有账户…";
 "Forget all accounts?" = "要移除所有账户吗？";
 "Forget all" = "全部移除";
-"Removes only the token copies this app keeps. Your Claude Code sign-in is untouched." = "仅删除本应用保存的令牌副本。不影响你在 Claude Code 的登录。";
 "Almost exhausted — time to switch." = "额度快用完了，该换账户了。";
 "%@ is free again" = "%@ 又可用了";
 "The limit reset, you can come back." = "额度已重置，可以回来了。";
@@ -117,8 +114,6 @@
 "%@ old" = "%@前";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "已有一段时间没有读取到数据，可能有登录提示正在等待。";
 "Allow keychain access" = "允许访问钥匙串";
-"Claude Code's credentials cannot be read, so the account signed in there cannot be shown." = "无法读取 Claude Code 的凭证，因此无法显示在那里登录的账户。";
-"Allow access…" = "允许访问…";
 "Could not change launch at login. Check Login Items in System Settings." = "无法更改登录时启动。请在“系统设置”的登录项中查看。";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS 未在投递 Softcap 的通知。请在“系统设置”的“通知”中开启。";
 "%1$@: %2$@ of limit" = "%1$@：已用额度 %2$@";
@@ -159,8 +154,6 @@
 "Send error reports" = "发送错误报告";
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "出现故障时，会将故障描述发送给作者。路径、地址以及任何形似令牌的内容都会先被移除。";
 "Minimal window" = "极简窗口";
-"Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "通过浏览器添加 Claude Code 或 OpenAI Codex 账户。也会自动检测本地 CLI 账户。";
-"Saved credentials will be deleted. Your CLI sign-ins will not change." = "已保存的凭据将被删除。您的 CLI 登录不会改变。";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "无法启动 Codex 登录回调。请关闭其他 Codex 登录并重试。";
 "Could not open the browser. Check your default browser and try again." = "无法打开浏览器。请检查默认浏览器并重试。";
 "Signing in to %@…" = "正在登录 %@…";
@@ -195,5 +188,8 @@
 "Read the licence" = "阅读许可证";
 "Looking for your accounts…" = "正在查找你的账户…";
 "Reading the keychain and asking each service." = "正在读取钥匙串并查询各项服务。";
-"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "浏览器账户独立刷新。您的 CLI 登录不会改变。";
-"Sign in to Claude Code, or add an account in Settings." = "请登录 Claude Code，或在设置中添加账户。";
+"Add an account in Settings — Softcap opens your browser to sign in." = "在「设置」中添加账户——Softcap 会打开浏览器完成登录。";
+"Removes only the credentials this app saved. Nothing you signed into elsewhere is affected." = "只删除本应用保存的凭据。你在其他地方的登录不受影响。";
+"Add Claude Code or OpenAI Codex accounts through your browser." = "通过浏览器添加 Claude Code 或 OpenAI Codex 账户。";
+"Saved credentials will be deleted. Nothing you signed into elsewhere is affected." = "已保存的凭据将被删除。你在其他地方的登录不受影响。";
+"Every account holds its own credential and refreshes on its own." = "每个账户都有自己的凭据，各自独立刷新。";

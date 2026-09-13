@@ -666,12 +666,12 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 <section>
   <div class="wrap">
     <p class="eyebrow">多个套餐</p>
-    <h2>它不会把你的 CLI 登出</h2>
+    <h2>它从不碰你的 CLI</h2>
     <p>
-      你的钥匙串只保存当前登录套餐的令牌，而刷新它可能让服务器轮换这枚令牌——把 Claude Code 登出。一个会把你从被监视对象里登出去的监视器，比没有还糟。
+      让你退出被监控对象的监控工具，比没有更糟。Softcap 不读取属于 Claude Code 或 Codex 的任何凭据，也不保存它们的副本——所以在那边退出登录或切换账户，这里都不会有任何变化。
     </p>
     <p>
-      所以活跃账户在这里是<strong>只读</strong>的，Softcap 自己保存一份 refresh token 的副本，供你用 <code>/login</code> 切换之后使用。这份副本只能在 Softcap 运行时取得，所以请开着应用、按平常的方式登录每个套餐——一次轮询之后副本就保存好了，它们会一起留在屏幕上。读取 CLI 的钥匙串条目需要 macOS 的许可，Softcap 只在你按下按钮时才请求——绝不在无人看着的定时器里。
+      每个订阅只需在浏览器中添加一次，并保有自己的授权，因此多个套餐可以同屏共存、各自独立刷新——无论 CLI 是否运行，也不管它登录的是哪个账户。
     </p>
   </div>
 </section>
@@ -840,7 +840,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
         <dd>每个账户都是实时用量，凭该账户自己的授权直接从服务读取。
             <a href="/zh-hans/limits/codex/">Codex 额度如何运作 →</a></dd></div>
       <div class="fact"><dt>添加账户</dt>
-        <dd>选择 Claude Code 或 OpenAI Codex，然后在你自己的浏览器里用 OAuth 和 PKCE 登录。本地 CLI 账户也会被检测。</dd></div>
+        <dd>选择 Claude Code 或 OpenAI Codex，然后在你自己的浏览器中通过 OAuth 与 PKCE 登录。</dd></div>
       <div class="fact"><dt>核心</dt>
         <dd>一个不含 AppKit、不含面向人的字符串的 Swift 包。窗口、小组件和手机共用同一个行视图。</dd></div>
       <div class="fact"><dt>依赖</dt>

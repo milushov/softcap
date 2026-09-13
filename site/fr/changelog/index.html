@@ -564,6 +564,15 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <h1>Nouveautés</h1>
     <p class="lede">La chaîne de publication sort un build à chaque changement au vert, si bien que les numéros de version avancent vite et disent peu. Cette page liste les versions qui ont changé l'app ; le flux complet, avec les sommes de contrôle de chaque build, est sur GitHub.</p>
     <article>
+      <h2>0.1.21 <time datetime="2026-09-13">13 septembre 2026</time></h2>
+      <p>Softcap ne lit plus rien d'autre que ses propres identifiants :</p>
+      <ul>
+        <li>L'élément de trousseau de Claude Code n'est plus ouvert. Chaque compte — Claude comme Codex — s'ajoute par le navigateur et garde une autorisation à lui, si bien que rien ici ne demande à macOS la permission de lire les données d'une autre app.</li>
+        <li>Les demandes qui allaient avec disparaissent : plus de mot de passe du trousseau quand vous appuyez sur Actualiser, plus de « Autoriser l'accès… », plus de fenêtre annonçant que les identifiants sont illisibles.</li>
+        <li>Le prix : un compte qui apparaissait tout seul parce que vous aviez lancé claude /login demande une connexion par navigateur. Un jeton copié depuis la CLI par une version antérieure n'est jamais dépensé — cela le ferait tourner et déconnecterait la CLI — donc ces lignes demandent une connexion.</li>
+      </ul>
+    </article>
+    <article>
       <h2>0.1.18 <time datetime="2026-09-13">13 septembre 2026</time></h2>
       <p>Les comptes Codex arrivent désormais uniquement par le navigateur :</p>
       <ul>

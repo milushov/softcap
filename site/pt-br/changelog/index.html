@@ -564,6 +564,15 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <h1>Novidades</h1>
     <p class="lede">O pipeline publica um build para cada mudança aprovada, então os números de versão andam rápido e dizem pouco. Esta página lista as versões que mudaram o app; o feed completo, com checksums de cada build, está no GitHub.</p>
     <article>
+      <h2>0.1.21 <time datetime="2026-09-13">13 de setembro de 2026</time></h2>
+      <p>O Softcap agora não lê nada além das próprias credenciais:</p>
+      <ul>
+        <li>O item de chaveiro do Claude Code não é mais aberto. Cada conta — do Claude e do Codex — é adicionada pelo navegador e mantém uma concessão própria, então nada aqui pede ao macOS permissão para ler dados de outro app.</li>
+        <li>Com isso somem os avisos que vinham junto: nada de senha do chaveiro ao tocar em Atualizar, nada de «Permitir acesso…», nada de janela dizendo que as credenciais não podem ser lidas.</li>
+        <li>O preço: uma conta que aparecia sozinha porque você tinha rodado claude /login precisa de um login no navegador. Um token copiado da CLI por uma versão antiga nunca é gasto — isso o rotacionaria e desconectaria a CLI —, então essas linhas pedem para entrar uma vez.</li>
+      </ul>
+    </article>
+    <article>
       <h2>0.1.18 <time datetime="2026-09-13">13 de setembro de 2026</time></h2>
       <p>As contas do Codex agora vêm só do navegador:</p>
       <ul>

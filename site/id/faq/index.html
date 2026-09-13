@@ -515,8 +515,8 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"Apa sebenarnya yang diukur Softcap?","acceptedAnswer":{"@type":"Answer","text":"Untuk setiap akun yang Anda tambahkan, ia menampilkan dua jendela tempat langganan berjalan: batas sesi lima jam dan batas mingguan — berapa yang terpakai, berapa yang tersisa, dan kapan masing-masing disetel ulang."}},
  {"@type":"Question","name":"Apakah memeriksa batas saya menghabiskan batas saya?","acceptedAnswer":{"@type":"Answer","text":"Tidak. Softcap membaca endpoint penggunaan dengan kredensial Anda sendiri; permintaannya tidak membawa prompt dan tidak menjalankan model, jadi kuota yang dijelaskannya tidak tersentuh hanya karena dijelaskan."}},
  {"@type":"Question","name":"Penyedia mana saja yang didukung?","acceptedAnswer":{"@type":"Answer","text":"Claude dan OpenAI Codex, beberapa akun sekaligus untuk masing-masing. Cursor, GitHub Copilot, dan Gemini CLI belum didukung: penyedia yang tidak bisa dicek dengan akun aktif akan diam-diam menampilkan nol, dan itu lebih buruk daripada tidak sama sekali."}},
- {"@type":"Question","name":"Apakah saya harus masuk lewat browser?","acceptedAnswer":{"@type":"Answer","text":"Masuk lewat browser dengan OAuth memberi Softcap izin aksesnya sendiri, terlepas dari CLI mana pun. Akun yang sudah masuk di CLI lokal juga terdeteksi dan dibaca tanpa perlu masuk sama sekali."}},
- {"@type":"Question","name":"Apakah ia akan membuat CLI saya keluar?","acceptedAnswer":{"@type":"Answer","text":"Tidak. Akun tempat CLI Anda masuk bersifat hanya-baca di Softcap, dan aplikasi menyimpan salinannya sendiri untuk yang ia perlukan — penyegaran tidak pernah merotasi token milik CLI."}},
+ {"@type":"Question","name":"Apakah saya harus masuk lewat browser?","acceptedAnswer":{"@type":"Answer","text":"Masuk lewat peramban dengan OAuth memberi Softcap izin miliknya sendiri. Itu satu-satunya cara menambahkan akun: tidak ada yang diambil dari CLI, dan tidak ada kredensial miliknya yang pernah dibaca."}},
+ {"@type":"Question","name":"Apakah ini akan mengeluarkan CLI saya?","acceptedAnswer":{"@type":"Answer","text":"Tidak. Softcap tidak pernah membaca atau menulis kredensial CLI Anda — ia hanya memegang izin yang Anda berikan lewat peramban, dan memperbaruinya tidak menyentuh apa pun lainnya di mesin ini."}},
  {"@type":"Question","name":"Di mana token saya disimpan?","acceptedAnswer":{"@type":"Answer","text":"Di keychain macOS, dan tidak di tempat lain — tidak pernah di preferensi, log, atau file. Menghapus akun menghapus kredensialnya dari keychain saat itu juga."}},
  {"@type":"Question","name":"Apa yang keluar dari Mac saya?","acceptedAnswer":{"@type":"Answer","text":"Tiga hal, dan hanya tiga: permintaan penggunaan ke penyedia Anda sendiri, laporan kesalahan opsional yang dibersihkan dari jalur dan apa pun yang menyerupai token, dan pemeriksaan pembaruan yang opsional, harian dan selama layarnya terbuka. Dua yang terakhir punya sakelar matinya sendiri."}},
  {"@type":"Question","name":"Apa arti tanda 80% dan 95%?","acceptedAnswer":{"@type":"Answer","text":"Itu ambang notifikasi: pengingat saat akun melewati 80% dari sebuah jendela, peringatan terakhir di 95% — sekali setiap ambang dilewati, bukan setiap kali dicek, dan tidak pernah selama jam tenang. Kedua level bisa diubah."}},
@@ -590,11 +590,11 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Apakah saya harus masuk lewat browser?</h2>
-      <p>Masuk lewat browser dengan OAuth memberi Softcap izin aksesnya sendiri, terlepas dari CLI mana pun. Akun yang sudah masuk di CLI lokal juga terdeteksi dan dibaca tanpa perlu masuk sama sekali.</p>
+      <p>Masuk lewat peramban dengan OAuth memberi Softcap izin miliknya sendiri. Itu satu-satunya cara menambahkan akun: tidak ada yang diambil dari CLI, dan tidak ada kredensial miliknya yang pernah dibaca.</p>
     </section>
     <section>
-      <h2>Apakah ia akan membuat CLI saya keluar?</h2>
-      <p>Tidak. Akun tempat CLI Anda masuk bersifat hanya-baca di Softcap, dan aplikasi menyimpan salinannya sendiri untuk yang ia perlukan — penyegaran tidak pernah merotasi token milik CLI.</p>
+      <h2>Apakah ini akan mengeluarkan CLI saya?</h2>
+      <p>Tidak. Softcap tidak pernah membaca atau menulis kredensial CLI Anda — ia hanya memegang izin yang Anda berikan lewat peramban, dan memperbaruinya tidak menyentuh apa pun lainnya di mesin ini.</p>
     </section>
     <section>
       <h2>Di mana token saya disimpan?</h2>

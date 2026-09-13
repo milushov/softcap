@@ -564,6 +564,15 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <h1>What's new</h1>
     <p class="lede">The pipeline publishes a build for every green change, so version numbers move fast and mean little. This page lists the releases that changed the app; the full feed, with checksums for every build, is on GitHub.</p>
     <article>
+      <h2>0.1.21 <time datetime="2026-09-13">13 September 2026</time></h2>
+      <p>Softcap now reads nothing but its own credentials:</p>
+      <ul>
+        <li>The Claude Code keychain item is no longer opened. Every account — Claude and Codex alike — is added through the browser and holds a grant of its own, so nothing here asks macOS for permission to read another app's data.</li>
+        <li>That removes the prompts that came with it: no keychain password when you press Refresh, no “Allow access…”, and no window telling you credentials cannot be read.</li>
+        <li>The cost: an account that used to appear by itself because you had run claude /login needs one browser sign-in. A token copied from the CLI by an older build is never spent — that would rotate it and sign the CLI out — so those rows ask to be signed in once.</li>
+      </ul>
+    </article>
+    <article>
       <h2>0.1.18 <time datetime="2026-09-13">13 September 2026</time></h2>
       <p>Codex accounts now come from the browser, and only from there:</p>
       <ul>

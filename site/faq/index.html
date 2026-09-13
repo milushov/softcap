@@ -515,8 +515,8 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"What does Softcap actually measure?","acceptedAnswer":{"@type":"Answer","text":"For every account you add it shows the two windows a subscription runs on: the five-hour session limit and the weekly limit — what is used, what is left, and when each resets."}},
  {"@type":"Question","name":"Does checking my limits spend my limits?","acceptedAnswer":{"@type":"Answer","text":"No. Softcap reads usage endpoints with your own credentials; the requests carry no prompt and run no model, so the quota they describe is not touched by describing it."}},
  {"@type":"Question","name":"Which providers does it support?","acceptedAnswer":{"@type":"Answer","text":"Claude and OpenAI Codex, several accounts of each at once. Cursor, GitHub Copilot and Gemini CLI are not supported yet: a provider that cannot be checked against a live account would quietly show zero, which is worse than nothing."}},
- {"@type":"Question","name":"Do I have to sign in through the browser?","acceptedAnswer":{"@type":"Answer","text":"Signing in through the browser with OAuth gives Softcap its own grant, independent of any CLI. Accounts already signed into a local CLI are also detected and read without any sign-in at all."}},
- {"@type":"Question","name":"Will it sign my CLI out?","acceptedAnswer":{"@type":"Answer","text":"No. The account your CLI is signed into is read-only in Softcap, and the app keeps its own copy of what it needs — refreshing never rotates the CLI's token."}},
+ {"@type":"Question","name":"Do I have to sign in through the browser?","acceptedAnswer":{"@type":"Answer","text":"Signing in through the browser with OAuth gives Softcap a grant of its own. That is the only way an account is added: nothing is picked up from a CLI, and no credential belonging to one is ever read."}},
+ {"@type":"Question","name":"Will it sign my CLI out?","acceptedAnswer":{"@type":"Answer","text":"No. Softcap never reads or writes your CLI's credentials — it holds only the grants you gave it in the browser, and refreshing one touches nothing else on the machine."}},
  {"@type":"Question","name":"Where do my tokens live?","acceptedAnswer":{"@type":"Answer","text":"In the macOS keychain, and nowhere else — never in preferences, logs or files. Removing an account removes its credentials from the keychain at that moment."}},
  {"@type":"Question","name":"What leaves my Mac?","acceptedAnswer":{"@type":"Answer","text":"Three things, and only three: usage requests to your own providers, optional error reports scrubbed of paths and anything token-shaped, and an optional update check, daily and while its screen is open. The last two have their own off switches."}},
  {"@type":"Question","name":"What do the 80% and 95% marks mean?","acceptedAnswer":{"@type":"Answer","text":"Those are the notification thresholds: a nudge when an account crosses 80% of a window, a last warning at 95% — once per crossing, not once per poll, and never during quiet hours. Both levels can be changed."}},
@@ -590,11 +590,11 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Do I have to sign in through the browser?</h2>
-      <p>Signing in through the browser with OAuth gives Softcap its own grant, independent of any CLI. Accounts already signed into a local CLI are also detected and read without any sign-in at all.</p>
+      <p>Signing in through the browser with OAuth gives Softcap a grant of its own. That is the only way an account is added: nothing is picked up from a CLI, and no credential belonging to one is ever read.</p>
     </section>
     <section>
       <h2>Will it sign my CLI out?</h2>
-      <p>No. The account your CLI is signed into is read-only in Softcap, and the app keeps its own copy of what it needs — refreshing never rotates the CLI's token.</p>
+      <p>No. Softcap never reads or writes your CLI's credentials — it holds only the grants you gave it in the browser, and refreshing one touches nothing else on the machine.</p>
     </section>
     <section>
       <h2>Where do my tokens live?</h2>

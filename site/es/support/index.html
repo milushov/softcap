@@ -570,7 +570,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Qué necesita</h2>
-      <p>macOS 14 o posterior. La app de iPhone necesita iOS 17 o posterior. Una cuenta de proveedor — Claude o Codex — con sesión iniciada desde el navegador, o una CLI ya conectada en local.</p>
+      <p>macOS 14 o posterior. La app para iPhone necesita iOS 17 o posterior. Una cuenta de proveedor —Claude o Codex— iniciada desde el navegador.</p>
     </section>
     <section>
       <h2>Abrir la app la primera vez</h2>
@@ -579,14 +579,14 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Cuando algo va mal</h2>
-      <h3>Me pidió permiso del llavero al pulsar Actualizar</h3>
-      <p>Leer el elemento del llavero de la propia CLI necesita permiso de macOS, y Softcap solo lo pide mientras estás delante — cuando pulsas el botón, nunca desde un temporizador. Elige Permitir siempre y no volverá a preguntar; recházalo y la app seguirá funcionando con sus propias copias.</p>
+      <h3>Pidió acceder a datos de otras apps</h3>
+      <p>Ese aviso se refiere al contenedor propio de Softcap —el pequeño archivo que lee su widget—, no a los datos de otra app. macOS lo redacta así porque estas compilaciones están firmadas ad-hoc y no con un Developer ID, de modo que no puede confirmar que la app pertenece al equipo bajo el que está registrado el contenedor. Acéptalo y no volverá a preguntar hasta la próxima actualización. Recházalo y la barra de menús y la ventana seguirán funcionando; el widget y el gráfico de estadísticas quedarán vacíos.</p>
       <h3>Una cuenta de Codex muestra una lectura de hace horas</h3>
       <p>Softcap consulta según un horario, así que una lectura es tan reciente como la última consulta que llegó. Cifras de hace horas significan que las consultas no están llegando: casi siempre la concesión de la cuenta ha caducado. Abre Ajustes → Cuentas: la fila que necesita atención lo dice, e Iniciar sesión… la reconecta.</p>
       <h3>No llegaron las notificaciones</h3>
       <p>Comprueba tres cosas: el permiso de notificaciones de macOS para Softcap, los umbrales en Ajustes (80% y 95% de fábrica) y las horas de silencio — nada llega mientras están activas, y nada se entrega más tarde para compensarlo.</p>
       <h3>Quitar una cuenta, y qué queda después</h3>
-      <p>Quita la cuenta en Ajustes: sus credenciales salen de tu llavero en ese momento. La CLI de la que vino sigue con la sesión iniciada — Softcap tenía su propia copia, no la de la CLI.</p>
+      <p>Elimina la cuenta en Ajustes: sus credenciales salen del llavero en ese momento. No afecta a las sesiones iniciadas en otros sitios: Softcap solo tiene las concesiones que tú le diste.</p>
       <h3>Desactivar los informes de error y la comprobación de actualizaciones</h3>
       <p>Los dos interruptores están en Ajustes. Con ambos apagados, el único tráfico que hace la app son las peticiones de uso a tus propios proveedores.</p>
     </section>

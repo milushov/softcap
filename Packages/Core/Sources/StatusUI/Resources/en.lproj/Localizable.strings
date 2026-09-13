@@ -59,10 +59,8 @@
 "Forget…" = "Forget…";
 "Forget" = "Forget";
 "Forget %@?" = "Forget %@?";
-"active in CLI" = "active in CLI";
 "refreshed" = "refreshed";
 "sign-in needed" = "sign-in needed";
-"Claude · token read from Claude Code" = "Claude · token read from Claude Code";
 "An event fires when a threshold is crossed upward, not on every poll above it." = "An event fires when a threshold is crossed upward, not on every poll above it.";
 "Notify" = "Notify";
 "Thresholds" = "Thresholds";
@@ -99,7 +97,6 @@
 "Forget all accounts…" = "Forget all accounts…";
 "Forget all accounts?" = "Forget all accounts?";
 "Forget all" = "Forget all";
-"Removes only the token copies this app keeps. Your Claude Code sign-in is untouched." = "Removes only the token copies this app keeps. Your Claude Code sign-in is untouched.";
 "Almost exhausted — time to switch." = "Almost exhausted — time to switch.";
 "%@ is free again" = "%@ is free again";
 "The limit reset, you can come back." = "The limit reset, you can come back.";
@@ -117,8 +114,6 @@
 "%@ old" = "%@ old";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "Nothing has been read for a while. A sign-in prompt may be waiting.";
 "Allow keychain access" = "Allow keychain access";
-"Claude Code's credentials cannot be read, so the account signed in there cannot be shown." = "Claude Code's credentials cannot be read, so the account signed in there cannot be shown.";
-"Allow access…" = "Allow access…";
 "Could not change launch at login. Check Login Items in System Settings." = "Could not change launch at login. Check Login Items in System Settings.";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings.";
 "%1$@: %2$@ of limit" = "%1$@: %2$@ of limit";
@@ -159,8 +154,6 @@
 "Send error reports" = "Send error reports";
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first.";
 "Minimal window" = "Minimal window";
-"Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected.";
-"Saved credentials will be deleted. Your CLI sign-ins will not change." = "Saved credentials will be deleted. Your CLI sign-ins will not change.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again.";
 "Could not open the browser. Check your default browser and try again." = "Could not open the browser. Check your default browser and try again.";
 "Signing in to %@…" = "Signing in to %@…";
@@ -195,5 +188,8 @@
 "Read the licence" = "Read the licence";
 "Looking for your accounts…" = "Looking for your accounts…";
 "Reading the keychain and asking each service." = "Reading the keychain and asking each service.";
-"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "Browser accounts refresh independently. Your CLI sign-ins are not changed.";
-"Sign in to Claude Code, or add an account in Settings." = "Sign in to Claude Code, or add an account in Settings.";
+"Add an account in Settings — Softcap opens your browser to sign in." = "Add an account in Settings — Softcap opens your browser to sign in.";
+"Removes only the credentials this app saved. Nothing you signed into elsewhere is affected." = "Removes only the credentials this app saved. Nothing you signed into elsewhere is affected.";
+"Add Claude Code or OpenAI Codex accounts through your browser." = "Add Claude Code or OpenAI Codex accounts through your browser.";
+"Saved credentials will be deleted. Nothing you signed into elsewhere is affected." = "Saved credentials will be deleted. Nothing you signed into elsewhere is affected.";
+"Every account holds its own credential and refreshes on its own." = "Every account holds its own credential and refreshes on its own.";

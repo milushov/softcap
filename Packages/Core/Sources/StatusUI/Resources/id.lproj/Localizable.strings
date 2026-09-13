@@ -59,10 +59,8 @@
 "Forget…" = "Lupakan…";
 "Forget" = "Lupakan";
 "Forget %@?" = "Lupakan %@?";
-"active in CLI" = "aktif di CLI";
 "refreshed" = "diperbarui";
 "sign-in needed" = "perlu masuk";
-"Claude · token read from Claude Code" = "Claude · token dibaca dari Claude Code";
 "An event fires when a threshold is crossed upward, not on every poll above it." = "Peristiwa muncul saat ambang dilewati ke atas, bukan setiap kali dicek.";
 "Notify" = "Beri tahu";
 "Thresholds" = "Ambang";
@@ -99,7 +97,6 @@
 "Forget all accounts…" = "Lupakan semua akun…";
 "Forget all accounts?" = "Lupakan semua akun?";
 "Forget all" = "Lupakan semua";
-"Removes only the token copies this app keeps. Your Claude Code sign-in is untouched." = "Hanya menghapus salinan token milik aplikasi ini. Sesi Claude Code Anda tidak terpengaruh.";
 "Almost exhausted — time to switch." = "Hampir habis — saatnya berpindah.";
 "%@ is free again" = "%@ kembali longgar";
 "The limit reset, you can come back." = "Batas telah disetel ulang, Anda bisa kembali.";
@@ -117,8 +114,6 @@
 "%@ old" = "%@ lalu";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "Tidak ada pembacaan sejak beberapa waktu. Mungkin ada permintaan masuk yang menunggu.";
 "Allow keychain access" = "Izinkan akses Keychain";
-"Claude Code's credentials cannot be read, so the account signed in there cannot be shown." = "Kredensial Claude Code tidak dapat dibaca, jadi akun yang masuk di sana tidak bisa ditampilkan.";
-"Allow access…" = "Izinkan akses…";
 "Could not change launch at login. Check Login Items in System Settings." = "Tidak dapat mengubah peluncuran saat masuk. Periksa Login Items di System Settings.";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS tidak mengirimkan notifikasi Softcap. Aktifkan di bawah Notifications dalam System Settings.";
 "%1$@: %2$@ of limit" = "%1$@: %2$@ dari batas";
@@ -159,8 +154,6 @@
 "Send error reports" = "Kirim laporan kesalahan";
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "Saat terjadi kegagalan, deskripsinya dikirim ke pembuat aplikasi. Jalur berkas, alamat, dan apa pun yang menyerupai token dihapus lebih dulu.";
 "Minimal window" = "Jendela minimal";
-"Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "Tambahkan akun Claude Code atau OpenAI Codex melalui browser. Akun CLI lokal juga terdeteksi.";
-"Saved credentials will be deleted. Your CLI sign-ins will not change." = "Kredensial tersimpan akan dihapus. Login CLI Anda tidak berubah.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "Tidak dapat membuka callback login Codex. Tutup proses login Codex lainnya dan coba lagi.";
 "Could not open the browser. Check your default browser and try again." = "Tidak dapat membuka browser. Periksa browser default dan coba lagi.";
 "Signing in to %@…" = "Login ke %@…";
@@ -195,5 +188,8 @@
 "Read the licence" = "Baca lisensi";
 "Looking for your accounts…" = "Mencari akun Anda…";
 "Reading the keychain and asking each service." = "Membaca Keychain dan menanyai setiap layanan.";
-"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "Akun browser diperbarui secara mandiri. Login CLI Anda tidak berubah.";
-"Sign in to Claude Code, or add an account in Settings." = "Masuk ke Claude Code, atau tambahkan akun di Pengaturan.";
+"Add an account in Settings — Softcap opens your browser to sign in." = "Tambahkan akun di Pengaturan — Softcap membuka peramban untuk masuk.";
+"Removes only the credentials this app saved. Nothing you signed into elsewhere is affected." = "Hanya menghapus kredensial yang disimpan aplikasi ini. Sesi masuk di tempat lain tidak terpengaruh.";
+"Add Claude Code or OpenAI Codex accounts through your browser." = "Tambahkan akun Claude Code atau OpenAI Codex lewat peramban.";
+"Saved credentials will be deleted. Nothing you signed into elsewhere is affected." = "Kredensial yang tersimpan akan dihapus. Sesi masuk di tempat lain tidak terpengaruh.";
+"Every account holds its own credential and refreshes on its own." = "Setiap akun memiliki kredensialnya sendiri dan diperbarui sendiri.";

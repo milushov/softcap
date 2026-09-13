@@ -564,6 +564,15 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <h1>Novedades</h1>
     <p class="lede">La cadena de publicación saca una compilación por cada cambio en verde, así que los números de versión avanzan rápido y dicen poco. Esta página enumera las versiones que cambiaron la app; el feed completo, con sumas de verificación de cada compilación, está en GitHub.</p>
     <article>
+      <h2>0.1.21 <time datetime="2026-09-13">13 de septiembre de 2026</time></h2>
+      <p>Softcap ya no lee nada más que sus propias credenciales:</p>
+      <ul>
+        <li>El elemento del llavero de Claude Code ya no se abre. Cada cuenta —de Claude y de Codex— se añade desde el navegador y conserva una concesión propia, así que nada aquí pide permiso a macOS para leer datos de otra app.</li>
+        <li>Con ello desaparecen sus avisos: ni contraseña del llavero al pulsar Actualizar, ni «Permitir acceso…», ni una ventana diciendo que no se pueden leer las credenciales.</li>
+        <li>El precio: una cuenta que antes aparecía sola por haber ejecutado claude /login necesita un inicio de sesión en el navegador. Un token copiado de la CLI por una versión anterior nunca se gasta —eso lo rotaría y cerraría la sesión de la CLI—, así que esas filas piden iniciar sesión una vez.</li>
+      </ul>
+    </article>
+    <article>
       <h2>0.1.18 <time datetime="2026-09-13">13 de septiembre de 2026</time></h2>
       <p>Las cuentas de Codex ahora llegan solo desde el navegador:</p>
       <ul>

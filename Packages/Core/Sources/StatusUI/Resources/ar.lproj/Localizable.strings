@@ -59,10 +59,8 @@
 "Forget…" = "نسيان…";
 "Forget" = "نسيان";
 "Forget %@?" = "هل تريد نسيان %@؟";
-"active in CLI" = "نشط في الطرفية";
 "refreshed" = "يُجدَّد";
 "sign-in needed" = "يلزم تسجيل الدخول";
-"Claude · token read from Claude Code" = "Claude · يُقرأ الرمز من Claude Code";
 "An event fires when a threshold is crossed upward, not on every poll above it." = "يُطلق الحدث عند تجاوز الحد صعودًا، لا في كل استعلام فوقه.";
 "Notify" = "تنبيه";
 "Thresholds" = "الحدود";
@@ -99,7 +97,6 @@
 "Forget all accounts…" = "نسيان كل الحسابات…";
 "Forget all accounts?" = "هل تريد نسيان كل الحسابات؟";
 "Forget all" = "نسيان الكل";
-"Removes only the token copies this app keeps. Your Claude Code sign-in is untouched." = "يحذف فقط نسخ الرموز التي يحتفظ بها هذا التطبيق. تسجيل دخولك في Claude Code لن يتأثر.";
 "Almost exhausted — time to switch." = "شارف على النفاد — حان وقت التبديل.";
 "%@ is free again" = "%@ متاح مجددًا";
 "The limit reset, you can come back." = "أُعيد تعيين الحد، يمكنك العودة.";
@@ -117,8 +114,6 @@
 "%@ old" = "قبل %@";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "لم تُقرأ أي بيانات منذ فترة. قد يكون هناك طلب تسجيل دخول في الانتظار.";
 "Allow keychain access" = "السماح بالوصول إلى سلسلة المفاتيح";
-"Claude Code's credentials cannot be read, so the account signed in there cannot be shown." = "تعذّرت قراءة بيانات اعتماد Claude Code، لذا لا يمكن عرض الحساب المسجَّل هناك.";
-"Allow access…" = "السماح بالوصول…";
 "Could not change launch at login. Check Login Items in System Settings." = "تعذّر تغيير التشغيل عند تسجيل الدخول. راجع عناصر تسجيل الدخول في إعدادات النظام.";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "لا يوصّل macOS إشعارات Softcap. فعّلها ضمن الإشعارات في إعدادات النظام.";
 "%1$@: %2$@ of limit" = "%1$@: %2$@ من الحد";
@@ -159,8 +154,6 @@
 "Send error reports" = "إرسال تقارير الأخطاء";
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "عند حدوث عطل، يُرسَل وصف له إلى المؤلف. تُزال المسارات والعناوين وكل ما يشبه الرمز المميّز قبل ذلك.";
 "Minimal window" = "نافذة مبسطة";
-"Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "أضف حسابات Claude Code أو OpenAI Codex عبر المتصفح. تُكتشف حسابات CLI المحلية أيضًا.";
-"Saved credentials will be deleted. Your CLI sign-ins will not change." = "ستُحذف بيانات الاعتماد المحفوظة. لن تتغير عمليات تسجيل الدخول إلى CLI.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "تعذر فتح مسار عودة تسجيل الدخول إلى Codex. أغلق أي عملية أخرى لتسجيل الدخول إلى Codex وحاول مجددًا.";
 "Could not open the browser. Check your default browser and try again." = "تعذر فتح المتصفح. تحقق من المتصفح الافتراضي وحاول مجددًا.";
 "Signing in to %@…" = "جارٍ تسجيل الدخول إلى %@…";
@@ -195,5 +188,8 @@
 "Read the licence" = "قراءة الرخصة";
 "Looking for your accounts…" = "جارٍ البحث عن حساباتك…";
 "Reading the keychain and asking each service." = "قراءة سلسلة المفاتيح والاستعلام من كل خدمة.";
-"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "تتحدث حسابات المتصفح بشكل مستقل. لا تتغير عمليات تسجيل الدخول إلى CLI.";
-"Sign in to Claude Code, or add an account in Settings." = "سجّل الدخول إلى Claude Code، أو أضف حسابًا من الإعدادات.";
+"Add an account in Settings — Softcap opens your browser to sign in." = "أضف حسابًا من الإعدادات — يفتح Softcap متصفحك لتسجيل الدخول.";
+"Removes only the credentials this app saved. Nothing you signed into elsewhere is affected." = "تُحذف بيانات الاعتماد التي حفظها هذا التطبيق فقط. لا يتأثر أي تسجيل دخول قمت به في مكان آخر.";
+"Add Claude Code or OpenAI Codex accounts through your browser." = "أضف حسابات Claude Code أو OpenAI Codex عبر المتصفح.";
+"Saved credentials will be deleted. Nothing you signed into elsewhere is affected." = "ستُحذف بيانات الاعتماد المحفوظة. لا يتأثر أي تسجيل دخول قمت به في مكان آخر.";
+"Every account holds its own credential and refreshes on its own." = "لكل حساب بيانات اعتماده الخاصة ويُحدَّث من تلقاء نفسه.";

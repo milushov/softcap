@@ -15,7 +15,7 @@ private actor MemoryAccounts: KeychainAccess {
         self.fails = fails
     }
 
-    func read(service: String, promptIfNeeded: Bool) throws -> Data? { data }
+    func read(service: String) throws -> Data? { data }
     func write(_ data: Data, service: String) async throws {
         writes += 1
         if gated { await withCheckedContinuation { pending = $0 } }

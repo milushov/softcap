@@ -148,8 +148,8 @@ struct PopoverView: View {
 
     /// What an empty window says.
     ///
-    /// Three different things, because an empty list has three different
-    /// reasons, and stating the wrong one is worse than saying nothing.
+    /// Two different things, because an empty list has two different reasons,
+    /// and stating the wrong one is worse than saying nothing.
     ///
     /// Nothing read yet is the first, and it used to be missing. The first poll
     /// after a fresh install reads the keychain and asks two services over the
@@ -170,11 +170,11 @@ struct PopoverView: View {
     /// a reading has been taken off it. The sentence carries the meaning; the
     /// spinner only ever said the same thing less clearly.
     ///
-    /// "Sign in to Claude Code" is the right advice exactly when it is not the
-    /// problem. On a machine where Claude Code is signed in and the keychain has
-    /// not been allowed — which is every machine before somebody allows it — the
-    /// list is empty for a reason the reader has already dealt with, and being
-    /// told to do it again is worse than being told nothing.
+    /// An empty list that has been read has exactly one cause now: no account
+    /// has been added. There used to be a second — Claude Code's keychain item
+    /// refusing to be read — and two different sentences to tell them apart.
+    /// The app no longer opens that item, so the second cause cannot happen and
+    /// the advice is one line: add an account, which means the browser.
     private var empty: some View {
         VStack(spacing: 6) {
             if model.lastUpdated == nil {
@@ -184,20 +184,15 @@ struct PopoverView: View {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 18)
-            } else if model.cliAccessBlocked {
+            } else {
                 Text(loc("No accounts found")).font(.system(size: 12, weight: .medium))
-                Text(loc("Claude Code's credentials cannot be read, so the account signed in there cannot be shown."))
+                Text(loc("Add an account in Settings — Softcap opens your browser to sign in."))
                     .font(.system(size: 11)).foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 18)
-                Button(loc("Allow access…")) { Task { await model.refresh(.allowingAccess) } }
-                    .disabled(model.isRefreshing)
+                Button(loc("Settings…")) { SettingsWindow.open() }
                     .padding(.top, 2)
-            } else {
-                Text(loc("No accounts found")).font(.system(size: 12, weight: .medium))
-                Text(loc("Sign in to Claude Code, or add an account in Settings."))
-                    .font(.system(size: 11)).foregroundStyle(.secondary)
             }
         }
         .frame(maxWidth: .infinity).padding(.vertical, 22)
@@ -205,7 +200,7 @@ struct PopoverView: View {
 
     private var footer: some View {
         HStack {
-            Button(loc("Refresh")) { Task { await model.refresh(.person) } }
+            Button(loc("Refresh")) { Task { await model.refresh() } }
                 .buttonStyle(.plain)
                 .font(.system(size: 11.5))
                 .keyboardShortcut("r")
@@ -231,7 +226,7 @@ struct PopoverView: View {
     private var quietFooter: some View {
         HStack {
             quietButton("arrow.clockwise", loc("Refresh"), "r") {
-                Task { await model.refresh(.person) }
+                Task { await model.refresh() }
             }
             Spacer()
             quietButton("gearshape", loc("Settings…"), ",") { SettingsWindow.open() }

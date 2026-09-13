@@ -59,10 +59,8 @@
 "Forget…" = "Olvidar…";
 "Forget" = "Olvidar";
 "Forget %@?" = "¿Olvidar %@?";
-"active in CLI" = "activa en la CLI";
 "refreshed" = "se renueva";
 "sign-in needed" = "requiere inicio de sesión";
-"Claude · token read from Claude Code" = "Claude · token leído de Claude Code";
 "An event fires when a threshold is crossed upward, not on every poll above it." = "El evento se dispara al cruzar el umbral hacia arriba, no en cada consulta por encima.";
 "Notify" = "Notificar";
 "Thresholds" = "Umbrales";
@@ -99,7 +97,6 @@
 "Forget all accounts…" = "Olvidar todas las cuentas…";
 "Forget all accounts?" = "¿Olvidar todas las cuentas?";
 "Forget all" = "Olvidar todas";
-"Removes only the token copies this app keeps. Your Claude Code sign-in is untouched." = "Elimina solo las copias de tokens que guarda esta app. Tu sesión de Claude Code no se toca.";
 "Almost exhausted — time to switch." = "Casi agotada: es hora de cambiar.";
 "%@ is free again" = "%@ está libre otra vez";
 "The limit reset, you can come back." = "El límite se restableció, puedes volver.";
@@ -117,8 +114,6 @@
 "%@ old" = "hace %@";
 "Nothing has been read for a while. A sign-in prompt may be waiting." = "Hace rato que no se lee nada. Puede haber una solicitud de acceso esperando.";
 "Allow keychain access" = "Permitir acceso al llavero";
-"Claude Code's credentials cannot be read, so the account signed in there cannot be shown." = "No se pueden leer las credenciales de Claude Code, así que la cuenta conectada allí no puede mostrarse.";
-"Allow access…" = "Permitir acceso…";
 "Could not change launch at login. Check Login Items in System Settings." = "No se pudo cambiar el arranque al iniciar sesión. Revisa los ítems de inicio en Ajustes del Sistema.";
 "macOS is not delivering notifications for Softcap. Turn them on under Notifications in System Settings." = "macOS no está entregando notificaciones de Softcap. Actívalas en Notificaciones, dentro de Ajustes del Sistema.";
 "%1$@: %2$@ of limit" = "%1$@: %2$@ del límite";
@@ -159,8 +154,6 @@
 "Send error reports" = "Enviar informes de errores";
 "When something fails, a description of it is sent to the author. Paths, addresses and anything token-shaped are removed first." = "Cuando algo falla, se envía al autor una descripción del fallo. Antes se eliminan las rutas, las direcciones y todo lo que parezca un token.";
 "Minimal window" = "Ventana mínima";
-"Add Claude Code or OpenAI Codex accounts through your browser. Local CLI accounts are also detected." = "Añade cuentas de Claude Code u OpenAI Codex desde el navegador. También se detectan las cuentas locales de CLI.";
-"Saved credentials will be deleted. Your CLI sign-ins will not change." = "Se eliminarán las credenciales guardadas. No cambiarán tus inicios de sesión en la CLI.";
 "Could not open the Codex sign-in callback. Close any other Codex sign-in and try again." = "No se pudo abrir el retorno de inicio de sesión de Codex. Cierra otros inicios de sesión de Codex y vuelve a intentarlo.";
 "Could not open the browser. Check your default browser and try again." = "No se pudo abrir el navegador. Comprueba el navegador predeterminado y vuelve a intentarlo.";
 "Signing in to %@…" = "Iniciando sesión en %@…";
@@ -195,5 +188,8 @@
 "Read the licence" = "Leer la licencia";
 "Looking for your accounts…" = "Buscando tus cuentas…";
 "Reading the keychain and asking each service." = "Leyendo el llavero y consultando cada servicio.";
-"Browser accounts refresh independently. Your CLI sign-ins are not changed." = "Las cuentas del navegador se actualizan de forma independiente. No se cambia el acceso a la CLI.";
-"Sign in to Claude Code, or add an account in Settings." = "Inicia sesión en Claude Code o añade una cuenta en Ajustes.";
+"Add an account in Settings — Softcap opens your browser to sign in." = "Añade una cuenta en Ajustes: Softcap abrirá el navegador para iniciar sesión.";
+"Removes only the credentials this app saved. Nothing you signed into elsewhere is affected." = "Solo se eliminan las credenciales que guardó esta app. No afecta a las sesiones iniciadas en otros sitios.";
+"Add Claude Code or OpenAI Codex accounts through your browser." = "Añade cuentas de Claude Code u OpenAI Codex desde el navegador.";
+"Saved credentials will be deleted. Nothing you signed into elsewhere is affected." = "Se eliminarán las credenciales guardadas. No afecta a las sesiones iniciadas en otros sitios.";
+"Every account holds its own credential and refreshes on its own." = "Cada cuenta tiene su propia credencial y se actualiza por su cuenta.";

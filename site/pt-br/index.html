@@ -666,12 +666,12 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 <section>
   <div class="wrap">
     <p class="eyebrow">Vários planos</p>
-    <h2>Ele não vai desconectar a sua CLI</h2>
+    <h2>Ele nunca toca na sua CLI</h2>
     <p>
-      Seu chaveiro guarda um token só do plano em que você está conectado, e atualizá-lo pode rotacionar esse token no servidor — desconectando o Claude Code. Um monitor que desconecta você daquilo que monitora é pior do que nenhum.
+      Um monitor que desconecta você daquilo que monitora é pior do que nenhum. O Softcap não lê nenhuma credencial do Claude Code ou do Codex nem guarda cópia delas — então sair por lá, ou trocar de conta, não muda nada aqui.
     </p>
     <p>
-      Por isso a conta ativa é <strong>somente leitura</strong> aqui, e o Softcap guarda a própria cópia do refresh token para quando você seguir adiante com <code>/login</code>. Ele só consegue fazer essa cópia com o Softcap rodando, então entre em cada plano do jeito normal com o app aberto — uma consulta depois, a cópia está guardada, e os planos ficam juntos na tela. Ler o item de chaveiro da CLI exige permissão do macOS, que o Softcap pede quando você aperta um botão — nunca a partir de um cronômetro que ninguém está olhando.
+      Cada assinatura é adicionada uma vez pelo navegador e mantém uma concessão própria, então vários planos ficam na tela juntos e cada um se atualiza sozinho — com a CLI rodando ou não, e em qualquer conta que ela esteja.
     </p>
   </div>
 </section>
@@ -840,7 +840,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
         <dd>Uso ao vivo para cada conta, lido do serviço com a concessão da própria conta.
             <a href="/pt-br/limits/codex/">Como funcionam os limites do Codex →</a></dd></div>
       <div class="fact"><dt>Adicionar uma conta</dt>
-        <dd>Escolha Claude Code ou OpenAI Codex e entre com OAuth e PKCE no seu próprio navegador. Contas locais da CLI também são detectadas.</dd></div>
+        <dd>Escolha Claude Code ou OpenAI Codex e entre com OAuth e PKCE no seu próprio navegador.</dd></div>
       <div class="fact"><dt>O núcleo</dt>
         <dd>Um pacote Swift sem AppKit e sem strings voltadas a pessoas. Janela, widgets e telefone compartilham uma única visão de linha.</dd></div>
       <div class="fact"><dt>Dependências</dt>

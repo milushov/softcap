@@ -570,7 +570,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Apa yang dibutuhkan</h2>
-      <p>macOS 14 atau yang lebih baru. Aplikasi iPhone membutuhkan iOS 17 atau yang lebih baru. Satu akun penyedia — Claude atau Codex — yang masuk lewat browser, atau CLI yang sudah masuk secara lokal.</p>
+      <p>macOS 14 atau lebih baru. Aplikasi iPhone memerlukan iOS 17 atau lebih baru. Satu akun penyedia — Claude atau Codex — yang masuk lewat peramban.</p>
     </section>
     <section>
       <h2>Membuka aplikasi untuk pertama kali</h2>
@@ -579,14 +579,14 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Saat ada yang tampak salah</h2>
-      <h3>Ia meminta izin keychain saat saya menekan Segarkan</h3>
-      <p>Membaca item keychain milik CLI membutuhkan izin macOS, dan Softcap hanya meminta saat Anda menyaksikan — saat Anda menekan tombolnya, tidak pernah dari pewaktu. Pilih Selalu Izinkan dan ia tidak akan bertanya lagi; tolak dan aplikasi tetap bekerja dari salinannya sendiri.</p>
+      <h3>Ia meminta akses ke data aplikasi lain</h3>
+      <p>Permintaan itu tentang kontainer milik Softcap sendiri — berkas kecil yang dibaca widget-nya — bukan tentang data aplikasi lain. macOS menuliskannya begitu karena build ini ditandatangani secara ad-hoc, bukan dengan Developer ID, sehingga sistem tidak dapat memastikan aplikasi ini milik tim yang mencatat kontainer tersebut. Izinkan, dan ia berhenti bertanya sampai pembaruan berikutnya. Tolak, dan bilah menu serta jendela tetap bekerja; widget dan grafik statistik akan kosong.</p>
       <h3>Akun Codex menampilkan pembacaan dari beberapa jam lalu</h3>
       <p>Softcap memeriksa sesuai jadwal, jadi sebuah pembacaan sesegar pemeriksaan terakhir yang berhasil. Angka berumur berjam-jam berarti pemeriksaan tidak tembus — paling sering izin akunnya sudah kedaluwarsa. Buka Pengaturan → Akun: baris yang perlu perhatian akan mengatakannya, dan Masuk… menyambungkannya kembali.</p>
       <h3>Notifikasi tidak datang</h3>
       <p>Periksa tiga hal: izin notifikasi macOS untuk Softcap, ambang di Pengaturan (80% dan 95% secara bawaan), dan jam tenang — tidak ada yang datang selama jam tenang aktif, dan tidak ada yang dikirim terlambat sebagai gantinya.</p>
       <h3>Menghapus akun, dan apa yang tersisa</h3>
-      <p>Hapus akunnya di Pengaturan: kredensialnya keluar dari keychain Anda saat itu juga. CLI asalnya tetap masuk — Softcap menyimpan salinannya sendiri, bukan milik CLI.</p>
+      <p>Hapus akun di Pengaturan: kredensialnya meninggalkan Keychain Anda saat itu juga. Sesi masuk di tempat lain tidak terpengaruh — Softcap hanya memegang izin yang Anda berikan.</p>
       <h3>Mematikan laporan kesalahan dan pemeriksaan pembaruan</h3>
       <p>Kedua sakelar ada di Pengaturan. Dengan keduanya mati, satu-satunya lalu lintas yang dibuat aplikasi adalah permintaan penggunaan ke penyedia Anda sendiri.</p>
     </section>

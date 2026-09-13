@@ -57,7 +57,7 @@ struct AboutPane: View {
                     Button(loc("Forget all accounts…"), role: .destructive) {
                         confirmForgetAll = true
                     }
-                    Text(loc("Removes only the token copies this app keeps. Your Claude Code sign-in is untouched."))
+                    Text(loc("Removes only the credentials this app saved. Nothing you signed into elsewhere is affected."))
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -73,7 +73,7 @@ struct AboutPane: View {
             }
             Button(loc("Cancel"), role: .cancel) {}
         } message: {
-            Text(loc("Removes only the token copies this app keeps. Your Claude Code sign-in is untouched."))
+            Text(loc("Removes only the credentials this app saved. Nothing you signed into elsewhere is affected."))
         }
     }
 }

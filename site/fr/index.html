@@ -666,12 +666,12 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 <section>
   <div class="wrap">
     <p class="eyebrow">Plusieurs formules</p>
-    <h2>Il ne déconnectera pas votre CLI</h2>
+    <h2>Il ne touche jamais à votre CLI</h2>
     <p>
-      Votre trousseau ne contient un jeton que pour la formule à laquelle vous êtes connecté, et l'actualiser peut faire tourner ce jeton sur le serveur — déconnectant Claude Code. Un moniteur qui vous déconnecte de ce qu'il surveille est pire que pas de moniteur du tout.
+      Un moniteur qui vous déconnecte de ce qu'il surveille est pire que pas de moniteur du tout. Softcap ne lit aucun identifiant appartenant à Claude Code ou à Codex et n'en conserve aucune copie : vous déconnecter là-bas, ou changer de compte, ne change rien ici.
     </p>
     <p>
-      Le compte actif est donc en <strong>lecture seule</strong> ici, et Softcap garde sa propre copie du jeton d'actualisation pour le moment où vous passerez à la suite avec <code>/login</code>. Il ne peut prendre cette copie que pendant qu'il tourne : connectez-vous donc à chaque formule de la manière habituelle, l'app ouverte — un relevé plus tard elle est conservée, et elles tiennent l'écran ensemble. Lire l'entrée de trousseau de la CLI demande l'autorisation de macOS, que Softcap réclame quand vous appuyez sur un bouton — jamais depuis un minuteur que personne ne regarde.
+      Chaque abonnement s'ajoute une fois dans votre navigateur et garde une autorisation à lui, si bien que plusieurs formules tiennent l'écran ensemble et que chacune s'actualise de son côté — qu'une CLI tourne ou non, et quel que soit le compte auquel elle est connectée.
     </p>
   </div>
 </section>
@@ -840,7 +840,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
         <dd>Consommation en direct pour chaque compte, lue auprès du service avec l'autorisation propre au compte.
             <a href="/fr/limits/codex/">Comment fonctionnent les limites Codex →</a></dd></div>
       <div class="fact"><dt>Ajouter un compte</dt>
-        <dd>Choisissez Claude Code ou OpenAI Codex, puis connectez-vous avec OAuth et PKCE dans votre propre navigateur. Les comptes locaux de la CLI sont aussi détectés.</dd></div>
+        <dd>Choisissez Claude Code ou OpenAI Codex, puis connectez-vous avec OAuth et PKCE dans votre propre navigateur.</dd></div>
       <div class="fact"><dt>Le cœur</dt>
         <dd>Un paquet Swift sans AppKit et sans aucun texte destiné à une personne. Fenêtre, widgets et téléphone partagent une seule vue de ligne.</dd></div>
       <div class="fact"><dt>Dépendances</dt>

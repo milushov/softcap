@@ -669,19 +669,12 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 <section>
   <div class="wrap">
     <p class="eyebrow">Several plans</p>
-    <h2>It will not sign your CLI out</h2>
+    <h2>It never touches your CLI</h2>
     <p>
-      Your keychain holds a token only for the plan you are signed into, and refreshing it can
-      rotate that token on the server — signing Claude Code out. A monitor that logs you out of the
-      thing it monitors is worse than none.
+      A monitor that logs you out of the thing it monitors is worse than none. Softcap reads no credential belonging to Claude Code or Codex, and holds no copy of one — so signing out there, or switching accounts, changes nothing here.
     </p>
     <p>
-      So the active account is <strong>read-only</strong> here, and Softcap keeps its own copy of
-      the refresh token for when you move on with <code>/login</code>. It can only take that copy
-      while Softcap is running, so sign into each plan the ordinary way with the app open — one
-      poll later it is kept, and they stay on screen together. Reading the CLI's keychain item needs macOS's
-      permission, which Softcap asks for when you press a button — never from a timer nobody is
-      watching.
+      Each subscription is added once in your browser and keeps a grant of its own, so several plans sit on screen together and each refreshes independently — whether or not a CLI is running, and whichever account it happens to be signed into.
     </p>
   </div>
 </section>
@@ -864,8 +857,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
         <dd>Live usage for every account, read from the service with that account's own grant.
             <a href="/limits/codex/">How Codex limits work →</a></dd></div>
       <div class="fact"><dt>Adding an account</dt>
-        <dd>Choose Claude Code or OpenAI Codex, then sign in with OAuth and PKCE in your own
-            browser. Local CLI accounts are also detected.</dd></div>
+        <dd>Choose Claude Code or OpenAI Codex, then sign in with OAuth and PKCE in your own browser.</dd></div>
       <div class="fact"><dt>The core</dt>
         <dd>A Swift package with no AppKit and no human-facing strings. Window, widgets and phone
             share one row view.</dd></div>

@@ -666,12 +666,12 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 <section>
   <div class="wrap">
     <p class="eyebrow">Varios planes</p>
-    <h2>No cerrará la sesión de tu CLI</h2>
+    <h2>Nunca toca tu CLI</h2>
     <p>
-      Tu llavero guarda un token solo del plan en el que has iniciado sesión, y actualizarlo puede rotar ese token en el servidor — cerrando la sesión de Claude Code. Un monitor que te expulsa de aquello que vigila es peor que ninguno.
+      Un monitor que te cierra la sesión de aquello que vigila es peor que ninguno. Softcap no lee ninguna credencial de Claude Code ni de Codex, ni guarda copia de ellas, así que cerrar sesión allí o cambiar de cuenta no cambia nada aquí.
     </p>
     <p>
-      Por eso la cuenta activa es de <strong>solo lectura</strong> aquí, y Softcap guarda su propia copia del token de actualización para cuando sigas adelante con <code>/login</code>. Solo puede tomar esa copia mientras Softcap está en marcha, así que entra en cada plan de la manera habitual con la app abierta — una consulta después queda guardada, y conviven en pantalla. Leer el elemento del llavero de la CLI necesita permiso de macOS, que Softcap pide cuando pulsas un botón — nunca desde un temporizador que nadie está mirando.
+      Cada suscripción se añade una vez en tu navegador y conserva una concesión propia, así que varios planes conviven en pantalla y cada uno se actualiza por su cuenta, esté o no en marcha una CLI y con la cuenta que sea.
     </p>
   </div>
 </section>
@@ -840,7 +840,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
         <dd>Uso en vivo para cada cuenta, leído del servicio con la concesión propia de esa cuenta.
             <a href="/es/limits/codex/">Cómo funcionan los límites de Codex →</a></dd></div>
       <div class="fact"><dt>Añadir una cuenta</dt>
-        <dd>Elige Claude Code u OpenAI Codex y entra con OAuth y PKCE en tu propio navegador. Las cuentas locales de la CLI también se detectan.</dd></div>
+        <dd>Elige Claude Code u OpenAI Codex y luego inicia sesión con OAuth y PKCE en tu propio navegador.</dd></div>
       <div class="fact"><dt>El núcleo</dt>
         <dd>Un paquete Swift sin AppKit y sin textos dirigidos a personas. Ventana, widgets y teléfono comparten una sola vista de fila.</dd></div>
       <div class="fact"><dt>Dependencias</dt>

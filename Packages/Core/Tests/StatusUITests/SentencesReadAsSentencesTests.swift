@@ -60,13 +60,15 @@ import Foundation
                 }
             }
         }
-        // Five multi-line log calls today, eight lines of text between them. The
-        // floor is what proves the walk found them, not a target: it was set at
-        // ten on a guess and refused its own first run, which is the check
-        // working — a scan that comes back thin must say so.
-        guard examined >= 5 else {
+        // Three multi-line log calls today, four lines of text between them —
+        // down from five calls, because removing the Codex file reader and the
+        // Claude Code keychain read took one apiece. The floor is what proves
+        // the walk found them, not a target: it was set at ten on a guess and
+        // refused its own first run, which is the check working — a scan that
+        // comes back thin must say so.
+        guard examined >= 4 else {
             throw ScanIsLookingInTheWrongPlace(
-                what: "logged sentence line", found: examined, least: 5)
+                what: "logged sentence line", found: examined, least: 4)
         }
     }
 

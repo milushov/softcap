@@ -570,7 +570,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>What it requires</h2>
-      <p>macOS 14 or later. The iPhone app needs iOS 17 or later. One provider account — Claude or Codex — signed in through the browser, or a CLI already signed in locally.</p>
+      <p>macOS 14 or later. The iPhone app needs iOS 17 or later. One provider account — Claude or Codex — signed in through the browser.</p>
     </section>
     <section>
       <h2>Opening the app the first time</h2>
@@ -579,14 +579,14 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>When something looks wrong</h2>
-      <h3>It asked for keychain permission when I pressed Refresh</h3>
-      <p>Reading the CLI's own keychain item needs macOS's permission, and Softcap only asks while you are watching — when you press the button, never from a timer. Allow Always and it will not ask again; decline and the app keeps working from its own copies.</p>
+      <h3>It asked to access data from other apps</h3>
+      <p>That prompt is about Softcap's own container — the small file its widget reads — not about another app's data. macOS words it that way because these builds are signed ad-hoc rather than with a Developer ID, so it cannot confirm the app belongs to the team the container is filed under. Allow it and it stops asking until the next update. Decline and the menu bar and window work as usual; the widget and the statistics chart stay empty.</p>
       <h3>A Codex account shows a reading from hours ago</h3>
       <p>Softcap polls on a schedule, so a reading is as fresh as the last poll that landed. Figures hours old mean the polls are not getting through — most often the account's grant has expired. Open Settings → Accounts: a row that needs attention says so, and Sign in… reconnects it.</p>
       <h3>Notifications did not arrive</h3>
       <p>Check three things: macOS notification permission for Softcap, the thresholds in Settings (80% and 95% out of the box), and quiet hours — nothing arrives while they are on, and nothing is delivered late to make up for it.</p>
       <h3>Removing an account, and what it leaves behind</h3>
-      <p>Remove the account in Settings: its credentials leave your keychain at that moment. The CLI it came from stays signed in — Softcap held its own copy, not the CLI's.</p>
+      <p>Remove the account in Settings: its credentials leave your keychain at that moment. Nothing you signed into elsewhere is affected — Softcap holds only the grants you gave it.</p>
       <h3>Turning off error reports and the update check</h3>
       <p>Both switches are in Settings. With them off, the only traffic the app makes is the usage requests to your own providers.</p>
     </section>

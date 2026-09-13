@@ -570,7 +570,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Ce qu'il demande</h2>
-      <p>macOS 14 ou ultérieur. L'app iPhone demande iOS 17 ou ultérieur. Un compte fournisseur — Claude ou Codex — connecté depuis le navigateur, ou une CLI déjà connectée en local.</p>
+      <p>macOS 14 ou version ultérieure. L'app iPhone demande iOS 17 ou version ultérieure. Un compte fournisseur — Claude ou Codex — connecté via le navigateur.</p>
     </section>
     <section>
       <h2>Ouvrir l'app la première fois</h2>
@@ -579,14 +579,14 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Quand quelque chose cloche</h2>
-      <h3>Il a demandé l'autorisation du trousseau quand j'ai appuyé sur Actualiser</h3>
-      <p>Lire l'entrée de trousseau de la CLI elle-même demande l'autorisation de macOS, et Softcap ne la demande que pendant que vous regardez — quand vous appuyez sur le bouton, jamais depuis un minuteur. Choisissez Toujours autoriser et il ne redemandera plus ; refusez et l'app continue de fonctionner sur ses propres copies.</p>
+      <h3>Il a demandé l'accès aux données d'autres apps</h3>
+      <p>Cette demande concerne le conteneur propre à Softcap — le petit fichier que lit son widget — et non les données d'une autre app. macOS le formule ainsi parce que ces builds sont signés ad-hoc et non avec un Developer ID : le système ne peut pas confirmer que l'app appartient à l'équipe sous laquelle le conteneur est enregistré. Acceptez et il ne redemandera plus jusqu'à la prochaine mise à jour. Refusez et la barre des menus et la fenêtre fonctionnent normalement ; le widget et le graphique des statistiques restent vides.</p>
       <h3>Un compte Codex affiche un relevé d'il y a plusieurs heures</h3>
       <p>Softcap interroge selon un calendrier : une lecture est donc aussi fraîche que la dernière interrogation aboutie. Des chiffres vieux de plusieurs heures signifient que les interrogations n'aboutissent pas — le plus souvent, l'autorisation du compte a expiré. Ouvrez Réglages → Comptes : la ligne qui demande votre attention le dit, et Se connecter… la reconnecte.</p>
       <h3>Les notifications ne sont pas arrivées</h3>
       <p>Vérifiez trois choses : l'autorisation de notifications macOS pour Softcap, les seuils dans les Réglages (80% et 95% par défaut) et les heures calmes — rien n'arrive tant qu'elles sont actives, et rien n'est livré plus tard pour rattraper.</p>
       <h3>Retirer un compte, et ce qu'il laisse derrière lui</h3>
-      <p>Retirez le compte dans les Réglages : ses identifiants quittent votre trousseau à cet instant. La CLI dont il venait reste connectée — Softcap détenait sa propre copie, pas celle de la CLI.</p>
+      <p>Supprimez le compte dans Réglages : ses identifiants quittent votre trousseau à cet instant. Vos connexions ailleurs ne sont pas touchées — Softcap ne détient que les autorisations que vous lui avez données.</p>
       <h3>Couper les rapports d'erreur et la vérification des mises à jour</h3>
       <p>Les deux interrupteurs sont dans les Réglages. Une fois coupés, le seul trafic de l'app est constitué des requêtes d'usage vers vos propres fournisseurs.</p>
     </section>

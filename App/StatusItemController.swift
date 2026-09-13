@@ -479,7 +479,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     }
 
     @objc private func refreshNow() {
-        Task { await model.refresh(.person) }
+        Task { await model.refresh() }
     }
 
     @objc private func openSettings() {

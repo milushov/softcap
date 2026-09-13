@@ -25,9 +25,13 @@ A saved account can be reconnected using its **Sign in…** button.
   account, persisted after rotation and dispatched to the matching provider.
   Responses from a superseded grant cannot overwrite a subsequent sign-in.
 
-Claude's existing CLI import remains read-only while that account is active in
-the CLI. Codex CLI credentials are never imported for refresh and its `auth.json`
-is never written. Browser accounts use grants issued to Softcap's own attempt.
+No credential is imported from either CLI. `SystemKeychain` reads and writes one
+item, `StatusChecker-accounts`, and there is no code path to any other — which is
+why nothing here can raise the keychain's access dialog. A record carried over
+from an older build may hold a token copied from Claude Code; `accessToken(for:)`
+refuses to spend it, because the server rotates a refresh token on use and that
+would sign the CLI out. Those records report `needsLogin` until a browser grant
+replaces them.
 
 ## Codex protocol compatibility
 

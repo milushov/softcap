@@ -4,26 +4,19 @@ import ClaudeProvider
 
 /// The account list and token vending.
 ///
-/// The account currently active in the CLI is read-only: refreshing may rotate
-/// the token on the server side, leaving the CLI with a stale one and signing it
-/// out. Inactive accounts have no such tie to the CLI, so they are refreshed
-/// from their saved copy — which is what makes all subscriptions visible at once.
+/// Every account here arrived through the browser and holds a grant of this
+/// app's own, refreshed from its saved copy. Nothing is read from any other
+/// app's keychain item, which is why nothing here ever asks permission.
 public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
-    public static let cliService = "Claude Code-credentials"
     /// Deliberately still the old name after the rename to Softcap. Keychain
     /// access is bound to the code signature, not to the bundle identifier, so
-    /// the string can stay — and accounts gathered from the CLI are the one
+    /// the string can stay — and the refresh tokens stored under it are the one
     /// thing here that does not come back by itself.
     public static let ownService = "StatusChecker-accounts"
 
     private let keychain: any KeychainAccess
     private let refreshers: [ProviderID: any TokenRefreshing]
-    /// How long to hold what was read from the keychain. Enough for one poll;
-    /// the CLI token does not expire in that time — it lives about eight hours.
-    /// Tests pass zero so they can check reads without the delay.
-    private let cacheWindow: TimeInterval
     private var accounts: [StoredAccount] = []
-    private var cliCache: (oauth: [String: Any], readAt: Date)?
 
     /// The refresh under way for each account, so a second caller arriving
     /// while the request is out joins it instead of spending the same
@@ -54,49 +47,43 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
         keychain: any KeychainAccess,
         refresher: any TokenRefreshing,
         codexRefresher: any TokenRefreshing = OpenAITokenRefresher(),
-        cacheWindow: TimeInterval = 10,
         now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.keychain = keychain
         self.refreshers = [.claude: refresher, .codex: codexRefresher]
-        self.cacheWindow = cacheWindow
         self.now = now
     }
 
-    /// Set when the item was read and could not be understood — as opposed to
-    /// there being nothing stored yet. The difference decides whether it is safe
-    /// to write.
+    /// Set when the item could not be read, or was read and could not be
+    /// understood — as opposed to there being nothing stored yet. The difference
+    /// decides whether it is safe to write.
     private var storedButUnreadable = false
 
     /// Reads the saved list. Called once, right after construction.
     public func load() async {
-        guard let data = try? await keychain.read(service: Self.ownService,
-                                                  promptIfNeeded: promptAllowed)
-        else { return }
+        let data: Data?
+        do {
+            data = try await keychain.read(service: Self.ownService)
+        } catch {
+            // The item was not read at all — a locked keychain, or an access
+            // check the signature no longer satisfies. That is not the same as
+            // nothing being stored, and the two used to be one `try?`: the list
+            // came back empty and the next edit encoded that empty list over
+            // the only copy of every account's refresh token. A token is issued
+            // once; there is nowhere to fetch it from again.
+            storedButUnreadable = true
+            return
+        }
+        guard let data else { return }   // nothing stored yet: a fresh install
         guard let stored = try? JSONDecoder().decode([StoredAccount].self, from: data) else {
             // Something is in the item and this build cannot read it. The list
             // stays empty so the interface says so — but nothing may be written
-            // over it, because what is in there is the only copy of the refresh
-            // tokens for every account not currently active in the CLI.
+            // over it, because what is in there is the only copy of every
+            // account's refresh token.
             storedButUnreadable = true
             return
         }
         accounts = stored
-    }
-
-    /// Whether anything still needs the keychain item Claude Code owns.
-    ///
-    /// Opening that item is what raises the access dialog, and the grant it asks
-    /// for does not last: Claude Code rewrites the item whenever it refreshes,
-    /// and the access list goes with it. So the read is worth making only while
-    /// something depends on it — an account living off a copy taken from the
-    /// CLI, or an empty list with the CLI's own account still to be discovered.
-    /// That first case is the one prompt worth spending, at setup.
-    ///
-    /// Once every account carries a grant of this app's own, the answer is
-    /// `false` for good and the item is never opened again.
-    public func dependsOnCLI() -> Bool {
-        accounts.isEmpty || accounts.contains { $0.provider == .claude && !$0.isOwnGrant }
     }
 
     public func knownRefs() -> [AccountRef] {
@@ -104,39 +91,6 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
             AccountRef(id: $0.id, provider: $0.provider, handle: $0.handle,
                        lastKnownName: $0.displayName)
         }
-    }
-
-    /// Reconciles with whatever the CLI holds now: adds the account if it is
-    /// new and renews the copy of its refresh token.
-    ///
-    /// The copy must be taken on every poll. Otherwise, once the user moves to
-    /// another account, this one's token is overwritten in the keychain and the
-    /// account disappears from the list for good.
-    public func syncWithCLI(profileUUID: String, displayName: String) async throws {
-        let refresh = try? await currentCLIRefreshToken()
-
-        if let index = accounts.firstIndex(where: { $0.id == "claude/\(profileUUID)" }) {
-            accounts[index].displayName = displayName
-            // An own grant is never replaced by a copy of the CLI's token.
-            //
-            // The copy exists so that an account stays visible after `/login`
-            // moves on to another one; an account holding its own grant does not
-            // need it. Taking it anyway would leave that account holding Claude
-            // Code's own refresh token while still marked independent, and the
-            // next poll would send that token to be rotated — signing the CLI
-            // out. An app for watching limits must not break the tool it
-            // watches.
-            if let refresh, !accounts[index].isOwnGrant {
-                accounts[index].refreshToken = refresh
-            }
-        } else {
-            accounts.append(StoredAccount(
-                id: "claude/\(profileUUID)", handle: profileUUID,
-                displayName: displayName, refreshToken: refresh,
-                tokenOrigin: .copiedFromCLI
-            ))
-        }
-        try await persist()
     }
 
     public func accessToken(for handle: String) async throws -> String {
@@ -154,55 +108,32 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
             throw ProviderFailure(kind: .needsLogin, diagnostic: "account not found")
         }
 
-        // An own grant is this app's own credential. Refreshing it rotates our
-        // token and nobody else's, so there is nothing to learn from the CLI's
-        // item and no reason to open it — and opening it is the entire cost.
-        // macOS checks a foreign item against its access list on every read, and
-        // the grant that check looks for does not survive the item's owner
-        // rewriting it, which Claude Code does on every refresh. This branch is
-        // the one that never raises a dialog, today or in eight hours.
-        // Note the shape: an own grant leaves here whatever happens to it. Written
-        // as "own grant *and* a token", a grant the server had finished with fell
-        // out of the branch and down into the CLI path below — opening the
-        // foreign item again, every poll, for an account that only a sign-in can
-        // fix, while `dependsOnCLI()` went on reporting there was no reason to
-        // look. The claim and the behaviour have to agree.
-        if accounts[index].isOwnGrant || accounts[index].provider != .claude {
-            guard let refresh = accounts[index].refreshToken else {
-                throw ProviderFailure(
-                    kind: .needsLogin, diagnostic: "own grant spent; sign in"
-                )
-            }
-            return try await refreshing(at: index, with: refresh)
-        }
-
-        // Everything below is a token copied from the CLI, so the CLI's item is
-        // still the authority on which account is active there.
-        do {
-            let active = try await currentCLIAccountToken()
-            if active.handle == ref.handle { return active.token }
-        } catch let failure as ProviderFailure where failure.kind == .needsPermission {
-            // The CLI's item is one item, so a refusal is refused for everybody.
-            // It must not condemn an account holding a working copy of its own —
-            // three accounts that had been polling happily once failed together
-            // the moment this refusal started being detected properly.
-            //
-            // Nor is it the answer for an account with no copy any more. That
-            // used to report "allow keychain access", which is advice that
-            // cannot hold: the grant is erased the next time Claude Code
-            // refreshes. Such an account falls through to the sign-in below,
-            // which gives it a grant of its own and ends the matter.
-        } catch {
-            // Any other reason is fine here: the account is simply not the
-            // active one, and its own copy is next.
-        }
-
-        // The CLI read awaited another actor. The list may have changed there.
-        guard let index = accounts.firstIndex(where: { $0.id == ref.id }),
-              let refresh = accounts[index].refreshToken else {
+        // Only a grant of this app's own may be refreshed.
+        //
+        // An account whose token was copied from Claude Code carries *its*
+        // refresh token, and the server rotates a refresh token when it is
+        // spent. Refreshing one of those would hand Claude Code a retired
+        // credential and sign it out — an app for watching limits breaking the
+        // tool it watches. Those copies could be spent while the app also read
+        // the CLI's item and could see what had happened; it no longer does, so
+        // the only safe thing to do with one is to leave it alone and ask for a
+        // browser sign-in, which produces a grant that belongs to us.
+        //
+        // `tokenOrigin == nil` means a list written before the field existed,
+        // which cannot say where the token came from. A browser sign-in made by
+        // a build from that week also recorded nothing, so `nil` is not proof of
+        // a CLI copy — but it is not proof of a grant either, and only one of
+        // the two mistakes signs somebody else's tool out. So `nil` is refused
+        // and the row asks for the sign-in that settles it.
+        guard accounts[index].isOwnGrant else {
             throw ProviderFailure(
-                kind: .needsLogin, diagnostic: "no usable credential; sign in"
+                kind: .needsLogin,
+                diagnostic: "token was copied from the CLI and must not be spent; sign in"
             )
+        }
+
+        guard let refresh = accounts[index].refreshToken else {
+            throw ProviderFailure(kind: .needsLogin, diagnostic: "own grant spent; sign in")
         }
         return try await refreshing(at: index, with: refresh)
     }
@@ -296,97 +227,15 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
         return fresh.accessToken
     }
 
-    /// The active CLI session's token. Re-read every time — the CLI may have
-    /// refreshed it.
-    public func currentCLIToken() async throws -> String {
-        guard let token = try await cliOAuth()["accessToken"] as? String else {
-            throw ProviderFailure(kind: .needsLogin, diagnostic: "claude code not signed in")
-        }
-        return token
-    }
-
-    private func currentCLIRefreshToken() async throws -> String {
-        guard let token = try await cliOAuth()["refreshToken"] as? String else {
-            throw ProviderFailure(kind: .needsLogin, diagnostic: "no refresh token in keychain")
-        }
-        return token
-    }
-
-    /// Which account is active. Matching goes by refresh token: it is unique per
-    /// account and, unlike the access token, does not change on every refresh.
-    /// Whether the next reads may put a dialog on screen.
-    ///
-    /// Off by default: reads happen on a five-minute timer, and a keychain
-    /// dialog raised by a timer is one nobody is looking for — it blocks the
-    /// read until answered, and the answer never comes. Raised only while a
-    /// person is explicitly granting access — the Allow access… button —
-    /// where the dialog lands in front of them. A person pressing Refresh
-    /// does not raise it: they asked for numbers, not for a password prompt.
-    private var promptAllowed = false
-
-    /// Raised around the explicit grant, and lowered after.
-    ///
-    /// A closure taking the whole poll would read better, but a poll is a
-    /// `@MainActor` method and handing it to this actor is not something the
-    /// compiler will allow across the boundary — so the switch is set and unset
-    /// instead.
-    public func setPromptAllowed(_ allowed: Bool) { promptAllowed = allowed }
-
-    public var isPromptAllowed: Bool { promptAllowed }
-
-    private func currentCLIAccountToken() async throws -> (handle: String, token: String) {
-        let oauth = try await cliOAuth()
-        guard let access = oauth["accessToken"] as? String,
-              let refresh = oauth["refreshToken"] as? String,
-              let match = accounts.first(where: { $0.provider == .claude && !$0.isOwnGrant && $0.refreshToken == refresh })
-        else {
-            throw ProviderFailure(kind: .needsLogin, diagnostic: "active account unrecognised")
-        }
-        return (match.handle, access)
-    }
-
-    /// Reads the keychain item owned by Claude Code.
-    ///
-    /// The result is held for `cacheWindow` seconds. One poll needs this data
-    /// three times — to identify the active account, take its access token and
-    /// copy the refresh token. macOS checks every access to another app's item
-    /// separately, so without a cache the app would bother the system three
-    /// times as often for nothing: the contents do not change within seconds.
-    private func cliOAuth() async throws -> [String: Any] {
-        if let cached = cliCache, now().timeIntervalSince(cached.readAt) < cacheWindow {
-            return cached.oauth
-        }
-
-        guard let data = try await keychain.read(service: Self.cliService,
-                                                 promptIfNeeded: promptAllowed),
-              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let oauth = root["claudeAiOauth"] as? [String: Any]
-        else {
-            throw ProviderFailure(kind: .needsLogin, diagnostic: "claude code not signed in")
-        }
-
-        cliCache = (oauth, now())
-        return oauth
-    }
-
-    public func accountStates() async -> [(account: StoredAccount, state: AccountState)] {
-        // Asking the CLI which account is active there is only worth a read of
-        // its item while some account is still a copy taken from it. With every
-        // account on a grant of its own the answer cannot change a single label,
-        // and the read is the same foreign read the rest of this file avoids.
-        var activeRefresh: String?
-        if dependsOnCLI() { activeRefresh = try? await currentCLIRefreshToken() }
-
-        return accounts.map { account in
-            let state: AccountState
-            if account.provider == .claude, !account.isOwnGrant,
-               let activeRefresh, account.refreshToken == activeRefresh {
-                state = .activeInCLI
-            } else if account.refreshToken != nil {
-                state = .refreshed
-            } else {
-                state = .needsLogin
-            }
+    public func accountStates() -> [(account: StoredAccount, state: AccountState)] {
+        accounts.map { account in
+            // A token copied from Claude Code cannot be spent — see
+            // `accessToken(for:)` — so an account still holding one needs a
+            // browser sign-in exactly as much as an account holding nothing.
+            // Saying `refreshed` because a string is present would promise a
+            // reading that can never arrive.
+            let state: AccountState =
+                account.isOwnGrant && account.refreshToken != nil ? .refreshed : .needsLogin
             return (account, state)
         }
     }

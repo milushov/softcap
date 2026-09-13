@@ -16,11 +16,11 @@ public struct WouldOverwriteUnreadableAccounts: Error, CustomStringConvertible {
 /// keeps the name it already used.
 public extension CredentialStore {
     /// How the app obtains a token for this account right now.
-    /// Computed rather than stored: the state depends on who the user is signed
-    /// in as in the CLI, not on our records.
-    public enum AccountState: Sendable, Hashable {
-        case activeInCLI   // token read from the CLI keychain, never refreshed
-        case refreshed     // lives on its own refresh token copy
-        case needsLogin    // no copy, nothing to refresh with
+    ///
+    /// Two states, since every account arrives through the browser: it either
+    /// holds a grant of this app's own, or it needs one.
+    enum AccountState: Sendable, Hashable {
+        case refreshed     // lives on its own refresh token
+        case needsLogin    // nothing this app may spend
     }
 }

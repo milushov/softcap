@@ -564,6 +564,15 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <h1>Yang baru</h1>
     <p class="lede">Pipeline menerbitkan build untuk setiap perubahan yang lolos pemeriksaan, jadi nomor versi bergerak cepat dan tidak banyak berarti. Halaman ini mencantumkan rilis yang mengubah aplikasi; feed lengkapnya, dengan checksum untuk setiap build, ada di GitHub.</p>
     <article>
+      <h2>0.1.21 <time datetime="2026-09-13">13 September 2026</time></h2>
+      <p>Softcap kini tidak membaca apa pun selain kredensialnya sendiri:</p>
+      <ul>
+        <li>Item Keychain milik Claude Code tidak lagi dibuka. Setiap akun — Claude maupun Codex — ditambahkan lewat peramban dan memegang izinnya sendiri, jadi tidak ada yang meminta izin macOS untuk membaca data aplikasi lain.</li>
+        <li>Permintaan yang menyertainya pun hilang: tidak ada kata sandi Keychain saat menekan Segarkan, tidak ada «Izinkan akses…», dan tidak ada jendela yang mengatakan kredensial tak terbaca.</li>
+        <li>Harganya: akun yang dulu muncul sendiri karena Anda menjalankan claude /login kini perlu sekali masuk lewat peramban. Token yang disalin dari CLI oleh versi lama tidak pernah dipakai — itu akan memutarnya dan mengeluarkan CLI — sehingga baris seperti itu meminta Anda masuk sekali.</li>
+      </ul>
+    </article>
+    <article>
       <h2>0.1.18 <time datetime="2026-09-13">13 September 2026</time></h2>
       <p>Akun Codex kini hanya datang lewat peramban:</p>
       <ul>
