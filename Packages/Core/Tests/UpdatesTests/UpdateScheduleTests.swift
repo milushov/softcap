@@ -36,3 +36,46 @@ import Foundation
         #expect(UpdateSchedule.isDue(lastChecked: now.addingTimeInterval(3600), now: now))
     }
 }
+
+/// The daily rhythm answers "is it time to look again on our own". It does not
+/// answer "somebody opened the screen that shows the answer, and the answer is
+/// from this morning" — and for seven releases in one day, that was the same
+/// screen confidently offering the first of them.
+@Suite struct WhenAnAnswerOnScreenIsOld {
+
+    private let now = Date(timeIntervalSince1970: 1_800_000_000)
+
+    private func minutesAgo(_ minutes: Double) -> Date {
+        now.addingTimeInterval(-minutes * 60)
+    }
+
+    @Test func nothingCheckedYetIsStale() {
+        #expect(UpdateSchedule.isStale(lastChecked: nil, now: now))
+    }
+
+    @Test func anAnswerAMinuteOldIsFresh() {
+        #expect(!UpdateSchedule.isStale(lastChecked: minutesAgo(1), now: now))
+    }
+
+    @Test func anAnswerAnHourOldIsStale() {
+        #expect(UpdateSchedule.isStale(lastChecked: minutesAgo(60), now: now))
+    }
+
+    @Test func theBoundaryIsTheFiveMinutesItself() {
+        #expect(!UpdateSchedule.isStale(lastChecked: minutesAgo(4.9), now: now))
+        #expect(UpdateSchedule.isStale(lastChecked: minutesAgo(5.1), now: now))
+    }
+
+    /// The same clock correction the daily check guards against, for the same
+    /// reason: a negative age is never five minutes either.
+    @Test func anAnswerFromTheFutureIsStaleNow() {
+        #expect(UpdateSchedule.isStale(lastChecked: now.addingTimeInterval(3600), now: now))
+    }
+
+    /// The point of the second interval. Were it the longer of the two, opening
+    /// the screen would ask less often than the app asks by itself, and the
+    /// stale offer this was written for would still be on screen.
+    @Test func openingTheScreenAsksSoonerThanTheDailyCheck() {
+        #expect(UpdateSchedule.staleAfter < UpdateSchedule.interval)
+    }
+}

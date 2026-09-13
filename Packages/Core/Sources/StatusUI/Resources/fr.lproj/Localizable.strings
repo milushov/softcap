@@ -149,7 +149,7 @@
 "Installing…" = "Installation…";
 "The app will restart on its own when this finishes." = "L'app redémarrera d'elle-même à la fin.";
 "Check automatically" = "Vérifier automatiquement";
-"Once a day, and never without saying so here first." = "Une fois par jour, et jamais sans le dire ici d'abord.";
+"Once a day, and when you open this screen. Never without saying so here first." = "Une fois par jour, et à l'ouverture de cet écran. Jamais sans le dire ici d'abord.";
 "GitHub could not be reached. Check the connection and try again." = "GitHub est injoignable. Vérifiez la connexion et réessayez.";
 "The newest release has no build to download." = "La dernière version ne contient aucun fichier à télécharger.";
 "What arrived is not what the release published, so it was discarded." = "Le fichier reçu ne correspond pas à celui publié : il a été écarté.";

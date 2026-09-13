@@ -149,7 +149,7 @@
 "Installing…" = "Memasang…";
 "The app will restart on its own when this finishes." = "Aplikasi akan memulai ulang sendiri setelah selesai.";
 "Check automatically" = "Periksa otomatis";
-"Once a day, and never without saying so here first." = "Sekali sehari, dan tidak pernah tanpa disebutkan di sini dulu.";
+"Once a day, and when you open this screen. Never without saying so here first." = "Sekali sehari, dan saat kamu membuka layar ini. Dan tidak pernah tanpa disebutkan di sini dulu.";
 "GitHub could not be reached. Check the connection and try again." = "GitHub tidak dapat dihubungi. Periksa koneksi lalu coba lagi.";
 "The newest release has no build to download." = "Rilis terbaru tidak memuat berkas untuk diunduh.";
 "What arrived is not what the release published, so it was discarded." = "Yang diunduh tidak cocok dengan yang dirilis, jadi dibuang.";

@@ -149,7 +149,7 @@
 "Installing…" = "Устанавливаем…";
 "The app will restart on its own when this finishes." = "Приложение перезапустится само, когда закончит.";
 "Check automatically" = "Проверять автоматически";
-"Once a day, and never without saying so here first." = "Раз в сутки, и никогда не молча — здесь об этом сказано.";
+"Once a day, and when you open this screen. Never without saying so here first." = "Раз в сутки и при открытии этого экрана. И никогда не молча — здесь об этом сказано.";
 "GitHub could not be reached. Check the connection and try again." = "Не удалось связаться с GitHub. Проверьте соединение и попробуйте снова.";
 "The newest release has no build to download." = "В последнем релизе нечего скачивать.";
 "What arrived is not what the release published, so it was discarded." = "Пришло не то, что опубликовано в релизе, — загрузка отброшена.";

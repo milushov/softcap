@@ -33,7 +33,7 @@ struct UpdatesPane: View {
                         get: { model.value.checksForUpdates },
                         set: { new in model.update { $0.checksForUpdates = new } }
                     ))
-                    Text(loc("Once a day, and never without saying so here first."))
+                    Text(loc("Once a day, and when you open this screen. Never without saying so here first."))
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -41,6 +41,11 @@ struct UpdatesPane: View {
             .formStyle(.grouped)
             .alignedWithTheHeading()
         }
+        // Opening this screen is the question being asked, so it is answered
+        // now rather than from whenever the daily check last ran. `isStale`
+        // holds the floor that keeps moving between panes from becoming
+        // traffic.
+        .task { await updates.checkIfStale(now: Date()) }
     }
 
     // MARK: - the one section that changes
@@ -83,7 +88,16 @@ struct UpdatesPane: View {
                     Text(String(format: loc("Version %@ is available."),
                                 release.version.description))
                         .font(.system(size: 12.5, weight: .medium))
-                    Spacer()
+                        // Two buttons now share this row, and the sentence is
+                        // longer in most of the ten languages than it is in
+                        // this one. It wraps rather than pushing them off.
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 12)
+                    // The states that say nothing about the present had this
+                    // button and the state that names a version did not, so the
+                    // one screen that could be wrong was the one that could not
+                    // be corrected.
+                    checkButton
                     Button(String(format: loc("Update to %@"), release.version.description)) {
                         Task { await updates.install() }
                     }

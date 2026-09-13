@@ -7502,3 +7502,42 @@ licence lands the page says only what is true; adding one is the author's
 decision and a permanent one, since a licence cannot be withdrawn from what has
 already been published.
 
+
+## 2026-09-14 — The update screen asks again when it is opened
+
+**Decision.** `UpdateSchedule` grew a second interval. `isDue` still answers
+whether the app should ask GitHub on its own — once a day, unchanged — and
+`isStale` answers whether an answer somebody is now reading is old enough to ask
+again: five minutes. `UpdatesPane` calls it from `.task`, so opening the screen
+refreshes what it shows; the switch still governs both, and a screen opened with
+automatic checks off asks nothing. The offer state also gained the "Check for
+updates" button it never had, and a quiet check that fails now leaves an offer on
+screen instead of replacing it with idle.
+
+**Why.** Seven releases were published on 2026-09-13 between 07:25 and 15:47 UTC.
+The daily check ran once, at 09:57, and correctly found 0.1.3. For the rest of
+the day the Updates screen offered 0.1.3 — accurate when it was written, wrong
+within twenty minutes, and uncorrectable: `checkButton` was written into three of
+the five states and not into `.available`, which is the only state that names a
+version. The screen exists to answer one question about the present and was
+answering it from cache with no way to ask again.
+
+Five minutes rather than every appearance because settings panes are switched
+between, and one request per switch is traffic nobody asked for. Governed by the
+switch rather than treated as a manual press, because opening a screen is not
+pressing a button on it and the app promises to reach nothing when that is off.
+
+The reporting change is the part that is not optional. A quiet check that failed
+set the state to idle either way; that was invisible while quiet checks happened
+only at launch and once a day, but a screen that checks when it opens would have
+turned a dropped connection into "No new version has been found." on top of a
+real offer found seconds earlier.
+
+**Cost.** Two claims about frequency stopped being true and had to be rewritten
+in ten languages each: the caption under the toggle, and the update paragraph on
+the privacy page. The host list in `NothingElseLeavesYourMac` carries the new
+description, since that list is where a reason for reaching a host is kept.
+Three of the four new guards read App sources as text rather than running them —
+`UpdateModel` reads `Bundle.main` and `UpdatesPane` is a view, and the package
+tests are the only tests this project has. A scan can prove the call is written;
+it cannot prove the screen behaves.

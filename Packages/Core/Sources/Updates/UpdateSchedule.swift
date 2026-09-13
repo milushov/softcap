@@ -25,4 +25,28 @@ public enum UpdateSchedule {
 
         return now.timeIntervalSince(lastChecked) >= interval
     }
+
+    /// How old an answer already on screen may be before it is worth asking
+    /// again. Five minutes, not a day: the screen is somebody looking.
+    ///
+    /// The floor is the whole reason there is a number here at all. Moving
+    /// between the settings panes would otherwise be traffic, and one question
+    /// per pane switch is not what anybody meant by opening the screen.
+    public static let staleAfter: TimeInterval = 5 * 60
+
+    /// Whether an answer last found at `lastChecked` is old enough to ask again
+    /// for somebody now reading it.
+    ///
+    /// `isDue` answers a different question — whether the app should ask on its
+    /// own — and answered it correctly while the Updates screen offered 0.1.3
+    /// for the rest of a day in which seven more releases were published. The
+    /// screen had no way to ask again, and the daily check was not due for
+    /// another seventeen hours.
+    public static func isStale(lastChecked: Date?, now: Date) -> Bool {
+        guard let lastChecked else { return true }
+        // A clock corrected backwards, for the reason written above.
+        guard lastChecked <= now else { return true }
+
+        return now.timeIntervalSince(lastChecked) >= staleAfter
+    }
 }

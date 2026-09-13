@@ -137,6 +137,27 @@ final class UpdateModel: ObservableObject {
         await check(now: now, announcing: false)
     }
 
+    /// The check that happens because somebody opened the screen showing the
+    /// answer, and the answer is old.
+    ///
+    /// The Updates screen offered 0.1.3 for the rest of a day in which seven
+    /// further releases were published. Nothing was wrong: the check had run at
+    /// 09:57 UTC, was correct then, and the next one was not due for another
+    /// seventeen hours. A screen whose only job is to say whether there is a newer version
+    /// should not be reading out this morning's answer to somebody looking at it
+    /// now.
+    ///
+    /// Still governed by the switch. Opening a screen is not the same as
+    /// pressing the button on it, and the app's promise is that nothing reaches
+    /// GitHub while automatic checking is off.
+    func checkIfStale(now: Date) async {
+        guard preferences.checksForUpdates else { return }
+        guard UpdateSchedule.isStale(lastChecked: preferences.lastUpdateCheck, now: now) else {
+            return
+        }
+        await check(now: now, announcing: false)
+    }
+
     /// The check somebody asked for. Says "this is the latest version" where the
     /// quiet one says nothing.
     func check(now: Date) async {
@@ -220,7 +241,20 @@ final class UpdateModel: ObservableObject {
             await Diagnostics.shared.report(
                 .error, category: "updates", message: diagnostic, failureType: kind)
         }
-        state = announcing ? .failed(failure) : .idle
+        if announcing {
+            state = .failed(failure)
+            return
+        }
+
+        // A quiet check says nothing when it fails — and it has to say nothing
+        // about the offer too. This was `state = .idle` either way, which was
+        // invisible while the only quiet checks were at launch and once a day:
+        // there was rarely anything on screen to lose. Now that opening the
+        // screen asks, a dropped connection would replace "Version 0.1.10 is
+        // available" with "No new version has been found." — a sentence that is
+        // both wrong and the opposite of what was known a second earlier.
+        if case .available = state { return }
+        state = .idle
     }
 
     // MARK: - installing

@@ -149,7 +149,7 @@
 "Installing…" = "جارٍ التثبيت…";
 "The app will restart on its own when this finishes." = "سيعيد التطبيق تشغيل نفسه عند الانتهاء.";
 "Check automatically" = "التحقق تلقائيًا";
-"Once a day, and never without saying so here first." = "مرة واحدة يوميًا، ولا يحدث ذلك دون ذكره هنا أولًا.";
+"Once a day, and when you open this screen. Never without saying so here first." = "مرة واحدة يوميًا، وعند فتح هذه الشاشة. ولا يحدث ذلك دون ذكره هنا أولًا.";
 "GitHub could not be reached. Check the connection and try again." = "تعذّر الوصول إلى GitHub. تحقّق من الاتصال وحاول مرة أخرى.";
 "The newest release has no build to download." = "أحدث إصدار لا يحتوي على نسخة قابلة للتنزيل.";
 "What arrived is not what the release published, so it was discarded." = "ما وصل لا يطابق ما نشره الإصدار، لذلك تم تجاهله.";

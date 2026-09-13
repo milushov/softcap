@@ -45,7 +45,7 @@ import Foundation
             "auth.openai.com":     "Codex browser sign-in, code exchange and token refresh",
             "chatgpt.com":         "read-only Codex subscription usage, without inference",
             "localhost":           "the loopback the PKCE redirect comes back to",
-            "api.github.com":      "the release feed, once a day, and switchable off",
+            "api.github.com":      "the release feed, daily and on opening the update screen, switchable off",
             "github.com":          "the release page, and the build a release publishes",
             "sentry.softcap.app":  "where a failure is described, scrubbed, and switchable off",
         ]

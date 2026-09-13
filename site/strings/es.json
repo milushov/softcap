@@ -164,7 +164,7 @@
   "privacy.leaves_outro": "No hay nada más. Ni telemetría, ni servicio de análisis de fallos, ni huellas digitales, ni SDK de terceros haciendo llamadas por su cuenta.",
   "privacy.leaves_reports_d": "cuando algo falla, se puede enviar al autor una descripción del fallo. Se le quitan rutas de archivo, direcciones y cualquier cosa con forma de token antes de salir de la máquina, y el interruptor que lo desactiva está en Ajustes.",
   "privacy.leaves_reports_t": "Informes de error, opcionales",
-  "privacy.leaves_updates_d": "una vez al día la app pregunta al feed de versiones de GitHub si existe una versión más nueva. Ese interruptor también está en Ajustes.",
+  "privacy.leaves_updates_d": "una vez al día, y cuando abres la pantalla de actualizaciones, la app pregunta al feed de versiones de GitHub si existe una versión más nueva. Ese interruptor también está en Ajustes.",
   "privacy.leaves_updates_t": "Comprobación de actualizaciones, opcional",
   "privacy.leaves_usage_d": "la app pregunta a Anthropic y a OpenAI qué queda de tus suscripciones, usando tus propias credenciales. Esta es la función de la app, y las peticiones no llevan prompt ni ejecutan modelo.",
   "privacy.leaves_usage_t": "Peticiones de uso",
