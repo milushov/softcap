@@ -7792,3 +7792,64 @@ concluding too early, in the one situation nobody tests twice. Source-scanning
 tests in `TheWindowSaysItIsStillLooking` hold the branch, its order against the
 conclusion, and the sentence itself. There is no spinner beside the new text on
 purpose — two in a window this size read as two separate things happening.
+
+## 2026-09-14 — The code spans keep their break, because the shell is not the landing
+
+**Decision.** `overflow-wrap:anywhere` is back on `code` in `site/src/shell.html`,
+and the test that pins it is back in `ThePageHasAShape` — widened to read every
+`*.body.html`, not `site/index.html` alone.
+
+This reverses the last paragraph of the entry above, "Codex accounts arrive
+through the browser, and only through it", which dropped both.
+
+**Why.** The audit behind dropping them asked one page. One shell styles all of
+them, and the support page still spells out
+`xattr -dr com.apple.quarantine /Applications/Softcap.app` — a path of
+twenty-five characters with nowhere to break in it, four longer than the
+`~/.codex/sessions` the rule was written for. At a raised minimum font size on a
+320 px screen that path is wider than the column, and the page scrolls
+sideways. The old test could not have caught it: it read the landing, and the
+landing was telling the truth.
+
+**Cost.** The rule stays on every code span on every page, including short ones
+that would never need it — `anywhere` breaks mid-word when a line is tight, which
+is the wrong-looking half of a rule that is right. The alternative was to scope
+it to the support page, which is one more selector to keep true and one more
+thing to forget. The second half of the test still says what to do when no span
+needs it any more: reconsider the rule, rather than enforce it quietly.
+
+## 2026-09-14 — The empty window stops telling people to run Codex
+
+**Decision.** The last line of the empty state reads "Sign in to Claude Code, or
+add an account in Settings." The old "Sign in to Claude Code or run Codex." is
+gone from the ten catalogues.
+
+**Why.** Running Codex used to be a way to get a row: the CLI wrote session
+files and the app read them. The entry above ended that, and left the sentence
+standing — so the one reader it is addressed to, somebody with an empty window
+and a Codex subscription, was told to do the thing that now produces nothing.
+The window would go on saying "No accounts found" afterwards, which reads as the
+app being broken rather than as advice that expired.
+
+**Cost.** The new sentence points at a screen rather than an action, which is
+weaker advice for the Claude half of it — that half still works by itself, and
+the sentence no longer says so. Naming both routes precisely would have taken
+two sentences in a window that has room for one.
+
+## 2026-09-14 — A release is dated when it was published, not where the author was standing
+
+**Decision.** The what's-new page dates a release from the moment it was
+published, in UTC — the same timestamp the README's generated download line
+already uses. 0.1.18 is dated 13 September, not 14.
+
+**Why.** The entry was written at two in the morning in GMT+8 and dated from the
+calendar on the wall. The release it describes was published at 2026-09-13
+18:43 UTC, and the README, which CI rewrites from that timestamp, said the
+thirteenth. Two published pages gave one release two different dates, and the
+one nobody could check against anything was the handwritten one.
+
+**Cost.** For anyone east of UTC — this author included — a release shipped in
+the small hours is dated the day before. The alternative was to teach the
+workflow the author's timezone, which is a fact about one machine written into
+something that runs on somebody else's, and it would have made the README and
+the release feed disagree instead.

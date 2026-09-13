@@ -6,7 +6,6 @@
 "Quit" = "退出";
 "Quit Softcap" = "退出 Softcap";
 "No accounts found" = "未找到账户";
-"Sign in to Claude Code or run Codex." = "请登录 Claude Code 或运行 Codex。";
 "5h" = "5小时";
 "week" = "每周";
 "no data" = "无数据";
@@ -197,3 +196,4 @@
 "Looking for your accounts…" = "正在查找你的账户…";
 "Reading the keychain and asking each service." = "正在读取钥匙串并查询各项服务。";
 "Browser accounts refresh independently. Your CLI sign-ins are not changed." = "浏览器账户独立刷新。您的 CLI 登录不会改变。";
+"Sign in to Claude Code, or add an account in Settings." = "请登录 Claude Code，或在设置中添加账户。";

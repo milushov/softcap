@@ -6,7 +6,6 @@
 "Quit" = "Salir";
 "Quit Softcap" = "Salir de Softcap";
 "No accounts found" = "No hay cuentas";
-"Sign in to Claude Code or run Codex." = "Inicia sesión en Claude Code o ejecuta Codex.";
 "5h" = "5 h";
 "week" = "sem.";
 "no data" = "sin datos";
@@ -197,3 +196,4 @@
 "Looking for your accounts…" = "Buscando tus cuentas…";
 "Reading the keychain and asking each service." = "Leyendo el llavero y consultando cada servicio.";
 "Browser accounts refresh independently. Your CLI sign-ins are not changed." = "Las cuentas del navegador se actualizan de forma independiente. No se cambia el acceso a la CLI.";
+"Sign in to Claude Code, or add an account in Settings." = "Inicia sesión en Claude Code o añade una cuenta en Ajustes.";

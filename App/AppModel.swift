@@ -346,10 +346,9 @@ final class AppModel: ObservableObject {
 
     private func poll() async {
         // A repeat call during a poll is remembered rather than dropped:
-        // otherwise an update from the Codex file watcher was lost whenever it
-        // coincided with a network poll, and new readings waited for the next
-        // tick — up to five minutes. That defeated the whole point of instant
-        // updates.
+        // otherwise a press of Refresh, a wake, or a hot key that lands while a
+        // poll is in flight is lost, and the reading it asked for waits for the
+        // next tick — up to five minutes after somebody asked for it now.
         // A poll that never returns must not stop every poll after it. The flag
         // this replaced was set on entry and cleared on the way out, which is
         // correct only if the way out is reached — a blocking keychain read does

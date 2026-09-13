@@ -271,7 +271,12 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
+  /* This shell styles every page, not only the landing. The support page spells
+     out `xattr -dr com.apple.quarantine /Applications/Softcap.app`, and the path
+     at the end of it has nowhere to break: a reader who has set a large minimum
+     font size in the browser gets more of it than a 320 px screen holds. */
+  overflow-wrap:anywhere}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -557,7 +562,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <h1>Novidades</h1>
     <p class="lede">O pipeline publica um build para cada mudança aprovada, então os números de versão andam rápido e dizem pouco. Esta página lista as versões que mudaram o app; o feed completo, com checksums de cada build, está no GitHub.</p>
     <article>
-      <h2>0.1.18 <time datetime="2026-09-14">14 de setembro de 2026</time></h2>
+      <h2>0.1.18 <time datetime="2026-09-13">13 de setembro de 2026</time></h2>
       <p>As contas do Codex agora vêm só do navegador:</p>
       <ul>
         <li>O Softcap não lê mais os arquivos da CLI do Codex. Uma conta é adicionada pelo navegador e lida ao vivo do serviço com uma concessão própria, então não sobra idade de leitura para explicar.</li>

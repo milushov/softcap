@@ -161,8 +161,14 @@ struct PopoverView: View {
     /// control in the corner does against a sentence in the middle.
     ///
     /// `lastUpdated` is what tells the two apart: `nil` until a poll finishes,
-    /// set even by one that found nothing. No spinner here — the header has one,
-    /// and two in a window this size read as two separate things happening.
+    /// set even by one that found nothing.
+    ///
+    /// No spinner beside the text. The full window's header already turns one,
+    /// and two in a window this size read as two separate things happening. The
+    /// minimal window has no header and so shows none at all — which is the
+    /// right way round for a window whose whole point is that everything except
+    /// a reading has been taken off it. The sentence carries the meaning; the
+    /// spinner only ever said the same thing less clearly.
     ///
     /// "Sign in to Claude Code" is the right advice exactly when it is not the
     /// problem. On a machine where Claude Code is signed in and the keychain has
@@ -190,7 +196,7 @@ struct PopoverView: View {
                     .padding(.top, 2)
             } else {
                 Text(loc("No accounts found")).font(.system(size: 12, weight: .medium))
-                Text(loc("Sign in to Claude Code or run Codex."))
+                Text(loc("Sign in to Claude Code, or add an account in Settings."))
                     .font(.system(size: 11)).foregroundStyle(.secondary)
             }
         }

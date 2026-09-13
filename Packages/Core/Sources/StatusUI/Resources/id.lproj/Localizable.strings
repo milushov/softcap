@@ -6,7 +6,6 @@
 "Quit" = "Keluar";
 "Quit Softcap" = "Keluar dari Softcap";
 "No accounts found" = "Akun tidak ditemukan";
-"Sign in to Claude Code or run Codex." = "Masuk ke Claude Code atau jalankan Codex.";
 "5h" = "5 j";
 "week" = "minggu";
 "no data" = "tidak ada data";
@@ -197,3 +196,4 @@
 "Looking for your accounts…" = "Mencari akun Anda…";
 "Reading the keychain and asking each service." = "Membaca Keychain dan menanyai setiap layanan.";
 "Browser accounts refresh independently. Your CLI sign-ins are not changed." = "Akun browser diperbarui secara mandiri. Login CLI Anda tidak berubah.";
+"Sign in to Claude Code, or add an account in Settings." = "Masuk ke Claude Code, atau tambahkan akun di Pengaturan.";

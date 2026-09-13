@@ -271,7 +271,12 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
+  /* This shell styles every page, not only the landing. The support page spells
+     out `xattr -dr com.apple.quarantine /Applications/Softcap.app`, and the path
+     at the end of it has nowhere to break: a reader who has set a large minimum
+     font size in the browser gets more of it than a 320 px screen holds. */
+  overflow-wrap:anywhere}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -555,7 +560,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
   <nav class="crumbs" aria-label="当前位置"><a href="/zh-hans/">概览</a><span>/</span><span aria-current="page">Codex 额度</span></nav>
   <article class="legal">
     <h1>Codex 速率限制如何运作</h1>
-    <p class="lede">一句话版本：和 Claude 一样的双窗口形态，从两个不同的地方读取。</p>
+    <p class="lede">一句话版本：和 Claude 一样的双窗口形态，直接从服务端读取。</p>
     <section>
       <h2>这里也是两个窗口</h2>
       <p>Codex 订阅通过一个五小时窗口和一个每周窗口来计量使用，各有各的容量。撞上任何一个，Codex 就停止接受该账户的工作，直到窗口重置。</p>

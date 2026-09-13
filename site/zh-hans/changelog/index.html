@@ -271,7 +271,12 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
+  /* This shell styles every page, not only the landing. The support page spells
+     out `xattr -dr com.apple.quarantine /Applications/Softcap.app`, and the path
+     at the end of it has nowhere to break: a reader who has set a large minimum
+     font size in the browser gets more of it than a 320 px screen holds. */
+  overflow-wrap:anywhere}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -557,7 +562,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <h1>更新内容</h1>
     <p class="lede">流水线会为每个通过检查的更改发布一个构建，所以版本号涨得很快，本身没什么含义。本页只列出真正改动了应用的版本；完整的列表和每个构建的校验和都在 GitHub 上。</p>
     <article>
-      <h2>0.1.18 <time datetime="2026-09-14">2026年9月14日</time></h2>
+      <h2>0.1.18 <time datetime="2026-09-13">2026年9月13日</time></h2>
       <p>Codex 账户现在只能通过浏览器添加：</p>
       <ul>
         <li>Softcap 不再读取 Codex CLI 的文件。账户通过浏览器添加，并凭自己的授权从服务实时读取，因此不再有快照新旧需要解释。</li>

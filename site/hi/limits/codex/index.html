@@ -271,7 +271,12 @@ section p{color:var(--fg-2);max-width:62ch;margin:0 0 15px}
 section p:last-child{margin-bottom:0}
 strong{color:var(--fg);font-weight:600}
 code{font-family:var(--mono);font-size:.885em;color:var(--fg);background:var(--code-bg);
-  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line)}
+  padding:1.5px 5px;border-radius:4px;border:1px solid var(--code-line);
+  /* This shell styles every page, not only the landing. The support page spells
+     out `xattr -dr com.apple.quarantine /Applications/Softcap.app`, and the path
+     at the end of it has nowhere to break: a reader who has set a large minimum
+     font size in the browser gets more of it than a 320 px screen holds. */
+  overflow-wrap:anywhere}
 
 .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
 @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
@@ -555,7 +560,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
   <nav class="crumbs" aria-label="आप यहाँ हैं"><a href="/hi/">परिचय</a><span>/</span><span aria-current="page">Codex की सीमाएँ</span></nav>
   <article class="legal">
     <h1>Codex की दर सीमाएँ कैसे काम करती हैं</h1>
-    <p class="lede">संक्षेप में: वही दो-विंडो वाला ढाँचा जो Claude का है, बस दो अलग जगहों से पढ़ा जाता है।</p>
+    <p class="lede">संक्षेप में: वही दो-विंडो वाला ढाँचा जो Claude का है, सीधे सेवा से पढ़ा जाता है।</p>
     <section>
       <h2>यहाँ भी दो विंडो</h2>
       <p>Codex की सदस्यता उपयोग को 5 घंटे की विंडो और साप्ताहिक विंडो से मापती है, हर एक की अपनी क्षमता के साथ। किसी एक से भी टकराते ही Codex उस खाते पर काम लेना बंद कर देता है, जब तक विंडो रीसेट न हो।</p>

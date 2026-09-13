@@ -88,6 +88,50 @@ import Foundation
             """)
     }
 
+    /// A path in a code span has nowhere to break, and at a raised minimum font
+    /// size it is wider than a phone. The width check cannot defend this: at the
+    /// 24 px bar the longest of them still fits, and the size where it does not
+    /// is one the mock cannot hold either, so the bar cannot go there. The rule
+    /// is pinned here instead.
+    ///
+    /// It is pinned against every page rather than the landing alone, because
+    /// one shell styles all of them: the rule was once dropped after checking
+    /// `site/index.html` by itself, while the support page went on spelling out
+    /// `/Applications/Softcap.app` — twenty-five characters with no break in
+    /// them — in the same `<code>`.
+    ///
+    /// The second half stops it becoming a rule nobody needs: if no code span on
+    /// any page holds a token long enough to matter, the property is being kept
+    /// for nothing and should be reconsidered rather than quietly enforced.
+    @Test func aLongTokenInCodeCanBreak() throws {
+        let shell = try String(
+            contentsOf: Self.repositoryRoot.appendingPathComponent("site/src/shell.html"),
+            encoding: .utf8)
+
+        guard let rule = Self.firstGroup(#"(?s)\bcode\{(.*?)\}"#, in: shell) else {
+            Issue.record("the shell has no rule for code spans")
+            return
+        }
+        #expect(rule.contains("overflow-wrap:anywhere") || rule.contains("word-break:break-all"),
+                "a long path in a code span cannot break, and is wider than a phone")
+
+        let bodies = (try? FileManager.default.contentsOfDirectory(
+            at: Self.repositoryRoot.appendingPathComponent("site/src"),
+            includingPropertiesForKeys: nil)) ?? []
+        var tokens: [Substring] = []
+        for source in bodies where source.lastPathComponent.hasSuffix(".body.html") {
+            guard let text = try? String(contentsOf: source, encoding: .utf8) else { continue }
+            for span in Self.matches(#"<code>([^<]+)</code>"#, in: text) {
+                tokens.append(contentsOf: span.split(separator: Character(" ")))
+            }
+        }
+
+        #expect(tokens.contains { $0.count >= 14 }, """
+            no code span on any page holds a token long enough to need breaking \
+            — the rule above is being kept for nothing
+            """)
+    }
+
     /// Paper is white and a browser's print dialog has background graphics off by
     /// default, so a page read in the dark palette would put near-white text on
     /// it. Every colour here is a `light-dark()` pair following `color-scheme`,

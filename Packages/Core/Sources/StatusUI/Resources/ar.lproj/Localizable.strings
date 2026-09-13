@@ -6,7 +6,6 @@
 "Quit" = "إنهاء";
 "Quit Softcap" = "إنهاء Softcap";
 "No accounts found" = "لا توجد حسابات";
-"Sign in to Claude Code or run Codex." = "سجّل الدخول إلى Claude Code أو شغّل Codex.";
 "5h" = "٥ س";
 "week" = "أسبوع";
 "no data" = "لا بيانات";
@@ -197,3 +196,4 @@
 "Looking for your accounts…" = "جارٍ البحث عن حساباتك…";
 "Reading the keychain and asking each service." = "قراءة سلسلة المفاتيح والاستعلام من كل خدمة.";
 "Browser accounts refresh independently. Your CLI sign-ins are not changed." = "تتحدث حسابات المتصفح بشكل مستقل. لا تتغير عمليات تسجيل الدخول إلى CLI.";
+"Sign in to Claude Code, or add an account in Settings." = "سجّل الدخول إلى Claude Code، أو أضف حسابًا من الإعدادات.";

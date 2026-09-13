@@ -9,8 +9,8 @@ public extension AccountSnapshot {
     /// the headline", this answers "which of one account's limits is", and
     /// folding them together would tie the window's layout to the menu bar's.
     ///
-    /// The fallback is deliberate. A Codex account carries whichever windows
-    /// its session files described, and a row that disappeared because the
+    /// The fallback is deliberate. An account carries whichever windows the
+    /// service reported for it, and a row that disappeared because the
     /// requested window is absent would read as a broken account.
     func headlineWindow(for choice: PrimaryWindow) -> LimitWindow? {
         switch choice {

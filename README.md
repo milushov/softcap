@@ -107,7 +107,7 @@ after CLI token rotation. Browser grants avoid that dependency.
 | Polling | Every **60 s** with the window open, **300 s** in the background; configurable |
 | Appearance | System, light, dark; optional minimal window; ten languages including Arabic RTL; VoiceOver |
 | Mac widgets | All four sizes: small, medium, large, extra large; data comes from the app |
-| Statistics | Weekly-limit charts over the last week or month; local Codex history imported on launch |
+| Statistics | Weekly-limit charts over the last week or month, built from the readings the app has taken |
 | Updates | GitHub check daily by default, and again while Settings → Updates is open; installation starts from the menu or that screen |
 
 Settings open with **⌘,**. Nine sections: Accounts, Statistics, Appearance,

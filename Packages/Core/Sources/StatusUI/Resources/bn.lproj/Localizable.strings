@@ -6,7 +6,6 @@
 "Quit" = "প্রস্থান";
 "Quit Softcap" = "Softcap বন্ধ করুন";
 "No accounts found" = "কোনও অ্যাকাউন্ট নেই";
-"Sign in to Claude Code or run Codex." = "Claude Code-এ সাইন ইন করুন বা Codex চালান।";
 "5h" = "৫ঘ";
 "week" = "সপ্তাহ";
 "no data" = "ডেটা নেই";
@@ -197,3 +196,4 @@
 "Looking for your accounts…" = "আপনার অ্যাকাউন্ট খোঁজা হচ্ছে…";
 "Reading the keychain and asking each service." = "কীচেইন পড়া হচ্ছে এবং প্রতিটি পরিষেবাকে জিজ্ঞাসা করা হচ্ছে।";
 "Browser accounts refresh independently. Your CLI sign-ins are not changed." = "ব্রাউজারের অ্যাকাউন্টগুলো স্বাধীনভাবে আপডেট হয়। CLI লগইন বদলায় না।";
+"Sign in to Claude Code, or add an account in Settings." = "Claude Code-এ সাইন ইন করুন, বা সেটিংস-এ একটি অ্যাকাউন্ট যোগ করুন।";
