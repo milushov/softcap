@@ -1,6 +1,13 @@
+changelog/index.html
+faq/index.html
 favicon.ico
 icon.svg
 index.html
+limits/claude/index.html
+limits/codex/index.html
 og.png
+privacy/index.html
 robots.txt
 sitemap.xml
+support/index.html
+terms/index.html

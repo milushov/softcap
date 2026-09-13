@@ -6,6 +6,7 @@
 <title>{{page:title}}</title>
 <meta name="description" content="{{page:meta_description}}">
 <link rel="canonical" href="{{canonical}}">
+{{alternates}}
 <meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0e0e12" media="(prefers-color-scheme: dark)">
 <meta property="og:locale" content="{{og_locale}}">
@@ -375,6 +376,62 @@ stop.bot{stop-opacity:0}
 }
 footer p{margin:0 0 6px;max-width:60ch}
 
+/* ---------- footer nav, breadcrumbs, legal pages ---------- */
+.site-map{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 24px;font-size:12.5px}
+.site-map a{color:var(--fg-3);text-decoration:none}
+.site-map a:hover{color:var(--fg-2);text-decoration:underline}
+.crumbs{display:flex;gap:8px;align-items:center;font-family:var(--mono);font-size:11.5px;
+  color:var(--fg-3);letter-spacing:.01em;padding:34px 0 0}
+.crumbs a{color:var(--fg-3);text-decoration:none}
+.crumbs a:hover{color:var(--fg-2);text-decoration:underline}
+.legal{padding:28px 0 66px}
+.legal h1{font-size:clamp(27px,4.4vw,38px);line-height:1.14;letter-spacing:-.026em;
+  font-weight:640;margin:18px 0 10px;max-width:26ch}
+.legal .updated{font-family:var(--mono);font-size:12px;color:var(--fg-3);margin:0 0 34px}
+.legal section{padding:0;margin:0 0 34px}
+.legal h2{font-size:19px;margin:0 0 10px}
+.legal h3{font-size:15px;font-weight:600;letter-spacing:-.01em;margin:22px 0 6px}
+.legal p,.legal li{color:var(--fg-2);max-width:68ch}
+.legal ul{margin:0 0 15px;padding-inline-start:22px}
+.legal li{margin:0 0 7px}
+.legal article{border-top:1px solid var(--line);padding:22px 0 6px}
+.legal article:first-of-type{border-top:0;padding-top:0}
+.legal time{font-family:var(--mono);font-size:12px;color:var(--fg-3)}
+
+/* ---------- the language picker ---------- */
+/* Built on <details>/<summary> so it works with the script policy the page
+   keeps: this is the control that fixes "I cannot read this page", and it is
+   the one control that must not depend on anything optional. */
+.head-tools{display:flex;align-items:center;gap:10px}
+details.lang{position:relative}
+details.lang summary{
+  list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.02em;color:var(--fg-3);
+  padding:4px 9px;border:1px solid var(--line);border-radius:7px;user-select:none;line-height:1.4;
+}
+details.lang summary::-webkit-details-marker{display:none}
+details.lang summary:hover{color:var(--fg-2)}
+details.lang[open] summary{background:var(--strip-on);color:var(--fg)}
+.lang-panel{
+  position:absolute;inset-inline-end:0;top:calc(100% + 6px);z-index:5;min-width:232px;
+  background:var(--card);border:1px solid var(--edge);border-radius:10px;
+  box-shadow:0 18px 40px -16px var(--cast);padding:6px;
+}
+.foot-lang{margin-top:18px}
+.foot-lang .lang-panel{top:auto;bottom:calc(100% + 6px);inset-inline-end:auto;inset-inline-start:0}
+.lang-row{
+  display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:7px;
+  color:var(--fg);text-decoration:none;font-size:13px;
+}
+a.lang-row:hover{background:var(--strip);text-decoration:none}
+.lang-row .code{font-family:var(--mono);font-size:10.5px;color:var(--fg-3);width:24px;flex:none}
+.lang-row .names{display:flex;flex-direction:column;gap:1px;min-width:0}
+.lang-row .names span:last-child{font-size:10.5px;color:var(--fg-3)}
+.lang-row[aria-current]{background:var(--strip-on)}
+@media(max-width:520px){
+  details.lang summary{padding:4px 6px;letter-spacing:0}
+}
+
 /* ---------- paper ---------- */
 /*
    Paper is white, and a browser's print dialog has "Background graphics" off by
@@ -415,6 +472,8 @@ footer p{margin:0 0 6px;max-width:60ch}
       </svg>
       <span>Softcap</span>
     </div>
+    <div class="head-tools">
+    {{picker}}
     <!-- Three, because the app offers three: system, light and dark. The radios
          carry the state; `html:has(…:checked)` sets `color-scheme` and every
          token follows. No script, so the policy stays `default-src 'none'`. -->
@@ -425,14 +484,26 @@ footer p{margin:0 0 6px;max-width:60ch}
       <input type="radio" name="theme" id="t-dark"><label for="t-dark">{{shell.theme_dark}}</label>
     </fieldset>
     </div>
+    </div>
   </div>
 </header>
 {{body}}
 <footer>
   <div class="wrap">
+    <nav class="site-map" aria-label="{{shell.site_map_label}}">
+      <a href="/{{lang_prefix}}">{{shell.nav_index}}</a>
+      <a href="/{{lang_prefix}}faq/">{{shell.nav_faq}}</a>
+      <a href="/{{lang_prefix}}changelog/">{{shell.nav_changelog}}</a>
+      <a href="/{{lang_prefix}}limits/claude/">{{shell.nav_limits_claude}}</a>
+      <a href="/{{lang_prefix}}limits/codex/">{{shell.nav_limits_codex}}</a>
+      <a href="/{{lang_prefix}}support/">{{shell.nav_support}}</a>
+      <a href="/{{lang_prefix}}privacy/">{{shell.nav_privacy}}</a>
+      <a href="/{{lang_prefix}}terms/">{{shell.nav_terms}}</a>
+    </nav>
     <p>{{shell.footer_line}}
        <a href="https://github.com/milushov/softcap/releases">{{shell.footer_release}}</a>.</p>
     <p style="margin-top:14px;color:var(--fg-3)">{{shell.footer_affiliation}}</p>
+    <div class="foot-lang">{{picker}}</div>
   </div>
 </footer>
 

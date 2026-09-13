@@ -45,6 +45,57 @@ PAGES = ["index", "privacy", "support", "terms",
          "faq", "changelog", "limits/claude", "limits/codex"]
 ASSETS = ["favicon.ico", "icon.svg", "og.png", "robots.txt", "sitemap.xml"]
 
+# Brand names aside, a reader picks their language by its own name — the
+# English gloss is for whoever is helping them find it.
+NATIVE = {
+    "en": "English", "ru": "Русский", "es": "Español", "fr": "Français",
+    "ar": "العربية", "bn": "বাংলা", "hi": "हिन्दी", "id": "Bahasa Indonesia",
+    "pt-BR": "Português (Brasil)", "zh-Hans": "中文（简体）",
+}
+ENGLISH_NAME = {
+    "en": "English", "ru": "Russian", "es": "Spanish", "fr": "French",
+    "ar": "Arabic", "bn": "Bengali", "hi": "Hindi", "id": "Indonesian",
+    "pt-BR": "Portuguese (Brazil)", "zh-Hans": "Chinese (Simplified)",
+}
+
+
+def code_label(lang):
+    return lang.split("-")[0].upper()
+
+
+def alternates(page, langs):
+    """The hreflang cluster: one line per rendered language, plus x-default."""
+    lines = [f'<link rel="alternate" hreflang="{lang}" '
+             f'href="{ORIGIN}/{lang_dir(lang)}{page_path(page)}">'
+             for lang in langs]
+    lines.append(f'<link rel="alternate" hreflang="x-default" '
+                 f'href="{ORIGIN}/{page_path(page)}">')
+    return "\n".join(lines)
+
+
+def picker(page, current, langs):
+    """The <details> language picker; empty while only one language exists,
+    so no phase of the build ever links to a page that is not there."""
+    if len(langs) < 2:
+        return ""
+    rows = []
+    for lang in langs:
+        inner = (f'<span class="code">{code_label(lang)}</span>'
+                 f'<span class="names"><span>{NATIVE[lang]}</span>'
+                 f'<span>{ENGLISH_NAME[lang]}</span></span>')
+        if lang == current:
+            rows.append(f'        <span class="lang-row" aria-current="true">{inner}</span>')
+        else:
+            rows.append(f'        <a class="lang-row" lang="{lang}" hreflang="{lang}" '
+                        f'href="/{lang_dir(lang)}{page_path(page)}">{inner}</a>')
+    body = "\n".join(rows)
+    return (f'<details class="lang">\n'
+            f'      <summary aria-label="{{{{shell.language}}}}">'
+            f'<span>{code_label(current)}</span>'
+            f'<bdi dir="ltr">+{len(langs) - 1}</bdi></summary>\n'
+            f'      <div class="lang-panel">\n{body}\n      </div>\n'
+            f'    </details>')
+
 
 def die(message, code):
     print(f"build.py: {message}", file=sys.stderr)
@@ -108,7 +159,7 @@ def load_catalogues():
     return catalogues
 
 
-def render_page(page, lang, catalogues):
+def render_page(page, lang, langs, catalogues):
     shell = (SRC / "shell.html").read_text(encoding="utf-8")
     body = body_template(page).read_text(encoding="utf-8")
     head = head_template(page)
@@ -125,6 +176,9 @@ def render_page(page, lang, catalogues):
         "{{canonical}}": f"{ORIGIN}/{directory}",
         "{{page_path}}": page_path(page),
         "{{root}}": "../" * depth,
+        "{{lang_prefix}}": lang_dir(lang),
+        "{{alternates}}": alternates(page, langs),
+        "{{picker}}": picker(page, lang, langs),
     }
     for token, value in substitutions.items():
         out = out.replace(token, value)
@@ -157,7 +211,7 @@ def rendered_tree(catalogues):
     for lang in langs:
         for page in pages:
             path = lang_dir(lang) + page_path(page) + "index.html"
-            tree[path] = render_page(page, lang, catalogues)
+            tree[path] = render_page(page, lang, langs, catalogues)
 
     urls = [f"{ORIGIN}/{lang_dir(lang)}{page_path(page)}"
             for page in pages for lang in langs]
