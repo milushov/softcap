@@ -81,23 +81,39 @@ jobs:
             build | grep -E "error:|warning:|BUILD" || true
           test -d build/Build/Products/Release/Softcap.app
 
-      # Optional. Without these secrets the build is still published, ad-hoc
-      # signed, and the release notes tell the reader how to open it.
+      # Optional, and all or nothing. A Developer ID build that cannot then be
+      # notarised meets a scarier first-launch dialog than the ad-hoc one, and
+      # half a credential set used to fail the whole run at the notary step —
+      # so anything short of the full six publishes the ad-hoc build instead,
+      # and the release notes tell the reader how to open it.
       #
       #   MACOS_CERTIFICATE_P12        base64 of a Developer ID Application .p12
       #   MACOS_CERTIFICATE_PASSWORD   its export password
       #   MACOS_SIGNING_IDENTITY       e.g. "Developer ID Application: Name (TEAMID)"
       #   MACOS_TEAM_ID                the 10-character team identifier
+      #   NOTARY_APPLE_ID              the Apple ID notarytool signs in with
+      #   NOTARY_PASSWORD              an app-specific password for that Apple ID
       - name: Import the signing certificate
         id: cert
         env:
           CERT_P12: ${{ secrets.MACOS_CERTIFICATE_P12 }}
           CERT_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          SIGN_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+          TEAM_ID: ${{ secrets.MACOS_TEAM_ID }}
+          NOTARY_ID: ${{ secrets.NOTARY_APPLE_ID }}
+          NOTARY_PW: ${{ secrets.NOTARY_PASSWORD }}
         run: |
           set -euo pipefail
-          if [ -z "${CERT_P12:-}" ]; then
+          missing=()
+          [ -n "${CERT_P12:-}" ]      || missing+=(MACOS_CERTIFICATE_P12)
+          [ -n "${CERT_PASSWORD:-}" ] || missing+=(MACOS_CERTIFICATE_PASSWORD)
+          [ -n "${SIGN_IDENTITY:-}" ] || missing+=(MACOS_SIGNING_IDENTITY)
+          [ -n "${TEAM_ID:-}" ]       || missing+=(MACOS_TEAM_ID)
+          [ -n "${NOTARY_ID:-}" ]     || missing+=(NOTARY_APPLE_ID)
+          [ -n "${NOTARY_PW:-}" ]     || missing+=(NOTARY_PASSWORD)
+          if [ "${#missing[@]}" -gt 0 ]; then
             echo "signed=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::No certificate configured — publishing an ad-hoc signed build."
+            echo "::notice::Publishing an ad-hoc signed build — not configured: ${missing[*]}."
             exit 0
           fi
           KEYCHAIN="$RUNNER_TEMP/build.keychain-db"
@@ -146,20 +162,41 @@ jobs:
 
       # Notarisation is what removes the "cannot be opened" dialog on another
       # person's Mac. It needs a real certificate, so it only runs when one was
-      # configured, and it staples the ticket so the check works offline.
+      # configured.
+      #
+      # The bundle is notarised and stapled first: stapling writes the ticket
+      # into the bundle, and the bundle is what the image and the zip both
+      # carry — stapling only the image left the app inside it ticketless, and
+      # a first launch with no network failed exactly where notarisation
+      # promises it cannot. Both artefacts are then rebuilt around the stapled
+      # bundle, and the image is blessed in its own right, because Gatekeeper
+      # assesses the thing that was downloaded before what is inside it.
       - name: Notarise
         if: steps.cert.outputs.signed == 'true'
         env:
           APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
           TEAM_ID: ${{ secrets.MACOS_TEAM_ID }}
+          SIGN_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
         run: |
           set -euo pipefail
           V="${{ steps.v.outputs.version }}"
+          APP=build/Build/Products/Release/Softcap.app
+
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "$RUNNER_TEMP/notarize.zip"
+          xcrun notarytool submit "$RUNNER_TEMP/notarize.zip" \
+            --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" \
+            --team-id "$TEAM_ID" --wait
+          xcrun stapler staple "$APP"
+
+          tools/make_dmg.sh "$APP" "$V" dist
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "dist/Softcap-$V.zip"
+          codesign --force --timestamp --sign "$SIGN_IDENTITY" "dist/Softcap-$V.dmg"
           xcrun notarytool submit "dist/Softcap-$V.dmg" \
             --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" \
             --team-id "$TEAM_ID" --wait
           xcrun stapler staple "dist/Softcap-$V.dmg"
+
           cp "dist/Softcap-$V.dmg" dist/Softcap.dmg
           cd dist && shasum -a 256 ./*.dmg ./*.zip > SHA256SUMS.txt
 

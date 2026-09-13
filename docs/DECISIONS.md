@@ -7240,3 +7240,26 @@ names identify nobody and the check has nothing true to find.
 message may say `runner` freely. The watch that matters is unchanged: it runs
 where the names are real — the pre-commit hook and `make test` on the machine
 the repository is written on.
+
+## 2026-09-13 — Distribution signing is all or nothing, and the ticket travels in the bundle
+
+**Decision.** The release signs with Developer ID only when all six secrets
+are present — the certificate pair, the identity, the team, and the notary
+account with its password. Anything short of that publishes the ad-hoc build.
+When signing does run, the app itself is notarised and stapled first, the
+disk image and the zip are rebuilt around the stapled bundle, and the image
+is then signed, notarised and stapled in its own right.
+
+**Why.** Half a credential set used to fail the whole run: notarisation was
+gated on the certificate alone, so a certificate without notary credentials
+died at `notarytool` and published nothing. And a Developer ID build that is
+not notarised meets a scarier first-launch dialog than the ad-hoc one — the
+half-configured path produced the worst artefact of the three. Stapling only
+the image left the app inside it ticketless: copied to Applications and
+launched offline, it failed exactly where notarisation promises it cannot.
+
+**Cost.** Two notarisation waits per release instead of one. Configuring the
+certificate without the notary account deliberately keeps publishing ad-hoc
+builds. And until a Developer ID certificate exists at all, every ad-hoc
+install will refuse the first signed update — `signatureChanged` is doing its
+job — and take the release page instead.
