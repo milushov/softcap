@@ -187,3 +187,7 @@
 "Return to Softcap to try signing in again." = "Revenez dans Softcap pour réessayer de vous connecter.";
 "Dismiss" = "Fermer";
 "Saving account…" = "Enregistrement du compte…";
+"%1$@: %2$@ of the 5-hour limit" = "%1$@ : %2$@ de la limite de cinq heures";
+"%1$@: %2$@ of the weekly limit" = "%1$@ : %2$@ de la limite hebdomadaire";
+"The 5-hour limit reset, you can come back." = "La limite de cinq heures est réinitialisée, vous pouvez revenir.";
+"The weekly limit reset, you can come back." = "La limite hebdomadaire est réinitialisée, vous pouvez revenir.";

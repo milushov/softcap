@@ -7149,3 +7149,29 @@ must resolve before another sign-in starts. Browser interaction and network
 exchange keep their existing timeout and cancellation behavior. This refines the
 completion boundary in the preceding decision without promising a rollback the
 system keychain cannot perform.
+
+## 2026-09-11 — A notification names the window it is about
+
+**Decision.** Threshold and recovery notifications name the limit window in
+their text: "80% of the 5-hour limit" against "80% of the weekly limit", and
+recovery says which limit reset. The words are whole per-language sentences
+in the catalogues, not a window name slotted into one shared template. The
+wording is assembled by `Localization.notificationTitle(for:)` /
+`notificationBody(for:)` in `StatusUI`, next to every other label; an
+unfamiliar window id falls back to the old unnamed wording.
+
+**Why.** Both limits can cross the same threshold on the same evening, and
+did: the weekly limit crossed 80% and the session limit crossed its own 80%
+under an hour later. The two notifications were word-for-word identical, and
+the reader reported them, reasonably, as one event delivered twice. The same
+ambiguity made recovery misleading in the other direction — "the limit reset,
+you can come back" is a false all-clear when only the five-hour window reset
+and the week stands at 88%. Whole sentences per window because half the
+languages decline or reorder the window's name, and a catalogue can only do
+that when it owns the entire line.
+
+**Cost.** Four new keys in all ten catalogues. The old unnamed sentences stay
+as the fallback for window kinds this build has never heard of, so they remain
+in the catalogues too. A recovery keeps its unnamed title — the window is
+named in the body — so two recoveries arriving together still need their
+bodies to tell apart.

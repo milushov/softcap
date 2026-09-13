@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import ProviderKit
 import Preferences
+import Monitoring
 
 /// Labels the models deliberately do not hold: they depend on the language.
 public extension Localization {
@@ -62,6 +63,54 @@ public extension Localization {
         case .network:         self("Network unavailable")
         case .noData:          self("No data available")
         case .malformed:       self("Unexpected response")
+        }
+    }
+
+    /// The words a threshold event turns into.
+    ///
+    /// The window is part of the sentence, not an optional detail. Both limits
+    /// can cross the same number on the same evening — the weekly did, and the
+    /// five-hour followed within the hour — and without the window's name the
+    /// two notifications read identically, which a reader can only take as the
+    /// app repeating itself. Whole sentences per window rather than a name
+    /// slotted into one template: half the languages decline or reorder the
+    /// window's name, and a catalogue can only do that when it owns the whole
+    /// line.
+    ///
+    /// An unfamiliar window id falls back to the old unnamed wording — the
+    /// same stance the providers take on window kinds they do not know.
+    func notificationTitle(for event: ThresholdEvent) -> String {
+        switch event.kind {
+        case .crossed(let level):
+            let template = switch event.windowID {
+            case "session": self("%1$@: %2$@ of the 5-hour limit")
+            case "weekly":  self("%1$@: %2$@ of the weekly limit")
+            default:        self("%1$@: %2$@ of limit")
+            }
+            return String(format: template, event.accountName, percent(Double(level)))
+        case .recovered:
+            return String(format: self("%@ is free again"), event.accountName)
+        }
+    }
+
+    func notificationBody(for event: ThresholdEvent) -> String {
+        switch event.kind {
+        case .crossed(let level):
+            // The remainder, worked out rather than assumed: "less than a
+            // fifth left" was once written out, true of the default 80 and of
+            // no other threshold a reader might set.
+            return level >= 95
+                ? self("Almost exhausted — time to switch.")
+                : String(format: self("About %@ left."), percent(Double(100 - level)))
+        case .recovered:
+            // The five-hour limit resets several times a day. Unnamed, its
+            // reset sounds like an all-clear the weekly limit may be nowhere
+            // near giving.
+            switch event.windowID {
+            case "session": return self("The 5-hour limit reset, you can come back.")
+            case "weekly":  return self("The weekly limit reset, you can come back.")
+            default:        return self("The limit reset, you can come back.")
+            }
         }
     }
 

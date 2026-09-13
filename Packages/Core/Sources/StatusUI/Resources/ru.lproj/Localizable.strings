@@ -187,3 +187,7 @@
 "Return to Softcap to try signing in again." = "Вернитесь в Softcap и попробуйте войти снова.";
 "Dismiss" = "Закрыть";
 "Saving account…" = "Сохранение аккаунта…";
+"%1$@: %2$@ of the 5-hour limit" = "%1$@: %2$@ пятичасового лимита";
+"%1$@: %2$@ of the weekly limit" = "%1$@: %2$@ недельного лимита";
+"The 5-hour limit reset, you can come back." = "Пятичасовой лимит сбросился, можно возвращаться.";
+"The weekly limit reset, you can come back." = "Недельный лимит сбросился, можно возвращаться.";

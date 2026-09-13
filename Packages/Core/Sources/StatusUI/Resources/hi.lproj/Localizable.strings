@@ -187,3 +187,7 @@
 "Return to Softcap to try signing in again." = "दोबारा साइन इन करने के लिए Softcap पर वापस जाएँ।";
 "Dismiss" = "बंद करें";
 "Saving account…" = "खाता सहेजा जा रहा है…";
+"%1$@: %2$@ of the 5-hour limit" = "%1$@: 5 घंटे की सीमा का %2$@";
+"%1$@: %2$@ of the weekly limit" = "%1$@: साप्ताहिक सीमा का %2$@";
+"The 5-hour limit reset, you can come back." = "5 घंटे की सीमा रीसेट हो गई, आप लौट सकते हैं।";
+"The weekly limit reset, you can come back." = "साप्ताहिक सीमा रीसेट हो गई, आप लौट सकते हैं।";

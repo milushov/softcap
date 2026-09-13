@@ -606,27 +606,13 @@ final class AppModel: ObservableObject {
     }
 
     private func post(_ event: ThresholdEvent) {
+        // The words live with the catalogues in `StatusUI`, and they name the
+        // window the event is about. Both limits crossed the same 80% within
+        // one evening, and the two notifications read identically — reported,
+        // reasonably, as the app repeating itself.
         let content = UNMutableNotificationContent()
-        switch event.kind {
-        case .crossed(let level):
-            let loc = Localization.shared
-            // Spelled by the formatter: the sentence is a per-language template
-            // and three catalogues had put the sign where their language does
-            // not put it.
-            content.title = String(
-                format: loc("%1$@: %2$@ of limit"), event.accountName, loc.percent(Double(level))
-            )
-            // The remainder, worked out rather than assumed. This said "less
-            // than a fifth left" for every threshold below 95 — true of the
-            // default 80 and of nothing else, and the thresholds are the
-            // reader's to set.
-            content.body = level >= 95
-                ? loc("Almost exhausted — time to switch.")
-                : String(format: loc("About %@ left."), loc.percent(Double(100 - level)))
-        case .recovered:
-            content.title = String(format: Localization.shared("%@ is free again"), event.accountName)
-            content.body = Localization.shared("The limit reset, you can come back.")
-        }
+        content.title = Localization.shared.notificationTitle(for: event)
+        content.body = Localization.shared.notificationBody(for: event)
         let request = UNNotificationRequest(
             identifier: "\(event.accountID)/\(event.windowID)/\(event.kind)",
             content: content, trigger: nil

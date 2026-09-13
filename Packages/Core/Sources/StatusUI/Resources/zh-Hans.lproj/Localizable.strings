@@ -187,3 +187,7 @@
 "Return to Softcap to try signing in again." = "返回 Softcap 重试登录。";
 "Dismiss" = "关闭";
 "Saving account…" = "正在保存账号…";
+"%1$@: %2$@ of the 5-hour limit" = "%1$@：5小时额度已用 %2$@";
+"%1$@: %2$@ of the weekly limit" = "%1$@：每周额度已用 %2$@";
+"The 5-hour limit reset, you can come back." = "5小时额度已重置，可以回来了。";
+"The weekly limit reset, you can come back." = "每周额度已重置，可以回来了。";
