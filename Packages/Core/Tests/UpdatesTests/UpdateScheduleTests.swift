@@ -61,8 +61,16 @@ import Foundation
         #expect(UpdateSchedule.isStale(lastChecked: minutesAgo(60), now: now))
     }
 
+    /// The five minutes themselves, and not only either side of them.
+    ///
+    /// 4.9 and 5.1 read the same under `>` as under `>=`, so the pair alone left
+    /// the comparison free to be either — a mutant that only asks again after
+    /// five minutes have been *passed* survived the whole suite. The moment is
+    /// exactly 300 seconds: `minutesAgo(5)` of a whole-number epoch has no
+    /// remainder to round.
     @Test func theBoundaryIsTheFiveMinutesItself() {
         #expect(!UpdateSchedule.isStale(lastChecked: minutesAgo(4.9), now: now))
+        #expect(UpdateSchedule.isStale(lastChecked: minutesAgo(5), now: now))
         #expect(UpdateSchedule.isStale(lastChecked: minutesAgo(5.1), now: now))
     }
 

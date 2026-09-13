@@ -514,7 +514,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"必须通过浏览器登录吗？","acceptedAnswer":{"@type":"Answer","text":"通过浏览器用 OAuth 登录会给 Softcap 一份自己的授权，独立于任何 CLI。已登录本地 CLI 的账户也会被检测并直接读取，完全不需要登录。"}},
  {"@type":"Question","name":"它会把我的 CLI 登出吗？","acceptedAnswer":{"@type":"Answer","text":"不会。你的 CLI 所登录的账户在 Softcap 里是只读的，应用自己保存所需内容的副本——刷新永远不会轮换 CLI 的令牌。"}},
  {"@type":"Question","name":"我的令牌存在哪里？","acceptedAnswer":{"@type":"Answer","text":"在 macOS 钥匙串里，别无他处——从不写进偏好设置、日志或文件。移除账户的那一刻，它的凭据就从钥匙串中删除。"}},
- {"@type":"Question","name":"有什么会离开我的 Mac？","acceptedAnswer":{"@type":"Answer","text":"三样，只有三样：发往你自己服务商的用量请求；可选的错误报告，发送前会清除路径和任何形似令牌的内容；以及可选的每日更新检查。后两样各有自己的开关。"}},
+ {"@type":"Question","name":"有什么会离开我的 Mac？","acceptedAnswer":{"@type":"Answer","text":"三样，只有三样：发往你自己服务商的用量请求；可选的错误报告，发送前会清除路径和任何形似令牌的内容；以及可选的更新检查，每天一次，以及在更新页面打开时。后两样各有自己的开关。"}},
  {"@type":"Question","name":"80% 和 95% 的标记是什么意思？","acceptedAnswer":{"@type":"Answer","text":"那是通知阈值：账户越过某个窗口的 80% 时提醒一次，95% 时最后警告一次——每次越过只通知一次，而不是每次轮询都通知，免打扰时段内绝不打扰。两个水平都可以修改。"}},
  {"@type":"Question","name":"为什么读数会显示自己的时间？","acceptedAnswer":{"@type":"Answer","text":"本地 Codex 账户读取的是其 CLI 写下的会话文件，所以数字是 CLI 上次运行时的快照。Softcap 会直说快照有多旧，而不是假装它是实时的。"}},
  {"@type":"Question","name":"运行它要花什么？","acceptedAnswer":{"@type":"Answer","text":"应用免费。网络上的开销是每次轮询、每个账户一个用量请求——后台每五分钟一次，窗口打开时每分钟一次，或按你设定的间隔。"}}]}
@@ -598,7 +598,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>有什么会离开我的 Mac？</h2>
-      <p>三样，只有三样：发往你自己服务商的用量请求；可选的错误报告，发送前会清除路径和任何形似令牌的内容；以及可选的每日更新检查。后两样各有自己的开关。</p>
+      <p>三样，只有三样：发往你自己服务商的用量请求；可选的错误报告，发送前会清除路径和任何形似令牌的内容；以及可选的更新检查，每天一次，以及在更新页面打开时。后两样各有自己的开关。</p>
     </section>
     <section>
       <h2>80% 和 95% 的标记是什么意思？</h2>

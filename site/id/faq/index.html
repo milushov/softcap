@@ -514,7 +514,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"Apakah saya harus masuk lewat browser?","acceptedAnswer":{"@type":"Answer","text":"Masuk lewat browser dengan OAuth memberi Softcap izin aksesnya sendiri, terlepas dari CLI mana pun. Akun yang sudah masuk di CLI lokal juga terdeteksi dan dibaca tanpa perlu masuk sama sekali."}},
  {"@type":"Question","name":"Apakah ia akan membuat CLI saya keluar?","acceptedAnswer":{"@type":"Answer","text":"Tidak. Akun tempat CLI Anda masuk bersifat hanya-baca di Softcap, dan aplikasi menyimpan salinannya sendiri untuk yang ia perlukan — penyegaran tidak pernah merotasi token milik CLI."}},
  {"@type":"Question","name":"Di mana token saya disimpan?","acceptedAnswer":{"@type":"Answer","text":"Di keychain macOS, dan tidak di tempat lain — tidak pernah di preferensi, log, atau file. Menghapus akun menghapus kredensialnya dari keychain saat itu juga."}},
- {"@type":"Question","name":"Apa yang keluar dari Mac saya?","acceptedAnswer":{"@type":"Answer","text":"Tiga hal, dan hanya tiga: permintaan penggunaan ke penyedia Anda sendiri, laporan kesalahan opsional yang dibersihkan dari jalur dan apa pun yang menyerupai token, dan pemeriksaan pembaruan harian yang opsional. Dua yang terakhir punya sakelar matinya sendiri."}},
+ {"@type":"Question","name":"Apa yang keluar dari Mac saya?","acceptedAnswer":{"@type":"Answer","text":"Tiga hal, dan hanya tiga: permintaan penggunaan ke penyedia Anda sendiri, laporan kesalahan opsional yang dibersihkan dari jalur dan apa pun yang menyerupai token, dan pemeriksaan pembaruan yang opsional, harian dan selama layarnya terbuka. Dua yang terakhir punya sakelar matinya sendiri."}},
  {"@type":"Question","name":"Apa arti tanda 80% dan 95%?","acceptedAnswer":{"@type":"Answer","text":"Itu ambang notifikasi: pengingat saat akun melewati 80% dari sebuah jendela, peringatan terakhir di 95% — sekali setiap ambang dilewati, bukan setiap kali dicek, dan tidak pernah selama jam tenang. Kedua level bisa diubah."}},
  {"@type":"Question","name":"Mengapa pembacaan menampilkan usianya?","acceptedAnswer":{"@type":"Answer","text":"Akun Codex lokal dibaca dari file sesi yang ditulis CLI-nya, jadi angkanya adalah cuplikan dari kali terakhir CLI berjalan. Softcap menyebutkan usia cuplikan itu alih-alih berpura-pura datanya langsung."}},
  {"@type":"Question","name":"Berapa biaya menjalankannya?","acceptedAnswer":{"@type":"Answer","text":"Aplikasi ini gratis. Di jaringan, biayanya satu permintaan penggunaan per akun per pemeriksaan — setiap lima menit di latar belakang, sekali semenit saat jendela terbuka, atau interval apa pun yang Anda atur."}}]}
@@ -598,7 +598,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Apa yang keluar dari Mac saya?</h2>
-      <p>Tiga hal, dan hanya tiga: permintaan penggunaan ke penyedia Anda sendiri, laporan kesalahan opsional yang dibersihkan dari jalur dan apa pun yang menyerupai token, dan pemeriksaan pembaruan harian yang opsional. Dua yang terakhir punya sakelar matinya sendiri.</p>
+      <p>Tiga hal, dan hanya tiga: permintaan penggunaan ke penyedia Anda sendiri, laporan kesalahan opsional yang dibersihkan dari jalur dan apa pun yang menyerupai token, dan pemeriksaan pembaruan yang opsional, harian dan selama layarnya terbuka. Dua yang terakhir punya sakelar matinya sendiri.</p>
     </section>
     <section>
       <h2>Apa arti tanda 80% dan 95%?</h2>

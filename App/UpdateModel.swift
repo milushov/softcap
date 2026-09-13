@@ -45,6 +45,14 @@ final class UpdateModel: ObservableObject {
     private let http: any HTTPClient
     private let downloader: any FileDownloader
     private var tick: Timer?
+
+    /// Whether a request is out. See `check(now:announcing:)`.
+    private var inFlight = false
+
+    /// When this last *asked*, as opposed to when it last got an answer.
+    /// Not persisted: it bounds what one run of the app does, and a fresh
+    /// launch asking once is the behaviour that was always wanted.
+    private var lastAsked: Date?
     private var wakeObserver: (any NSObjectProtocol)?
 
     init(
@@ -130,11 +138,7 @@ final class UpdateModel: ObservableObject {
 
     /// The quiet check: at launch, and a day apart after that.
     func checkIfDue(now: Date) async {
-        guard preferences.checksForUpdates else { return }
-        guard UpdateSchedule.isDue(lastChecked: preferences.lastUpdateCheck, now: now) else {
-            return
-        }
-        await check(now: now, announcing: false)
+        await checkQuietly(now: now, when: UpdateSchedule.isDue)
     }
 
     /// The check that happens because somebody opened the screen showing the
@@ -147,14 +151,30 @@ final class UpdateModel: ObservableObject {
     /// should not be reading out this morning's answer to somebody looking at it
     /// now.
     ///
-    /// Still governed by the switch. Opening a screen is not the same as
+    /// Still governed by the switch. Having the screen open is not the same as
     /// pressing the button on it, and the app's promise is that nothing reaches
     /// GitHub while automatic checking is off.
     func checkIfStale(now: Date) async {
+        await checkQuietly(now: now, when: UpdateSchedule.isStale)
+    }
+
+    /// The one gate every check nobody asked for passes through.
+    ///
+    /// The switch is read here and in no other place. It was written out twice
+    /// the day the second quiet check was added, which is how a promise made in
+    /// ten languages comes to rest on somebody remembering to copy a line: a
+    /// third entry point copies it a third time, and the one that forgets
+    /// reaches GitHub for a person who turned this off.
+    ///
+    /// The moment compared against is the last time this asked, not the last
+    /// time it succeeded. `lastUpdateCheck` is only stamped by a check that
+    /// finished, so a machine that is offline — or a client GitHub is rate
+    /// limiting — would find every attempt overdue and ask again on every pane
+    /// switch, forever. The floor has to hold for the case that repeats.
+    private func checkQuietly(now: Date, when isTime: (Date?, Date) -> Bool) async {
         guard preferences.checksForUpdates else { return }
-        guard UpdateSchedule.isStale(lastChecked: preferences.lastUpdateCheck, now: now) else {
-            return
-        }
+        let asked = [lastAsked, preferences.lastUpdateCheck].compactMap { $0 }.max()
+        guard isTime(asked, now) else { return }
         await check(now: now, announcing: false)
     }
 
@@ -178,7 +198,15 @@ final class UpdateModel: ObservableObject {
     }
 
     private func check(now: Date, announcing: Bool) async {
-        guard !isInstalling else { return }
+        // One at a time. Nothing held a token for a check in flight, and the
+        // quiet one never sets `.checking`, so it was invisible to the only
+        // guard there was: one click on the menu item opened the window — whose
+        // pane asks — and then asked again beside it, two requests deep.
+        guard !inFlight, !isInstalling else { return }
+        inFlight = true
+        defer { inFlight = false }
+
+        lastAsked = now
         if announcing { state = .checking }
 
         guard let running = runningVersion else {
@@ -209,14 +237,7 @@ final class UpdateModel: ObservableObject {
             let found = try ReleaseFeed.update(from: data, status: status, running: running)
             recordCheck?(now)
             lastChecked = now
-
-            if let found {
-                Self.log.info("a newer release: \(found.version.description, privacy: .public)")
-                offered = found
-                state = .available(found)
-            } else {
-                state = announcing ? .upToDate : .idle
-            }
+            settle(on: found, announcing: announcing)
         } catch let failure as UpdateFailure {
             report(failure, announcing: announcing)
         } catch let failure as ProviderFailure {
@@ -228,10 +249,49 @@ final class UpdateModel: ObservableObject {
         }
     }
 
+    /// What a finished check is allowed to write.
+    ///
+    /// A quiet check may improve the screen and may never weaken it. Every
+    /// sentence this app can show is an answer of some strength — a version to
+    /// install, "This is the latest version.", "No new version has been
+    /// found." — and a check nobody asked for arriving at a weaker one is not
+    /// news, it is a screen changing by itself while somebody reads it.
+    ///
+    /// The 404 is why this is not only about failures. `ReleaseFeed` maps it to
+    /// "nothing newer", on the success path, and the comment above says why it
+    /// is ambiguous: a release mid-publish and a repository this caller cannot
+    /// see are the same answer. Taking an offer off the screen for it, and
+    /// stamping the moment so that neither schedule asks again, left the app
+    /// privately still holding the release whose page the escape hatch opens.
+    private func settle(on found: Release?, announcing: Bool) {
+        // An install that began while this request was in flight owns the
+        // screen: `install()` can only start from `.available`, which is the
+        // state a quiet check leaves up while it asks.
+        if case .installing = state { return }
+
+        if let found {
+            Self.log.info("a newer release: \(found.version.description, privacy: .public)")
+            offered = found
+            state = .available(found)
+            return
+        }
+
+        if announcing { state = .upToDate }
+    }
+
     /// A check nobody asked for keeps its failure in the log. The one somebody
     /// pressed a button for puts it on screen — a button that does nothing
     /// visible reads as broken.
     private func report(_ failure: UpdateFailure, announcing: Bool) {
+        // Navigating away is not an outage. SwiftUI cancels a `.task` when its
+        // view goes, `URLSession` turns that into `URLError -999`, and one door
+        // down it is a `ProviderFailure` that reads exactly like a dropped
+        // connection — so leaving the Updates pane quickly would log an error,
+        // post a report to the author, and rewrite the screen on the way out.
+        // `PollScheduler` carries a comment about this same mistake, made once
+        // already against the accounts list.
+        guard !Task.isCancelled else { return }
+
         Self.log.error("update check failed: \(failure.diagnostic, privacy: .public)")
         // Every failed check funnels through here, announced or not, which makes
         // it the one place worth describing rather than three.
@@ -241,20 +301,16 @@ final class UpdateModel: ObservableObject {
             await Diagnostics.shared.report(
                 .error, category: "updates", message: diagnostic, failureType: kind)
         }
-        if announcing {
-            state = .failed(failure)
-            return
-        }
-
-        // A quiet check says nothing when it fails — and it has to say nothing
-        // about the offer too. This was `state = .idle` either way, which was
-        // invisible while the only quiet checks were at launch and once a day:
-        // there was rarely anything on screen to lose. Now that opening the
-        // screen asks, a dropped connection would replace "Version 0.1.10 is
-        // available" with "No new version has been found." — a sentence that is
-        // both wrong and the opposite of what was known a second earlier.
-        if case .available = state { return }
-        state = .idle
+        // A quiet check says nothing when it fails, and that includes saying
+        // nothing on the screen. It used to fall through to idle either way,
+        // which was nearly invisible while quiet checks came only from a timer:
+        // there was rarely anything to lose. With the screen asking while it is open, a
+        // dropped connection would replace "Version 0.1.10 is available" with
+        // "No new version has been found." — and the first guard written for it
+        // named `.available` alone, leaving an honest red "GitHub could not be
+        // reached" to be overwritten by a confident false claim that it had.
+        guard announcing else { return }
+        state = .failed(failure)
     }
 
     // MARK: - installing

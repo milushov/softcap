@@ -149,7 +149,7 @@
 "Installing…" = "Installing…";
 "The app will restart on its own when this finishes." = "The app will restart on its own when this finishes.";
 "Check automatically" = "Check automatically";
-"Once a day, and when you open this screen. Never without saying so here first." = "Once a day, and when you open this screen. Never without saying so here first.";
+"Once a day, and while this screen is open. Never without saying so here first." = "Once a day, and while this screen is open. Never without saying so here first.";
 "GitHub could not be reached. Check the connection and try again." = "GitHub could not be reached. Check the connection and try again.";
 "The newest release has no build to download." = "The newest release has no build to download.";
 "What arrived is not what the release published, so it was discarded." = "What arrived is not what the release published, so it was discarded.";

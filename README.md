@@ -110,7 +110,7 @@ after CLI token rotation. Browser grants avoid that dependency.
 | Appearance | System, light, dark; optional minimal window; ten languages including Arabic RTL; VoiceOver |
 | Mac widgets | All four sizes: small, medium, large, extra large; data comes from the app |
 | Statistics | Weekly-limit charts over the last week or month; local Codex history imported on launch |
-| Updates | Daily GitHub check by default; installation starts from the menu or Settings → Updates |
+| Updates | GitHub check daily by default, and again while Settings → Updates is open; installation starts from the menu or that screen |
 
 Settings open with **⌘,**. Nine sections: Accounts, Statistics, Appearance,
 Notifications, Polling and launch, Updates, Services, Contribute, About and data.

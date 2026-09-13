@@ -149,7 +149,7 @@
 "Installing…" = "正在安装…";
 "The app will restart on its own when this finishes." = "完成后应用会自行重启。";
 "Check automatically" = "自动检查";
-"Once a day, and when you open this screen. Never without saying so here first." = "每天一次，以及每次打开此页面时。并且总会先在这里说明。";
+"Once a day, and while this screen is open. Never without saying so here first." = "每天一次，以及在此页面打开时。并且总会先在这里说明。";
 "GitHub could not be reached. Check the connection and try again." = "无法连接 GitHub。请检查网络后重试。";
 "The newest release has no build to download." = "最新发布里没有可下载的版本。";
 "What arrived is not what the release published, so it was discarded." = "下载到的内容与发布的不符，已丢弃。";

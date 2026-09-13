@@ -514,7 +514,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"Do I have to sign in through the browser?","acceptedAnswer":{"@type":"Answer","text":"Signing in through the browser with OAuth gives Softcap its own grant, independent of any CLI. Accounts already signed into a local CLI are also detected and read without any sign-in at all."}},
  {"@type":"Question","name":"Will it sign my CLI out?","acceptedAnswer":{"@type":"Answer","text":"No. The account your CLI is signed into is read-only in Softcap, and the app keeps its own copy of what it needs — refreshing never rotates the CLI's token."}},
  {"@type":"Question","name":"Where do my tokens live?","acceptedAnswer":{"@type":"Answer","text":"In the macOS keychain, and nowhere else — never in preferences, logs or files. Removing an account removes its credentials from the keychain at that moment."}},
- {"@type":"Question","name":"What leaves my Mac?","acceptedAnswer":{"@type":"Answer","text":"Three things, and only three: usage requests to your own providers, optional error reports scrubbed of paths and anything token-shaped, and an optional daily update check. The last two have their own off switches."}},
+ {"@type":"Question","name":"What leaves my Mac?","acceptedAnswer":{"@type":"Answer","text":"Three things, and only three: usage requests to your own providers, optional error reports scrubbed of paths and anything token-shaped, and an optional update check, daily and while its screen is open. The last two have their own off switches."}},
  {"@type":"Question","name":"What do the 80% and 95% marks mean?","acceptedAnswer":{"@type":"Answer","text":"Those are the notification thresholds: a nudge when an account crosses 80% of a window, a last warning at 95% — once per crossing, not once per poll, and never during quiet hours. Both levels can be changed."}},
  {"@type":"Question","name":"Why does a reading show its age?","acceptedAnswer":{"@type":"Answer","text":"A local Codex account is read from the session files its CLI writes, so the number is a snapshot from the CLI's last run. Softcap says how old the snapshot is instead of pretending it is live."}},
  {"@type":"Question","name":"What does it cost to run?","acceptedAnswer":{"@type":"Answer","text":"The app is free. On the wire it costs one usage request per account per poll — every five minutes in the background, once a minute with the window open, or whatever interval you set."}}]}
@@ -598,7 +598,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>What leaves my Mac?</h2>
-      <p>Three things, and only three: usage requests to your own providers, optional error reports scrubbed of paths and anything token-shaped, and an optional daily update check. The last two have their own off switches.</p>
+      <p>Three things, and only three: usage requests to your own providers, optional error reports scrubbed of paths and anything token-shaped, and an optional update check, daily and while its screen is open. The last two have their own off switches.</p>
     </section>
     <section>
       <h2>What do the 80% and 95% marks mean?</h2>

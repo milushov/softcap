@@ -514,7 +514,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"Preciso entrar pelo navegador?","acceptedAnswer":{"@type":"Answer","text":"Entrar pelo navegador com OAuth dá ao Softcap uma autorização própria, independente de qualquer CLI. Contas já conectadas numa CLI local também são detectadas e lidas sem login nenhum."}},
  {"@type":"Question","name":"Ele vai desconectar a minha CLI?","acceptedAnswer":{"@type":"Answer","text":"Não. A conta em que a sua CLI está conectada é somente leitura no Softcap, e o app guarda a própria cópia do que precisa — atualizar nunca rotaciona o token da CLI."}},
  {"@type":"Question","name":"Onde ficam os meus tokens?","acceptedAnswer":{"@type":"Answer","text":"No chaveiro do macOS, e em nenhum outro lugar — nunca em preferências, logs ou arquivos. Remover uma conta remove as credenciais dela do chaveiro naquele momento."}},
- {"@type":"Question","name":"O que sai do meu Mac?","acceptedAnswer":{"@type":"Answer","text":"Três coisas, e só três: requisições de uso aos seus próprios provedores, relatórios de erro opcionais limpos de caminhos e de qualquer coisa parecida com um token, e uma verificação diária de atualização, opcional. As duas últimas têm seus próprios interruptores."}},
+ {"@type":"Question","name":"O que sai do meu Mac?","acceptedAnswer":{"@type":"Answer","text":"Três coisas, e só três: requisições de uso aos seus próprios provedores, relatórios de erro opcionais limpos de caminhos e de qualquer coisa parecida com um token, e uma verificação de atualização, diária e enquanto sua tela estiver aberta, opcional. As duas últimas têm seus próprios interruptores."}},
  {"@type":"Question","name":"O que significam as marcas de 80% e 95%?","acceptedAnswer":{"@type":"Answer","text":"São os limites de notificação: um aviso quando uma conta cruza 80% de uma janela, um último alerta em 95% — uma vez por cruzamento, não a cada consulta, e nunca durante o horário silencioso. Os dois níveis podem ser mudados."}},
  {"@type":"Question","name":"Por que uma leitura mostra a própria idade?","acceptedAnswer":{"@type":"Answer","text":"Uma conta Codex local é lida dos arquivos de sessão que a CLI escreve, então o número é um registro da última execução da CLI. O Softcap mostra há quanto tempo o registro foi feito, em vez de fingir que é um dado ao vivo."}},
  {"@type":"Question","name":"Quanto custa para rodar?","acceptedAnswer":{"@type":"Answer","text":"O app é gratuito. Na rede, custa uma requisição de uso por conta a cada consulta — a cada cinco minutos em segundo plano, uma vez por minuto com a janela aberta, ou no intervalo que você definir."}}]}
@@ -598,7 +598,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>O que sai do meu Mac?</h2>
-      <p>Três coisas, e só três: requisições de uso aos seus próprios provedores, relatórios de erro opcionais limpos de caminhos e de qualquer coisa parecida com um token, e uma verificação diária de atualização, opcional. As duas últimas têm seus próprios interruptores.</p>
+      <p>Três coisas, e só três: requisições de uso aos seus próprios provedores, relatórios de erro opcionais limpos de caminhos e de qualquer coisa parecida com um token, e uma verificação de atualização, diária e enquanto sua tela estiver aberta, opcional. As duas últimas têm seus próprios interruptores.</p>
     </section>
     <section>
       <h2>O que significam as marcas de 80% e 95%?</h2>

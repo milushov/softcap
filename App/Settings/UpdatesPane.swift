@@ -33,7 +33,7 @@ struct UpdatesPane: View {
                         get: { model.value.checksForUpdates },
                         set: { new in model.update { $0.checksForUpdates = new } }
                     ))
-                    Text(loc("Once a day, and when you open this screen. Never without saying so here first."))
+                    Text(loc("Once a day, and while this screen is open. Never without saying so here first."))
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -41,11 +41,20 @@ struct UpdatesPane: View {
             .formStyle(.grouped)
             .alignedWithTheHeading()
         }
-        // Opening this screen is the question being asked, so it is answered
-        // now rather than from whenever the daily check last ran. `isStale`
-        // holds the floor that keeps moving between panes from becoming
-        // traffic.
-        .task { await updates.checkIfStale(now: Date()) }
+        // While this screen is open, not only when it opens. The window that
+        // offered 0.1.3 all evening was open the whole evening — asking once on
+        // appear would have left that exact complaint in place for anybody
+        // watching the screen for a release rather than visiting it.
+        //
+        // `.task` is cancelled when the pane goes, so this stops the moment the
+        // screen does. `checkIfStale` holds the floor and the switch; the sleep
+        // only decides how often it is asked, never whether it may ask.
+        .task {
+            while !Task.isCancelled {
+                await updates.checkIfStale(now: Date())
+                try? await Task.sleep(for: .seconds(UpdateSchedule.staleAfter))
+            }
+        }
     }
 
     // MARK: - the one section that changes
@@ -88,22 +97,23 @@ struct UpdatesPane: View {
                     Text(String(format: loc("Version %@ is available."),
                                 release.version.description))
                         .font(.system(size: 12.5, weight: .medium))
-                        // Two buttons now share this row, and the sentence is
-                        // longer in most of the ten languages than it is in
-                        // this one. It wraps rather than pushing them off.
-                        .fixedSize(horizontal: false, vertical: true)
-                    Spacer(minLength: 12)
-                    // The states that say nothing about the present had this
-                    // button and the state that names a version did not, so the
-                    // one screen that could be wrong was the one that could not
-                    // be corrected.
-                    checkButton
+                    Spacer()
                     Button(String(format: loc("Update to %@"), release.version.description)) {
                         Task { await updates.install() }
                     }
                     .keyboardShortcut(.defaultAction)
                 }
                 if !release.notes.isEmpty { notes(release.notes) }
+                // Its own row, the way `.failed` carries its two.
+                //
+                // The states that claim nothing about the present had this
+                // button and the state that names a version did not, so the one
+                // screen that could be wrong was the one that could not be
+                // corrected. Beside the install button it did not fit: three
+                // things on a row of about 480 points truncate the version
+                // number out of "Mettre à jour vers 0.1.10" long before English
+                // notices anything.
+                HStack { checkButton; Spacer() }
             }
 
         case .installing(let phase):

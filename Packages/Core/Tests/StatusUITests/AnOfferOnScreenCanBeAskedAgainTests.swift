@@ -6,12 +6,19 @@ import Foundation
 /// 09:57 UTC and found 0.1.3, seven more releases were published that day, and
 /// the screen went on offering the first of them with no way to ask again.
 ///
-/// Three things had to hold at once for that, and each is checked here.
+/// The screen asking for itself is what fixed that, and it made `UpdateModel` a
+/// path with two callers where it had been written for one. Most of what is
+/// checked here is that second half: a check nobody asked for has to be able to
+/// arrive without taking anything away.
 ///
 /// Read out of the source rather than exercised: `UpdateModel` reads
 /// `Bundle.main` and `UpdatesPane` is a view, and the package tests are the only
 /// tests this project has. A scan cannot prove the screen behaves; it can prove
-/// the call is still written, which is the part that was missing.
+/// the claim is still written. Each assertion below is therefore phrased against
+/// a slice of one declaration, never the whole file — a first version of this
+/// suite asked whether `.available` appeared anywhere in `report()` and stayed
+/// green against a mutant that did the exact opposite, because the word was
+/// still in the comment.
 ///
 /// This is code and not prose, so it is asked with `contains`: `checkIfStale`
 /// reworded is a different function, not the same one rephrased. The phrase is
@@ -19,19 +26,23 @@ import Foundation
 /// `HowToAskADocument` gives.
 @Suite struct AnOfferOnScreenCanBeAskedAgain {
 
-    /// Opening the screen is somebody asking. It answered from cache.
-    @Test func theScreenAsksAgainWhenItOpens() throws {
-        #expect(try Self.pane(names: "checkIfStale"), """
-            the Updates screen no longer asks again when it opens — it shows \
-            whatever the last check found, and the last check can be a day old
+    /// Not "when it opens" — while it is open.
+    ///
+    /// The window that offered 0.1.3 all evening was open all evening. A check
+    /// on appear alone would have left that complaint standing for the person
+    /// who leaves the screen up waiting for a release, which is the person who
+    /// had it.
+    @Test func theScreenKeepsAskingWhileItIsOpen() throws {
+        #expect(try Self.task(names: "await updates.checkIfStale("), """
+            the Updates screen no longer asks from its .task — a call anywhere \
+            else in the view body runs on redraws, and a screen that asks \
+            nowhere shows whatever the last check found, a day ago
             """)
 
-        // The call has to be attached to the screen appearing. Written loose in
-        // the body it would run on every redraw, which SwiftUI does often and
-        // for reasons that have nothing to do with somebody looking.
-        #expect(try Self.pane(names: ".task {"), """
-            the Updates screen names checkIfStale but not from .task — a call in \
-            the view body runs on redraws, not on the screen being opened
+        #expect(try Self.task(names: "while !Task.isCancelled"), """
+            the screen asks once and then stops — a settings window left open on \
+            this pane goes back to reading out an answer that ages while \
+            somebody watches it
             """)
     }
 
@@ -47,25 +58,104 @@ import Foundation
             """)
     }
 
-    /// Asking again has to be safe for what is already on screen.
+    /// A check nobody asked for may improve the screen and may never weaken it.
     ///
-    /// A check nobody announced puts its failure in the log and sets the screen
-    /// to idle — which, once the screen started asking again by itself, would
-    /// take a real offer away and replace it with "No new version has been
-    /// found." on nothing more than a dropped connection. The quiet path has to
-    /// look at what it is about to overwrite.
-    @Test func aQuietFailureLeavesTheOfferOnScreen() throws {
-        #expect(try Self.reporting(names: ".available"), """
-            a failed quiet check sets the screen without reading what is on it — \
-            an offer found this morning disappears the first time the network \
-            blinks, and the screen says nothing was found
+    /// Every sentence this app shows is an answer of some strength — a version
+    /// to install, "This is the latest version.", "No new version has been
+    /// found." — and a quiet check arriving at a weaker one is not news, it is a
+    /// screen changing by itself while somebody reads it.
+    ///
+    /// Both halves are checked because the first fix only did the failure. The
+    /// success path weakens things too: `ReleaseFeed` maps a 404 to "nothing
+    /// newer", and `UpdateModel`'s own comment says a 404 is ambiguous — a
+    /// release mid-publish reads the same as a repository this caller cannot
+    /// see.
+    @Test func aQuietCheckNeverWeakensTheScreen() throws {
+        #expect(try Self.reporting(names: "guard announcing else { return }"), """
+            a failed quiet check writes the screen — the first version of this \
+            guard named `.available` alone, which let a dropped connection \
+            replace an honest "GitHub could not be reached" with the confident \
+            false claim that it had been
+            """)
+
+        #expect(try !Self.reporting(names: "state = .idle"), """
+            a failed quiet check still falls through to idle for some state — \
+            there is no state where "No new version has been found." is the \
+            right thing to learn from a request that never arrived
+            """)
+
+        // Asked for the state and not for one spelling of assigning it: the
+        // first version of this line looked for `state = .idle` and stayed
+        // green against `state = announcing ? .upToDate : .idle`, which is the
+        // bug exactly.
+        #expect(try !Self.settling(names: ".idle"), """
+            a quiet check that finds nothing still writes idle — on a 404 that \
+            takes a real offer off the screen, and `recordCheck` has already \
+            stamped the moment, so neither schedule will ask again to correct it
             """)
     }
 
-    // MARK: - the three places, each asked for a phrase and nothing else
+    /// Navigating away is not an outage.
+    ///
+    /// SwiftUI cancels a `.task` when its view goes, `URLSession` turns that
+    /// into `URLError -999`, and one door down it is indistinguishable from a
+    /// dropped connection. Without this, leaving the pane quickly logs an error
+    /// and posts a report to the author — scaling with how often people click,
+    /// not with how often anything is wrong. `PollScheduler` carries a comment
+    /// about this exact mistake, made once already against the accounts list.
+    @Test func acancelledCheckIsNotAFailure() throws {
+        #expect(try Self.reporting(names: "Task.isCancelled"), """
+            a cancelled request is reported as a failure again — switching away \
+            from the Updates pane manufactures error reports and rewrites the \
+            screen on the way out
+            """)
+    }
 
-    private static func pane(names phrase: String) throws -> Bool {
-        try read(paneFile).contains(phrase)
+    /// One request out at a time.
+    ///
+    /// A quiet check never sets `.checking`, so it was invisible to the only
+    /// guard the model had: one click on the menu item opened the window — whose
+    /// pane asks — and then asked again beside it. Two answers then raced onto
+    /// the screen, and two moments were stamped, either of which could be the
+    /// one that stuck.
+    @Test func oneRequestIsOutAtATime() throws {
+        #expect(try Self.checking(names: "guard !inFlight"), """
+            nothing holds a token for a request in flight — opening the update \
+            screen from the menu sends two, and the later answer overwrites the \
+            earlier one whichever was right
+            """)
+    }
+
+    /// The switch is read in one place, and every quiet check goes through it.
+    ///
+    /// This is the claim with a privacy consequence: the caption under the
+    /// toggle and the update paragraph on the privacy page both say, in ten
+    /// languages, that nothing is asked when it is off. It held up on a `guard`
+    /// that had been copied once already the day a second quiet check was added.
+    /// A third entry point copies it a third time, and the one that forgets
+    /// reaches GitHub for somebody who turned this off.
+    @Test func everyQuietCheckReadsTheSwitchThroughOneGate() throws {
+        let gates = try Self.timesModelNames("preferences.checksForUpdates")
+        #expect(gates == 1, """
+            the update switch is read in \(gates) places rather than one — each \
+            copy is a promise made in ten languages resting on somebody \
+            remembering to write the line again
+            """)
+
+        for schedule in ["isDue", "isStale"] {
+            #expect(try Self.model(names: "checkQuietly(now: now, when: UpdateSchedule.\(schedule))"),
+                    """
+                    the \(schedule) check no longer routes through the gate that \
+                    reads the switch — it either asks with automatic checking \
+                    off, or it reads the switch from a second copy
+                    """)
+        }
+    }
+
+    // MARK: - each place, asked for a phrase and nothing else
+
+    private static func task(names phrase: String) throws -> Bool {
+        try body(of: ".task {", upTo: "// MARK:", in: read(paneFile)).contains(phrase)
     }
 
     private static func offer(names phrase: String) throws -> Bool {
@@ -76,6 +166,24 @@ import Foundation
     private static func reporting(names phrase: String) throws -> Bool {
         try body(of: "private func report(", upTo: "// MARK:",
                  in: read(modelFile)).contains(phrase)
+    }
+
+    private static func settling(names phrase: String) throws -> Bool {
+        try body(of: "private func settle(", upTo: "// MARK:",
+                 in: read(modelFile)).contains(phrase)
+    }
+
+    private static func checking(names phrase: String) throws -> Bool {
+        try body(of: "private func check(now: Date, announcing: Bool)", upTo: "// MARK:",
+                 in: read(modelFile)).contains(phrase)
+    }
+
+    private static func model(names phrase: String) throws -> Bool {
+        try read(modelFile).contains(phrase)
+    }
+
+    private static func timesModelNames(_ phrase: String) throws -> Int {
+        try read(modelFile).components(separatedBy: phrase).count - 1
     }
 
     // MARK: -
@@ -91,7 +199,8 @@ import Foundation
 
     /// The lines from `marker` up to whichever comes first of `upTo` and the
     /// next declaration. A slice that silently ran to the end of the file would
-    /// approve a `checkButton` anywhere in it.
+    /// approve the phrase anywhere in it, which is most of the way to approving
+    /// nothing at all.
     private static func body(
         of marker: String, upTo terminator: String, in source: String
     ) throws -> String {

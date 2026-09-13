@@ -149,7 +149,7 @@
 "Installing…" = "ইনস্টল হচ্ছে…";
 "The app will restart on its own when this finishes." = "শেষ হলে অ্যাপ নিজেই আবার চালু হবে।";
 "Check automatically" = "নিজে থেকে পরীক্ষা করুক";
-"Once a day, and when you open this screen. Never without saying so here first." = "দিনে একবার, আর যখন আপনি এই স্ক্রিনটি খোলেন। আর সবসময় আগে এখানে জানিয়ে।";
+"Once a day, and while this screen is open. Never without saying so here first." = "দিনে একবার, আর এই স্ক্রিন খোলা থাকাকালীন। আর সবসময় আগে এখানে জানিয়ে।";
 "GitHub could not be reached. Check the connection and try again." = "GitHub-এ পৌঁছনো গেল না। সংযোগ দেখে আবার চেষ্টা করুন।";
 "The newest release has no build to download." = "সর্বশেষ রিলিজে ডাউনলোড করার মতো কিছু নেই।";
 "What arrived is not what the release published, so it was discarded." = "যা এসেছে তা প্রকাশিতটির সঙ্গে মেলেনি, তাই বাতিল করা হয়েছে।";
