@@ -139,7 +139,7 @@ import Foundation
         var offenders: [String] = []
         for file in try Self.textFiles() {
             let text = try String(contentsOf: file, encoding: .utf8).lowercased()
-            for name in Self.namesOfThisMachine() where text.contains(name) {
+            for name in Self.machineNames where text.contains(name) {
                 offenders.append("\(file.lastPathComponent): \(name)")
             }
         }
@@ -170,6 +170,11 @@ import Foundation
         // pass --no-verify.
         return Set([host, NSUserName()].map { $0.lowercased() }.filter { $0.count > 3 })
     }
+
+    /// Asked once and kept. The file walk asks per file and the history scan
+    /// per commit, and `hostName` may sit on a resolver — one answer serves
+    /// them all.
+    private static let machineNames = namesOfThisMachine()
 
     /// A sibling checkout names a project that is not this one. The landing's
     /// deploy script pointed at another service's directory to explain a
@@ -503,7 +508,7 @@ import Foundation
         }
 
         let lowered = text.lowercased()
-        for name in namesOfThisMachine() where lowered.contains(name) {
+        for name in machineNames where lowered.contains(name) {
             found.append("this machine's name or login")
         }
 
