@@ -26,53 +26,55 @@ submission.
 
 ## 1. Reply to send in Resolution Center
 
-> Thank you — that is a fair point, and this build fixes it.
+> Thanks for the detail in the note. You are right that there was nothing to
+> look at, and this build fixes it.
 >
-> Softcap reports how much of a Claude or Codex subscription has been used. With
-> no account added it has nothing to report, which is what you saw. We cannot
-> hand over a demo account for those services: they are third-party
-> subscriptions, sharing the credentials breaks Anthropic's and OpenAI's terms,
-> and their sign-in runs through a browser with a second factor.
+> Softcap reports how much of a Claude or Codex subscription has been used.
+> With no account added it has no data to report, which is the empty window
+> you got. I cannot hand over a demo account for those two services: they
+> are third party subscriptions, sharing the login breaks Anthropic's and
+> OpenAI's terms, and their sign-in runs through a browser with two-factor.
 >
-> The build attached to this submission therefore includes a demo mode, and it
-> is already on when the app is first launched. No account, no password, no
-> network connection and no setting are needed to review every screen.
+> So this build has a demo mode instead, and it is already on the first time
+> the app runs. You do not need an account, a password, a network
+> connection, or to change any setting.
 >
-> **Softcap is a menu bar app.** It has no Dock icon and opens no window of its
-> own at launch. After opening it from Applications, look for a small ring icon
-> in the menu bar, near the clock.
+> One thing that is easy to miss: Softcap is a menu bar app. It has no Dock
+> icon and opens no window when it launches. After opening it from
+> Applications, look for the small ring icon in the menu bar, near the
+> clock.
 >
-> 1. **The limits window.** Click that ring icon. The window opens already
->    populated with three sample accounts — one Codex and two Claude — each with
->    its five-hour and weekly limits, a coloured meter and a countdown to the
->    next reset. A line at the bottom reads "Demo — sample data".
+> 1. Click that ring icon. The window opens with three sample accounts
+> already in it, one Codex and two Claude, each showing its five-hour and
+> weekly limits with a coloured bar and a countdown to the next reset. The
+> bottom line of the window reads "Demo — sample data".
 >
->    Please watch it for about half a minute. The meters are live: the
->    percentages climb, the countdowns run down, and when a window reaches its
->    reset the bar drops and the cycle starts again. One sample account sits at
->    100% with roughly forty seconds left, so a full cycle is visible almost
->    immediately. This is the app's whole purpose, shown working.
+> Please watch it for about thirty seconds. The numbers are live: the
+> percentages climb, the countdowns run down, and when a limit reaches its
+> reset the bar drops back and starts filling again. One of the samples sits
+> at 100% with roughly forty seconds left, so a full cycle is visible almost
+> straight away. That cycle is the whole point of the app.
 >
-> 2. **Settings.** Press the gear in that window, or "Settings…". Every screen is
->    populated:
->    - **Accounts** — the three sample accounts, and the switch labelled "Show
->      sample data" that turns this mode on and off.
->    - **Statistics** — four weeks of recorded usage, drawn as one line per
->      account.
->    - **Appearance**, **Notifications**, **Polling and launch**, **Services**,
->      **Updates**, **Contribute**, **About** — these are settings screens and
->      show their content whether or not an account exists.
+> 2. Click "Settings…" at the bottom of that window, or the gear icon. Every
+> screen has content on it. Accounts lists the three sample accounts and
+> carries the checkbox "Show sample data" that turns this mode on and off.
+> Statistics draws four weeks of usage, one line per account. Appearance,
+> Notifications, Polling and launch, Services, Updates, Contribute and About
+> are ordinary settings screens and show their content whether or not an
+> account exists.
 >
-> 3. **The menu bar itself** shows the busiest account's countdown, and follows
->    the same samples.
+> 3. The menu bar icon itself shows the countdown for the busiest account,
+> from the same samples.
 >
-> To leave demo mode, turn off "Show sample data" on the Accounts screen. It
-> switches off by itself, permanently, the first time a real account is added.
+> To switch the demo off, uncheck "Show sample data" on the Accounts screen.
+> It also switches itself off for good the first time a real account is
+> added.
 >
-> The samples are clearly marked as samples everywhere they appear, and use
-> addresses in `example.com`, the domain RFC 2606 reserves for documentation.
-> They are not stored, not sent anywhere, and no notification is raised from
-> them.
+> The samples are labelled as samples everywhere they appear and use
+> addresses at example.com, the domain reserved for documentation. Nothing
+> about them is stored or sent anywhere, and they raise no notifications.
+>
+> Happy to answer anything else you need.
 
 ---
 
