@@ -80,29 +80,35 @@ submission.
 
 ## 2. Text for App Review Information → Notes
 
-> **No account is needed.** Softcap is a menu bar app — no Dock icon, no window
-> at launch. Open it from Applications and click the small ring icon in the menu
-> bar near the clock.
+> No account is needed to review this build.
+>
+> Softcap is a menu bar app: no Dock icon, and no window opens when it
+> launches. Open it from Applications and click the small ring icon in the
+> menu bar, near the clock.
 >
 > Demo mode is on by default on a machine where nobody has signed in, so the
-> limits window opens already populated with three sample accounts, live meters
-> and running countdowns, labelled "Demo — sample data". Watching it for thirty
-> seconds shows a limit filling, resetting and starting again — one sample sits
-> at 100% with about forty seconds left. Settings → Accounts lists the same three
-> accounts and carries the "Show sample data" switch; Settings → Statistics draws
-> four weeks of history. Every other settings screen shows its content
-> regardless. Nothing needs a password, a subscription or a network connection.
+> window opens with three sample accounts already in it, live bars and
+> running countdowns, labelled "Demo — sample data". Watch it for about
+> thirty seconds and you will see a limit fill up, reset and start filling
+> again: one of the samples sits at 100% with roughly forty seconds left.
+> Settings (the gear, or "Settings…") lists the same three accounts under
+> Accounts, together with the "Show sample data" checkbox that controls this
+> mode, and Statistics draws four weeks of history. Every other settings
+> screen shows its content whether or not an account exists. Nothing here
+> needs a password, a subscription or a network connection.
 >
-> **Network entitlement.** Softcap includes
-> `com.apple.security.network.server` because signing in uses the OAuth 2.0
-> loopback redirect for native apps (RFC 8252 §7.3). Claude's and Codex's OAuth
-> clients redirect to `http://localhost:<port>/callback`, so the app binds a TCP
-> listener on 127.0.0.1 (`NWListener`, `requiredLocalEndpoint` = `.ipv4(.loopback)`,
-> see `App/BrowserCallbackListener.swift`) for the duration of one sign-in and
-> cancels it as soon as the authorization code arrives. The App Sandbox denies
-> that bind without the entitlement — the listener fails with POSIX 1,
-> "Operation not permitted" — and sign-in cannot complete. The app listens on no
-> other interface, port or protocol, and is not a server of any kind.
+> Network entitlement, from the earlier rejection: Softcap includes
+> com.apple.security.network.server because signing in uses the OAuth 2.0
+> loopback redirect for native apps (RFC 8252 section 7.3). Claude's and
+> Codex's OAuth clients redirect to http://localhost:<port>/callback, so the
+> app binds a TCP listener on 127.0.0.1 (NWListener, with
+> requiredLocalEndpoint set to .ipv4(.loopback); see
+> App/BrowserCallbackListener.swift) for the length of one sign-in and
+> cancels it as soon as the authorization code arrives. The App Sandbox
+> denies that bind without the entitlement: the listener fails with POSIX
+> error 1, "Operation not permitted", and sign-in cannot complete. The app
+> listens on no other interface, port or protocol, and is not a server of
+> any kind.
 
 ---
 
