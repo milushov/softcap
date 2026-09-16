@@ -81,9 +81,39 @@ struct PopoverView: View {
             }
 
             pastedCodeField
+            if model.isDemo {
+                Divider().opacity(0.35)
+                demoNote
+            }
             Divider().opacity(0.5)
             footer
         }
+    }
+
+    /// What says that the numbers above are invented.
+    ///
+    /// In both shapes of the window, including the minimal one — which is built
+    /// to carry nothing that is not a reading, and pays a line for this. Showing
+    /// somebody invented figures without saying so is the one thing worse than
+    /// spending the line.
+    private var demoNote: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "info.circle")
+                .font(.system(size: 10))
+            Text(loc("Demo — sample data"))
+                .font(.system(size: 10.5))
+            Spacer()
+            Button(loc("Sign in…")) {
+                model.settingsSection = .accounts
+                SettingsWindow.open()
+            }
+            .buttonStyle(.plain)
+            .font(.system(size: 10.5))
+            .foregroundStyle(.tint)
+        }
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 13)
+        .padding(.vertical, 5)
     }
 
     /// The same window with everything that is not a reading taken off it.
@@ -120,6 +150,7 @@ struct PopoverView: View {
             }
 
             pastedCodeField
+            if model.isDemo { demoNote }
             quietFooter
         }
         .padding(.vertical, 8)

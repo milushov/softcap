@@ -8188,3 +8188,62 @@ announcing a change. Nothing looked broken, because the countdown's one-second
 tick redraws the window anyway: every transition simply arrived up to a second
 after the press, and the feature would have gone still the day that timer was
 slowed or taken away.
+
+## 2026-09-16 — App Review is answered about an empty window with a mode, not an account
+
+**Decision.** App Review refused 0.1.22 a second time, under guideline 2.1(a):
+*"we need a populated demo account/demo mode that shows real content on all
+pages"*. The app gains a demo mode. It shows three sample accounts —
+`alex@example.com`, `sam@example.com` and `sam.k@example.com`, the three the
+landing page already draws — with their limits visibly being spent, and it is on
+by default until somebody signs in. `App/DemoData.swift` holds the data and the
+clock; `Preferences.demoMode` is the switch; `TheDemoMatchesTheLanding` holds the
+figures to `site/src/index.body.html` in both directions.
+
+**Why.** Because the rejection is right. Softcap reads subscription usage, so
+without a paid Claude or Codex plan and a grant obtained in a browser it has
+nothing to show, and a reviewer on a clean MacBook Air met exactly that: "No
+accounts found", which is true and useless. Nothing on any screen could be
+reviewed, and Apple says plainly that a video of the app working is not a
+substitute.
+
+The other half of the guideline's sentence — a demo account — cannot be given.
+It would mean live Anthropic and OpenAI credentials typed into App Store Connect:
+against both providers' terms, impossible to carry through a browser sign-in with
+a second factor, and forbidden by this repository's rule about published values.
+
+The mode is visible, documented and available to everybody rather than reachable
+only by App Review. A mode only a reviewer can find is a hidden feature, which is
+its own rejection under 2.3.1 — and the first thing anybody asks of a usage
+monitor is what it looks like with usage in it, so this is a feature the app was
+missing rather than a concession.
+
+Three details were decided against the obvious reading. `demoMode` is
+`Bool?` rather than `Bool`, because every installation of 0.1.22 carries
+preferences with no such key: a plain `Bool` defaulting to true would have
+greeted all of them with three invented rows on the morning they updated, and
+`nil` resolving to "on only when a finished poll found no accounts" does not.
+The demo clock runs at sixty times real time, because a five-hour window filling
+at its real rate moves a third of a percent per minute and a reviewer watching
+for thirty seconds sees a still photograph; at sixty times, a session bar changes
+every two or three seconds and `sam.k`'s forty-one minutes empty and reset inside
+a minute. And the accelerated clock is shown rather than hidden — the countdown
+loses a minute every second — because the alternative is a bar that fills to the
+top while the clock beside it still says two hours, which is a window
+contradicting itself.
+
+**Cost.** A line in the minimal window, which was built to carry nothing that is
+not a reading and now carries a label saying the readings are invented. That was
+weighed and paid: showing somebody invented figures without saying so is worse
+than spending the line. The store screenshots are re-taken, because
+`ScreenshotFixtures` folded into `DemoData` — it held a second set of invented
+accounts, and one set means the store, the website and the app on a stranger's
+machine are one picture. Three new strings in ten catalogues. And a 1 Hz timer
+that exists only while the mode is on, so nobody who signs in ever pays for it.
+
+The widget follows the same rule it was given on 2026-09-14 — written only when a
+widget is really there — and is told once a minute rather than at the 1 Hz the
+window moves at, because redrawing a widget every second to animate invented
+numbers spends a person's battery. Turning the mode off republishes in the same
+turn; left to the next poll, the desktop would go on naming `sam.k@example.com`
+for up to five minutes after somebody signed in as themselves.

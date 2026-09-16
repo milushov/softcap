@@ -192,3 +192,6 @@
 "Add Claude Code or OpenAI Codex accounts through your browser." = "Tambahkan akun Claude Code atau OpenAI Codex lewat peramban.";
 "Saved credentials will be deleted. Nothing you signed into elsewhere is affected." = "Kredensial yang tersimpan akan dihapus. Sesi masuk di tempat lain tidak terpengaruh.";
 "Every account holds its own credential and refreshes on its own." = "Setiap akun memiliki kredensialnya sendiri dan diperbarui sendiri.";
+"Demo — sample data" = "Demo — data contoh";
+"Show sample data" = "Tampilkan data contoh";
+"These accounts are examples. Add one of your own to see real limits." = "Akun-akun ini hanya contoh. Tambahkan akun Anda sendiri untuk melihat limit sebenarnya.";

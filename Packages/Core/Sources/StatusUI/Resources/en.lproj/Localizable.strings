@@ -192,3 +192,6 @@
 "Add Claude Code or OpenAI Codex accounts through your browser." = "Add Claude Code or OpenAI Codex accounts through your browser.";
 "Saved credentials will be deleted. Nothing you signed into elsewhere is affected." = "Saved credentials will be deleted. Nothing you signed into elsewhere is affected.";
 "Every account holds its own credential and refreshes on its own." = "Every account holds its own credential and refreshes on its own.";
+"Demo — sample data" = "Demo — sample data";
+"Show sample data" = "Show sample data";
+"These accounts are examples. Add one of your own to see real limits." = "These accounts are examples. Add one of your own to see real limits.";

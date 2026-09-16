@@ -192,3 +192,6 @@
 "Add Claude Code or OpenAI Codex accounts through your browser." = "ब्राउज़र से Claude Code या OpenAI Codex खाते जोड़ें।";
 "Saved credentials will be deleted. Nothing you signed into elsewhere is affected." = "सहेजे गए क्रेडेंशियल हटा दिए जाएंगे। कहीं और किए गए साइन-इन पर असर नहीं पड़ता।";
 "Every account holds its own credential and refreshes on its own." = "हर खाते के अपने क्रेडेंशियल हैं और वह स्वयं रिफ़्रेश होता है।";
+"Demo — sample data" = "डेमो — नमूना डेटा";
+"Show sample data" = "नमूना डेटा दिखाएँ";
+"These accounts are examples. Add one of your own to see real limits." = "ये खाते उदाहरण हैं। अपनी वास्तविक सीमाएँ देखने के लिए अपना खाता जोड़ें।";

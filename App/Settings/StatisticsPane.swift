@@ -42,7 +42,9 @@ struct StatisticsPane: View {
                 )
                 .frame(height: 230)
 
-                Text(loc("A break in a line is a stretch with no readings taken, not a steady reading."))
+                Text(loc(appModel.isDemo
+                         ? "Demo — sample data"
+                         : "A break in a line is a stretch with no readings taken, not a steady reading."))
                     .font(.system(size: 11)).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -64,7 +66,7 @@ struct StatisticsPane: View {
     }
 
     private func reload() async {
-        let history = await appModel.history.current()
+        let history = await appModel.visibleHistory.current()
         let at = Date()
         let since = at.addingTimeInterval(-range.duration)
         now = at

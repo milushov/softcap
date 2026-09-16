@@ -238,6 +238,7 @@ final class AppModel: ObservableObject {
                 || oldValue.disabledProviders != preferences.disabledProviders {
                 Task { await refresh() }
             }
+            if oldValue.demoMode != preferences.demoMode { syncDemo() }
             if oldValue.refreshHotKey != preferences.refreshHotKey {
                 // Registration lives here, not in the settings scene: that one
                 // is created lazily, so the shortcut did nothing until the window
@@ -265,11 +266,111 @@ final class AppModel: ObservableObject {
     private let isScreenshotRun = false
     #endif
 
+    // MARK: - Demo
+
+    /// When the demo clock started. Every demo value is a function of the time
+    /// since this moment, so there is no simulation state to start, stop,
+    /// restore after a sleep, or find disagreeing with itself.
+    private var demoStartedAt = Date()
+    /// Redraws the samples once a second while demo is on, and does not exist
+    /// otherwise — somebody who never sees this mode pays nothing for it.
+    private var demoTimer: Task<Void, Never>?
+    /// Frames drawn since the widget was last told. The window moves at 1 Hz;
+    /// the widget is a separate process on a battery and hears once a minute.
+    private var demoFrames = 0
+    /// How many accounts the last real poll found. `isDemo` asks this rather
+    /// than `snapshots`, which during demo holds the samples and would answer
+    /// that there are always three.
+    private var realAccountCount = 0
+    /// Whether a real poll has finished. Answering before the first reading
+    /// would put samples in front of somebody who has accounts, for the second
+    /// or two it takes to read them.
+    private var hasPolled = false
+
+    /// A history the demo draws from, held in memory with no file behind it.
+    /// The real one is not touched: merging samples into it would overwrite a
+    /// month of somebody's own readings with invented ones.
+    private let demoHistory = UsageHistoryStore(url: nil)
+
+    /// Whether sample accounts are on screen.
+    var isDemo: Bool {
+        if let chosen = preferences.demoMode { return chosen }
+        return hasPolled && realAccountCount == 0
+    }
+
+    /// The history the statistics screen should draw.
+    ///
+    /// Keyed off the timer rather than off `isDemo`, so that the screenshot lane
+    /// — which turns the mode on but never starts the timer — goes on drawing
+    /// the month it seeded for itself.
+    var visibleHistory: UsageHistoryStore { demoTimer != nil ? demoHistory : history }
+
+    /// Starts or stops the demo to match `isDemo`. Safe to call repeatedly.
+    private func syncDemo() {
+        // A screenshot must not animate. That lane turns the mode on so the
+        // Accounts screen shows the switch in the position its rows imply, and
+        // seeds the launch frame itself — where every figure is the landing's,
+        // before the demo clock has moved any of them.
+        if isScreenshotRun { return }
+
+        if isDemo {
+            guard demoTimer == nil else { return }
+            demoStartedAt = Date()
+            demoFrames = 0
+            Task { await demoHistory.merge(DemoData.samples(now: Date()), now: Date()) }
+            demoTimer = Task { [weak self] in
+                while !Task.isCancelled {
+                    self?.drawDemoFrame()
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                }
+            }
+        } else {
+            guard demoTimer != nil else { return }
+            demoTimer?.cancel()
+            demoTimer = nil
+            // In the same turn, not at the next poll. Left to the poll, the
+            // desktop would go on naming sam.k@example.com for up to five
+            // minutes after the person signed in as themselves.
+            snapshots = []
+            summary = nil
+            publishToWidget([])
+            Task { await refresh() }
+        }
+    }
+
+    /// One frame of the demo.
+    ///
+    /// `resetsAt` is re-stamped every second against the demo remainder, which
+    /// is what makes a countdown read 41m at launch and lose a minute every
+    /// second afterwards. No view is changed for this mode; they all go on
+    /// computing `resetsAt - now` as they always have.
+    private func drawDemoFrame() {
+        let now = Date()
+        let rows = orderedForDisplay(
+            DemoData.snapshots(since: demoStartedAt, now: now),
+            ordering: preferences.ordering,
+            customAccountOrder: preferences.customAccountOrder
+        )
+        snapshots = rows
+        summary = menuBarSummary(rows, now: now, window: preferences.primaryWindow)
+        lastUpdated = now
+
+        // The tracker is deliberately not fed. One sample sits at a hundred
+        // percent and would otherwise deliver a notification within seconds of
+        // a first launch, about an account nobody has.
+        if demoFrames % 60 == 0 { publishToWidget(rows) }
+        demoFrames += 1
+    }
+
     /// Puts the store fixtures on screen. Empty unless this is a screenshot
-    /// build, so the addresses in `ScreenshotFixtures` are in no shipped binary.
+    /// build — not because the data is secret, since `DemoData` ships now, but
+    /// because a screenshot run must reach no keychain, no timer and no file.
     private func seedScreenshotFixtures() async {
         #if SCREENSHOTS
-        snapshots = ScreenshotFixtures.accounts
+        // The launch frame of the demo: `since` and `now` being the same moment
+        // is what makes every figure the landing's exactly, before the demo
+        // clock has moved any of them. A screenshot must not animate.
+        snapshots = DemoData.snapshots(since: Date(), now: Date())
         // Derived the way a real poll derives it, rather than written out beside
         // the fixtures: a menu bar label that disagreed with the window below it
         // would be a lie told in a screenshot, and this is one line.
@@ -278,7 +379,7 @@ final class AppModel: ObservableObject {
         // The statistics screen draws the history rather than the snapshots, so
         // it needs its own fixtures — otherwise that screen alone would show the
         // real month of readings this machine has recorded.
-        await history.merge(ScreenshotFixtures.samples, now: Date())
+        await history.merge(DemoData.samples(now: Date()), now: Date())
         #endif
     }
 
@@ -406,6 +507,23 @@ final class AppModel: ObservableObject {
             Self.log.error("\(id, privacy: .public): answering again")
         }
         loggedFailures = stillFailing
+        realAccountCount = result.count
+        hasPolled = true
+
+        // A poll goes on running while samples are on screen — that is what
+        // lets somebody press Add Account from a demo window and have the mode
+        // end the moment the account arrives. What it must not do is put its
+        // own findings on screen, record them, or announce them.
+        if isDemo {
+            syncDemo()
+            if needsAnotherPass {
+                needsAnotherPass = false
+                await poll()
+            }
+            return
+        }
+        syncDemo()
+
         snapshots = result
         await history.record(result, at: Date())
         summary = menuBarSummary(result, now: Date(), window: preferences.primaryWindow)
@@ -468,8 +586,14 @@ final class AppModel: ObservableObject {
         // The Accounts screen has its own path to the data — the keychain — and a
         // screenshot build must not reach it, so the fixtures answer here too.
         #if SCREENSHOTS
-        if isScreenshotRun { return ScreenshotFixtures.rows }
+        if isScreenshotRun { return DemoData.rows }
         #endif
+
+        // The same reason the screenshot lane has: this screen reads the
+        // keychain, and in demo there may be no item to read — asking would
+        // raise a system prompt in front of somebody who has signed in to
+        // nothing.
+        if isDemo { return DemoData.rows }
 
         // Written out rather than left implicit: a single-expression body
         // returns on its own, and the `#if` above stopped this one being

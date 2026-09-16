@@ -130,6 +130,19 @@ public struct Preferences: Codable, Sendable, Equatable {
     public var disabledProviders: Set<ProviderID>
     public var hiddenAccounts: Set<String>
 
+    /// Whether sample accounts stand in for real ones.
+    ///
+    /// Three states, because two do not survive an upgrade. `true` and `false`
+    /// are a choice somebody made on the Accounts screen and are honoured as
+    /// written. `nil` means nobody has decided, and resolves to "on" only once a
+    /// poll has finished and found no accounts — so a fresh install shows what
+    /// the app does instead of an empty window, and an installation that already
+    /// has accounts does not wake up one morning showing three invented ones.
+    ///
+    /// The first successful sign-in writes `false`: once a person has an account
+    /// of their own, samples are in the way.
+    public var demoMode: Bool?
+
     /// Allowed polling bounds. More often than twice a minute is pointless:
     /// the service does not recompute limits instantly. Less often than hourly
     /// and the monitor stops being one.
@@ -159,7 +172,8 @@ public struct Preferences: Codable, Sendable, Equatable {
         checksForUpdates: true,
         lastUpdateCheck: nil,
         disabledProviders: [],
-        hiddenAccounts: []
+        hiddenAccounts: [],
+        demoMode: nil
     )
 
     /// Brings values into range. Called before saving and after reading:
@@ -246,5 +260,6 @@ extension Preferences {
         lastUpdateCheck      = readOptional(.lastUpdateCheck, fallback.lastUpdateCheck)
         disabledProviders    = read(.disabledProviders, fallback.disabledProviders)
         hiddenAccounts       = read(.hiddenAccounts, fallback.hiddenAccounts)
+        demoMode             = readOptional(.demoMode, fallback.demoMode)
     }
 }

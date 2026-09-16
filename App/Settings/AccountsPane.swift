@@ -33,6 +33,9 @@ struct AccountsPane: View {
         Pane(title: loc("Accounts"),
              subtitle: loc("Add Claude Code or OpenAI Codex accounts through your browser.")) {
             VStack(alignment: .leading, spacing: 10) {
+                demoControl
+                Divider().opacity(0.4)
+
                 if rows.isEmpty {
                     Text(loc("No accounts yet"))
                         .font(.system(size: 12)).foregroundStyle(.secondary)
@@ -159,6 +162,28 @@ struct AccountsPane: View {
             accountError = loc("Could not forget the account. Try again.")
         }
         await reload()
+    }
+
+    /// The switch that puts sample accounts on screen, and the sentence saying
+    /// that is what is on screen now.
+    ///
+    /// Always present, not only while demo is on: the mode exists so that
+    /// somebody without a subscription can see what the app does, and a way in
+    /// that disappears once you have left is not a way in. It is also what App
+    /// Review is pointed at.
+    private var demoControl: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Toggle(loc("Show sample data"), isOn: Binding(
+                get: { appModel.isDemo },
+                set: { on in model.update { $0.demoMode = on } }
+            ))
+            .font(.system(size: 12.5))
+            if appModel.isDemo {
+                Text(loc("These accounts are examples. Add one of your own to see real limits."))
+                    .font(.system(size: 11)).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
     }
 
     private func visible(_ row: AccountRow) -> Binding<Bool> {

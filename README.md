@@ -4,7 +4,7 @@ Claude Code and OpenAI Codex subscription limits in the macOS menu bar.
 macOS 14+ · SwiftUI · WidgetKit.
 
 ![Softcap in the macOS menu bar: five-hour and weekly usage, with reset
-countdowns, for four Claude and Codex accounts](docs/screenshots/01-limits.webp)
+countdowns, for three sample Claude and Codex accounts](docs/screenshots/01-limits.webp)
 
 ## Screens
 
@@ -23,11 +23,11 @@ countdowns, for four Claude and Codex accounts](docs/screenshots/01-limits.webp)
 <table>
 <tr>
 <td align="center" nowrap>
-<a href="docs/screenshots/02-accounts.webp"><img src="docs/screenshots/02-accounts.webp" width="420" alt="Accounts settings: four Claude and Codex accounts in one list, each with its source and a Forget button"></a>
+<a href="docs/screenshots/02-accounts.webp"><img src="docs/screenshots/02-accounts.webp" width="420" alt="Accounts settings: three sample Claude and Codex accounts in one list, each with its source and a Forget button"></a>
 <br><b>Accounts</b> · Claude and Codex accounts, together in one list
 </td>
 <td align="center" nowrap>
-<a href="docs/screenshots/03-statistics.webp"><img src="docs/screenshots/03-statistics.webp" width="420" alt="Statistics settings: a week of weekly-limit usage plotted for four accounts"></a>
+<a href="docs/screenshots/03-statistics.webp"><img src="docs/screenshots/03-statistics.webp" width="420" alt="Statistics settings: a week of weekly-limit usage plotted for three sample accounts"></a>
 <br><b>Statistics</b> · how much of each weekly limit is used, over time
 </td>
 <td align="center" nowrap>
@@ -126,6 +126,7 @@ browser once, and then holds a credential of its own.
 | Polling | Every **60 s** with the window open, **300 s** in the background; configurable |
 | Appearance | System, light, dark; optional minimal window; ten languages including Arabic RTL; VoiceOver |
 | Mac widgets | All four sizes: small, medium, large, extra large; data comes from the app |
+| Demo | Sample accounts with limits filling and resetting, shown until you sign in; switched on the Accounts screen |
 | Statistics | Weekly-limit charts over the last week or month, built from the readings the app has taken |
 | Updates | GitHub check daily by default, and again while Settings → Updates is open; installation starts from the menu or that screen |
 

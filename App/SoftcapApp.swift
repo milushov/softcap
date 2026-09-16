@@ -72,6 +72,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             preferences.update {
                 $0.hiddenAccounts.remove(ref.id)
                 $0.disabledProviders.remove(ref.provider)
+                // Written rather than left to resolve itself: once somebody has
+                // an account of their own the samples are in the way, and a
+                // person who later removes that account should meet the empty
+                // window rather than three invented rows.
+                $0.demoMode = false
             }
             guard let model else { return }
             // The answer goes back to whichever screen asked. A sign-in started

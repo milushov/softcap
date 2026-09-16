@@ -192,3 +192,6 @@
 "Add Claude Code or OpenAI Codex accounts through your browser." = "通过浏览器添加 Claude Code 或 OpenAI Codex 账户。";
 "Saved credentials will be deleted. Nothing you signed into elsewhere is affected." = "已保存的凭据将被删除。你在其他地方的登录不受影响。";
 "Every account holds its own credential and refreshes on its own." = "每个账户都有自己的凭据，各自独立刷新。";
+"Demo — sample data" = "演示 — 示例数据";
+"Show sample data" = "显示示例数据";
+"These accounts are examples. Add one of your own to see real limits." = "这些是示例账户。添加您自己的账户即可查看真实用量。";
