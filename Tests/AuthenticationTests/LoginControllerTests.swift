@@ -109,7 +109,7 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         let store = store()
         let model = LoginController(store: store, authentication: { _ in auth }, openURL: browser.open)
         var completions: [AccountRef] = []
-        model.didAddAccount = { ref in
+        model.didAddAccount = { ref, _ in
             #expect(!model.isRunning)
             #expect(model.successNotice == ref)
             completions.append(ref)
@@ -139,7 +139,7 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         let keychain = MemoryAccounts(gated: true)
         let model = LoginController(store: store(keychain: keychain), authentication: { _ in auth }, openURL: browser.open)
         var completions = 0
-        model.didAddAccount = { _ in completions += 1 }
+        model.didAddAccount = { _, _ in completions += 1 }
         model.start(provider: .codex)
         #expect(await eventually { browser.url != nil })
         let url = try #require(browser.url)
@@ -176,7 +176,7 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         let store = store(keychain: MemoryAccounts(fails: saveFails))
         let model = LoginController(store: store, authentication: { _ in auth }, openURL: browser.open)
         var completions = 0
-        model.didAddAccount = { _ in completions += 1 }
+        model.didAddAccount = { _, _ in completions += 1 }
         model.start(provider: .codex)
         #expect(await eventually { browser.url != nil })
         let (body, response) = try await URLSession.shared.data(from: try #require(browser.url))
@@ -199,7 +199,7 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         let model = LoginController(store: store, authentication: { _ in auth }, openURL: browser.open,
                                     timeoutDuration: .seconds(1))
         var completions = 0
-        model.didAddAccount = { _ in completions += 1 }
+        model.didAddAccount = { _, _ in completions += 1 }
         model.start(provider: .codex)
         #expect(await eventually { browser.url != nil })
         let url = try #require(browser.url)
@@ -253,7 +253,7 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         let store = store()
         let model = LoginController(store: store, authentication: { _ in auth }, openURL: browser.open)
         var completions = 0
-        model.didAddAccount = { _ in completions += 1 }
+        model.didAddAccount = { _, _ in completions += 1 }
         model.start(provider: .codex)
         #expect(await eventually { browser.url != nil })
         let url = try #require(browser.url)
@@ -330,7 +330,7 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         let auth = BrowserAuth(provider: .claude, port: port, manual: "http://localhost/callback", gated: true)
         let model = LoginController(store: store(), authentication: { _ in auth }, openURL: browser.open)
         var completions: [AccountRef] = []
-        model.didAddAccount = { completions.append($0) }
+        model.didAddAccount = { account, _ in completions.append(account) }
         model.start(provider: .claude)
         #expect(await eventually { model.manualCodeExpected && browser.url != nil })
         await model.submit(code: "reply")
@@ -344,13 +344,64 @@ private func eventually(_ condition: () async -> Bool) async -> Bool {
         #expect(!model.isRunning)
     }
 
+    /// A sign-in remembers which screen asked for it, and says so when it is
+    /// done.
+    ///
+    /// Success used to open the settings window whichever screen had started
+    /// the attempt — correct while that screen was the only one with the button
+    /// on it. The limits window has one now, in the row that says the token is
+    /// dead, and the whole point of that button is not having to go to
+    /// settings. Without the origin travelling with the account, pressing it
+    /// would end by opening the screen it exists to replace.
+    ///
+    /// The row travels too. Two accounts of one service can be dead at once and
+    /// only one of them asked, so the window has to know which of its rows to
+    /// draw the attempt on.
+    @Test(arguments: [SignInOrigin.settings, .window])
+    func theAnswerGoesBackToWhicheverScreenAsked(origin: SignInOrigin) async throws {
+        let browser = Browser()
+        let auth = BrowserAuth(provider: .claude)
+        let model = LoginController(store: store(), authentication: { _ in auth }, openURL: browser.open)
+        var reported: [SignInOrigin] = []
+        model.didAddAccount = { _, origin in reported.append(origin) }
+
+        model.start(provider: .claude, from: origin, for: "claude/asked")
+        #expect(model.request == SignInRequest(
+            provider: .claude, origin: origin, account: "claude/asked"))
+
+        #expect(await eventually { browser.url != nil })
+        let url = try #require(browser.url)
+        _ = try await URLSession.shared.data(from: url)
+        #expect(await eventually { model.completedSignIns == 1 })
+        #expect(reported == [origin])
+
+        // And it is still readable afterwards. The attempt is torn down before
+        // the window is redrawn, and `message` outlives it — a window that lost
+        // the request along with the attempt could not say which of its rows a
+        // failed sign-in's sentence belongs to.
+        #expect(!model.isRunning)
+        #expect(model.request?.account == "claude/asked")
+    }
+
+    /// "Add account…" asks for no particular row, and must not be mistaken for
+    /// one. `nil` matched against a row identifier is false everywhere, which is
+    /// what makes every row leave that attempt alone.
+    @Test func addingAnAccountClaimsNoRow() async throws {
+        let model = LoginController(store: store(), authentication: { _ in BrowserAuth() },
+                                    openURL: Browser().open)
+        model.start(provider: .codex)
+        #expect(model.request?.origin == .settings)
+        #expect(model.request?.account == nil)
+        model.cancel()
+    }
+
     @Test func timeoutDuringExchangeReleasesBrowserWithoutSuccess() async throws {
         let browser = Browser()
         let auth = BrowserAuth(gated: true)
         let model = LoginController(store: store(), authentication: { _ in auth }, openURL: browser.open,
                                     timeoutDuration: .seconds(1))
         var completions = 0
-        model.didAddAccount = { _ in completions += 1 }
+        model.didAddAccount = { _, _ in completions += 1 }
         model.start(provider: .codex)
         #expect(await eventually { browser.url != nil })
         let url = try #require(browser.url)

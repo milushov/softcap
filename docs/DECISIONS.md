@@ -8088,3 +8088,103 @@ listener that exists, and it would keep holding it if the providers ever
 registered a redirect that is not loopback — at which point the right change is
 to delete these checks and the key together, which is written into the suite so
 it is not discovered later.
+
+## 2026-09-16 — The row that reports a dead token is the row that repairs it
+
+**Decision.** A row failing with `needsLogin` carries the sign-in itself, in
+both shapes of the limits window. The words `Sign-in required` keep the left of
+the line and a `Sign in…` button takes the right; while an attempt is in hand
+the row says which service it is waiting on and offers `Cancel`; a sign-in that
+failed leaves its sentence under the row rather than reverting to the line it
+showed before anybody pressed anything. The offer is a parameter —
+`SignInOffer`, built by `PopoverView` and `nil` everywhere else — so the two
+widgets and the phone go on drawing exactly what they drew. `LoginController`
+now records a `SignInRequest`: which service, which row asked, and from which
+screen. The origin travels with the account to `didAddAccount`, and success
+opens the settings window only when settings is what asked.
+
+**Why.** The window named a problem it could not fix. `Sign-in required` is the
+one failure on that list a person can actually do something about — the network
+being down and an unparseable response are weather — and the thing to do about
+it lived on the Accounts screen, a different window away. So the app reported
+the fault every five minutes in the place somebody looks, and kept the repair in
+the place they do not. Four accounts on screen, one of them dead, and the only
+action available in that window was `Settings…`.
+
+Nothing needed translating. All eight sentences the feature says —
+`Sign in…`, `Signing in to %@…`, `Saving account…`, `Cancel`,
+`Sign-in required`, `Copy the code from the page and paste it below`,
+`Code from the page`, `Done` — were already in the ten catalogues, written for
+the Accounts screen. The window says the same things in the same words on
+purpose: somebody who has met one screen should not have to work out that the
+other means the same thing.
+
+The row that asked is recorded because two accounts of one service can be dead
+at once, which is how the window that prompted this looked. The controller runs
+one attempt at a time, so without the row the spinner would have to go on every
+account of that service or on none.
+
+The pasted-code field is in the window for the same reason as the button. A
+sign-in normally returns through the loopback listener and the field is never
+seen; when the port cannot be taken the provider shows the code on its own page
+instead. Left out, the sign-in would start in the window and be finishable only
+on the settings screen — the trip the button exists to save, taken anyway and at
+the worst moment.
+
+**Cost.** A second surface that can start a sign-in, and therefore a second
+surface that can disagree with the first about what is happening. That is what
+`SignInRequest` is for, and what `TheWindowCanFixASignIn` holds: the guard on
+which failure earns a button, the guard on services `LoginController.providers`
+does not list, the row the attempt belongs to, and the order of the two halves
+in the completion handler.
+
+`LoginController.request` outliving its attempt is the sharp edge. `message`
+already outlived it — a sign-in that failed has to leave a sentence behind — and
+the window needs to know which of four rows that sentence is about, so the
+request is no longer cleared in `endAttempt` and `isRunning` is the only thing
+that says whether an attempt is in hand. Every reading of `provider` was already
+inside an `isRunning` branch, and it stays that way.
+
+The window does not come back by itself when the browser is done. It could:
+the origin is known and the popover is one call away. But the browser is in
+front by then and says on its own page that the sign-in worked, and an agent
+application shouldering past that to show a window nobody asked for is a worse
+thing than a row somebody has to click the menu bar to see. The refresh that
+follows the sign-in lands before they get there.
+
+`accessibilitySignIn` rather than a plain button, because an account row
+collapses into a single spoken element and nothing inside one can be stepped to.
+The actions are named on the element and arrive in VoiceOver's actions rotor —
+both of them, because offering the sign-in and not the cancel leaves somebody
+able to start an attempt from this window and unable to stop it for five
+minutes.
+
+Four things a review found, each of them the same shape: a second surface
+inheriting an assumption that only held while there was one.
+
+`successNotice` is set by every successful sign-in and is drawn and dismissed by
+one banner, which lives in the settings window. That window used to open on
+every success, so the notice was always seen and always cleared. It no longer
+opens for a sign-in the limits window started, so that branch dismisses the
+notice itself — otherwise it waits, and greets whoever opens settings days later
+with a green success for something finished elsewhere and long forgotten.
+
+The field that takes a pasted code is gated from both sides. The window shows it
+only for a sign-in the window started; the Accounts screen now asks the same
+question in the mirror. One half alone puts a field on each screen, bound to two
+different strings, each offering to spend the one grant there is.
+
+`submit` refuses a code that is not the code from the page without ending the
+attempt — a typo should not cost a grant — and says so in `message`. The row
+suppresses its note while the field is up, so the field prints that sentence
+rather than a fixed heading, and empties itself only once the code has been
+taken. Emptied unconditionally it threw away the text that needed correcting and
+changed nothing else on screen.
+
+And the window now observes `LoginController` rather than merely reading it. It
+is a separate `ObservableObject` hanging off `AppModel`, which republishes
+nothing of its own, so four pieces of state were being drawn without anything
+announcing a change. Nothing looked broken, because the countdown's one-second
+tick redraws the window anyway: every transition simply arrived up to a second
+after the press, and the feature would have gone still the day that timer was
+slowed or taken away.

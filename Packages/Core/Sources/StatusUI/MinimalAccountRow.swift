@@ -24,6 +24,10 @@ public struct MinimalAccountRow: View {
     private let choice: PrimaryWindow
     private let showSnapshotAge: Bool
 
+    /// See `AccountRow`. `nil` on every surface that has no browser to send
+    /// anybody to, which is every surface but this window.
+    private let signIn: SignInOffer?
+
     @ObservedObject private var loc: Localization
 
     public init(
@@ -31,13 +35,15 @@ public struct MinimalAccountRow: View {
         now: Date,
         choice: PrimaryWindow,
         showSnapshotAge: Bool,
-        localization: Localization
+        localization: Localization,
+        signIn: SignInOffer? = nil
     ) {
         self.snapshot = snapshot
         self.now = now
         self.choice = choice
         self.showSnapshotAge = showSnapshotAge
         self.loc = localization
+        self.signIn = signIn
     }
 
     private var window: LimitWindow? { snapshot.headlineWindow(for: choice) }
@@ -52,6 +58,7 @@ public struct MinimalAccountRow: View {
         .help(tooltip)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(loc.spokenSummary(for: snapshot, now: now))
+        .accessibilitySignIn(signIn, named: loc("Sign in…"), cancel: loc("Cancel"))
     }
 
     private var line: some View {
@@ -64,9 +71,20 @@ public struct MinimalAccountRow: View {
             Spacer(minLength: 4)
 
             if let failure = snapshot.failure {
-                Text(loc.failureText(failure.kind))
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
+                // The only failure with a way out, and the way out is the whole
+                // right-hand end of the line. What is happening goes to the
+                // tooltip below, where this window already keeps the service,
+                // the plan and the diagnostic.
+                if failure.kind == .needsLogin, let signIn {
+                    SignInPrompt(
+                        offer: signIn, provider: snapshot.provider,
+                        compact: true, loc: loc
+                    )
+                } else {
+                    Text(loc.failureText(failure.kind))
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
             } else if let window {
                 if snapshot.freshness.isStale && showSnapshotAge {
                     Text(capturedDate)
@@ -119,6 +137,13 @@ public struct MinimalAccountRow: View {
     /// sentence when there is a failure.
     private var tooltip: String {
         var parts = ["\(snapshot.provider.title) · \(snapshot.planLabel)"]
+        // Where the full window's sentence went. Without it the only thing this
+        // row says during a sign-in is a spinner and the word Cancel, and a
+        // spinner does not say which of the two services it is waiting on.
+        if let signIn {
+            parts.append(loc.signInState(signIn.progress, provider: snapshot.provider))
+            if let note = signIn.note { parts.append(note) }
+        }
         if snapshot.freshness.isStale {
             parts.append(String(format: loc("Data from %@"), capturedDate))
         }

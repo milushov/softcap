@@ -14,6 +14,11 @@ public struct AccountRow: View {
     private let showSnapshotAge: Bool
     private let compactPadding: Bool
 
+    /// What the window can do about a row that needs a sign-in, when the
+    /// surface drawing it can do anything at all. `nil` in both widgets and on
+    /// the phone — see `SignInOffer`.
+    private let signIn: SignInOffer?
+
     @ObservedObject private var loc: Localization
     @Environment(\.layoutDirection) private var direction
 
@@ -23,7 +28,8 @@ public struct AccountRow: View {
         layout: RowLayout = .twoWindows,
         showSnapshotAge: Bool = true,
         compactPadding: Bool = false,
-        localization: Localization
+        localization: Localization,
+        signIn: SignInOffer? = nil
     ) {
         self.snapshot = snapshot
         self.now = now
@@ -31,25 +37,40 @@ public struct AccountRow: View {
         self.showSnapshotAge = showSnapshotAge
         self.compactPadding = compactPadding
         self.loc = localization
+        self.signIn = signIn
     }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: compactPadding ? 5 : 7) {
             header
             if let failure = snapshot.failure {
-                Text(loc.failureText(failure.kind))
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                    // The reason, on hover. `diagnostic` is written for a log —
-                    // untranslated, and carrying a status code or a path — and
-                    // the row keeps saying the translated sentence instead. But
-                    // a log nobody can open is a place information goes to be
-                    // lost, and this one is worth a second's reach: three
-                    // diagnoses in this project needed exactly this string and
-                    // each had to be recovered by editing the app to write it to
-                    // a file. A tooltip is invisible until somebody looks for it,
-                    // which is the right amount of visible for a status code.
+                // A dead token is the one failure a person can do something
+                // about without leaving the window, so it is the one failure
+                // the row offers to act on. The network being down and a
+                // response nobody can parse are still sentences and nothing
+                // more: a button that cannot help is worse than no button.
+                if failure.kind == .needsLogin, let signIn {
+                    SignInPrompt(
+                        offer: signIn, provider: snapshot.provider,
+                        compact: false, loc: loc
+                    )
                     .help(failure.diagnostic)
+                } else {
+                    Text(loc.failureText(failure.kind))
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        // The reason, on hover. `diagnostic` is written for a
+                        // log — untranslated, and carrying a status code or a
+                        // path — and the row keeps saying the translated
+                        // sentence instead. But a log nobody can open is a place
+                        // information goes to be lost, and this one is worth a
+                        // second's reach: three diagnoses in this project needed
+                        // exactly this string and each had to be recovered by
+                        // editing the app to write it to a file. A tooltip is
+                        // invisible until somebody looks for it, which is the
+                        // right amount of visible for a status code.
+                        .help(failure.diagnostic)
+                }
             } else {
                 switch layout {
                 case .twoWindows: ForEach(snapshot.windows) { meter(for: $0) }
@@ -62,6 +83,7 @@ public struct AccountRow: View {
         .padding(.vertical, compactPadding ? 6 : 10)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(loc.spokenSummary(for: snapshot, now: now))
+        .accessibilitySignIn(signIn, named: loc("Sign in…"), cancel: loc("Cancel"))
     }
 
     // MARK: - header

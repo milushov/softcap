@@ -471,7 +471,11 @@ final class AppModel: ObservableObject {
         if isScreenshotRun { return ScreenshotFixtures.rows }
         #endif
 
-        await store.accountStates().map { item in
+        // Written out rather than left implicit: a single-expression body
+        // returns on its own, and the `#if` above stopped this one being
+        // single-expression — so the screenshot lane, and only the screenshot
+        // lane, failed to compile with "missing return".
+        return await store.accountStates().map { item in
             AccountsPane.AccountRow(
                 id: item.account.id,
                 handle: item.account.handle,

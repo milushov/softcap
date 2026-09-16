@@ -8,10 +8,32 @@ struct PopoverView: View {
     @ObservedObject var model: AppModel
     @ObservedObject var loc = Localization.shared
 
+    /// The sign-in, watched rather than merely read.
+    ///
+    /// It is a separate `ObservableObject` hanging off the model, and `AppModel`
+    /// republishes nothing of its own, so observing the model announces none of
+    /// its changes. This window reads four of them — whether an attempt is
+    /// running, which row asked, what the last one said, whether a code is
+    /// wanted — and drew all four without being told. Nothing was visibly
+    /// broken, because the countdown's one-second tick redraws the window
+    /// anyway: every state change simply arrived up to a second late, with no
+    /// answer to a press in between, and the whole feature would have gone
+    /// still the day that timer was slowed or taken away. `AccountsPane` takes
+    /// the same object the same way.
+    @ObservedObject private var login: LoginController
+
+    init(model: AppModel) {
+        self.model = model
+        _login = ObservedObject(wrappedValue: model.login)
+    }
+
     /// A second hand for the countdowns: recomputes the remainder without
     /// touching the network.
     @State private var now = Date()
     private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+    /// The code from the page, when a sign-in has come back asking for one.
+    @State private var pastedCode = ""
 
     var body: some View {
         Group {
@@ -51,12 +73,14 @@ struct PopoverView: View {
                         snapshot: snapshot, now: now,
                         layout: model.preferences.rowLayout,
                         showSnapshotAge: model.preferences.showSnapshotAge,
-                        localization: loc
+                        localization: loc,
+                        signIn: signIn(for: snapshot)
                     )
                     if index < model.snapshots.count - 1 { Divider().opacity(0.35) }
                 }
             }
 
+            pastedCodeField
             Divider().opacity(0.5)
             footer
         }
@@ -89,11 +113,13 @@ struct PopoverView: View {
                         snapshot: snapshot, now: now,
                         choice: model.preferences.primaryWindow,
                         showSnapshotAge: model.preferences.showSnapshotAge,
-                        localization: loc
+                        localization: loc,
+                        signIn: signIn(for: snapshot)
                     )
                 }
             }
 
+            pastedCodeField
             quietFooter
         }
         .padding(.vertical, 8)
@@ -196,6 +222,103 @@ struct PopoverView: View {
             }
         }
         .frame(maxWidth: .infinity).padding(.vertical, 22)
+    }
+
+    // MARK: - signing in on the spot
+
+    /// What this window can do about a row that says a sign-in is required.
+    ///
+    /// The point of it: a dead token used to be a sentence in the window and a
+    /// button on the settings screen, so reading the problem and fixing it were
+    /// two different places. Here they are one.
+    ///
+    /// `nil` unless the failure is that one and the service is one this app can
+    /// actually sign in to. `LoginController.providers` is that list, the
+    /// controller refuses anything outside it, and a button that would be
+    /// refused is worse than no button at all.
+    private func signIn(for snapshot: AccountSnapshot) -> SignInOffer? {
+        guard snapshot.failure?.kind == .needsLogin,
+              LoginController.providers.contains(snapshot.provider) else { return nil }
+
+        // Whether the sign-in in hand is the one this row asked for. Two
+        // accounts of the same service both showing a spinner would be the
+        // window claiming two sign-ins where the controller allows one.
+        let mine = login.request?.account == snapshot.id
+        let progress: SignInOffer.Progress =
+            if !login.isRunning { .offered }
+            else if !mine { .blocked }
+            else if login.isSavingAccount { .saving }
+            else { .running }
+
+        return SignInOffer(
+            progress: progress,
+            // Not while the field below is asking for the code: that message is
+            // the instruction for the field, and the same sentence in two
+            // places on a window this size reads as two things having gone
+            // wrong rather than one thing being explained.
+            note: mine && !login.manualCodeExpected ? login.message : nil,
+            start: {
+                pastedCode = ""
+                login.start(provider: snapshot.provider, from: .window, for: snapshot.id)
+            },
+            cancel: { login.cancel() }
+        )
+    }
+
+    /// The way back in when the browser could not be given a door.
+    ///
+    /// A sign-in normally returns through a loopback listener and this is never
+    /// seen. When the port cannot be taken — another copy of the app, another
+    /// Codex sign-in — the provider shows the code on its page instead and it
+    /// has to be pasted somewhere. Without this field that somewhere is the
+    /// settings screen, which is the trip the row's button exists to save: the
+    /// sign-in would start here and be finishable only there.
+    ///
+    /// Only for a sign-in this window asked for. One started from settings is
+    /// answered on the screen that started it, and two fields bound to two
+    /// strings both offering to finish the same attempt is a race over one
+    /// grant.
+    @ViewBuilder
+    private var pastedCodeField: some View {
+        if login.manualCodeExpected, login.request?.origin == .window {
+            VStack(alignment: .leading, spacing: 5) {
+                // The controller's own sentence rather than a fixed heading,
+                // because it is not one sentence. It opens with the
+                // instruction, and a code that is not the code from the page
+                // replaces it with the correction — the one state where
+                // `submit` deliberately keeps the attempt alive rather than
+                // spending the grant. Printed as a heading of its own, that
+                // correction had nowhere to appear: the row above suppresses
+                // its note while this field is up.
+                if let message = login.message {
+                    Text(message)
+                        .font(.system(size: 10.5))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                HStack(spacing: 6) {
+                    TextField(loc("Code from the page"), text: $pastedCode)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.system(size: 11))
+                    Button(loc("Done")) {
+                        let code = pastedCode
+                        Task {
+                            await login.submit(code: code)
+                            // Emptied only once the code has been taken. A
+                            // mistyped one leaves the field asking again, and a
+                            // field that wipes itself has thrown away the very
+                            // thing that needed correcting.
+                            if !login.manualCodeExpected { pastedCode = "" }
+                        }
+                    }
+                    .font(.system(size: 11))
+                    .disabled(pastedCode.isEmpty)
+                }
+            }
+            .padding(.horizontal, 13)
+            .padding(.top, 4)
+            .padding(.bottom, 8)
+        }
     }
 
     private var footer: some View {

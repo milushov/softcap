@@ -55,8 +55,11 @@ struct AccountsPane: View {
                             Toggle("", isOn: visible(row)).labelsHidden()
                                 .accessibilityLabel(String(format: loc("Show %@"), row.displayName))
                             if row.state == .needsLogin {
-                                Button(loc("Sign in…")) { loginController.start(provider: row.provider) }
-                                    .disabled(loginController.isRunning)
+                                Button(loc("Sign in…")) {
+                                    loginController.start(
+                                        provider: row.provider, from: .settings, for: row.id)
+                                }
+                                .disabled(loginController.isRunning)
                             }
                             Button(loc("Forget…")) { pendingForget = row }
                         }
@@ -69,7 +72,7 @@ struct AccountsPane: View {
                         ForEach(LoginController.providers, id: \.self) { provider in
                             Button(provider == .claude ? "Claude Code" : "OpenAI Codex") {
                                 manualCode = ""
-                                loginController.start(provider: provider)
+                                loginController.start(provider: provider, from: .settings)
                             }
                         }
                     }
@@ -90,7 +93,14 @@ struct AccountsPane: View {
                     Spacer()
                 }
 
-                if loginController.manualCodeExpected {
+                // Only for a sign-in this screen started. The limits window
+                // has a field of its own now, gated the same way from the other
+                // side: without both halves, a sign-in begun in that window and
+                // sent back for a pasted code would put two fields on two
+                // screens, bound to two different strings, each offering to
+                // spend the one grant.
+                if loginController.manualCodeExpected,
+                   loginController.request?.origin == .settings {
                     HStack(spacing: 6) {
                         TextField(loc("Code from the page"), text: $manualCode)
                             .frame(width: 220)

@@ -65,7 +65,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             }
             .store(in: &cancellables)
 
-        model.login.didAddAccount = { [weak model, preferences] ref in
+        model.login.didAddAccount = { [weak model, preferences] ref, origin in
             // Sign-in can finish with settings closed or on another pane.
             // Reveal the account before polling, without relying on a view's
             // onChange subscription to have existed when success arrived.
@@ -74,8 +74,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
                 $0.disabledProviders.remove(ref.provider)
             }
             guard let model else { return }
-            model.settingsSection = .accounts
-            SettingsWindow.open()
+            // The answer goes back to whichever screen asked. A sign-in started
+            // from the limits window is somebody repairing a row without
+            // leaving it, and opening settings on top of that is the trip the
+            // button in that row exists to save. The window itself is not
+            // reopened either: the browser is in front by then, it says the
+            // sign-in worked on its own page, and an agent app shouldering its
+            // way past that to show a window nobody asked for is the rudest
+            // thing this app could do with a success.
+            if origin == .settings {
+                model.settingsSection = .accounts
+                SettingsWindow.open()
+            } else {
+                // `SignInSuccessBanner` is the only thing that draws this
+                // notice or dismisses it, and it lives in the settings window —
+                // which this branch is deliberately not opening. Left standing
+                // it waits, and greets whoever opens settings days later with a
+                // green success for a sign-in finished somewhere else and long
+                // since forgotten. The window's own confirmation is the row
+                // coming back with numbers in it.
+                model.login.dismissSuccessNotice()
+            }
             Task { await model.refreshAfterSignIn(ref) }
         }
 

@@ -9,6 +9,29 @@ import Credentials
 import Diagnostics
 import StatusUI
 
+/// Which screen asked for a sign-in.
+///
+/// It decides where the answer goes. Success used to open the settings window
+/// unconditionally, which was right while settings was the only screen with the
+/// button on it — a sign-in started from the limits window would otherwise
+/// finish by opening the screen the window exists to save a trip to.
+enum SignInOrigin: Sendable, Hashable {
+    case settings
+    case window
+}
+
+/// One sign-in, as asked for: which service, from where, and — when a row
+/// asked rather than "Add account…" — which row.
+///
+/// The row matters because the window draws several and only one of them asked.
+/// Without it the spinner would have to go on every account of that service, or
+/// on none.
+struct SignInRequest: Sendable, Hashable {
+    let provider: ProviderID
+    let origin: SignInOrigin
+    let account: String?
+}
+
 /// Owns one browser attempt. Protocol details and identity resolution belong to
 /// the provider; cancellation invalidates the attempt before cancelling its work.
 @MainActor
@@ -16,12 +39,31 @@ final class LoginController: ObservableObject {
     static let providers: [ProviderID] = [.claude, .codex]
     @Published private(set) var isRunning = false
     @Published private(set) var isSavingAccount = false
-    @Published private(set) var provider: ProviderID?
+
+    /// The sign-in most recently asked for. One value rather than a published
+    /// field per part: they are set together, and three that could disagree
+    /// are three that eventually will.
+    ///
+    /// It outlives its attempt, and `isRunning` is what says whether one is
+    /// still in hand. `message` outlives the attempt too — it has to, or a
+    /// sign-in that failed leaves the row saying exactly what it said before
+    /// anybody pressed anything — and a window drawing four rows needs to know
+    /// which of them that sentence is about.
+    @Published private(set) var request: SignInRequest?
+
+    /// Kept for the screens that only ever wanted the service. Read under
+    /// `isRunning`, which is the only reading of it that means anything.
+    var provider: ProviderID? { request?.provider }
+
     @Published private(set) var message: String?
     @Published private(set) var manualCodeExpected = false
     @Published private(set) var completedSignIns = 0
     @Published private(set) var successNotice: AccountRef?
-    var didAddAccount: (@MainActor (AccountRef) -> Void)?
+
+    /// The origin travels with the account because the attempt is torn down
+    /// before this is called — `finish` ends it, and then reports. A handler
+    /// reading `request` here would read `nil` every time.
+    var didAddAccount: (@MainActor (AccountRef, SignInOrigin) -> Void)?
 
     private static let log = Logger(subsystem: "app.softcap.Softcap", category: "login")
     private let store: CredentialStore
@@ -40,6 +82,7 @@ final class LoginController: ObservableObject {
         let authentication: any BrowserAuthenticating
         let pair: PKCEPair
         let state: String
+        let request: SignInRequest
         var redirectURI: String?
     }
 
@@ -57,18 +100,30 @@ final class LoginController: ObservableObject {
         self.timeoutDuration = timeoutDuration
     }
 
-    func start(provider: ProviderID) {
+    /// `.settings` unless a caller says otherwise: that screen has had this
+    /// button since before there was anywhere else to put one, and every test
+    /// in `LoginControllerTests` models that flow.
+    func start(provider: ProviderID, from origin: SignInOrigin = .settings,
+               for account: String? = nil) {
         guard !isRunning, Self.providers.contains(provider) else { return }
         message = nil
         successNotice = nil
+        // Recorded before anything can go wrong, not after. Every sentence this
+        // method can produce is now shown against the row that asked, and the
+        // failure below was the one that had none: it set `message` and
+        // returned, leaving the note attributed to whichever row asked last —
+        // or, on the first press, to no row at all, so the button did nothing
+        // visible whatsoever.
+        let request = SignInRequest(provider: provider, origin: origin, account: account)
+        self.request = request
         guard let pair = PKCEPair.generate() else {
             message = Localization.shared("Sign-in did not complete")
             return
         }
-        let authentication = authentication(provider)
-        let attempt = Attempt(authentication: authentication, pair: pair, state: UUID().uuidString)
+        let attempt = Attempt(
+            authentication: authentication(provider), pair: pair,
+            state: UUID().uuidString, request: request)
         self.attempt = attempt
-        self.provider = provider
         isRunning = true
         exchanging = false
         manualCodeExpected = false
@@ -190,8 +245,9 @@ final class LoginController: ObservableObject {
             successNotice = result.account
             completedSignIns += 1
             finishBrowserReply(succeeded: true)
+            let origin = started.request.origin
             endAttempt()
-            didAddAccount?(result.account)
+            didAddAccount?(result.account, origin)
             return
         } catch {
             guard attempt?.id == started.id, !Task.isCancelled else { return }
@@ -255,7 +311,6 @@ final class LoginController: ObservableObject {
         timeout = nil
         isRunning = false
         isSavingAccount = false
-        provider = nil
         manualCodeExpected = false
         exchanging = false
     }
