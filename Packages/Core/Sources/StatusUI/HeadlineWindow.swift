@@ -20,3 +20,22 @@ public extension AccountSnapshot {
         }
     }
 }
+
+public extension LimitWindow {
+    /// The choice that shows the other period than this window.
+    ///
+    /// Two branches, not three: window identifiers are a closed set —
+    /// `Models.swift` names `session` and `weekly`, and both providers
+    /// normalise to them.
+    var peekChoice: PrimaryWindow { id == "session" ? .weekly : .session }
+}
+
+public extension AccountSnapshot {
+    /// Whether a row has another period to peek at: the two choices resolve
+    /// to different windows. One-window accounts fall back to the same
+    /// window under either choice and answer no, so the label above them
+    /// stays plain text rather than a button that changes nothing.
+    var hasAnotherPeriod: Bool {
+        headlineWindow(for: .session)?.id != headlineWindow(for: .weekly)?.id
+    }
+}

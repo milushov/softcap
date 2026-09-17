@@ -30,6 +30,20 @@ public struct MinimalAccountRow: View {
 
     @ObservedObject private var loc: Localization
 
+    /// A click on the period label, and nothing longer-lived than that. `nil`
+    /// obeys the `Primary window` setting; `.session`/`.weekly` is somebody
+    /// peeking at the row's other period. Deliberately not a preference:
+    /// remembering it would quietly turn one curious click into a changed
+    /// default, so the window forgets it on closing — explicitly, in
+    /// `onDisappear`, because the popover is cached and this view's state
+    /// survives between openings.
+    @State private var peek: PrimaryWindow?
+
+    /// Whether the pointer is over the period label. Hover is the affordance
+    /// that the label is clickable — underlining, not a cursor: `NSCursor` is
+    /// AppKit, which `CoreStaysPortable` bans from this package absolutely.
+    @State private var hoveringPeriod = false
+
     public init(
         snapshot: AccountSnapshot,
         now: Date,
@@ -46,7 +60,7 @@ public struct MinimalAccountRow: View {
         self.signIn = signIn
     }
 
-    private var window: LimitWindow? { snapshot.headlineWindow(for: choice) }
+    private var window: LimitWindow? { snapshot.headlineWindow(for: peek ?? choice) }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -56,6 +70,7 @@ public struct MinimalAccountRow: View {
         .padding(.horizontal, 13)
         .padding(.vertical, 6)
         .help(tooltip)
+        .onDisappear { peek = nil }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(loc.spokenSummary(for: snapshot, now: now))
         .accessibilitySignIn(signIn, named: loc("Sign in…"), cancel: loc("Cancel"))
@@ -91,9 +106,7 @@ public struct MinimalAccountRow: View {
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)
                 }
-                Text(loc.windowTitle(window.id))
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
+                periodLabel(window)
                 Text(loc.percent(window.percent))
                     .font(.system(size: 11.5))
                     .monospacedDigit()
@@ -108,6 +121,39 @@ public struct MinimalAccountRow: View {
                     .frame(width: 58, alignment: .trailing)
             }
         }
+    }
+
+    /// The period label, clickable when the row has another period to show.
+    ///
+    /// The click flips only its own row — with `Busiest` the rows' labels
+    /// already differ, so a whole-window flip would have no honest meaning.
+    /// The percentage, the remaining time and the bar all follow, because
+    /// every one of them is computed from the single `window` this row
+    /// resolves. VoiceOver is deliberately untouched: the row collapses into
+    /// `spokenSummary`, which already reads both periods, so the click
+    /// reveals nothing a listener was missing.
+    @ViewBuilder
+    private func periodLabel(_ window: LimitWindow) -> some View {
+        if snapshot.hasAnotherPeriod {
+            Button { peek = window.peekChoice } label: {
+                periodText(window, underlined: hoveringPeriod)
+            }
+            .buttonStyle(.plain)
+            // The same line `SignInPrompt` and `quietButton` carry, for the
+            // same reason: the first button in the popover otherwise opens
+            // wearing the accent-coloured focus fill.
+            .focusEffectDisabled()
+            .onHover { hoveringPeriod = $0 }
+        } else {
+            periodText(window)
+        }
+    }
+
+    private func periodText(_ window: LimitWindow, underlined: Bool = false) -> some View {
+        Text(loc.windowTitle(window.id))
+            .underline(underlined)
+            .font(.system(size: 10))
+            .foregroundStyle(.secondary)
     }
 
     /// Grey until it matters. `LimitBar` is not reused: it paints every

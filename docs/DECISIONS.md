@@ -8420,3 +8420,22 @@ release notes for an ad-hoc build say so, and the workflow now checks what it
 actually published — Developer ID and a stapled ticket when a certificate was
 configured, ad-hoc when none was — rather than trusting that steps which did not
 fail did what they intended.
+
+## 2026-09-17 — The minimal window peeks, and the peek is forgotten
+
+The period label in a minimal row — `5h` or `week` — is a button now. A click
+shows the same row's other period; closing the window forgets every peek, and
+the next opening obeys the `Primary window` setting as if nothing happened.
+
+Per row rather than per window, because with `Busiest` the rows' labels
+already differ and a whole-window flip has no honest meaning. Stored nowhere,
+because a remembered peek is a changed default made without saying so — the
+setting would stop meaning what the settings screen claims. The forgetting is
+explicit: the popover is cached, the view's state survives between openings,
+and `onDisappear` is what "not remembered" costs in code.
+
+**Cost.** One more thing the row does that a screenshot cannot show; the
+affordance is an underline on hover, found only by pointing at it. A scan
+suite (`ThePeekIsNotRemembered`) now pins the ephemerality, which is one more
+test to keep honest. VoiceOver spends nothing: the row's sentence already
+reads both periods.

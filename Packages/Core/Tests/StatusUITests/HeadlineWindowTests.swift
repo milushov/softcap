@@ -43,3 +43,38 @@ import Preferences
         #expect(snapshot([]).headlineWindow(for: .worst) == nil)
     }
 }
+
+/// A click on the period label shows the row's other window, and only rows
+/// that really have another window get the click at all.
+@Suite struct PeekingAtTheOtherPeriod {
+
+    private func snapshot(_ windows: [LimitWindow]) -> AccountSnapshot {
+        AccountSnapshot(
+            id: "claude/one", provider: .claude,
+            displayName: "name@example.com", planLabel: "Max 20x",
+            windows: windows,
+            freshness: .live(Date(timeIntervalSince1970: 0)), failure: nil
+        )
+    }
+
+    private let session = LimitWindow(id: "session", percent: 88, resetsAt: nil)
+    private let weekly = LimitWindow(id: "weekly", percent: 23, resetsAt: nil)
+
+    @Test func theClickShowsTheOtherPeriod() {
+        #expect(session.peekChoice == .weekly)
+        #expect(weekly.peekChoice == .session)
+    }
+
+    @Test func twoPeriodsAreWorthAClick() {
+        #expect(snapshot([session, weekly]).hasAnotherPeriod)
+    }
+
+    @Test func oneWindowHasNothingElseToShow() {
+        #expect(!snapshot([session]).hasAnotherPeriod)
+        #expect(!snapshot([weekly]).hasAnotherPeriod)
+    }
+
+    @Test func noWindowsHaveNothingToShowEither() {
+        #expect(!snapshot([]).hasAnotherPeriod)
+    }
+}
