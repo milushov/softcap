@@ -4,11 +4,16 @@
 	root * /srv
 	encode zstd gzip
 
-	# The page is one document with its styles inline; only the icon is a separate file, and it
-	# changes about as often as the logo does.
+	# The page is one document with its styles inline; what is separate is the mark, the social
+	# preview and the gallery's photographs, and none of them changes without its name changing
+	# in the same commit. Named one by one until the gallery arrived — four screenshots would
+	# have been four more lines and the next set four after that, so the directory is matched
+	# instead. They shipped with no Cache-Control at all for one deploy, which is the shape of
+	# mistake the check below now refuses.
 	header /icon.svg Cache-Control "public, max-age=604800"
 	header /og.png Cache-Control "public, max-age=604800"
 	header /favicon.ico Cache-Control "public, max-age=604800"
+	header /shots/* Cache-Control "public, max-age=604800"
 	# Every spelling of every page. A `header` matcher tests the request path;
 	# the site is now a tree of directories each holding an index.html, and a
 	# reader arrives at `/`, `/ru/`, `/privacy/` — or, typing precisely, at the

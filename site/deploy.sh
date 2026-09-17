@@ -408,7 +408,7 @@ expect_header "https://$DOMAIN/faq/" Cache-Control "no-cache"
 expect_header "https://$DOMAIN/limits/claude/" Cache-Control "no-cache"
 expect_header "https://$DOMAIN/ru/" Cache-Control "no-cache"
 expect_header "https://$DOMAIN/ru/limits/claude/" Cache-Control "no-cache"
-for asset in og.png icon.svg favicon.ico; do
+for asset in og.png icon.svg favicon.ico shots/02-accounts.webp; do
   expect_header "https://$DOMAIN/$asset" Cache-Control "public, max-age=604800"
 done
 
