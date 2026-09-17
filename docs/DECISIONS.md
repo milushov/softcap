@@ -8434,6 +8434,20 @@ setting would stop meaning what the settings screen claims. The forgetting is
 explicit: the popover is cached, the view's state survives between openings,
 and `onDisappear` is what "not remembered" costs in code.
 
+Review sharpened the forgetting in two places. A click back to the setting's
+own answer leaves nothing rather than a pinned copy of it — under `Busiest` a
+row clicked away and back keeps following the fuller window as polls move it,
+instead of freezing on the one it happened to show. And a changed
+`Primary window` setting drops every peek at once: the Appearance pane pins
+this very popover open as its live preview, so a peeked row would otherwise
+sit beside the picker contradicting it, with no close ever firing to clear it.
+
+This is also the first control the minimal window carries, which the
+2026-09-09 entry ("A setting that strips the window to a list") did not
+foresee. The reading is still all the window spends pixels on: the control is
+the reading's own label, adds no words, and asks for none — the exception is
+that narrow, and the rule otherwise stands.
+
 **Cost.** One more thing the row does that a screenshot cannot show; the
 affordance is an underline on hover, found only by pointing at it. A scan
 suite (`ThePeekIsNotRemembered`) now pins the ephemerality, which is one more

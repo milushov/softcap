@@ -38,4 +38,15 @@ public extension AccountSnapshot {
     var hasAnotherPeriod: Bool {
         headlineWindow(for: .session)?.id != headlineWindow(for: .weekly)?.id
     }
+
+    /// What a click on `window`'s label leaves in the row: the choice showing
+    /// the other period, or nothing when that choice resolves to the window
+    /// the setting already shows. Going back is a forget rather than a pin —
+    /// under `Busiest` a row clicked away and back keeps following the fuller
+    /// window as polls move it, instead of freezing on the one it was shown.
+    func peek(after window: LimitWindow, setting choice: PrimaryWindow) -> PrimaryWindow? {
+        let flipped = window.peekChoice
+        return headlineWindow(for: choice)?.id == headlineWindow(for: flipped)?.id
+            ? nil : flipped
+    }
 }

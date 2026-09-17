@@ -36,7 +36,8 @@ public struct MinimalAccountRow: View {
     /// remembering it would quietly turn one curious click into a changed
     /// default, so the window forgets it on closing — explicitly, in
     /// `onDisappear`, because the popover is cached and this view's state
-    /// survives between openings.
+    /// survives between openings. A changed `Primary window` setting drops it
+    /// the same way: the new answer outranks the look.
     @State private var peek: PrimaryWindow?
 
     /// Whether the pointer is over the period label. Hover is the affordance
@@ -71,6 +72,11 @@ public struct MinimalAccountRow: View {
         .padding(.vertical, 6)
         .help(tooltip)
         .onDisappear { peek = nil }
+        // A new answer in Settings outranks a passing look: the Appearance
+        // pane pins this popover open as its live preview, so without this
+        // line a peeked row would sit beside the `Primary window` picker
+        // contradicting it.
+        .onChange(of: choice) { peek = nil }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(loc.spokenSummary(for: snapshot, now: now))
         .accessibilitySignIn(signIn, named: loc("Sign in…"), cancel: loc("Cancel"))
@@ -135,7 +141,7 @@ public struct MinimalAccountRow: View {
     @ViewBuilder
     private func periodLabel(_ window: LimitWindow) -> some View {
         if snapshot.hasAnotherPeriod {
-            Button { peek = window.peekChoice } label: {
+            Button { peek = snapshot.peek(after: window, setting: choice) } label: {
                 periodText(window, underlined: hoveringPeriod)
             }
             .buttonStyle(.plain)
@@ -144,6 +150,11 @@ public struct MinimalAccountRow: View {
             // wearing the accent-coloured focus fill.
             .focusEffectDisabled()
             .onHover { hoveringPeriod = $0 }
+            // The popover close and the branch swap both remove this button
+            // without a mouse-exit event, so the flag needs the same explicit
+            // forgetting as the peek — left `true`, the label would come back
+            // underlined with the pointer nowhere near it.
+            .onDisappear { hoveringPeriod = false }
         } else {
             periodText(window)
         }

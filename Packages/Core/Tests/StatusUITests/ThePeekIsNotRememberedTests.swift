@@ -40,10 +40,21 @@ import Foundation
             """)
     }
 
+    /// The setting wins the moment it changes, not only on the next opening:
+    /// the Appearance pane pins the popover open as its live preview, where
+    /// no close ever fires to clear a peek.
+    @Test func changingTheSettingDropsThePeek() throws {
+        #expect(try Self.row(contains: "onChange(of: choice) { peek = nil }"), """
+            the row no longer drops the peek when the Primary window setting \
+            changes — beside the Appearance pane's pinned preview, a peeked \
+            row would contradict the picker being moved
+            """)
+    }
+
     /// A button that changes nothing is a broken button, so a one-window
     /// account keeps its plain text.
     @Test func onlyARowWithTwoPeriodsGetsTheButton() throws {
-        #expect(try Self.row(contains: "hasAnotherPeriod"), """
+        #expect(try Self.row(contains: "if snapshot.hasAnotherPeriod"), """
             the row no longer asks whether there is another period before \
             drawing the button — a Codex account with one window would get a \
             click that does nothing
@@ -52,7 +63,7 @@ import Foundation
 
     /// Nothing writes the peek anywhere. The negative half of "not stored".
     @Test func thePeekReachesNoStore() throws {
-        for forbidden in ["UserDefaults", "PreferencesStore"] {
+        for forbidden in ["UserDefaults", "PreferencesStore", "@AppStorage"] {
             #expect(try !Self.row(contains: forbidden), """
                 the row now mentions \(forbidden) — the peek is designed to be \
                 stored nowhere, and the row had no business with a store before
