@@ -222,6 +222,42 @@ jobs:
           cp "dist/Softcap-$V.dmg" dist/Softcap.dmg
           cd dist && shasum -a 256 ./*.dmg ./*.zip > SHA256SUMS.txt
 
+      # What came out, rather than what the steps meant to produce.
+      #
+      # Signing is all-or-nothing and the run says which way it went in a
+      # notice nobody reads. The two outcomes have different consequences on
+      # somebody else's Mac, and until this step existed neither was ever
+      # checked: a release could be published believing it was notarised
+      # because the step did not fail, and the only place that showed
+      # otherwise was the download.
+      - name: Check what is about to be published
+        run: |
+          set -euo pipefail
+          APP=build/Build/Products/Release/Softcap.app
+          V="${{ steps.v.outputs.version }}"
+          codesign -dv --verbose=4 "$APP" 2>&1 | grep -E "Identifier=|Authority=|TeamIdentifier=|flags=" || true
+
+          if [ "${{ steps.cert.outputs.signed }}" = "true" ]; then
+            codesign --verify --strict --verbose=2 "$APP"
+            codesign -dv --verbose=4 "$APP" 2>&1 \
+              | grep -q "Authority=Developer ID Application" || {
+                echo "::error::A certificate was configured and the app is not Developer ID signed."
+                exit 1
+              }
+            # The ticket, not the submission: stapling is what makes a first
+            # launch with no network work, and it is the step that silently
+            # applied to the wrong artefact once already.
+            xcrun stapler validate "$APP"
+            xcrun stapler validate "dist/Softcap-$V.dmg"
+            spctl --assess --type execute -vv "$APP"
+          else
+            codesign -dv --verbose=4 "$APP" 2>&1 | grep -q "adhoc" || {
+              echo "::error::No certificate was configured and the app is not ad-hoc signed either."
+              exit 1
+            }
+            echo "::warning::Published ad-hoc: the keychain binds access to the signature, an ad-hoc signature is new in every build, and so everyone updating has to let this version back in to their saved accounts."
+          fi
+
       - name: Release notes
         id: notes
         run: |
@@ -240,6 +276,11 @@ jobs:
               echo '```'
               echo
               echo "Or right-click the app, choose Open, and confirm once."
+              echo
+              echo "An ad-hoc signature is also new in every build, and the keychain"
+              echo "binds access to the signature — so this version arrives unable to"
+              echo "read the accounts the last one saved. Open Settings → Accounts and"
+              echo "press **Open saved accounts** once; nothing is lost."
               echo
             fi
             echo "### Checksums"

@@ -8316,3 +8316,107 @@ Below 520 px the header now stacks into three rows rather than two: the picker
 takes the full width there, so the chip lands alone above it. Checked at 320 px
 and nothing overflows — it is one row taller, and that is the cost of the chip
 being on every page rather than only where there is room.
+
+## 2026-09-17 — An account list this build cannot open is a state with a way out
+
+**Decision.** The store keeps *why* the saved list could not be read rather than
+a flag that it could not: `keychainRefusedThisBuild` or `contentNotUnderstood`.
+The Accounts screen says which, and offers what fits. A refusal gets **Open
+saved accounts** — one read with the keychain's own question allowed, made off
+the actor, from a button and from nowhere else. Anything unreadable gets **Start
+over…**, which deletes the item and puts an empty one this build owns in its
+place, behind a sentence that says what it costs. A sign-in that succeeds and
+cannot be saved now says so instead of "Sign-in did not complete", and launch
+writes the keychain's own status into the log.
+
+**Why.** The theoretical case in the entry of 2026-09-14 above happened, on the
+author's own Mac, three sign-in attempts in a row. That entry ends "if this
+turns out to happen in practice rather than in theory, the answer is an explicit
+action a person takes while watching — not a dialog raised by startup". This is
+that action.
+
+What it looked like: the browser returned to `localhost:56257/callback` and the
+page said the sign-in had not completed. It had. The code was exchanged, the
+profile was read, and `addLoggedInAccount` threw `WouldOverwriteUnreadableAccounts`
+— which was correct, and which nothing on screen or in the log could distinguish
+from a failed sign-in. The account list showed "No accounts yet" to somebody
+whose accounts were all still there, and offered them a sign-in that could not
+possibly be saved. There was no way out from inside the app, and a second
+attempt differed from the first in nothing.
+
+The cause is that every release published to GitHub is signed ad-hoc, and an
+ad-hoc designated requirement is a hash of the binary: `cdhash H"c3ea7f3f…"` for
+0.1.25, and a different one for 0.1.17, 0.1.19, 0.1.21 and 0.1.22. The keychain
+binds access to that, so each update is a different application to it. The CI
+run for 0.1.25 says so in a notice nobody reads: `MACOS_CERTIFICATE_P12`,
+`MACOS_CERTIFICATE_PASSWORD`, `MACOS_SIGNING_IDENTITY`, `NOTARY_APPLE_ID` and
+`NOTARY_PASSWORD` are not configured.
+
+Four things were measured before any of this was written, on the real item and
+on a throwaway one created by a binary built twice from the same source:
+
+- A read from the build that created the item succeeds; from the other one it
+  returns `-25293`. That is the whole bug, reproduced in isolation.
+- A read with the keychain's question allowed succeeds. The accounts were never
+  lost — only shut — which is why opening comes first and starting over is last.
+- `SecItemUpdate` from the foreign build **succeeds**, and the item still cannot
+  be read afterwards. So "write over it and move on" would have stored the new
+  accounts somewhere the app can never open, losing the old tokens and arriving
+  at the same dead end. The guard is the only thing that stood between the app
+  and that, and it must stay.
+- `SecItemDelete` on the query refuses with `-25244`, whether or not the
+  keychain may ask. Taking the item's *reference* decrypts nothing, so nothing
+  stands in its way, and `SecKeychainItemDelete` on that reference succeeds —
+  after which the new item belongs to this build and reads without asking
+  anybody. That is why starting over replaces rather than writes.
+
+**Cost.** A keychain prompt is possible again, which the 2026-09-14 entry
+removed on purpose. Three things keep that from being a reversal: it is reached
+only by a press, on a screen the person is looking at; it runs off the store's
+actor, so the app keeps polling and drawing while the dialog stands open; and
+launch still never asks. The hazard that entry describes was an uncancellable
+wait held by the actor, raised by startup, in an app with no Dock icon. None of
+those three is true here.
+
+Starting over destroys the only copy of every refresh token in the item. It is
+offered from the one state where those tokens are unreachable anyway, refused
+from every other with `NothingToStartOverFrom` rather than trusted to callers,
+and confirmed in a sentence that says accounts will be removed and signed in
+again.
+
+Ten strings in ten catalogues. The repair sentence names the keychain's own
+button — "Always Allow" — so each language uses the wording macOS shows there.
+
+Four things a review of the change found, all of them the same mistake in
+different places — stating more than had been established, or less:
+
+The reason was claimed for every status the keychain could return. Only
+`errSecAuthFailed` and `errSecInteractionNotAllowed` mean the access check
+turned this caller away; a locked keychain, or a broken one, says something
+else. Told the signature story about those, a person whose accounts were in no
+danger at all would read "this copy of the app is not the one that saved them"
+beside a button that deletes every token they have. There is a third reason now,
+which says the keychain did not answer and stops there.
+
+The screen went on saying "No accounts yet" directly under "Saved accounts could
+not be opened" — the exact pairing this entry was written to remove — and it
+went on offering **Add account…**, which spends a browser grant to arrive at a
+sentence the same screen is already showing. Both are gone.
+
+Starting over deletes and then adds, and the add can fail once the delete has
+happened. The tokens are gone at that point, and the guard that exists to
+protect them would have gone on refusing every write for the rest of the
+install, over an item that no longer exists. That failure is now its own error,
+and the store takes the guard down when it arrives.
+
+Both repairs suspend on the keychain's question, and an actor is reentrant at
+every suspension, so a second press put a second dialog on screen for the same
+item. One flag, the same shape as `refreshInFlight` above.
+
+This does not stop the lockout happening; it makes it survivable. While releases
+are ad-hoc, every update still arrives unable to read what the last one saved,
+and the price is now one press instead of an app that cannot sign in. The
+release notes for an ad-hoc build say so, and the workflow now checks what it
+actually published — Developer ID and a stapled ticket when a certificate was
+configured, ad-hoc when none was — rather than trusting that steps which did not
+fail did what they intended.

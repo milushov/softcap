@@ -195,3 +195,14 @@
 "Demo — sample data" = "Demo: datos de ejemplo";
 "Show sample data" = "Mostrar datos de ejemplo";
 "These accounts are examples. Add one of your own to see real limits." = "Estas cuentas son ejemplos. Añade una propia para ver tus límites reales.";
+"Saved accounts could not be opened" = "No se pudieron abrir las cuentas guardadas";
+"This copy of the app is not the one that saved them. The keychain will ask once — choose “Always Allow”." = "Esta copia de la app no es la que las guardó. El llavero preguntará una vez: elige «Permitir siempre».";
+"What is saved cannot be read by this version." = "Esta versión no puede leer lo que está guardado.";
+"Open saved accounts" = "Abrir cuentas guardadas";
+"Start over…" = "Empezar de nuevo…";
+"That did not work, and nothing was changed." = "No funcionó y no se cambió nada.";
+"Start over?" = "¿Empezar de nuevo?";
+"The saved accounts will be removed and each one signed in again. Nothing you signed into elsewhere is affected." = "Las cuentas guardadas se eliminarán y habrá que iniciar sesión en cada una otra vez. Nada de lo que hayas iniciado en otro lugar se ve afectado.";
+"Start over" = "Empezar de nuevo";
+"Signed in, but the saved accounts could not be opened to store it." = "Sesión iniciada, pero no se pudieron abrir las cuentas guardadas para almacenarla.";
+"The keychain did not open them. It may be locked." = "El llavero no las abrió. Puede estar bloqueado.";

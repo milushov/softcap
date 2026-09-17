@@ -195,3 +195,14 @@
 "Demo — sample data" = "Demo — dados de exemplo";
 "Show sample data" = "Mostrar dados de exemplo";
 "These accounts are examples. Add one of your own to see real limits." = "Estas contas são exemplos. Adicione a sua para ver os limites reais.";
+"Saved accounts could not be opened" = "Não foi possível abrir as contas salvas";
+"This copy of the app is not the one that saved them. The keychain will ask once — choose “Always Allow”." = "Esta cópia do app não é a que as salvou. As Chaves perguntarão uma vez — escolha “Sempre permitir”.";
+"What is saved cannot be read by this version." = "Esta versão não consegue ler o que está salvo.";
+"Open saved accounts" = "Abrir contas salvas";
+"Start over…" = "Começar de novo…";
+"That did not work, and nothing was changed." = "Não funcionou, e nada foi alterado.";
+"Start over?" = "Começar de novo?";
+"The saved accounts will be removed and each one signed in again. Nothing you signed into elsewhere is affected." = "As contas salvas serão removidas e será preciso entrar em cada uma novamente. Nada em que você entrou em outro lugar é afetado.";
+"Start over" = "Começar de novo";
+"Signed in, but the saved accounts could not be opened to store it." = "Sessão iniciada, mas não foi possível abrir as contas salvas para armazená-la.";
+"The keychain did not open them. It may be locked." = "As Chaves não as abriram. Podem estar bloqueadas.";

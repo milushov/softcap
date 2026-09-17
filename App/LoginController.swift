@@ -255,6 +255,21 @@ final class LoginController: ObservableObject {
                 Self.log.error("sign-in failed: \(failure.diagnostic, privacy: .public)")
                 Task { await Diagnostics.shared.report(failure, category: "sign-in") }
                 message = Localization.shared.failureText(failure.kind)
+            } else if error is WouldOverwriteUnreadableAccounts {
+                // The sign-in worked; there was nowhere to put it. "Sign-in did
+                // not complete" sent people back to the browser to do again,
+                // successfully, the one part of this that had not failed — and
+                // it would have gone on doing that for as long as the app was
+                // installed, because nothing about a second attempt is
+                // different from the first.
+                Self.log.error("sign-in failed: the account list could not be written")
+                Task {
+                    await Diagnostics.shared.report(
+                        .error, category: "sign-in", message: "account list unreadable",
+                        failureType: "WouldOverwriteUnreadableAccounts")
+                }
+                message = Localization.shared(
+                    "Signed in, but the saved accounts could not be opened to store it.")
             } else {
                 let kind = String(describing: type(of: error))
                 Self.log.error("sign-in failed: \(kind, privacy: .public)")

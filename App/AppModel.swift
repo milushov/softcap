@@ -401,6 +401,19 @@ final class AppModel: ObservableObject {
         seedTrackerFromDisk()
         await store.load()
 
+        // Said once, at launch, and said in full. The log used to record a
+        // sign-in failing because the account list was unreadable, and never
+        // once record why the list was unreadable — so the one number that
+        // identifies which of the two it is, and which build wrote the item,
+        // was the one thing missing from the only evidence there is.
+        if let reason = await store.whyUnreadable() {
+            let detail = await store.unreadableDiagnostic ?? "no detail"
+            Self.log.error("""
+                account list unreadable: \(String(describing: reason), privacy: .public) \
+                — \(detail, privacy: .public)
+                """)
+        }
+
         // Everything that keeps the app working is armed before the first poll,
         // not after it. A poll can block indefinitely — a keychain read waits on
         // a system prompt, and that call cannot be cancelled — and when it did,
@@ -529,7 +542,19 @@ final class AppModel: ObservableObject {
         summary = menuBarSummary(result, now: Date(), window: preferences.primaryWindow)
         lastUpdated = Date()
 
-        publishToWidget(snapshots)
+        // A reading of nothing is published. A reading of nothing arrived at
+        // because the app could not look is not.
+        //
+        // An account list this build cannot open polls as no accounts at all,
+        // and handing that to the widget replaces real numbers with "No
+        // accounts found" — said about accounts that are still there, on a
+        // surface with no room to explain itself and nothing to press. The last
+        // good reading stays instead, with the age the widget already shows,
+        // and the repair in Accounts is what puts a new one there.
+        let listWasRead = await accountsProblem() == nil
+        if listWasRead || !snapshots.isEmpty {
+            publishToWidget(snapshots)
+        }
         rebuildTrackerIfNeeded()
         let events = tracker.events(for: result, now: Date())
         // The reading is fed to the tracker even with notifications off:
@@ -608,6 +633,51 @@ final class AppModel: ObservableObject {
                 state: item.state
             )
         }
+    }
+
+    // MARK: - An account list this build cannot open
+
+    /// Why the saved accounts could not be read, or `nil` when they were.
+    ///
+    /// Shaped like `accountRows()` above and for the same two reasons: a
+    /// screenshot build must not reach the keychain at all, and in demo there
+    /// may be nothing there to reach — a repair offered against sample accounts
+    /// would be a repair of nothing.
+    func accountsProblem() async -> UnreadableAccountList? {
+        #if SCREENSHOTS
+        if isScreenshotRun { return nil }
+        #endif
+        if isDemo { return nil }
+        return await store.whyUnreadable()
+    }
+
+    /// Puts the keychain's own question on screen, and takes the accounts back
+    /// if it is answered yes.
+    ///
+    /// Nothing is lost on a refusal: the list stays shut, the guard stays up,
+    /// and the button can be pressed again. The refusal is written down for the
+    /// same reason the failure to read it was — the screen has one sentence to
+    /// spend, and the status code belongs where somebody can read it later.
+    func openSavedAccounts() async throws {
+        do {
+            try await store.openWithPermission()
+        } catch {
+            Self.log.error("saved accounts did not open: \(String(describing: error), privacy: .public)")
+            throw error
+        }
+        await refresh()
+    }
+
+    /// Throws the unreadable item away. Destructive, and the screen that calls
+    /// it says so before it does.
+    func startAccountsOver() async throws {
+        do {
+            try await store.startOver()
+        } catch {
+            Self.log.error("starting over failed: \(String(describing: error), privacy: .public)")
+            throw error
+        }
+        await refresh()
     }
 
     func forgetAccount(id: String) async throws {

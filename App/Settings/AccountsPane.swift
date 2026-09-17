@@ -13,6 +13,11 @@ struct AccountsPane: View {
     @State private var pendingForget: AccountRow?
     @State private var manualCode = ""
     @State private var accountError: String?
+    /// Why the saved list could not be read, when it could not be read.
+    @State private var problem: UnreadableAccountList?
+    @State private var repairing = false
+    @State private var repairNote: String?
+    @State private var confirmingStartOver = false
     @ObservedObject private var loc = Localization.shared
 
     init(model: PreferencesModel, appModel: AppModel) {
@@ -36,7 +41,42 @@ struct AccountsPane: View {
                 demoControl
                 Divider().opacity(0.4)
 
-                if rows.isEmpty {
+                // Before the list, because when this is on screen the list is
+                // empty and the emptiness is the thing being explained. It said
+                // "No accounts yet" to somebody whose accounts were all still
+                // there, and offered them a sign-in that could not be saved.
+                if let problem {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(loc("Saved accounts could not be opened"))
+                            .font(.system(size: 12.5, weight: .medium))
+                        Text(explanation(of: problem))
+                            .font(.system(size: 11)).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        HStack(spacing: 8) {
+                            // Offered for both refusals. An unlock is a question
+                            // too, and the same press puts it on screen — only
+                            // an item that opened and made no sense has nobody
+                            // left to ask.
+                            if problem != .contentNotUnderstood {
+                                Button(loc("Open saved accounts")) { Task { await open() } }
+                                    .disabled(repairing)
+                            }
+                            Button(loc("Start over…")) { confirmingStartOver = true }
+                                .disabled(repairing)
+                            if repairing { ProgressView().controlSize(.small) }
+                        }
+                        if let repairNote {
+                            Text(repairNote).font(.system(size: 11)).foregroundStyle(.red)
+                        }
+                    }
+                    Divider().opacity(0.4)
+                }
+
+                // Not while the block above is explaining why the list is
+                // empty: the two together read "Saved accounts could not be
+                // opened / No accounts yet", and the second sentence is the
+                // lie the first one exists to correct.
+                if rows.isEmpty, problem == nil {
                     Text(loc("No accounts yet"))
                         .font(.system(size: 12)).foregroundStyle(.secondary)
                 } else {
@@ -80,7 +120,11 @@ struct AccountsPane: View {
                         }
                     }
                     .fixedSize()
-                    .disabled(loginController.isRunning)
+                    // Nothing can be saved while the list will not open, and a
+                    // browser sign-in that ends in "there was nowhere to put
+                    // it" spends a grant to tell somebody what this screen is
+                    // already telling them.
+                    .disabled(loginController.isRunning || problem != nil)
                     if loginController.isRunning {
                         ProgressView().controlSize(.small)
                         if loginController.isSavingAccount {
@@ -148,10 +192,62 @@ struct AccountsPane: View {
                 secondaryButton: .cancel(Text(loc("Cancel")))
             )
         }
+        // Asked for, and asked about. It deletes the only copy of every refresh
+        // token in the item, and the sentence says what that means in the terms
+        // the person is standing in rather than in the terms the keychain uses.
+        .alert(loc("Start over?"), isPresented: $confirmingStartOver) {
+            Button(loc("Start over"), role: .destructive) { Task { await startOver() } }
+            Button(loc("Cancel"), role: .cancel) {}
+        } message: {
+            Text(loc("The saved accounts will be removed and each one signed in again. Nothing you signed into elsewhere is affected."))
+        }
     }
 
     private func reload() async {
         rows = await appModel.accountRows()
+        problem = await appModel.accountsProblem()
+    }
+
+    /// The two situations read the same from here — an empty list — and are
+    /// not the same thing at all. One of them is a question away from being
+    /// over; the other cannot be talked out of.
+    private func explanation(of problem: UnreadableAccountList) -> String {
+        switch problem {
+        case .keychainRefusedThisBuild:
+            loc("This copy of the app is not the one that saved them. The keychain will ask once — choose “Always Allow”.")
+        case .keychainDidNotOpen:
+            loc("The keychain did not open them. It may be locked.")
+        case .contentNotUnderstood:
+            loc("What is saved cannot be read by this version.")
+        }
+    }
+
+    private func open() async { await repair { try await appModel.openSavedAccounts() } }
+
+    private func startOver() async { await repair { try await appModel.startAccountsOver() } }
+
+    /// Runs one repair and reports it honestly.
+    ///
+    /// The note is spoken only when the reason is the same afterwards as it was
+    /// before. A refused attempt that nonetheless moved — the item opened, and
+    /// what came out could not be understood — changes the sentence above it,
+    /// and "nothing was changed" beside a changed explanation would be the one
+    /// untrue line on the screen.
+    private func repair(_ work: () async throws -> Void) async {
+        repairing = true
+        repairNote = nil
+        let before = problem
+        var failed = false
+        do {
+            try await work()
+        } catch {
+            failed = true
+        }
+        repairing = false
+        await reload()
+        if failed, problem == before {
+            repairNote = loc("That did not work, and nothing was changed.")
+        }
     }
 
     private func forget(_ row: AccountRow) async {

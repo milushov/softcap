@@ -57,7 +57,33 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
     /// Set when the item could not be read, or was read and could not be
     /// understood — as opposed to there being nothing stored yet. The difference
     /// decides whether it is safe to write.
-    private var storedButUnreadable = false
+    ///
+    /// Which of the two it is decides what can be done about it, so it is kept
+    /// rather than flattened into a flag: one of them opens again for the price
+    /// of a question put to the person, and the other never opens at all.
+    private var unreadable: UnreadableAccountList?
+
+    /// What the keychain said, kept for the log.
+    ///
+    /// The reason above is what the interface acts on; this is the line that
+    /// still says `-25293` to whoever reads the log a month later. Without it
+    /// the log recorded that a sign-in had failed because the list was
+    /// unreadable, and never once said why the list was unreadable.
+    public private(set) var unreadableDiagnostic: String?
+
+    /// Why the saved list could not be read, or `nil` when it reads correctly.
+    public func whyUnreadable() -> UnreadableAccountList? { unreadable }
+
+    /// Whether a repair is already under way.
+    ///
+    /// An actor is reentrant at every `await`, and both repairs suspend on one:
+    /// the keychain's question takes as long as the person takes to answer it.
+    /// Without this a second press — or a second caller — puts a second dialog
+    /// on screen for the same item, and the person answers the same question
+    /// twice to no further effect. The same reasoning as `refreshInFlight`
+    /// above, where a second caller spent a token the first had already
+    /// rotated away.
+    private var repairing = false
 
     /// Reads the saved list. Called once, right after construction.
     public func load() async {
@@ -71,7 +97,19 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
             // came back empty and the next edit encoded that empty list over
             // the only copy of every account's refresh token. A token is issued
             // once; there is nowhere to fetch it from again.
-            storedButUnreadable = true
+            //
+            // Launch does not ask. The question the keychain would put on
+            // screen here is the one that stopped this app dead for
+            // eighty-four minutes; it is put by `openWithPermission()`, when a
+            // person presses the button that says so.
+            // Which refusal it was decides what the screen is allowed to say.
+            // Every status used to arrive here as the same one, so a keychain
+            // that was merely locked was reported as a signature that no longer
+            // matches — a cause stated as fact beside a button that deletes
+            // every token in the item.
+            unreadable = (error as? KeychainDidNotOpen)?.isAboutThisBuild == true
+                ? .keychainRefusedThisBuild : .keychainDidNotOpen
+            unreadableDiagnostic = String(describing: error)
             return
         }
         guard let data else { return }   // nothing stored yet: a fresh install
@@ -80,10 +118,84 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
             // stays empty so the interface says so — but nothing may be written
             // over it, because what is in there is the only copy of every
             // account's refresh token.
-            storedButUnreadable = true
+            unreadable = .contentNotUnderstood
+            unreadableDiagnostic = "the stored list is not a list of accounts"
             return
         }
         accounts = stored
+    }
+
+    /// Asks the keychain to open the item, letting it put its question to the
+    /// person, and takes the accounts back if it does.
+    ///
+    /// This is the cheap way out of the common case, and it costs nothing: the
+    /// accounts were never gone, only shut, and what comes back is every
+    /// refresh token that was ever written. Reached from a button and from
+    /// nowhere else — not from launch, not from a poll — which is what keeps
+    /// the old hazard away. The read it makes waits off this actor, so the app
+    /// stays alive for as long as the dialog stands open.
+    public func openWithPermission() async throws {
+        guard unreadable != nil, !repairing else { return }
+        repairing = true
+        defer { repairing = false }
+        let data = try await keychain.readAllowingPrompt(service: Self.ownService)
+        guard let data else {
+            // Nothing there after all: the item went away between the refusal
+            // and the question. A fresh install is not an error, and writing
+            // is safe again because there is nothing left to write over.
+            unreadable = nil
+            unreadableDiagnostic = nil
+            return
+        }
+        guard let stored = try? JSONDecoder().decode([StoredAccount].self, from: data) else {
+            // Opened, and what is inside still cannot be understood. The reason
+            // changes, because what can be done about it changes with it.
+            unreadable = .contentNotUnderstood
+            unreadableDiagnostic = "the stored list is not a list of accounts"
+            throw AccountListStayedShut()
+        }
+        accounts = stored
+        unreadable = nil
+        unreadableDiagnostic = nil
+    }
+
+    /// Throws the unreadable item away and puts an empty one this build owns in
+    /// its place.
+    ///
+    /// The last resort, and it is destructive: every refresh token in the old
+    /// item goes with it, and each account it held has to be signed in again.
+    /// Offered only from the state where those tokens are unreachable anyway,
+    /// and refused from every other — `NothingToStartOverFrom` rather than a
+    /// silent wipe of a list that was fine.
+    ///
+    /// Replaced rather than written over. A write would succeed and leave the
+    /// old item's access control in place, so the new accounts would land
+    /// somewhere this build can never read back — the same dead end again, with
+    /// the tokens now lost as well.
+    public func startOver() async throws {
+        guard unreadable != nil else { throw NothingToStartOverFrom() }
+        guard !repairing else { return }
+        repairing = true
+        defer { repairing = false }
+        let empty = try JSONEncoder().encode([StoredAccount]())
+        do {
+            try await keychain.replace(empty, service: Self.ownService)
+        } catch let loss as TheItemWasDeletedAndNotReplaced {
+            // The old item is gone and nothing took its place, which is most of
+            // what starting over means. The guard comes down with it: it exists
+            // to protect tokens that no longer exist, and left up it would
+            // refuse every write from here to the end of the install. The next
+            // write adds a fresh item, which is what the failed step was for.
+            accounts = []
+            unreadable = nil
+            unreadableDiagnostic = String(describing: loss)
+            unsavedChanges = true
+            return
+        }
+        accounts = []
+        unreadable = nil
+        unreadableDiagnostic = nil
+        unsavedChanges = false
     }
 
     public func knownRefs() -> [AccountRef] {
@@ -326,7 +438,7 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
     /// taken while the account is active in the CLI. Losing them signs every
     /// inactive account out for good.
     private func persist() async throws {
-        guard !storedButUnreadable else { throw WouldOverwriteUnreadableAccounts() }
+        guard unreadable == nil else { throw WouldOverwriteUnreadableAccounts() }
         let data = try JSONEncoder().encode(accounts)
         try await keychain.write(data, service: Self.ownService)
         unsavedChanges = false

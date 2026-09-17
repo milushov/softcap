@@ -195,3 +195,14 @@
 "Demo — sample data" = "Демо — пример данных";
 "Show sample data" = "Показывать пример данных";
 "These accounts are examples. Add one of your own to see real limits." = "Это примеры аккаунтов. Добавьте свой, чтобы увидеть настоящие лимиты.";
+"Saved accounts could not be opened" = "Не удалось открыть сохранённые аккаунты";
+"This copy of the app is not the one that saved them. The keychain will ask once — choose “Always Allow”." = "Эта копия приложения — не та, что их сохранила. Связка ключей спросит один раз: выберите «Всегда разрешать».";
+"What is saved cannot be read by this version." = "Эта версия не может прочитать то, что сохранено.";
+"Open saved accounts" = "Открыть сохранённые аккаунты";
+"Start over…" = "Начать заново…";
+"That did not work, and nothing was changed." = "Не получилось, ничего не изменилось.";
+"Start over?" = "Начать заново?";
+"The saved accounts will be removed and each one signed in again. Nothing you signed into elsewhere is affected." = "Сохранённые аккаунты будут удалены, в каждый придётся войти заново. На то, куда вы вошли в другом месте, это не влияет.";
+"Start over" = "Начать заново";
+"Signed in, but the saved accounts could not be opened to store it." = "Вход выполнен, но сохранённые аккаунты не удалось открыть, чтобы записать его.";
+"The keychain did not open them. It may be locked." = "Связка ключей их не открыла. Возможно, она заблокирована.";

@@ -195,3 +195,14 @@
 "Demo — sample data" = "عرض توضيحي — بيانات نموذجية";
 "Show sample data" = "إظهار بيانات نموذجية";
 "These accounts are examples. Add one of your own to see real limits." = "هذه الحسابات أمثلة. أضف حسابك الخاص لرؤية حدودك الفعلية.";
+"Saved accounts could not be opened" = "تعذّر فتح الحسابات المحفوظة";
+"This copy of the app is not the one that saved them. The keychain will ask once — choose “Always Allow”." = "هذه النسخة من التطبيق ليست التي حفظتها. ستسأل سلسلة المفاتيح مرة واحدة — اختر «السماح دائمًا».";
+"What is saved cannot be read by this version." = "لا يمكن لهذا الإصدار قراءة ما هو محفوظ.";
+"Open saved accounts" = "فتح الحسابات المحفوظة";
+"Start over…" = "البدء من جديد…";
+"That did not work, and nothing was changed." = "لم ينجح ذلك، ولم يتغيّر شيء.";
+"Start over?" = "البدء من جديد؟";
+"The saved accounts will be removed and each one signed in again. Nothing you signed into elsewhere is affected." = "ستُحذف الحسابات المحفوظة وسيلزم تسجيل الدخول إلى كل منها من جديد. لا يتأثر أي شيء سجّلت الدخول إليه في مكان آخر.";
+"Start over" = "البدء من جديد";
+"Signed in, but the saved accounts could not be opened to store it." = "تم تسجيل الدخول، لكن تعذّر فتح الحسابات المحفوظة لتخزينه.";
+"The keychain did not open them. It may be locked." = "لم تفتحها سلسلة المفاتيح. قد تكون مقفلة.";

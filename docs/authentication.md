@@ -105,6 +105,44 @@ access group. Items remain local: Apple requires
 A fresh iOS install therefore has no accounts. Refresh coalescing covers one
 credential-store instance.
 
+## When the saved list cannot be read
+
+The keychain binds access to the code signature that created the item, not to
+the bundle identifier. A build signed ad-hoc is a different application every
+time it is built, so an update can arrive unable to read the accounts the
+previous one saved: `SecItemCopyMatching` returns `-25293` while the read
+refuses the access dialog, and `load()` records the list as present but
+unreadable. Nothing may then be written over it — the item is the only copy of
+every account's refresh token — so a browser sign-in completes, the code is
+exchanged, the profile is read, and `addLoggedInAccount` throws
+`WouldOverwriteUnreadableAccounts`.
+
+`CredentialStore.whyUnreadable()` distinguishes the two ways this happens.
+`keychainRefusedThisBuild` means the item did not open; nothing is lost, and
+`openWithPermission()` reads it again with the keychain's question allowed, off
+the actor, reached only from the Accounts screen's **Open saved accounts**
+button. `contentNotUnderstood` means it opened and the contents did not decode;
+there is nothing to ask anybody, and only `startOver()` moves on from it.
+
+`startOver()` replaces the item rather than writing into it. A write succeeds
+even from a build the item does not belong to and leaves the old access control
+in place, which would store new accounts somewhere unreadable. `SecItemDelete`
+on the query refuses with `-25244`; the item's reference decrypts nothing, so
+`SecKeychainItemDelete` on that reference succeeds and the replacement belongs
+to the running build. It throws `NothingToStartOverFrom` unless the list is
+actually unreadable, because it destroys every refresh token the item held.
+
+`keychainRefusedThisBuild` is claimed only for `errSecAuthFailed` and
+`errSecInteractionNotAllowed` — the two statuses that mean the item's access
+check turned this caller away. Any other status is `keychainDidNotOpen`, which
+says the keychain did not answer and nothing more: a locked keychain reported as
+a signature mismatch would state a cause beside a button that deletes tokens.
+
+Launch never raises the dialog. It writes the keychain's status to the unified
+log under the `poll` category — the app model's own logger — and leaves the
+decision to a person on a screen they are looking at. Nothing about it is sent
+to the diagnostics collector.
+
 ## Verification
 
 Run `make test` for provider, parsing, persistence, namespace and rotation tests.

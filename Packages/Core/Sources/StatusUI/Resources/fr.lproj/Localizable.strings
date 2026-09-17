@@ -195,3 +195,14 @@
 "Demo — sample data" = "Démo — données d’exemple";
 "Show sample data" = "Afficher des données d’exemple";
 "These accounts are examples. Add one of your own to see real limits." = "Ces comptes sont des exemples. Ajoutez le vôtre pour voir vos limites réelles.";
+"Saved accounts could not be opened" = "Les comptes enregistrés n'ont pas pu être ouverts";
+"This copy of the app is not the one that saved them. The keychain will ask once — choose “Always Allow”." = "Cette copie de l'app n'est pas celle qui les a enregistrés. Le trousseau posera la question une fois : choisissez « Toujours autoriser ».";
+"What is saved cannot be read by this version." = "Cette version ne peut pas lire ce qui est enregistré.";
+"Open saved accounts" = "Ouvrir les comptes enregistrés";
+"Start over…" = "Recommencer…";
+"That did not work, and nothing was changed." = "Cela n'a pas fonctionné et rien n'a été modifié.";
+"Start over?" = "Recommencer ?";
+"The saved accounts will be removed and each one signed in again. Nothing you signed into elsewhere is affected." = "Les comptes enregistrés seront supprimés et il faudra se reconnecter à chacun. Rien de ce à quoi vous êtes connecté ailleurs n'est affecté.";
+"Start over" = "Recommencer";
+"Signed in, but the saved accounts could not be opened to store it." = "Connexion réussie, mais les comptes enregistrés n'ont pas pu être ouverts pour l'enregistrer.";
+"The keychain did not open them. It may be locked." = "Le trousseau ne les a pas ouverts. Il est peut-être verrouillé.";

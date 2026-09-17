@@ -195,3 +195,14 @@
 "Demo — sample data" = "डेमो — नमूना डेटा";
 "Show sample data" = "नमूना डेटा दिखाएँ";
 "These accounts are examples. Add one of your own to see real limits." = "ये खाते उदाहरण हैं। अपनी वास्तविक सीमाएँ देखने के लिए अपना खाता जोड़ें।";
+"Saved accounts could not be opened" = "सहेजे गए खाते खोले नहीं जा सके";
+"This copy of the app is not the one that saved them. The keychain will ask once — choose “Always Allow”." = "इन्हें सहेजने वाली प्रति यह नहीं है। किचेन एक बार पूछेगा — “हमेशा अनुमति दें” चुनें।";
+"What is saved cannot be read by this version." = "सहेजी गई सामग्री इस संस्करण द्वारा पढ़ी नहीं जा सकती।";
+"Open saved accounts" = "सहेजे गए खाते खोलें";
+"Start over…" = "नए सिरे से शुरू करें…";
+"That did not work, and nothing was changed." = "यह काम नहीं आया, और कुछ भी नहीं बदला गया।";
+"Start over?" = "नए सिरे से शुरू करें?";
+"The saved accounts will be removed and each one signed in again. Nothing you signed into elsewhere is affected." = "सहेजे गए खाते हटा दिए जाएंगे और हर एक में फिर से साइन इन करना होगा। आपने अन्यत्र जहाँ साइन इन किया है, उस पर कोई असर नहीं पड़ेगा।";
+"Start over" = "नए सिरे से शुरू करें";
+"Signed in, but the saved accounts could not be opened to store it." = "साइन इन हो गया, लेकिन इसे रखने के लिए सहेजे गए खाते खोले नहीं जा सके।";
+"The keychain did not open them. It may be locked." = "किचेन ने इन्हें नहीं खोला। यह लॉक हो सकता है।";

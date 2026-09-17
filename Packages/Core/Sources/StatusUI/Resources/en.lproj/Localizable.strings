@@ -195,3 +195,14 @@
 "Demo — sample data" = "Demo — sample data";
 "Show sample data" = "Show sample data";
 "These accounts are examples. Add one of your own to see real limits." = "These accounts are examples. Add one of your own to see real limits.";
+"Saved accounts could not be opened" = "Saved accounts could not be opened";
+"This copy of the app is not the one that saved them. The keychain will ask once — choose “Always Allow”." = "This copy of the app is not the one that saved them. The keychain will ask once — choose “Always Allow”.";
+"What is saved cannot be read by this version." = "What is saved cannot be read by this version.";
+"Open saved accounts" = "Open saved accounts";
+"Start over…" = "Start over…";
+"That did not work, and nothing was changed." = "That did not work, and nothing was changed.";
+"Start over?" = "Start over?";
+"The saved accounts will be removed and each one signed in again. Nothing you signed into elsewhere is affected." = "The saved accounts will be removed and each one signed in again. Nothing you signed into elsewhere is affected.";
+"Start over" = "Start over";
+"Signed in, but the saved accounts could not be opened to store it." = "Signed in, but the saved accounts could not be opened to store it.";
+"The keychain did not open them. It may be locked." = "The keychain did not open them. It may be locked.";

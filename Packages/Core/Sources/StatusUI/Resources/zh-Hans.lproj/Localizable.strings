@@ -195,3 +195,14 @@
 "Demo — sample data" = "演示 — 示例数据";
 "Show sample data" = "显示示例数据";
 "These accounts are examples. Add one of your own to see real limits." = "这些是示例账户。添加您自己的账户即可查看真实用量。";
+"Saved accounts could not be opened" = "无法打开已保存的账户";
+"This copy of the app is not the one that saved them. The keychain will ask once — choose “Always Allow”." = "保存它们的不是这个副本。钥匙串会询问一次 — 请选择“始终允许”。";
+"What is saved cannot be read by this version." = "此版本无法读取已保存的内容。";
+"Open saved accounts" = "打开已保存的账户";
+"Start over…" = "重新开始…";
+"That did not work, and nothing was changed." = "没有成功，未做任何更改。";
+"Start over?" = "重新开始？";
+"The saved accounts will be removed and each one signed in again. Nothing you signed into elsewhere is affected." = "已保存的账户将被删除，每个账户都需要重新登录。你在别处登录的内容不受影响。";
+"Start over" = "重新开始";
+"Signed in, but the saved accounts could not be opened to store it." = "已登录，但无法打开已保存的账户来存储它。";
+"The keychain did not open them. It may be locked." = "钥匙串未能打开它们。它可能已锁定。";

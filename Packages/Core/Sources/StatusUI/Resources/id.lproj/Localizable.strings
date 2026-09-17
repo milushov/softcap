@@ -195,3 +195,14 @@
 "Demo — sample data" = "Demo — data contoh";
 "Show sample data" = "Tampilkan data contoh";
 "These accounts are examples. Add one of your own to see real limits." = "Akun-akun ini hanya contoh. Tambahkan akun Anda sendiri untuk melihat limit sebenarnya.";
+"Saved accounts could not be opened" = "Akun tersimpan tidak dapat dibuka";
+"This copy of the app is not the one that saved them. The keychain will ask once — choose “Always Allow”." = "Salinan aplikasi ini bukan yang menyimpannya. Keychain akan bertanya sekali — pilih “Selalu Izinkan”.";
+"What is saved cannot be read by this version." = "Versi ini tidak dapat membaca apa yang tersimpan.";
+"Open saved accounts" = "Buka akun tersimpan";
+"Start over…" = "Mulai dari awal…";
+"That did not work, and nothing was changed." = "Tidak berhasil, dan tidak ada yang berubah.";
+"Start over?" = "Mulai dari awal?";
+"The saved accounts will be removed and each one signed in again. Nothing you signed into elsewhere is affected." = "Akun tersimpan akan dihapus dan masing-masing perlu masuk lagi. Apa pun yang Anda masuki di tempat lain tidak terpengaruh.";
+"Start over" = "Mulai dari awal";
+"Signed in, but the saved accounts could not be opened to store it." = "Berhasil masuk, tetapi akun tersimpan tidak dapat dibuka untuk menyimpannya.";
+"The keychain did not open them. It may be locked." = "Keychain tidak membukanya. Mungkin terkunci.";
