@@ -15,7 +15,13 @@
     <p class="note">{{index.note}}</p>
     </div>
 
-    <!-- The gallery. Slide one is the mock that stood here before: it is the
+    <!-- `autocomplete="off"` on every radio, and it is load-bearing: a
+         browser restores checked state across a reload, so one click on a
+         control left the gallery stopped on every later visit — it came up
+         already halted and never moved again. Nothing in a fresh headless
+         profile can reproduce that, which is why it shipped.
+
+         Slide one is the mock that stood here before: it is the
          only picture on this page that is translated, that follows the palette,
          and that the tests can hold against the app's own catalogue. The other
          four are photographs. They advance on their own and stop for good when
@@ -24,11 +30,11 @@
          candidate and cannot be had at the same time: CSS animates opacity and
          cannot move a scroll position. -->
     <div class="shots">
-      <input type="radio" name="shot" id="s1">
-      <input type="radio" name="shot" id="s2">
-      <input type="radio" name="shot" id="s3">
-      <input type="radio" name="shot" id="s4">
-      <input type="radio" name="shot" id="s5">
+      <input type="radio" name="shot" id="s1" autocomplete="off">
+      <input type="radio" name="shot" id="s2" autocomplete="off">
+      <input type="radio" name="shot" id="s3" autocomplete="off">
+      <input type="radio" name="shot" id="s4" autocomplete="off">
+      <input type="radio" name="shot" id="s5" autocomplete="off">
       <div class="panes">
         <figure class="scene">
   <!-- The mock and the chart depict the English app and its data, so they

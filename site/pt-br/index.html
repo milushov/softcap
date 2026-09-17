@@ -263,9 +263,16 @@ header{padding:34px 0 0}
 .shots:not(:has(input:checked)) .cap span:nth-of-type(5),
 .shots:not(:has(input:checked)) .mark:nth-of-type(5){animation-delay:20s}
 
-/* Anything that advances by itself has to be stoppable. Pointing at it is the
-   cheapest way to say wait; choosing a slide stops it for the visit. */
-.shots:hover .panes figure,.shots:hover .cap span,.shots:hover .mark,
+/* Anything that advances by itself has to be stoppable, and choosing a slide is
+   that mechanism. Hovering used to pause it too, over the whole column — half
+   the width of the page — so a pointer resting anywhere near the pictures
+   stopped everything and the gallery read as dead. The pause now belongs to the
+   row of controls, which is small and deliberate, and to keyboard focus, where
+   somebody is plainly working through it. Written with `:has()` because the row
+   sits after the pictures in the markup and a sibling combinator only ever
+   looks forward — the first attempt selected nothing at all. */
+.shots:has(.rail:hover) .panes figure,.shots:has(.rail:hover) .cap span,
+.rail:hover .mark,
 .shots:focus-within .panes figure,.shots:focus-within .cap span,
 .shots:focus-within .mark{animation-play-state:paused}
 
@@ -774,7 +781,13 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <p class="note">macOS 14+ · barra de menus, widgets e um app para iPhone</p>
     </div>
 
-    <!-- The gallery. Slide one is the mock that stood here before: it is the
+    <!-- `autocomplete="off"` on every radio, and it is load-bearing: a
+         browser restores checked state across a reload, so one click on a
+         control left the gallery stopped on every later visit — it came up
+         already halted and never moved again. Nothing in a fresh headless
+         profile can reproduce that, which is why it shipped.
+
+         Slide one is the mock that stood here before: it is the
          only picture on this page that is translated, that follows the palette,
          and that the tests can hold against the app's own catalogue. The other
          four are photographs. They advance on their own and stop for good when
@@ -783,11 +796,11 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
          candidate and cannot be had at the same time: CSS animates opacity and
          cannot move a scroll position. -->
     <div class="shots">
-      <input type="radio" name="shot" id="s1">
-      <input type="radio" name="shot" id="s2">
-      <input type="radio" name="shot" id="s3">
-      <input type="radio" name="shot" id="s4">
-      <input type="radio" name="shot" id="s5">
+      <input type="radio" name="shot" id="s1" autocomplete="off">
+      <input type="radio" name="shot" id="s2" autocomplete="off">
+      <input type="radio" name="shot" id="s3" autocomplete="off">
+      <input type="radio" name="shot" id="s4" autocomplete="off">
+      <input type="radio" name="shot" id="s5" autocomplete="off">
       <div class="panes">
         <figure class="scene">
   <!-- The mock and the chart depict the English app and its data, so they

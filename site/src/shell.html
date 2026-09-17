@@ -253,9 +253,16 @@ header{padding:34px 0 0}
 .shots:not(:has(input:checked)) .cap span:nth-of-type(5),
 .shots:not(:has(input:checked)) .mark:nth-of-type(5){animation-delay:20s}
 
-/* Anything that advances by itself has to be stoppable. Pointing at it is the
-   cheapest way to say wait; choosing a slide stops it for the visit. */
-.shots:hover .panes figure,.shots:hover .cap span,.shots:hover .mark,
+/* Anything that advances by itself has to be stoppable, and choosing a slide is
+   that mechanism. Hovering used to pause it too, over the whole column — half
+   the width of the page — so a pointer resting anywhere near the pictures
+   stopped everything and the gallery read as dead. The pause now belongs to the
+   row of controls, which is small and deliberate, and to keyboard focus, where
+   somebody is plainly working through it. Written with `:has()` because the row
+   sits after the pictures in the markup and a sibling combinator only ever
+   looks forward — the first attempt selected nothing at all. */
+.shots:has(.rail:hover) .panes figure,.shots:has(.rail:hover) .cap span,
+.rail:hover .mark,
 .shots:focus-within .panes figure,.shots:focus-within .cap span,
 .shots:focus-within .mark{animation-play-state:paused}
 
