@@ -8453,3 +8453,57 @@ affordance is an underline on hover, found only by pointing at it. A scan
 suite (`ThePeekIsNotRemembered`) now pins the ephemerality, which is one more
 test to keep honest. VoiceOver spends nothing: the row's sentence already
 reads both periods.
+
+## 2026-09-18 — The hero is two columns, and the mock is the first slide
+
+**Decision.** The landing's opening splits: the writing on one side, a gallery
+of the app on the other. Five slides advance on their own, five seconds each,
+and stop for the rest of the visit when somebody picks one — a radio goes on and
+`:has(input:checked)` turns the keyframe off. Pointing at the gallery pauses it;
+`prefers-reduced-motion` stops it before it starts and shows the first slide.
+
+Slide one is the hand-built mock that already stood on this page. Slides two to
+five are photographs of the settings screens, cut out of the App Store
+screenshots by `tools/crop_screenshots.py` and served from `site/shots`.
+Fourteen new keys in each of the ten catalogues: five names for the controls,
+five sentences under the picture, four descriptions for a reader who cannot see
+one.
+
+**Why.** The page described the app in words and showed one window. The
+screenshots existed — they were made for App Review — and nothing on the site
+used them.
+
+The mock keeps its place because removing it was tried first and cost more than
+it looked. Four suites hold it, not the two a first grep found:
+`LandingMatchesApp` checks that the words in it are still keys the app has,
+`PreviewMatchesThePage` counts its bars against its labels, `TheDemoMatchesTheLanding`
+holds its figures against the demo mode written for the App Review reply three
+days ago, and `SiteCataloguesAgree` uses it to prove the Arabic page keeps a
+left-to-right island. Those are guarantees somebody built on purpose, and a
+photograph cannot carry any of them: it is not translated, it does not follow
+the palette, and nothing can check it against the app. Making it slide one costs
+nothing and answers the objection that put it there — the first photograph was
+of the same window, so the page showed one thing twice running.
+
+The marketing gradients and their baked-in English captions are gone with the
+crop. A picture with `Clear` written across it in English is wrong on nine of
+the ten pages, and the caption it carried is now a catalogue string.
+
+**Cost.** Fourteen strings in ten catalogues, and four more files on the wire —
+87 KB of WebP, which is less than the social preview the page already loads.
+
+Advancing by itself and swiping with a finger cannot both be had. CSS animates
+opacity and cannot move a scroll position, so a track a finger could push would
+have had to give up the cycle. The cycle was kept. Should the swipe be wanted
+later it also needs `check-widths.sh` amended: that check refuses any element
+whose right edge passes the viewport, which every off-screen slide of a
+horizontal scroller has by construction — measured, `scrollWidth` stayed equal
+to the viewport and the page did not scroll sideways, so the rule and the defect
+it guards against have come apart.
+
+Two things were got wrong on the way and are worth the warning. `animation:` is
+a shorthand that resets `animation-delay` to zero, and the rule setting it
+outranked the per-slide delays, so every slide ran with no delay and all five
+were on screen at once. And a grid cell shared by all five slides takes the
+widest slide's min-content width unless the track is `minmax(0,1fr)` and the
+items may be narrow — at 320 px that put 577 px of page on a 320 px screen.

@@ -179,6 +179,133 @@ header{padding:34px 0 0}
 .gh span,.foot-src .gh{min-width:0}
 @media(max-width:520px){.gh{padding:4px 6px;letter-spacing:0}}
 
+/* ---------- the hero, in two columns ---------- */
+/* The writing on one side and the app on the other. The hand-built mock that
+   stood here depicted the same window the first photograph is of, and showing
+   it twice running is what made every earlier arrangement read as odd. 980 is
+   the measure every other section keeps, so the first letter of the headline
+   lines up with every heading below it. */
+.wrap.wide{max-width:980px}
+.hero.split{
+  display:grid;grid-template-columns:minmax(0,0.95fr) minmax(0,1.05fr);
+  gap:56px;align-items:center;padding:56px 0 52px;
+}
+.hero.split h1{font-size:clamp(28px,3.3vw,41px);max-width:19ch;margin-bottom:18px}
+.hero.split .lede{max-width:42ch}
+.hero.split .cta{margin-top:26px}
+
+/* ---------- the gallery ---------- */
+.shots input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+/* Every slide in one grid cell, so they cross-fade in place and the column's
+   height never depends on which one is up. */
+/* `minmax(0,1fr)` and `min-width:0`, or the one cell every slide shares is
+   sized by the widest slide's min-content — 617 px of photograph and 348 px of
+   mock — and the column stops fitting a phone. The stage shrank happily on its
+   own for a year; it was the shared cell that stopped it. */
+/* No fixed height: the cell is shared by all five slides, so it is already as
+   tall as the tallest and switching cannot make the page jump. Pinning it at
+   430 px only meant the mock — whose height is its content's, not a picture's —
+   spilled over the controls below and painted on top of them. */
+.panes{display:grid;grid-template-columns:minmax(0,1fr);
+  align-items:center;justify-items:center}
+.panes figure{grid-area:1/1;margin:0;opacity:0;transition:opacity .45s;
+  min-width:0;max-width:100%}
+.panes img{max-height:430px;width:auto;max-width:100%;height:auto;display:block;
+  filter:drop-shadow(0 18px 34px var(--cast))}
+/* The mock is a scene, not a photograph: it has no natural height to cap and
+   it carries its own layout, so it only ever needs permission to be narrow. */
+.panes .scene{width:100%;min-width:0}
+.panes .scene .stage{margin:0}
+.cap{display:grid;margin-top:16px;min-height:3.2em;text-align:center}
+.cap span{grid-area:1/1;opacity:0;color:var(--fg-2);font-size:13.5px;
+  transition:opacity .45s;align-self:start}
+/* Words rather than dots, and made to fit rather than forbidden from wrapping.
+   `flex-wrap:nowrap` was the obvious answer and it is the wrong one: it gives
+   the column a min-content width of 398 px, wider than a 320 px phone, and the
+   hero's own writing stopped fitting — in English, before any translation.
+   These sit on one line at the sizes anybody reads at, and a reader who has
+   forced 24 px text gets a second line rather than a page that scrolls. */
+.rail{display:flex;gap:5px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+.mark{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:0;color:var(--fg-3);
+  padding:5px 9px;border:1px solid var(--line);border-radius:999px;cursor:pointer;
+  white-space:nowrap;
+}
+.mark:hover{color:var(--fg-2)}
+
+/* Five slides, five seconds each; visible for four and a half so the half
+   second either side is a cross-fade rather than a cut. */
+@keyframes slide-cycle{
+  0%{opacity:0} 2%{opacity:1} 18%{opacity:1} 20%{opacity:0} 100%{opacity:0}
+}
+@keyframes pill-cycle{
+  0%{background:transparent;color:var(--fg-3);border-color:var(--line)}
+  2%,18%{background:var(--strip-on);color:var(--fg);border-color:var(--edge)}
+  20%,100%{background:transparent;color:var(--fg-3);border-color:var(--line)}
+}
+.shots:not(:has(input:checked)) .panes figure,
+.shots:not(:has(input:checked)) .cap span{animation:slide-cycle 25s infinite}
+.shots:not(:has(input:checked)) .mark{animation:pill-cycle 25s infinite}
+/* `animation:` is a shorthand and resets `animation-delay` to zero. The rules
+   above carry more weight than a bare `.mark:nth-of-type(2)`, so the delays
+   have to repeat the whole prefix — without that every slide ran with no delay
+   and all five were on screen together. */
+.shots:not(:has(input:checked)) .panes figure:nth-of-type(2),
+.shots:not(:has(input:checked)) .cap span:nth-of-type(2),
+.shots:not(:has(input:checked)) .mark:nth-of-type(2){animation-delay:5s}
+.shots:not(:has(input:checked)) .panes figure:nth-of-type(3),
+.shots:not(:has(input:checked)) .cap span:nth-of-type(3),
+.shots:not(:has(input:checked)) .mark:nth-of-type(3){animation-delay:10s}
+.shots:not(:has(input:checked)) .panes figure:nth-of-type(4),
+.shots:not(:has(input:checked)) .cap span:nth-of-type(4),
+.shots:not(:has(input:checked)) .mark:nth-of-type(4){animation-delay:15s}
+.shots:not(:has(input:checked)) .panes figure:nth-of-type(5),
+.shots:not(:has(input:checked)) .cap span:nth-of-type(5),
+.shots:not(:has(input:checked)) .mark:nth-of-type(5){animation-delay:20s}
+
+/* Anything that advances by itself has to be stoppable. Pointing at it is the
+   cheapest way to say wait; choosing a slide stops it for the visit. */
+.shots:hover .panes figure,.shots:hover .cap span,.shots:hover .mark,
+.shots:focus-within .panes figure,.shots:focus-within .cap span,
+.shots:focus-within .mark{animation-play-state:paused}
+
+#s1:checked~.panes figure:nth-of-type(1),
+#s1:checked~.cap span:nth-of-type(1),
+#s2:checked~.panes figure:nth-of-type(2),
+#s2:checked~.cap span:nth-of-type(2),
+#s3:checked~.panes figure:nth-of-type(3),
+#s3:checked~.cap span:nth-of-type(3),
+#s4:checked~.panes figure:nth-of-type(4),
+#s4:checked~.cap span:nth-of-type(4),
+#s5:checked~.panes figure:nth-of-type(5),
+#s5:checked~.cap span:nth-of-type(5){opacity:1}
+#s1:checked~.rail .mark:nth-of-type(1),
+#s2:checked~.rail .mark:nth-of-type(2),
+#s3:checked~.rail .mark:nth-of-type(3),
+#s4:checked~.rail .mark:nth-of-type(4),
+#s5:checked~.rail .mark:nth-of-type(5){background:var(--strip-on);color:var(--fg);border-color:var(--edge)}
+#s1:focus-visible~.rail .mark:nth-of-type(1),
+#s2:focus-visible~.rail .mark:nth-of-type(2),
+#s3:focus-visible~.rail .mark:nth-of-type(3),
+#s4:focus-visible~.rail .mark:nth-of-type(4),
+#s5:focus-visible~.rail .mark:nth-of-type(5){outline:2px solid var(--accent);outline-offset:2px}
+
+/* Asked for less movement: the first slide, and no cycle at all. */
+@media (prefers-reduced-motion: reduce){
+  .shots:not(:has(input:checked)) .panes figure,
+  .shots:not(:has(input:checked)) .cap span,
+  .shots:not(:has(input:checked)) .mark{animation:none}
+  .shots:not(:has(input:checked)) .panes figure:nth-of-type(1),
+  .shots:not(:has(input:checked)) .cap span:nth-of-type(1){opacity:1}
+  .shots:not(:has(input:checked)) .mark:nth-of-type(1){
+    background:var(--strip-on);color:var(--fg);border-color:var(--edge)}
+}
+@media(max-width:960px){
+  .hero.split{grid-template-columns:minmax(0,1fr);gap:44px;padding-top:44px}
+  .hero.split h1{max-width:22ch}
+}
+@media(max-width:560px){.panes img{max-height:330px}}
+
 /* ---------- hero ---------- */
 .hero{padding:76px 0 64px}
 h1{
@@ -632,8 +759,9 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 </header>
 <main>
 
-<div class="wrap">
-  <div class="hero">
+<div class="wrap wide">
+  <div class="hero split">
+    <div class="hero-text">
     <h1>Every subscription limit, <em>on one screen.</em></h1>
     <p class="lede">
       You bought a second Claude plan so you would not have to stop working — and then checking
@@ -646,73 +774,111 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <p class="cta"><a class="download" href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">Download for macOS</a>
        <a class="source" href="https://github.com/milushov/softcap"><svg width="17" height="17" aria-hidden="true"><use href="#gh-mark"/></svg>View the source</a></p>
     <p class="note">macOS 14+ · menu bar, widgets, and an iPhone app</p>
-  </div>
+    </div>
 
+    <!-- The gallery. Slide one is the mock that stood here before: it is the
+         only picture on this page that is translated, that follows the palette,
+         and that the tests can hold against the app's own catalogue. The other
+         four are photographs. They advance on their own and stop for good when
+         somebody chooses one — a radio goes on and `:has(input:checked)` turns
+         the keyframe off. A scroller a finger could push was the other
+         candidate and cannot be had at the same time: CSS animates opacity and
+         cannot move a scroll position. -->
+    <div class="shots">
+      <input type="radio" name="shot" id="s1">
+      <input type="radio" name="shot" id="s2">
+      <input type="radio" name="shot" id="s3">
+      <input type="radio" name="shot" id="s4">
+      <input type="radio" name="shot" id="s5">
+      <div class="panes">
+        <figure class="scene">
   <!-- The mock and the chart depict the English app and its data, so they
        keep left-to-right layout on every page, the Arabic one included. -->
-  <div class="stage" dir="ltr">
-    <div class="menubar" aria-hidden="true">
-      <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 4h8M2 6h8M2 8h5"/></svg></span>
-      <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="3" width="9" height="6" rx="1.4"/><path d="M11 5v2"/></svg></span>
-      <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1.5 4.5a7 7 0 019 0M3.5 6.7a4 4 0 015 0"/><circle cx="6" cy="9" r=".8" fill="currentColor" stroke="none"/></svg></span>
-      <span class="self">
-        <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2.6"/>
-          <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="2.6"
-                  stroke-linecap="round" stroke-dasharray="34.3 52.8" transform="rotate(-90 12 12)"/>
-        </svg>
-        0:41
-      </span>
-      <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 6h3.2M6.8 6H10"/><circle cx="6" cy="6" r="1.3"/></svg></span>
-      <span class="item">Mon 2:41&nbsp;AM</span>
-    </div>
-
-    <div class="desk">
-    <div class="widget" role="img" aria-label="The small Softcap widget on the desktop, showing the busiest account at 100 per cent with 41 minutes left.">
-      <span class="cap">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 16.5a9 9 0 0116 0"/><path d="M12 16.5l4.6-5.2" stroke-linecap="round"/>
-        </svg>
-        Subscription limits
-      </span>
-      <span class="big">100%</span>
-      <span class="who2">sam.k@example.com</span>
-      <span class="left">41m</span>
-    </div>
-    <div class="pointer"></div>
-    <div class="win" role="img" aria-label="The Softcap window listing three accounts with their five-hour and weekly limits, open below its menu bar item.">
-      <div class="win-head">Subscription limits <span>2:41 AM</span></div>
-
-      <div class="row">
-        <div class="row-top">
-          <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="5" cy="5" r="4.2"/><circle cx="5" cy="5" r="1.6"/></svg></div>
-          <div class="who"><b>alex@example.com</b><i>Codex · Plus</i></div>
-          <span class="tag">Data from 28 Aug</span>
+      <div class="stage" dir="ltr">
+        <div class="menubar" aria-hidden="true">
+          <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 4h8M2 6h8M2 8h5"/></svg></span>
+          <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="3" width="9" height="6" rx="1.4"/><path d="M11 5v2"/></svg></span>
+          <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1.5 4.5a7 7 0 019 0M3.5 6.7a4 4 0 015 0"/><circle cx="6" cy="9" r=".8" fill="currentColor" stroke="none"/></svg></span>
+          <span class="self">
+            <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2.6"/>
+              <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="2.6"
+                      stroke-linecap="round" stroke-dasharray="34.3 52.8" transform="rotate(-90 12 12)"/>
+            </svg>
+            0:41
+          </span>
+          <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 6h3.2M6.8 6H10"/><circle cx="6" cy="6" r="1.3"/></svg></span>
+          <span class="item">Mon 2:41&nbsp;AM</span>
         </div>
-        <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:2%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">0%</span><span class="t">—</span></div>
-        <div class="meter"><span class="k">week</span><span class="bar"><i style="width:39%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">39%</span><span class="t">3d 22h</span></div>
-      </div>
 
-      <div class="row">
-        <div class="row-top">
-          <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg></div>
-          <div class="who"><b>sam@example.com</b><i>Claude · Max 20x</i></div>
+        <div class="desk">
+        <div class="widget" role="img" aria-label="The small Softcap widget on the desktop, showing the busiest account at 100 per cent with 41 minutes left.">
+          <span class="cap">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 16.5a9 9 0 0116 0"/><path d="M12 16.5l4.6-5.2" stroke-linecap="round"/>
+            </svg>
+            Subscription limits
+          </span>
+          <span class="big">100%</span>
+          <span class="who2">sam.k@example.com</span>
+          <span class="left">41m</span>
         </div>
-        <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:16%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">16%</span><span class="t">2h 04m</span></div>
-        <div class="meter"><span class="k">week</span><span class="bar"><i style="width:80%;background:var(--hot)"></i></span><span class="v" style="color:var(--hot)">80%</span><span class="t">3d 11h</span></div>
-      </div>
+        <div class="pointer"></div>
+        <div class="win" role="img" aria-label="The Softcap window listing three accounts with their five-hour and weekly limits, open below its menu bar item.">
+          <div class="win-head">Subscription limits <span>2:41 AM</span></div>
 
-      <div class="row">
-        <div class="row-top">
-          <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg></div>
-          <div class="who"><b>sam.k@example.com</b><i>Claude · Max 20x</i></div>
+          <div class="row">
+            <div class="row-top">
+              <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="5" cy="5" r="4.2"/><circle cx="5" cy="5" r="1.6"/></svg></div>
+              <div class="who"><b>alex@example.com</b><i>Codex · Plus</i></div>
+              <span class="tag">Data from 28 Aug</span>
+            </div>
+            <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:2%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">0%</span><span class="t">—</span></div>
+            <div class="meter"><span class="k">week</span><span class="bar"><i style="width:39%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">39%</span><span class="t">3d 22h</span></div>
+          </div>
+
+          <div class="row">
+            <div class="row-top">
+              <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg></div>
+              <div class="who"><b>sam@example.com</b><i>Claude · Max 20x</i></div>
+            </div>
+            <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:16%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">16%</span><span class="t">2h 04m</span></div>
+            <div class="meter"><span class="k">week</span><span class="bar"><i style="width:80%;background:var(--hot)"></i></span><span class="v" style="color:var(--hot)">80%</span><span class="t">3d 11h</span></div>
+          </div>
+
+          <div class="row">
+            <div class="row-top">
+              <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg></div>
+              <div class="who"><b>sam.k@example.com</b><i>Claude · Max 20x</i></div>
+            </div>
+            <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:100%;background:var(--crit)"></i></span><span class="v" style="color:var(--crit)">100%</span><span class="t">41m</span></div>
+            <div class="meter"><span class="k">week</span><span class="bar"><i style="width:55%;background:var(--warn)"></i></span><span class="v" style="color:var(--warn)">55%</span><span class="t">5d 16h</span></div>
+          </div>
+
+          <div class="win-foot"><b>Refresh</b><span>Settings…</span><span>Quit</span></div>
         </div>
-        <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:100%;background:var(--crit)"></i></span><span class="v" style="color:var(--crit)">100%</span><span class="t">41m</span></div>
-        <div class="meter"><span class="k">week</span><span class="bar"><i style="width:55%;background:var(--warn)"></i></span><span class="v" style="color:var(--warn)">55%</span><span class="t">5d 16h</span></div>
+        </div>
       </div>
-
-      <div class="win-foot"><b>Refresh</b><span>Settings…</span><span>Quit</span></div>
-    </div>
+        </figure>
+        <figure><img src="/shots/02-accounts.webp" width="718" height="500" alt="Accounts settings: three accounts in one list, each with its source and a button to forget it."></figure>
+        <figure><img src="/shots/03-statistics.webp" width="717" height="500" alt="Statistics settings: a week of weekly-limit usage plotted for three accounts."></figure>
+        <figure><img src="/shots/04-notifications.webp" width="718" height="500" alt="Notifications settings: thresholds at 95 and 80 per cent, recovery alerts, and quiet hours."></figure>
+        <figure><img src="/shots/05-minimal.webp" width="657" height="388" alt="The minimal window: account names and usage bars, without the surrounding chrome."></figure>
+      </div>
+      <div class="rail">
+        <label class="mark" for="s1">Limits</label>
+        <label class="mark" for="s2">Accounts</label>
+        <label class="mark" for="s3">Statistics</label>
+        <label class="mark" for="s4">Notifications</label>
+        <label class="mark" for="s5">Minimal</label>
+      </div>
+      <div class="cap">
+        <span>Session and weekly limits, live in the menu bar.</span>
+        <span>Several Claude and Codex accounts in one list.</span>
+        <span>A month of usage history for every account.</span>
+        <span>Thresholds, recovery alerts and quiet hours.</span>
+        <span>One line for each account, and nothing else.</span>
+      </div>
     </div>
   </div>
 </div>

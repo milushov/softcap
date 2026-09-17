@@ -179,6 +179,133 @@ header{padding:34px 0 0}
 .gh span,.foot-src .gh{min-width:0}
 @media(max-width:520px){.gh{padding:4px 6px;letter-spacing:0}}
 
+/* ---------- the hero, in two columns ---------- */
+/* The writing on one side and the app on the other. The hand-built mock that
+   stood here depicted the same window the first photograph is of, and showing
+   it twice running is what made every earlier arrangement read as odd. 980 is
+   the measure every other section keeps, so the first letter of the headline
+   lines up with every heading below it. */
+.wrap.wide{max-width:980px}
+.hero.split{
+  display:grid;grid-template-columns:minmax(0,0.95fr) minmax(0,1.05fr);
+  gap:56px;align-items:center;padding:56px 0 52px;
+}
+.hero.split h1{font-size:clamp(28px,3.3vw,41px);max-width:19ch;margin-bottom:18px}
+.hero.split .lede{max-width:42ch}
+.hero.split .cta{margin-top:26px}
+
+/* ---------- the gallery ---------- */
+.shots input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+/* Every slide in one grid cell, so they cross-fade in place and the column's
+   height never depends on which one is up. */
+/* `minmax(0,1fr)` and `min-width:0`, or the one cell every slide shares is
+   sized by the widest slide's min-content — 617 px of photograph and 348 px of
+   mock — and the column stops fitting a phone. The stage shrank happily on its
+   own for a year; it was the shared cell that stopped it. */
+/* No fixed height: the cell is shared by all five slides, so it is already as
+   tall as the tallest and switching cannot make the page jump. Pinning it at
+   430 px only meant the mock — whose height is its content's, not a picture's —
+   spilled over the controls below and painted on top of them. */
+.panes{display:grid;grid-template-columns:minmax(0,1fr);
+  align-items:center;justify-items:center}
+.panes figure{grid-area:1/1;margin:0;opacity:0;transition:opacity .45s;
+  min-width:0;max-width:100%}
+.panes img{max-height:430px;width:auto;max-width:100%;height:auto;display:block;
+  filter:drop-shadow(0 18px 34px var(--cast))}
+/* The mock is a scene, not a photograph: it has no natural height to cap and
+   it carries its own layout, so it only ever needs permission to be narrow. */
+.panes .scene{width:100%;min-width:0}
+.panes .scene .stage{margin:0}
+.cap{display:grid;margin-top:16px;min-height:3.2em;text-align:center}
+.cap span{grid-area:1/1;opacity:0;color:var(--fg-2);font-size:13.5px;
+  transition:opacity .45s;align-self:start}
+/* Words rather than dots, and made to fit rather than forbidden from wrapping.
+   `flex-wrap:nowrap` was the obvious answer and it is the wrong one: it gives
+   the column a min-content width of 398 px, wider than a 320 px phone, and the
+   hero's own writing stopped fitting — in English, before any translation.
+   These sit on one line at the sizes anybody reads at, and a reader who has
+   forced 24 px text gets a second line rather than a page that scrolls. */
+.rail{display:flex;gap:5px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+.mark{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:0;color:var(--fg-3);
+  padding:5px 9px;border:1px solid var(--line);border-radius:999px;cursor:pointer;
+  white-space:nowrap;
+}
+.mark:hover{color:var(--fg-2)}
+
+/* Five slides, five seconds each; visible for four and a half so the half
+   second either side is a cross-fade rather than a cut. */
+@keyframes slide-cycle{
+  0%{opacity:0} 2%{opacity:1} 18%{opacity:1} 20%{opacity:0} 100%{opacity:0}
+}
+@keyframes pill-cycle{
+  0%{background:transparent;color:var(--fg-3);border-color:var(--line)}
+  2%,18%{background:var(--strip-on);color:var(--fg);border-color:var(--edge)}
+  20%,100%{background:transparent;color:var(--fg-3);border-color:var(--line)}
+}
+.shots:not(:has(input:checked)) .panes figure,
+.shots:not(:has(input:checked)) .cap span{animation:slide-cycle 25s infinite}
+.shots:not(:has(input:checked)) .mark{animation:pill-cycle 25s infinite}
+/* `animation:` is a shorthand and resets `animation-delay` to zero. The rules
+   above carry more weight than a bare `.mark:nth-of-type(2)`, so the delays
+   have to repeat the whole prefix — without that every slide ran with no delay
+   and all five were on screen together. */
+.shots:not(:has(input:checked)) .panes figure:nth-of-type(2),
+.shots:not(:has(input:checked)) .cap span:nth-of-type(2),
+.shots:not(:has(input:checked)) .mark:nth-of-type(2){animation-delay:5s}
+.shots:not(:has(input:checked)) .panes figure:nth-of-type(3),
+.shots:not(:has(input:checked)) .cap span:nth-of-type(3),
+.shots:not(:has(input:checked)) .mark:nth-of-type(3){animation-delay:10s}
+.shots:not(:has(input:checked)) .panes figure:nth-of-type(4),
+.shots:not(:has(input:checked)) .cap span:nth-of-type(4),
+.shots:not(:has(input:checked)) .mark:nth-of-type(4){animation-delay:15s}
+.shots:not(:has(input:checked)) .panes figure:nth-of-type(5),
+.shots:not(:has(input:checked)) .cap span:nth-of-type(5),
+.shots:not(:has(input:checked)) .mark:nth-of-type(5){animation-delay:20s}
+
+/* Anything that advances by itself has to be stoppable. Pointing at it is the
+   cheapest way to say wait; choosing a slide stops it for the visit. */
+.shots:hover .panes figure,.shots:hover .cap span,.shots:hover .mark,
+.shots:focus-within .panes figure,.shots:focus-within .cap span,
+.shots:focus-within .mark{animation-play-state:paused}
+
+#s1:checked~.panes figure:nth-of-type(1),
+#s1:checked~.cap span:nth-of-type(1),
+#s2:checked~.panes figure:nth-of-type(2),
+#s2:checked~.cap span:nth-of-type(2),
+#s3:checked~.panes figure:nth-of-type(3),
+#s3:checked~.cap span:nth-of-type(3),
+#s4:checked~.panes figure:nth-of-type(4),
+#s4:checked~.cap span:nth-of-type(4),
+#s5:checked~.panes figure:nth-of-type(5),
+#s5:checked~.cap span:nth-of-type(5){opacity:1}
+#s1:checked~.rail .mark:nth-of-type(1),
+#s2:checked~.rail .mark:nth-of-type(2),
+#s3:checked~.rail .mark:nth-of-type(3),
+#s4:checked~.rail .mark:nth-of-type(4),
+#s5:checked~.rail .mark:nth-of-type(5){background:var(--strip-on);color:var(--fg);border-color:var(--edge)}
+#s1:focus-visible~.rail .mark:nth-of-type(1),
+#s2:focus-visible~.rail .mark:nth-of-type(2),
+#s3:focus-visible~.rail .mark:nth-of-type(3),
+#s4:focus-visible~.rail .mark:nth-of-type(4),
+#s5:focus-visible~.rail .mark:nth-of-type(5){outline:2px solid var(--accent);outline-offset:2px}
+
+/* Asked for less movement: the first slide, and no cycle at all. */
+@media (prefers-reduced-motion: reduce){
+  .shots:not(:has(input:checked)) .panes figure,
+  .shots:not(:has(input:checked)) .cap span,
+  .shots:not(:has(input:checked)) .mark{animation:none}
+  .shots:not(:has(input:checked)) .panes figure:nth-of-type(1),
+  .shots:not(:has(input:checked)) .cap span:nth-of-type(1){opacity:1}
+  .shots:not(:has(input:checked)) .mark:nth-of-type(1){
+    background:var(--strip-on);color:var(--fg);border-color:var(--edge)}
+}
+@media(max-width:960px){
+  .hero.split{grid-template-columns:minmax(0,1fr);gap:44px;padding-top:44px}
+  .hero.split h1{max-width:22ch}
+}
+@media(max-width:560px){.panes img{max-height:330px}}
+
 /* ---------- hero ---------- */
 .hero{padding:76px 0 64px}
 h1{

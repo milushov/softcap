@@ -1,7 +1,8 @@
 <main>
 
-<div class="wrap">
-  <div class="hero">
+<div class="wrap wide">
+  <div class="hero split">
+    <div class="hero-text">
     <h1>{{index.hero_title}}</h1>
     <p class="lede">
       {{index.lede_1}}
@@ -12,73 +13,111 @@
     <p class="cta"><a class="download" href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">{{index.cta_download}}</a>
        <a class="source" href="https://github.com/milushov/softcap"><svg width="17" height="17" aria-hidden="true"><use href="#gh-mark"/></svg>{{index.cta_source}}</a></p>
     <p class="note">{{index.note}}</p>
-  </div>
+    </div>
 
+    <!-- The gallery. Slide one is the mock that stood here before: it is the
+         only picture on this page that is translated, that follows the palette,
+         and that the tests can hold against the app's own catalogue. The other
+         four are photographs. They advance on their own and stop for good when
+         somebody chooses one — a radio goes on and `:has(input:checked)` turns
+         the keyframe off. A scroller a finger could push was the other
+         candidate and cannot be had at the same time: CSS animates opacity and
+         cannot move a scroll position. -->
+    <div class="shots">
+      <input type="radio" name="shot" id="s1">
+      <input type="radio" name="shot" id="s2">
+      <input type="radio" name="shot" id="s3">
+      <input type="radio" name="shot" id="s4">
+      <input type="radio" name="shot" id="s5">
+      <div class="panes">
+        <figure class="scene">
   <!-- The mock and the chart depict the English app and its data, so they
        keep left-to-right layout on every page, the Arabic one included. -->
-  <div class="stage" dir="ltr">
-    <div class="menubar" aria-hidden="true">
-      <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 4h8M2 6h8M2 8h5"/></svg></span>
-      <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="3" width="9" height="6" rx="1.4"/><path d="M11 5v2"/></svg></span>
-      <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1.5 4.5a7 7 0 019 0M3.5 6.7a4 4 0 015 0"/><circle cx="6" cy="9" r=".8" fill="currentColor" stroke="none"/></svg></span>
-      <span class="self">
-        <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2.6"/>
-          <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="2.6"
-                  stroke-linecap="round" stroke-dasharray="34.3 52.8" transform="rotate(-90 12 12)"/>
-        </svg>
-        0:41
-      </span>
-      <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 6h3.2M6.8 6H10"/><circle cx="6" cy="6" r="1.3"/></svg></span>
-      <span class="item">Mon 2:41&nbsp;AM</span>
-    </div>
-
-    <div class="desk">
-    <div class="widget" role="img" aria-label="{{attr:index.widget_aria}}">
-      <span class="cap">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 16.5a9 9 0 0116 0"/><path d="M12 16.5l4.6-5.2" stroke-linecap="round"/>
-        </svg>
-        {{index.limits_title}}
-      </span>
-      <span class="big">100%</span>
-      <span class="who2">sam.k@example.com</span>
-      <span class="left">41m</span>
-    </div>
-    <div class="pointer"></div>
-    <div class="win" role="img" aria-label="{{attr:index.win_aria}}">
-      <div class="win-head">{{index.limits_title}} <span>2:41 AM</span></div>
-
-      <div class="row">
-        <div class="row-top">
-          <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="5" cy="5" r="4.2"/><circle cx="5" cy="5" r="1.6"/></svg></div>
-          <div class="who"><b>alex@example.com</b><i>Codex · Plus</i></div>
-          <span class="tag">Data from 28 Aug</span>
+      <div class="stage" dir="ltr">
+        <div class="menubar" aria-hidden="true">
+          <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 4h8M2 6h8M2 8h5"/></svg></span>
+          <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="3" width="9" height="6" rx="1.4"/><path d="M11 5v2"/></svg></span>
+          <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1.5 4.5a7 7 0 019 0M3.5 6.7a4 4 0 015 0"/><circle cx="6" cy="9" r=".8" fill="currentColor" stroke="none"/></svg></span>
+          <span class="self">
+            <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2.6"/>
+              <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="2.6"
+                      stroke-linecap="round" stroke-dasharray="34.3 52.8" transform="rotate(-90 12 12)"/>
+            </svg>
+            0:41
+          </span>
+          <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 6h3.2M6.8 6H10"/><circle cx="6" cy="6" r="1.3"/></svg></span>
+          <span class="item">Mon 2:41&nbsp;AM</span>
         </div>
-        <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:2%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">0%</span><span class="t">—</span></div>
-        <div class="meter"><span class="k">week</span><span class="bar"><i style="width:39%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">39%</span><span class="t">3d 22h</span></div>
-      </div>
 
-      <div class="row">
-        <div class="row-top">
-          <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg></div>
-          <div class="who"><b>sam@example.com</b><i>Claude · Max 20x</i></div>
+        <div class="desk">
+        <div class="widget" role="img" aria-label="{{attr:index.widget_aria}}">
+          <span class="cap">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 16.5a9 9 0 0116 0"/><path d="M12 16.5l4.6-5.2" stroke-linecap="round"/>
+            </svg>
+            {{index.limits_title}}
+          </span>
+          <span class="big">100%</span>
+          <span class="who2">sam.k@example.com</span>
+          <span class="left">41m</span>
         </div>
-        <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:16%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">16%</span><span class="t">2h 04m</span></div>
-        <div class="meter"><span class="k">week</span><span class="bar"><i style="width:80%;background:var(--hot)"></i></span><span class="v" style="color:var(--hot)">80%</span><span class="t">3d 11h</span></div>
-      </div>
+        <div class="pointer"></div>
+        <div class="win" role="img" aria-label="{{attr:index.win_aria}}">
+          <div class="win-head">{{index.limits_title}} <span>2:41 AM</span></div>
 
-      <div class="row">
-        <div class="row-top">
-          <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg></div>
-          <div class="who"><b>sam.k@example.com</b><i>Claude · Max 20x</i></div>
+          <div class="row">
+            <div class="row-top">
+              <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="5" cy="5" r="4.2"/><circle cx="5" cy="5" r="1.6"/></svg></div>
+              <div class="who"><b>alex@example.com</b><i>Codex · Plus</i></div>
+              <span class="tag">Data from 28 Aug</span>
+            </div>
+            <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:2%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">0%</span><span class="t">—</span></div>
+            <div class="meter"><span class="k">week</span><span class="bar"><i style="width:39%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">39%</span><span class="t">3d 22h</span></div>
+          </div>
+
+          <div class="row">
+            <div class="row-top">
+              <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg></div>
+              <div class="who"><b>sam@example.com</b><i>Claude · Max 20x</i></div>
+            </div>
+            <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:16%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">16%</span><span class="t">2h 04m</span></div>
+            <div class="meter"><span class="k">week</span><span class="bar"><i style="width:80%;background:var(--hot)"></i></span><span class="v" style="color:var(--hot)">80%</span><span class="t">3d 11h</span></div>
+          </div>
+
+          <div class="row">
+            <div class="row-top">
+              <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg></div>
+              <div class="who"><b>sam.k@example.com</b><i>Claude · Max 20x</i></div>
+            </div>
+            <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:100%;background:var(--crit)"></i></span><span class="v" style="color:var(--crit)">100%</span><span class="t">41m</span></div>
+            <div class="meter"><span class="k">week</span><span class="bar"><i style="width:55%;background:var(--warn)"></i></span><span class="v" style="color:var(--warn)">55%</span><span class="t">5d 16h</span></div>
+          </div>
+
+          <div class="win-foot"><b>Refresh</b><span>Settings…</span><span>Quit</span></div>
         </div>
-        <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:100%;background:var(--crit)"></i></span><span class="v" style="color:var(--crit)">100%</span><span class="t">41m</span></div>
-        <div class="meter"><span class="k">week</span><span class="bar"><i style="width:55%;background:var(--warn)"></i></span><span class="v" style="color:var(--warn)">55%</span><span class="t">5d 16h</span></div>
+        </div>
       </div>
-
-      <div class="win-foot"><b>Refresh</b><span>Settings…</span><span>Quit</span></div>
-    </div>
+        </figure>
+        <figure><img src="/shots/02-accounts.webp" width="718" height="500" alt="{{attr:index.shot2_alt}}"></figure>
+        <figure><img src="/shots/03-statistics.webp" width="717" height="500" alt="{{attr:index.shot3_alt}}"></figure>
+        <figure><img src="/shots/04-notifications.webp" width="718" height="500" alt="{{attr:index.shot4_alt}}"></figure>
+        <figure><img src="/shots/05-minimal.webp" width="657" height="388" alt="{{attr:index.shot5_alt}}"></figure>
+      </div>
+      <div class="rail">
+        <label class="mark" for="s1">{{index.shot1_name}}</label>
+        <label class="mark" for="s2">{{index.shot2_name}}</label>
+        <label class="mark" for="s3">{{index.shot3_name}}</label>
+        <label class="mark" for="s4">{{index.shot4_name}}</label>
+        <label class="mark" for="s5">{{index.shot5_name}}</label>
+      </div>
+      <div class="cap">
+        <span>{{index.shot1_caption}}</span>
+        <span>{{index.shot2_caption}}</span>
+        <span>{{index.shot3_caption}}</span>
+        <span>{{index.shot4_caption}}</span>
+        <span>{{index.shot5_caption}}</span>
+      </div>
     </div>
   </div>
 </div>

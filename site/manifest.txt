@@ -72,6 +72,10 @@ ru/limits/codex/index.html
 ru/privacy/index.html
 ru/support/index.html
 ru/terms/index.html
+shots/02-accounts.webp
+shots/03-statistics.webp
+shots/04-notifications.webp
+shots/05-minimal.webp
 sitemap.xml
 support/index.html
 terms/index.html
