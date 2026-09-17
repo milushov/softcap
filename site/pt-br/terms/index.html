@@ -112,7 +112,7 @@ a{color:var(--accent);text-decoration:underline;
   text-underline-offset:3px}
 a:hover{text-decoration-color:var(--accent)}
 a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
-.cta{margin-top:30px}
+.cta{margin-top:30px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
 .download{
   display:inline-block;background:var(--accent);color:light-dark(#ffffff,#0e0e12);
   font-weight:600;font-size:15px;letter-spacing:-.01em;text-decoration:none;
@@ -121,6 +121,17 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius
 .download:hover{filter:brightness(1.07);text-decoration:none}
 .download:active{transform:translateY(1px)}
 .download:focus-visible{outline-offset:3px}
+/* Deliberately not a second button. The page asks for one thing, and a link
+   beside the button wearing the button's own shape asks for two — so this one
+   keeps the weight of body text and earns its place by the mark alone. */
+.source{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:14.5px;font-weight:500;letter-spacing:-.01em;
+  color:var(--fg-2);text-decoration:none;
+}
+.source:hover{color:var(--fg);text-decoration:underline;
+  text-decoration-color:color-mix(in srgb,var(--fg) 35%,transparent)}
+.source svg{display:block;flex:none}
 .wrap{max-width:980px;margin:0 auto;padding:0 28px}
 .rule{height:1px;background:var(--line);border:0;margin:0}
 
@@ -136,6 +147,37 @@ header{padding:34px 0 0}
 .brand{display:flex;align-items:center;gap:11px;font-weight:600;letter-spacing:-.01em}
 .brand svg{display:block}
 .brand span{font-size:16.5px}
+
+/* ---------- the repository ---------- */
+/* Drawn from the language picker's own summary rather than from anything new:
+   the header row already has one vocabulary for a small control, and a third
+   shape beside the picker and the appearance switch would read as three
+   unrelated widgets rather than one row. The same chip carries the address in
+   the footer, where it is the only place the repository is named on the seven
+   pages that are not the landing. */
+.gh{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.02em;color:var(--fg-3);
+  padding:4px 9px;border:1px solid var(--line);border-radius:7px;
+  text-decoration:none;line-height:1.4;
+}
+.gh:hover{color:var(--fg-2);text-decoration:none;border-color:var(--edge)}
+/* `a:focus-visible` squares every link to a 3 px radius, which is right for
+   the download pill and wrong here: this is the first link on the site with
+   a border somebody can see, and the corner visibly changed under the focus
+   ring. Restated rather than made to `inherit`, which the pill would take
+   from a parent with no radius at all and come out square. */
+.gh:focus-visible{border-radius:7px}
+.gh svg{display:block;flex:none}
+/* The address is one token with nowhere to break. At a 24 px minimum text size
+   the footer chip measured 423 px — wider than a 320 px phone — and took the
+   whole page sideways; the same token in the fact list did it again through the
+   `dd`. This is the answer the code spans already use, and `min-width` is what
+   lets a flex item shrink to it at all. The header chip says `GitHub` and is
+   never long enough to reach any of this. */
+.gh span,.src{overflow-wrap:anywhere}
+.gh span,.foot-src .gh{min-width:0}
+@media(max-width:520px){.gh{padding:4px 6px;letter-spacing:0}}
 
 /* ---------- hero ---------- */
 .hero{padding:76px 0 64px}
@@ -405,6 +447,11 @@ stop.bot{stop-opacity:0}
   .themes label{border-inline-end-width:1px;border-radius:7px}
 }
 footer p{margin:0 0 6px;max-width:60ch}
+/* Its own line rather than a clause on the one above it: the licence and the
+   address are what somebody scrolls to the bottom looking for, and a sentence
+   about the machine this was written on is not where they expect to find them. */
+.foot-src{margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.foot-lic{font-family:var(--mono);font-size:11px;color:var(--fg-3);letter-spacing:.02em}
 
 /* ---------- footer nav, breadcrumbs, legal pages ---------- */
 .site-map{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 24px;font-size:12.5px}
@@ -513,6 +560,26 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 </head>
 <body>
 
+<!-- The GitHub mark, defined once and drawn from the shell twice — in the
+     header and in the footer — plus a third time on the landing, beside the
+     download button. Three inline copies of the path was the alternative, and
+     the path is the one part of this nobody will ever read — one copy is one
+     place to correct it and one copy on the wire. Hidden by position rather
+     than by `display:none`, which is the shape that has always resolved
+     `<use>` in every browser this site is read in.
+
+     Every number in the path is separated by a space, and the compact form it
+     arrived in is not an option here. Packed, a `.` starts a number without a
+     separator, and three runs of coordinates come out shaped like a dotted
+     quad — which `noAddressesOfRealHosts` counts as the address of a host
+     somebody administers. The guard is blunt on purpose, so the path is
+     written in the shape it cannot misread rather than the guard taught an
+     exception. Minifying this back reintroduces the failure, and naming the
+     three runs here would too: this comment ships inside all eighty pages. -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <symbol id="gh-mark" viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59 .4 .07 .55 -.17 .55 -.38 0 -.19 -.01 -.82 -.01 -1.49 -2.01 .37 -2.53 -.49 -2.69 -.94 -.09 -.23 -.48 -.94 -.82 -1.13 -.28 -.15 -.68 -.52 -.01 -.53 .63 -.01 1.08 .58 1.23 .82 .72 1.21 1.87 .87 2.33 .66 .07 -.52 .28 -.87 .51 -1.07 -1.78 -.2 -3.64 -.89 -3.64 -3.95 0 -.87 .31 -1.59 .82 -2.15 -.08 -.2 -.36 -1.02 .08 -2.12 0 0 .67 -.21 2.2 .82 .64 -.18 1.32 -.27 2 -.27 .68 0 1.36 .09 2 .27 1.53 -1.04 2.2 -.82 2.2 -.82 .44 1.1 .16 1.92 .08 2.12 .51 .56 .82 1.27 .82 2.15 0 3.07 -1.87 3.75 -3.65 3.95 .29 .25 .54 .73 .54 1.48 0 1.07 -.01 1.93 -.01 2.2 0 .21 .15 .46 .55 .38A8.01 8.01 0 0 0 16 8c0 -4.42 -3.58 -8 -8 -8Z"/></symbol>
+</svg>
+
 <header>
   <div class="wrap">
     <div class="head-row">
@@ -529,6 +596,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
       <span>Softcap</span>
     </div>
     <div class="head-tools">
+    <a class="gh" href="https://github.com/milushov/softcap" aria-label="Softcap no GitHub"><svg width="13" height="13" aria-hidden="true"><use href="#gh-mark"/></svg><span>GitHub</span></a>
     <details class="lang">
       <summary aria-label="Idioma"><span>PT</span><bdi dir="ltr">+9</bdi></summary>
       <div class="lang-panel">
@@ -616,6 +684,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </nav>
     <p>O Softcap roda o dia inteiro na máquina em que foi escrito — e agora na sua também.
        <a href="https://github.com/milushov/softcap/releases">Notas de versão</a>.</p>
+    <p class="foot-src"><a class="gh" href="https://github.com/milushov/softcap"><svg width="13" height="13" aria-hidden="true"><use href="#gh-mark"/></svg><span>github.com/milushov/softcap</span></a><span class="foot-lic">Licença MIT</span></p>
     <p style="margin-top:14px;color:var(--fg-3)">Sem afiliação com a Anthropic ou a OpenAI.</p>
     <div class="foot-lang"><details class="lang">
       <summary aria-label="Idioma"><span>PT</span><bdi dir="ltr">+9</bdi></summary>

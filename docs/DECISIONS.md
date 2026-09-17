@@ -8247,3 +8247,72 @@ window moves at, because redrawing a widget every second to animate invented
 numbers spends a person's battery. Turning the mode off republishes in the same
 turn; left to the next poll, the desktop would go on naming `sam.k@example.com`
 for up to five minutes after somebody signed in as themselves.
+
+## 2026-09-17 — The repository is named on the page, in four places and one drawing
+
+**Decision.** The site says where its source is, four times over. A chip in the
+header carries the mark and the word `GitHub` on all eighty pages. A second
+link sits beside the download button in the hero, deliberately without the
+button's shape. A `Source` row joins the `Under it` list between `Dependencies`
+and `Cost of running it`, naming the licence and the address in prose. And a
+line in the footer carries the address and `MIT licence` on every page,
+including the seven that are not the landing.
+
+The mark is drawn once, as a `<symbol>` at the top of the shell, and used twice
+from there plus a third time on the landing. Five new keys —
+`shell.github_aria`, `shell.footer_licence`, `index.cta_source`,
+`index.fact_source_t` and `index.fact_source_d` — in each of the ten
+catalogues. The address itself is not among them: it is written into the two
+templates, because it is not a sentence anybody translates and a copy in ten
+catalogues is ten chances for the words of a link to name an address other than
+the one it points at. `support.contact_issues` is the older shape, and it earns
+it — there the address sits inside a translated sentence.
+
+**Why.** The download button has pointed at the releases page since the site
+existed, and nothing on the page said so. A reader could go from the headline to
+the footer and come away without learning the app is public, MIT, and readable —
+which is one of the few things this project has that a paid alternative does
+not. The terms page said it, in the middle of a paragraph about what publishing
+does not grant; the support page said it, as the address to file a bug at.
+Neither is where somebody deciding whether to trust a menu bar app that reads
+their subscriptions goes looking.
+
+Four placements rather than one, because they answer different readers. The
+header chip is for whoever is already looking for it. The hero link is for
+whoever is deciding. The fact row is for whoever reads that far — and the
+sentence it carries is the actual claim, that the file the button hands over is
+what the pipeline built from the tree being linked to. The footer is for the
+seven pages where none of the other three exist.
+
+**Cost.** Six strings in ten catalogues, which is the standing price of a
+sentence here. Two guards had to be answered rather than argued with, and both
+were right to complain.
+
+`noAddressesOfRealHosts` read the mark's own path as the address of a host
+somebody administers: packed in the compact form the octicon ships in, three
+runs of coordinates come out shaped like a dotted quad. The path is now written
+with every number separated by a space, and the token sequence was compared
+before and after, so it is provably the same drawing. The first attempt at the
+comment explaining this quoted one of the three runs — and that comment ships
+inside all eighty rendered pages, so the guard failed a second time on the
+explanation for why it had failed the first. It now describes the shape without
+spelling it.
+
+`check-widths.sh` then failed at four widths with a 24 px minimum text size: the
+address is a single token with nowhere to break, 423 px wide in the footer chip,
+and it took the page sideways — the same defect the code spans were given
+`overflow-wrap:anywhere` for, arriving through a different door. Both the chip's
+span and the fact row's link now break anywhere, and a flex item needs
+`min-width:0` before that can help it at all.
+
+A third thing was found by reading rather than by a check: `a:focus-visible`
+rounds every focused link to 3 px, and it outranks `.gh` on specificity, so
+keyboard focus visibly squared the chip's corners. It had never shown before
+because the only other link with a shape of its own is the download pill, whose
+corners are meant to go. Restated on `.gh:focus-visible` rather than made to
+`inherit`, which would have taken the pill's radius from a parent that has none.
+
+Below 520 px the header now stacks into three rows rather than two: the picker
+takes the full width there, so the chip lands alone above it. Checked at 320 px
+and nothing overflows — it is one row taller, and that is the cost of the chip
+being on every page rather than only where there is room.
