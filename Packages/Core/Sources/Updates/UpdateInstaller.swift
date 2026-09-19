@@ -200,10 +200,29 @@ public struct UpdateInstaller: Sendable {
 
         let running = Self.teamIdentifier(of: current)
         let arriving = Self.teamIdentifier(of: new)
-        guard arriving == running else {
+        guard Self.identityMayChange(from: running, to: arriving) else {
             throw UpdateFailure(kind: .signatureChanged,
                                 diagnostic: "signed by \(arriving ?? "nobody")")
         }
+    }
+
+    /// Whether the arriving identity may stand in for the running one.
+    ///
+    /// The same team, always. And **anything at all in place of nobody**: an
+    /// ad-hoc copy has no identity to lose, so nothing is given up by taking a
+    /// signed one. This direction was refused until now, and the cost of that
+    /// was written down before it could be paid — every installed copy is
+    /// ad-hoc, so the first release carrying a certificate would have been
+    /// turned away by all of them at once, each sending somebody to the release
+    /// page to do by hand what this exists to do.
+    ///
+    /// It gives up nothing because there was nothing there. Whoever could put a
+    /// signed bundle in the way of this download could put an ad-hoc one there
+    /// instead, and that has always been accepted for an ad-hoc install. What
+    /// stays refused is every direction that loses something: an identified copy
+    /// replaced by an anonymous one, or by another team's.
+    static func identityMayChange(from running: String?, to arriving: String?) -> Bool {
+        running == nil || running == arriving
     }
 
     /// Whether the signature still matches what it covers.

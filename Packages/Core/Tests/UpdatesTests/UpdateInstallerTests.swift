@@ -561,3 +561,35 @@ import ProviderKit
         }
     }
 }
+
+/// Who may replace whom, as the rule rather than as a bundle.
+///
+/// The bundles cannot ask this question here: a test can sign ad-hoc, which
+/// identifies nobody, and has no certificate to sign the other side with. The
+/// policy is a function over the two identities for exactly that reason, and
+/// this is the whole of its truth table.
+@Suite struct WhoMayReplaceWhom {
+
+    @Test func anonymousStaysAcceptableToAnonymous() {
+        #expect(UpdateInstaller.identityMayChange(from: nil, to: nil))
+    }
+
+    /// The transition this was written for: every copy installed so far is
+    /// ad-hoc, and the first signed release has to be installable by them.
+    @Test func anonymousAcceptsSomebodyIdentified() {
+        #expect(UpdateInstaller.identityMayChange(from: nil, to: "A1B2C3D4E5"))
+    }
+
+    @Test func thesameTeamGoesOnReplacingItself() {
+        #expect(UpdateInstaller.identityMayChange(from: "A1B2C3D4E5", to: "A1B2C3D4E5"))
+    }
+
+    /// The direction that loses something, and the one this check exists for.
+    @Test func anidentifiedCopyRefusesAnanonymousOne() {
+        #expect(!UpdateInstaller.identityMayChange(from: "A1B2C3D4E5", to: nil))
+    }
+
+    @Test func anidentifiedCopyRefusesAdifferentTeam() {
+        #expect(!UpdateInstaller.identityMayChange(from: "A1B2C3D4E5", to: "F6G7H8I9J0"))
+    }
+}

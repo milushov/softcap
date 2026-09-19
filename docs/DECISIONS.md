@@ -8546,3 +8546,57 @@ install directory on every update attempt. The post-hoc `.notWritable` throws in
 `replace(_:with:)` stay where they are: the preflight is not a promise, the
 directory can go away between the two, and the floor should be the one that
 actually catches it.
+
+---
+
+## 2026-09-19 — Notarisation signs in with the key that is already here
+
+**Decision.** The Developer ID gate asks for four secrets and the App Store
+Connect trio rather than six of its own. `NOTARY_APPLE_ID` and
+`NOTARY_PASSWORD` are gone; `notarytool` authenticates with `ASC_KEY_ID`,
+`ASC_ISSUER_ID` and `ASC_KEY_P8`, which the TestFlight step already asks for.
+All-or-nothing is unchanged, and so is the reason for it: a Developer ID build
+that is not notarised meets a worse first-launch dialog than an ad-hoc one, so
+half a credential set still publishes ad-hoc.
+
+**Why.** An app-specific password belongs to a person rather than to a team. It
+is regenerated from a phone, by somebody who is not thinking about a release
+lane, and the lane finds out at the next tag — while the key that already
+carries the store channel can notarise as it stands. Two fewer secrets to mint,
+paste and keep alive, and one fewer kind of credential to understand.
+
+**Cost.** The two lanes now lean on one key: revoke it and both the TestFlight
+upload and notarisation stop together. The key also has to hold whatever role
+notarisation asks of it — the one configured here is Admin, which is more than
+either lane needs and was minted for a different project's analytics.
+
+---
+
+## 2026-09-19 — Nobody may be replaced by somebody
+
+**Decision.** `UpdateInstaller.identityMayChange(from:to:)` decides who may
+replace whom: the same team always, anything at all in place of nobody, and
+nothing that loses an identity — an identified copy is never replaced by an
+anonymous one or by another team's.
+
+**Why.** Every build ever published is ad-hoc. The entry of 13 September that
+gated signing on the full credential set wrote this cost down before it could be
+paid: "until a Developer ID certificate exists at all, every ad-hoc install will
+refuse the first signed update — `signatureChanged` is doing its job — and take
+the release page instead." The certificate is now being made, so the bill is
+due, and it is a bad one: every copy in the world refusing the same update at
+the same moment, each sending somebody to do by hand what the updater exists to
+do, and the refusal reading "The download is signed by somebody else" about a
+release signed for the first time by the right person.
+
+Paying it buys nothing. An ad-hoc install has no identity to lose, and whoever
+could put a signed bundle in the way of that download could put an ad-hoc one
+there instead — which this check has always accepted. The direction it was
+written to refuse is the other one, and that one is refused exactly as before.
+
+**Cost.** One direction fewer is checked, for installs that are anonymous. The
+checksum, the archive's own bundle identifier and version, and the seal over the
+arriving code are all still demanded. And the rule is a function over two
+identities rather than a comparison inside the check, because the bundles cannot
+put the question here: a test can sign ad-hoc and has no certificate for the
+other side, so the truth table is where the guarantee lives.
