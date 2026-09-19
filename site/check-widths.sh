@@ -112,10 +112,14 @@ JS
 # everything genuinely fits. The bar was briefly set at 32 on the strength of a
 # probe that asked whether the *page* scrolled sideways; this check asks the
 # stricter and better question — whether any element runs past the edge — and at
-# 32 the mock's staleness badge does. It cannot be made not to: a minimum font
-# size is a floor CSS may not go under, and a picture of a 322 px window with 32 px
-# text inside it does not exist. The clip on `.win` is still worth having past the
-# bar, because a reader there gets a cut-off mock rather than a page that scrolls.
+# 32 something still does. It was the mock's staleness badge until the badge was
+# allowed to shrink and to break, which it was after a Linux runner measured the
+# same three words wider than this machine does and the badge left a 320 px screen
+# at 24. Past the bar the offender is something else, and the reasoning has not
+# changed: a minimum font size is a floor CSS may not go under, and a picture of a
+# 322 px window with 32 px text inside it does not exist. The clip on `.win` is
+# still worth having past the bar, because a reader there gets a cut-off mock
+# rather than a page that scrolls.
 for MIN in 0 24; do
   if [ "$MIN" = "0" ]; then
     LABEL="at the default text size"; FONT=()   # empty on purpose

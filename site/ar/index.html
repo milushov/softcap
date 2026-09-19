@@ -332,10 +332,6 @@ h1{
 h1 em{display:block;font-style:normal;color:var(--fg-3)}
 .lede{font-size:clamp(16.5px,2.1vw,19px);color:var(--fg-2);max-width:58ch;margin:0 0 8px;line-height:1.62}
 .note{margin-top:30px;font-family:var(--mono);font-size:12.5px;color:var(--fg-3);letter-spacing:.01em}
-/* The bullet travels with the link it introduces. Left alone the line broke
-   inside the phrase — "· or" ending one line and "the direct .dmg" opening
-   the next in English, and the bullet leading the second line in French. */
-.note .also{white-space:nowrap}
 .note b{color:var(--accent);font-weight:500}
 
 /* ---------- the window mock ---------- */
@@ -430,8 +426,16 @@ h1 em{display:block;font-style:normal;color:var(--fg-3)}
 .who b{display:block;font-size:12.5px;font-weight:600;letter-spacing:-.005em;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .who i{display:block;font-style:normal;font-size:10.5px;color:var(--fg-3);margin-top:1px}
+/* `flex:none` held here for as long as the only browser that rendered it was
+   this machine's. The deploy runs the width check on a Linux runner now, and the
+   same three words measured wider there: at a 24 px minimum text size on a
+   320 px screen the tag reached 249 px, refused to shrink, and pushed itself
+   past the right edge of the window it sits in. It is the one item in that row
+   with no way to give — the account beside it already ellipsises — so it is
+   allowed to shrink and to break, which at 9.5 px it never needs to do. */
 .tag{
-  font-size:9.5px;font-weight:600;padding:2px 5px;border-radius:4px;flex:none;
+  font-size:9.5px;font-weight:600;padding:2px 5px;border-radius:4px;
+  flex:0 1 auto;min-width:0;overflow-wrap:anywhere;
   background:rgba(232,150,60,.16);color:var(--hot);
 }
 .meter{display:flex;align-items:center;gap:8px;margin-top:6px;font-variant-numeric:tabular-nums}
@@ -798,7 +802,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
          refused from the start. -->
     <p class="cta"><a class="download" href="https://apps.apple.com/app/id6811539739">التنزيل من Mac App Store</a>
        <a class="source" href="https://github.com/milushov/softcap"><svg width="17" height="17" aria-hidden="true"><use href="#gh-mark"/></svg>اطّلع على الشيفرة</a></p>
-    <p class="note"><bdi dir="ltr">macOS 14+</bdi> · شريط القوائم والأدوات وتطبيق iPhone <span class="also">· <a href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">أو <bdi dir="ltr">.dmg</bdi> مباشرةً</a></span></p>
+    <p class="note"><bdi dir="ltr">macOS 14+</bdi> · شريط القوائم والأدوات وتطبيق iPhone ·&nbsp;<a href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">أو <bdi dir="ltr">.dmg</bdi> مباشرةً</a></p>
     </div>
 
     <!-- `autocomplete="off"` on every radio, and it is load-bearing: a
