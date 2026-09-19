@@ -246,15 +246,20 @@ regenerate favicon.ico icon.svg './make-favicon.sh >/dev/null'
 # would ever notice, and the rule that prevents it could only be reasoned about
 # until now — headless Chrome will not open a window narrower than 500 px. The
 # check renders the page in iframes, which do carry their own viewport.
-if [ -x "${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}" ]; then
-  # Asked once, before anything is built or copied, so an unreachable host is one
+# Asked once, before anything is built or copied, so an unreachable host is one
 # clear sentence rather than the first of eight timeouts.
+#
+# It used to be asked inside the Chrome test below, where it was nested by an
+# edit rather than on purpose: on a machine without Chrome at that path — which
+# is every Linux runner — the question was skipped entirely, and an unreachable
+# host came back as the eight timeouts this exists to prevent.
 if ! ssh $SSH_OPTS "$HOST" true 2>/dev/null; then
   echo "  $HOST does not answer on ssh — nothing was built, copied or deployed" >&2
   exit 1
 fi
 
-echo "→ checking the page at phone widths"
+if [ -x "${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}" ]; then
+  echo "→ checking the page at phone widths"
   "$HERE/check-widths.sh" | sed 's/^/  /'
 else
   echo "  Chrome is not here, so the narrow widths go unchecked" >&2

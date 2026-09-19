@@ -8787,3 +8787,95 @@ is still English on all ten pages — the one string in this picture that was
 never translated — so the date beside it is formatted in English too, and the
 digits are forced to `latn` so that the Arabic and Bengali pages do not end up
 with one scene counting in two alphabets.
+
+---
+
+## 2026-09-19 — The screenshots are cut on the window's own rim, with an edge
+
+**Decision.** `tools/crop_screenshots.py` draws its corner mask at eight times
+the size and averages it back down, and the radii it cuts at are larger than the
+corners look: 15 for the settings window, 36 for the minimal one. `05-minimal`'s
+box moves in a pixel at the left and top, to `(392, 314, 1048, 701)`, which puts
+all four sides on the window's rim instead of two of them on the shadow's
+contact line. The four cut images are regenerated at `-q 90 -m 6 -alpha_q 100`,
+the command the docstring now carries, and the landing's `05-minimal` is 656×387
+where it was 657×388.
+
+**Why.** The corners had black horns. Two causes, both at the corner and nowhere
+else, which is why the straight edges looked right the whole time.
+
+`ImageDraw.rounded_rectangle` writes 0 or 255 and nothing between. Every arc it
+had ever drawn here was a staircase, cut through a dark window standing on a
+near-white page at roughly the size the page shows it — the one place a hard
+alpha edge has nothing to hide behind.
+
+And a macOS window corner is a continuous curve, not a circular arc: it leaves
+the straight edge earlier than an arc of the same visual size and sits further
+from the corner along the diagonal. A circle drawn at the radius the corner
+appears to have therefore runs outside the window for most of the arc, and what
+it kept was the window's own shadow — which is at its darkest and widest exactly
+there. On the minimal window, whose corner is the app's and much rounder than a
+settings window's, a mask of 15 kept six pixels of near-black at each corner.
+That was the horn. On the other three it kept the violet gradient instead, a
+hundred pixels of it per image, which read as grime rather than as a defect.
+
+The radii were chosen by counting what survives outside the mask — saturated
+pixels for the three, pixels darker than the window's own body for the minimal
+one — and taking the first radius where the count reaches zero and stays there.
+Fifteen and thirty-six are those. They were not chosen by eye, because by eye
+the previous ones looked plausible for a year.
+
+**Cost.** The cut corners are now slightly rounder than the windows they came
+from — that is the same fact as the mask clearing the shadow, not a separate
+concession, and the rim the arc keeps is the window's own, thinned by up to a
+pixel where the circle runs inside the real curve. Nobody holds the site beside
+the app at that magnification, and the alternative — fitting the actual
+continuous curve, two more constants per shot — buys a pixel in a picture.
+
+The radii are measurements of one particular set of screenshots. A new capture
+at a different scale, or a macOS that redraws its corners, invalidates them
+silently: the tool would go on producing images with a little shadow in each
+corner and say nothing. The counting that chose them is written down here rather
+than in the tool, because it is an argument and not a check.
+
+---
+
+## 2026-09-20 — The site deploys from the push that changed it
+
+**Decision.** `.github/workflows/site.yml` runs `site/deploy.sh` on every push to
+main that touches `site/**`, and on demand. It checks first that the committed
+pages are what the sources render, then hands the script a key and lets it do
+exactly what it does from a laptop: resolve the domain, refuse to go on if the
+host does not answer, render the page at eight widths, copy what the manifest
+lists, restart the container and verify the result against the live host.
+
+Two secrets. `SITE_SSH_KEY` is a dedicated ed25519 key with nothing else on it,
+and `SITE_KNOWN_HOSTS` carries the host's own keys rather than letting the runner
+scan for them — `ssh-keyscan` accepts whatever answers on the night somebody
+stands in the way, which is the failure a `known_hosts` file exists to refuse.
+The address stays out of both this repository and the workflow: the script finds
+it by resolving `softcap.app`, as it always has.
+
+Two details the runner needs and a laptop does not. Git does not restore
+modification times, so every file in a fresh checkout carries one moment and the
+script's "is `og.png` older than its template" test falls on the side of
+rebuilding — which needs Chrome for one of the two and would ship an image that
+is not the committed one; the workflow touches both outputs to say that the
+committed artefacts are the truth here. And `CHROME` is pointed at the runner's
+own, or the width check would be skipped on every deploy with one line of
+explanation nobody would read.
+
+**Why.** Nothing connected a push to a deploy. The landing that sends people to
+the App Store was committed, pushed, and left un-deployed; softcap.app went on
+offering the disk image, and the only way to find that out was to ask.
+
+**Cost, and it is the real one.** GitHub Actions now holds a key that is root on
+the host. Anyone with write access to this repository can read a secret out of a
+workflow — a step that base64s it first defeats the masking — so write access
+here is now write access there, and so is a stolen account or a token with
+`repo`. Fork pull requests never receive it, which is the one direction the
+platform closes by itself, and this workflow runs on `push` and
+`workflow_dispatch` only: no `pull_request_target`, no trigger a stranger can
+reach. What is bought for that is a key of its own — one line out of
+`authorized_keys` revokes it and touches nothing else on the host, which was not
+true of the key this deploy used yesterday.

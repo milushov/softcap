@@ -1,0 +1,88 @@
+name: Site
+
+# The landing page is deployed by `site/deploy.sh`, and until now that ran from
+# whichever machine had just edited it. Nothing connected a push to a deploy, so
+# the repository and softcap.app could disagree for as long as nobody noticed —
+# which is what happened the day the App Store link landed: the commit was pushed,
+# the site kept offering the disk image, and the only way to find out was to look.
+#
+# Only the site. The app's build is release.yml and shares nothing with this but
+# the branch; a push touching neither runs neither, and a push touching both runs
+# both, independently.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+  workflow_dispatch:
+
+# Two deploys at once would rsync into one directory and race for the snapshot the
+# rollback reads. Queued rather than cancelled: whichever push came last is the one
+# that should end up live, and the one before it still deserves to have been checked.
+concurrency:
+  group: site
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The eighty pages are committed and the deploy ships them; nothing is
+      # rendered on the way out. A template edited without its regenerated pages
+      # would go live as the old page, silently. The pre-commit hook asks this
+      # same question — this is the copy that runs when the hook was skipped.
+      - name: The committed pages are what the sources render
+        run: python3 site/build.py --check
+
+      # `deploy.sh` rebuilds og.png and favicon.ico when their sources look newer,
+      # and git does not restore modification times: every file in a fresh checkout
+      # carries the same moment, so that test is meaningless here and falls on the
+      # side of rebuilding — which needs Chrome for one of them, and would ship an
+      # image that is not the one in the repository. On a runner the committed
+      # artefacts are the truth, and this says so in the only way the test reads.
+      - name: The committed images are the ones that ship
+        run: touch site/og.png site/favicon.ico
+
+      # The script finds the host by resolving the domain. `dig` is on the runner
+      # image today; installing it when it is not costs nothing and beats failing
+      # on a line that reads like a DNS problem.
+      - name: dig, which is how the script finds the host
+        run: command -v dig >/dev/null || sudo apt-get install -y -q bind9-dnsutils
+
+      # Reached the way it is from a laptop: by whatever the domain resolves to,
+      # with a key. The address is not written down here — this repository is
+      # public, and where the host lives is the one thing about it that is not.
+      #
+      # The host key is carried rather than scanned. `ssh-keyscan` would take
+      # whatever answers on the night somebody stands between the runner and the
+      # host, which is the failure a known_hosts file exists to refuse.
+      - name: The key that reaches the host
+        env:
+          SITE_SSH_KEY: ${{ secrets.SITE_SSH_KEY }}
+          SITE_KNOWN_HOSTS: ${{ secrets.SITE_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          for name in SITE_SSH_KEY SITE_KNOWN_HOSTS; do
+            [ -n "${!name}" ] || {
+              echo "$name is not set — see the Site workflow's comments" >&2
+              exit 1
+            }
+          done
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SITE_SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$SITE_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+
+      # Chrome renders the page in iframes at eight widths before anything is
+      # copied. The runner image carries one; without the path it would skip that
+      # check on every deploy and say so once, in a line nobody reads.
+      - name: Deploy
+        env:
+          CHROME: /usr/bin/google-chrome
+        run: ./site/deploy.sh
