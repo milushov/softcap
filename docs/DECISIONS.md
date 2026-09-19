@@ -8507,3 +8507,42 @@ outranked the per-slide delays, so every slide ran with no delay and all five
 were on screen at once. And a grid cell shared by all five slides takes the
 widest slide's min-content width unless the track is `minmax(0,1fr)` and the
 items may be narrow — at 320 px that put 577 px of page on a 320 px screen.
+
+## 2026-09-19 — The updater asks where it is before it asks for the file
+
+**Decision.** `install(_:replacing:progress:)` checks that the running bundle is
+still on disk and that its directory can be written *before* the download
+starts, and a bundle that is gone has its own failure — `.bundleGone` — instead
+of borrowing the one for a place that cannot be written.
+
+**What was seen.** The Updates screen showed "Softcap could not be replaced
+where it is installed. Move it to Applications, or download it yourself." over a
+copy that was not installed anywhere: the app had been launched from
+`…/Build/Products/Debug/Softcap.app` and a later build removed that directory
+out from under the running process. `Bundle.main.bundleURL` still named it, the
+whole archive was downloaded, checksummed, unpacked and signature-checked, and
+only then did staging a copy beside a path with no directory at the end of it
+fail — as `.notWritable`, whose sentence advises moving an app that no longer
+exists.
+
+**Why two kinds rather than one.** The two situations want opposite advice. An
+app run straight from the mounted disk image is *there* and read-only, and
+"move it to Applications" is exactly right. An app moved to the Trash, renamed,
+or built over while it ran has nothing to move, and the only way forward is to
+download it again. One sentence covering both was wrong for whichever case it
+was not written for, and this log already holds the same mistake made against a
+404 and against unreachable checksums: an answer that says the wrong reason is
+worse than an answer that says less.
+
+**Why a probe write rather than `isWritableFile(atPath:)`.** That reads the
+permission bits and knows nothing about a read-only mount, an ACL, or the
+sandbox. The check writes an empty file with `.atomic` — a neighbour and a
+rename, which is the pair `replaceItemAt` needs — and removes it. `Updates`
+already shipped one check that read what a signature claimed instead of
+verifying it, and the entry above records what that was worth.
+
+**Cost.** One more string in ten catalogues, two tests, and a write into the
+install directory on every update attempt. The post-hoc `.notWritable` throws in
+`replace(_:with:)` stay where they are: the preflight is not a promise, the
+directory can go away between the two, and the floor should be the one that
+actually catches it.

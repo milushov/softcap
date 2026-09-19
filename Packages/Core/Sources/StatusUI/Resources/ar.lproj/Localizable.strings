@@ -206,3 +206,6 @@
 "Start over" = "البدء من جديد";
 "Signed in, but the saved accounts could not be opened to store it." = "تم تسجيل الدخول، لكن تعذّر فتح الحسابات المحفوظة لتخزينه.";
 "The keychain did not open them. It may be locked." = "لم تفتحها سلسلة المفاتيح. قد تكون مقفلة.";
+"The running copy of Softcap has been moved or deleted, so it cannot replace itself. Download the new version yourself." = "نُقلت نسخة Softcap قيد التشغيل أو حُذفت، لذا لا يمكنها استبدال نفسها. نزّل الإصدار الجديد بنفسك.";
+"Data not readable" = "تعذّرت قراءة البيانات";
+"Open Softcap to see your limits." = "افتح Softcap لعرض حدودك.";

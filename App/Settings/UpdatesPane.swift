@@ -209,6 +209,8 @@ struct UpdatesPane: View {
             loc("The download is signed by somebody else, so it was discarded.")
         case .notWritable:
             loc("Softcap could not be replaced where it is installed. Move it to Applications, or download it yourself.")
+        case .bundleGone:
+            loc("The running copy of Softcap has been moved or deleted, so it cannot replace itself. Download the new version yourself.")
         case .unpackFailed:
             loc("The download could not be opened.")
         }

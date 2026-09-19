@@ -330,6 +330,84 @@ import ProviderKit
         #expect(error?.kind == .unpackFailed)
     }
 
+    // MARK: - asking before downloading anything
+
+    /// The copy that is running is not always still on disk.
+    ///
+    /// Read off a machine: the app had been launched from a build directory
+    /// that a later build removed, so `Bundle.main.bundleURL` named a path
+    /// holding nothing. The install ran the whole download, the checksum and
+    /// the signature check before the copy beside that path failed — under the
+    /// one sentence `.notWritable` has, which told the reader to move Softcap
+    /// into Applications. It was not where it was installed that was wrong.
+    @Test func acopyThatIsNoLongerOnDiskIsSaidSoAndNothingIsDownloaded() async throws {
+        let scratch = try scratch()
+        defer { try? FileManager.default.removeItem(at: scratch) }
+
+        let source = try makeBundle(in: try subdirectory("staging", of: scratch), version: "0.1.47")
+        let archive = scratch.appendingPathComponent("Softcap-0.1.47.zip")
+        try zip(source, to: archive)
+
+        // Launched from here and then gone from here: the directory holding it
+        // is removed, which is what a rebuild does to the bundle underneath.
+        let vanished = try subdirectory("Products", of: scratch)
+        let installed = try makeBundle(in: vanished, version: "0.1.42")
+        try FileManager.default.removeItem(at: vanished)
+
+        let handedOver = Handed()
+        let installer = UpdateInstaller(
+            downloader: FileOnDisk(file: archive, remember: handedOver),
+            http: OneAnswer(body: "\(try Checksums.digest(ofFileAt: archive))  ./Softcap-0.1.47.zip")
+        )
+
+        let error = await #expect(throws: UpdateFailure.self) {
+            try await installer.install(
+                try release(version: "0.1.47"), replacing: installed) { _ in }
+        }
+        #expect(error?.kind == .bundleGone)
+        #expect(handedOver.path == nil,
+                "the archive was fetched before anyone asked where it would go")
+    }
+
+    /// The same question, asked of a place that is there and cannot be written:
+    /// a disk image is mounted read-only, and an app run straight from one is
+    /// where this is met outside a test. Here the sentence about moving it to
+    /// Applications is the right one — and it is worth more before ten
+    /// megabytes than after them.
+    @Test func aplaceThatCannotBeWrittenIsRefusedBeforeTheDownload() async throws {
+        let scratch = try scratch()
+        defer { try? FileManager.default.removeItem(at: scratch) }
+
+        let source = try makeBundle(in: try subdirectory("staging", of: scratch), version: "0.1.47")
+        let archive = scratch.appendingPathComponent("Softcap-0.1.47.zip")
+        try zip(source, to: archive)
+
+        let readOnly = try subdirectory("Volumes", of: scratch)
+        let installed = try makeBundle(in: readOnly, version: "0.1.42")
+        try FileManager.default.setAttributes(
+            [.posixPermissions: 0o500], ofItemAtPath: readOnly.path)
+        // Restored before the directory is thrown away: a read-only parent
+        // cannot have its contents removed either, and the scratch would stay.
+        defer {
+            try? FileManager.default.setAttributes(
+                [.posixPermissions: 0o755], ofItemAtPath: readOnly.path)
+        }
+
+        let handedOver = Handed()
+        let installer = UpdateInstaller(
+            downloader: FileOnDisk(file: archive, remember: handedOver),
+            http: OneAnswer(body: "\(try Checksums.digest(ofFileAt: archive))  ./Softcap-0.1.47.zip")
+        )
+
+        let error = await #expect(throws: UpdateFailure.self) {
+            try await installer.install(
+                try release(version: "0.1.47"), replacing: installed) { _ in }
+        }
+        #expect(error?.kind == .notWritable)
+        #expect(handedOver.path == nil,
+                "the archive was fetched before anyone asked where it would go")
+    }
+
     /// The downloaded archive is gone once the install has finished.
     ///
     /// It is the megabytes, and it is the one with a seam to hold on to: the

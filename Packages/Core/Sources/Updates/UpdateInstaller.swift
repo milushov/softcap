@@ -51,6 +51,12 @@ public struct UpdateInstaller: Sendable {
         replacing bundle: URL,
         progress: @escaping @Sendable (Phase) -> Void
     ) async throws {
+        // Asked first, and asked of the place rather than of the download.
+        // Whether this copy can be replaced does not depend on a single byte
+        // arriving, and finding out after ten megabytes is both a wasted
+        // download and an answer given too late to be read as the cause.
+        try checkReplaceable(bundle)
+
         let work = try scratchDirectory()
         defer { try? FileManager.default.removeItem(at: work) }
 
@@ -228,6 +234,42 @@ public struct UpdateInstaller: Sendable {
     }
 
     // MARK: - replacing
+
+    /// Whether there is still something here to replace, and room beside it to
+    /// stage the replacement.
+    ///
+    /// Two different situations were one sentence. A bundle that is **gone** —
+    /// launched from a directory a rebuild removed, or moved to the Trash while
+    /// it ran — was reported as a place that could not be written, under advice
+    /// to move Softcap into Applications; there was nothing left to move. A
+    /// bundle that is **there and read-only** — an app run straight from the
+    /// mounted disk image is the one that happens to people — is the case that
+    /// advice was written for, and it still gets it.
+    ///
+    /// The probe is a real write, not `isWritableFile(atPath:)`, which answers
+    /// from the permission bits and does not know about a read-only mount, an
+    /// ACL, or the sandbox. This module already has one check that read what a
+    /// signature claimed instead of verifying it; the answer here is the one
+    /// `replaceItemAt` will get.
+    private func checkReplaceable(_ bundle: URL) throws {
+        let fileManager = FileManager.default
+        guard fileManager.fileExists(atPath: bundle.path) else {
+            throw UpdateFailure(kind: .bundleGone,
+                                diagnostic: "nothing at the path this copy was launched from")
+        }
+
+        let probe = bundle.deletingLastPathComponent()
+            .appendingPathComponent(".softcap-update-probe-\(UUID().uuidString)")
+        do {
+            // `.atomic` writes a neighbour and renames it, which is the pair of
+            // operations `replace(_:with:)` needs the directory to allow.
+            try Data().write(to: probe, options: .atomic)
+        } catch {
+            throw UpdateFailure(kind: .notWritable,
+                                diagnostic: "nothing can be written beside the installed app")
+        }
+        try? fileManager.removeItem(at: probe)
+    }
 
     /// Atomic on APFS: the old bundle is kept until the new one is in place, and
     /// a failure leaves what was there.

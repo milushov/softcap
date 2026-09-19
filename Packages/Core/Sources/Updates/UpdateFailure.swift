@@ -18,6 +18,10 @@ public struct UpdateFailure: Sendable, Hashable, Error {
         case signatureChanged
         /// The installed copy cannot be written where it sits.
         case notWritable
+        /// The copy that is running is no longer at the path it was launched
+        /// from — moved, renamed, or deleted while it ran. There is nothing to
+        /// replace, and nowhere to put a replacement.
+        case bundleGone
         /// The archive did not open, or held something other than the app.
         case unpackFailed
     }

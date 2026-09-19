@@ -206,3 +206,6 @@
 "Start over" = "নতুন করে শুরু করুন";
 "Signed in, but the saved accounts could not be opened to store it." = "সাইন ইন হয়েছে, কিন্তু এটি রাখার জন্য সংরক্ষিত অ্যাকাউন্টগুলি খোলা যায়নি।";
 "The keychain did not open them. It may be locked." = "কীচেইন এগুলি খোলেনি। এটি লক করা থাকতে পারে।";
+"The running copy of Softcap has been moved or deleted, so it cannot replace itself. Download the new version yourself." = "চালু থাকা Softcap-এর কপিটি সরানো হয়েছে বা মুছে ফেলা হয়েছে, তাই সেটি নিজেকে বদলাতে পারছে না। নতুন সংস্করণ নিজে ডাউনলোড করুন।";
+"Data not readable" = "ডেটা পড়া যায়নি";
+"Open Softcap to see your limits." = "আপনার সীমা দেখতে Softcap খুলুন।";

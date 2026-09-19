@@ -206,3 +206,6 @@
 "Start over" = "Começar de novo";
 "Signed in, but the saved accounts could not be opened to store it." = "Sessão iniciada, mas não foi possível abrir as contas salvas para armazená-la.";
 "The keychain did not open them. It may be locked." = "As Chaves não as abriram. Podem estar bloqueadas.";
+"The running copy of Softcap has been moved or deleted, so it cannot replace itself. Download the new version yourself." = "A cópia do Softcap em execução foi movida ou excluída, então ela não pode se substituir. Baixe a nova versão você mesmo.";
+"Data not readable" = "Não foi possível ler os dados";
+"Open Softcap to see your limits." = "Abra o Softcap para ver seus limites.";

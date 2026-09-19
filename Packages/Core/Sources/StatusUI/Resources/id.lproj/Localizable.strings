@@ -206,3 +206,6 @@
 "Start over" = "Mulai dari awal";
 "Signed in, but the saved accounts could not be opened to store it." = "Berhasil masuk, tetapi akun tersimpan tidak dapat dibuka untuk menyimpannya.";
 "The keychain did not open them. It may be locked." = "Keychain tidak membukanya. Mungkin terkunci.";
+"The running copy of Softcap has been moved or deleted, so it cannot replace itself. Download the new version yourself." = "Salinan Softcap yang sedang berjalan telah dipindahkan atau dihapus, jadi ia tidak bisa mengganti dirinya sendiri. Unduh versi baru sendiri.";
+"Data not readable" = "Data tidak terbaca";
+"Open Softcap to see your limits." = "Buka Softcap untuk melihat batas Anda.";
