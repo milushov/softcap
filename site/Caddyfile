@@ -14,6 +14,11 @@
 	header /og.png Cache-Control "public, max-age=604800"
 	header /favicon.ico Cache-Control "public, max-age=604800"
 	header /shots/* Cache-Control "public, max-age=604800"
+	# `/clock.js` does not get the week those four get. Its name never changes and its contents
+	# can, and it reads markup out of the page beside it — a cached script meeting a newer
+	# document paints half a scene. The page is `no-cache` for the same reason and the file
+	# is four and a half kilobytes: one revalidation, rather than a stale bug nobody can repeat.
+	header /clock.js Cache-Control "no-cache"
 	# Every spelling of every page. A `header` matcher tests the request path;
 	# the site is now a tree of directories each holding an index.html, and a
 	# reader arrives at `/`, `/ru/`, `/privacy/` — or, typing precisely, at the
@@ -22,12 +27,14 @@
 	@page path / */ /index.html */index.html
 	header @page Cache-Control "no-cache"
 
-	# The page runs no JavaScript, loads no font, embeds no frame and posts no form, so the policy
-	# can say exactly that instead of leaving room it does not use. `unsafe-inline` for styles is
-	# unavoidable while the CSS lives in the document — which is the point of a single file — and
-	# with `script-src` denied outright there is nothing for an injected style to cooperate with.
+	# The page loads no font, embeds no frame and posts no form, so the policy names exactly what
+	# it uses. What it uses now includes one script: `/clock.js` puts the real time into the hero's
+	# mock, and `script-src 'self'` is the narrowest grant that lets it run — this origin's own
+	# files, no inline code, no other host. `unsafe-inline` for styles stays unavoidable while the
+	# CSS lives in the document, which is the point of shipping one file; inline script is still
+	# refused, so an injected style still has nothing to cooperate with.
 	header {
-		Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+		Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; script-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"

@@ -51,8 +51,14 @@ Drag the strip sideways for the rest; each screen links to its full-size image.
 A disk image for macOS 14 and later. Released 17 September 2026 — [all versions](https://github.com/milushov/softcap/releases/tag/v0.1.27).
 <!-- download:end -->
 
+Or from the [Mac App Store](https://apps.apple.com/app/id6811539739) — the
+same app, sandboxed and updated by the store instead of by itself. The disk
+image above is the lane this repository builds, and the one that carries the
+in-app updater.
+
 ### Opening it the first time
 
+This is about the disk image; the App Store copy asks for none of it.
 Current builds are signed ad-hoc rather than with an Apple Developer ID, so
 macOS refuses the first launch. Right-click the app, choose **Open**, and
 confirm once — that is the whole ritual. The terminal way, if you prefer it:

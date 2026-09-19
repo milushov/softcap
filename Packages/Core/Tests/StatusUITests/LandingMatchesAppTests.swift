@@ -354,10 +354,13 @@ import Foundation
                 the page has no label for \(appearance.rawValue) — the radio is hidden, so without one the appearance cannot be chosen
                 """)
         }
-        // The switch is CSS. A script would need the policy loosened, and the
-        // policy is the reason nothing on this page can run.
+        // The switch is still CSS, and inline script is still refused. The policy
+        // grants `script-src 'self'` for one file of this origin's own; code
+        // written into the document is not covered by it and would be blocked at
+        // load — in production, in a console nobody is watching. Refused here,
+        // where the reason is next to the rule.
         #expect(!page.contains("<script>") && !page.contains("javascript:"),
-                "the page runs a script, which its Content-Security-Policy forbids")
+                "the page carries an inline script, which `script-src 'self'` blocks")
         #expect(page.contains("html:has(#t-light:checked)")
                 && page.contains("html:has(#t-dark:checked)"),
                 "the appearance switch no longer sets color-scheme from the checked radio")
@@ -571,12 +574,65 @@ import Foundation
     }
 
     private static func landing() throws -> String {
-        try String(contentsOf: root.appendingPathComponent("site/index.html"), encoding: .utf8)
+        try file("site/index.html")
+    }
+
+    private static func file(_ path: String) throws -> String {
+        try String(contentsOf: root.appendingPathComponent(path), encoding: .utf8)
     }
 
     private static func readme() throws -> String {
         try String(contentsOf: root.appendingPathComponent("README.md"), encoding: .utf8)
     }
+
+    private static var root: URL {
+        var url = URL(fileURLWithPath: #filePath)
+        for _ in 0..<5 { url.deleteLastPathComponent() }
+        return url
+    }
+}
+
+/// The one script this site serves, and the four files that have to agree about
+/// it.
+///
+/// `site/clock.js` puts the real time into the hero's mock, because the menu bar
+/// in that picture read "Mon 2:41 AM" on every visit from the day it was drawn —
+/// the single detail a reader could hold against the corner of their own screen,
+/// and the one the picture was always wrong about.
+///
+/// Three of the four ways it can break are silent, and all of them look
+/// identical from outside: a menu bar reading 2:41 AM, exactly as before.
+@Suite struct TheLandingsOneScriptIsWiredUp {
+
+    /// The page loads it, the mock carries the places it writes, the manifest
+    /// lists it — `deploy.sh` copies `--files-from` that file, so a name missing
+    /// there never reaches the host — and the served policy allows it to run.
+    @Test func theHeroClockIsLoadedAndAllowedToRun() throws {
+        let page = try Self.landing()
+        #expect(page.contains("<script src=\"/clock.js\" defer></script>"),
+                "the landing does not load /clock.js, so the mock's menu bar is frozen again")
+        for anchor in ["menubar", "window", "stale"] {
+            #expect(page.contains("data-clock=\"\(anchor)\""),
+                    "the mock has no data-clock=\"\(anchor)\" for the script to write")
+        }
+
+        let script = try Self.file("site/clock.js")
+        for anchor in ["menubar", "window", "stale"] {
+            #expect(script.contains("data-clock=\"\(anchor)\""),
+                    "clock.js does not look for data-clock=\"\(anchor)\"")
+        }
+
+        #expect(try Self.file("site/manifest.txt").contains("clock.js"),
+                "clock.js is not in the manifest, so the deploy would never copy it")
+        #expect(try Self.file("site/Caddyfile").contains("script-src 'self'"),
+                "the served policy forbids the page's own script, so the clock runs nowhere but here")
+    }
+
+    private static func file(_ path: String) throws -> String {
+        try String(contentsOf: root.appendingPathComponent(path), encoding: .utf8)
+    }
+
+    private static func landing() throws -> String { try file("site/index.html") }
 
     private static var root: URL {
         var url = URL(fileURLWithPath: #filePath)

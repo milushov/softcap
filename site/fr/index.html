@@ -132,6 +132,12 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius
 .source:hover{color:var(--fg);text-decoration:underline;
   text-decoration-color:color-mix(in srgb,var(--fg) 35%,transparent)}
 .source svg{display:block;flex:none}
+/* On a line of its own, always. Naming the store made the button 60 to 80 px
+   wider in every language, and the row stopped fitting in four of the ten —
+   English by nine pixels, Russian by nineteen, Bengali by thirty-one, French by
+   forty-eight. Left to `flex-wrap` that is the worst of both: a composition
+   that rearranges itself when the reader changes language. */
+.cta .source{flex-basis:100%}
 .wrap{max-width:980px;margin:0 auto;padding:0 28px}
 .rule{height:1px;background:var(--line);border:0;margin:0}
 
@@ -326,6 +332,10 @@ h1{
 h1 em{display:block;font-style:normal;color:var(--fg-3)}
 .lede{font-size:clamp(16.5px,2.1vw,19px);color:var(--fg-2);max-width:58ch;margin:0 0 8px;line-height:1.62}
 .note{margin-top:30px;font-family:var(--mono);font-size:12.5px;color:var(--fg-3);letter-spacing:.01em}
+/* The bullet travels with the link it introduces. Left alone the line broke
+   inside the phrase — "· or" ending one line and "the direct .dmg" opening
+   the next in English, and the bullet leading the second line in French. */
+.note .also{white-space:nowrap}
 .note b{color:var(--accent);font-weight:500}
 
 /* ---------- the window mock ---------- */
@@ -696,6 +706,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  "description":"Une app de barre de menus macOS qui montre ce qu'il reste de vos limites d'abonnement Claude Code et OpenAI Codex, sans dépenser le quota qu'elle mesure.",
  "featureList":["Plusieurs comptes Claude et Codex à la fois","Consommation Codex en direct","Minuteur dans la barre de menus","Widgets sur macOS et iPhone","Notifications de seuil","Dix langues"]}
 </script>
+<script src="/clock.js" defer></script>
 </head>
 <body>
 
@@ -776,9 +787,18 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     <p class="lede">
       Softcap se tient dans la barre de menus et montre toutes les formules à la fois : ce qui est consommé, ce qui se renouvelle et quand, quel compte ouvrir ensuite.
     </p>
-    <p class="cta"><a class="download" href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">Télécharger pour macOS</a>
+    <!-- The one filled button changed hands the day the store approved the
+         app. It leads there because that is now the build a stranger should
+         be given: signed with a certificate, reviewed, and updated by the
+         platform — where the disk image is signed ad-hoc and needs a
+         right-click and an Open before macOS will run it at all. The .dmg
+         keeps a link in the note rather than becoming a second button: it is
+         the lane with the self-updater and the one this repository builds,
+         and a second pill beside the first is the shape this page has
+         refused from the start. -->
+    <p class="cta"><a class="download" href="https://apps.apple.com/app/id6811539739">Télécharger dans le Mac App Store</a>
        <a class="source" href="https://github.com/milushov/softcap"><svg width="17" height="17" aria-hidden="true"><use href="#gh-mark"/></svg>Voir le code source</a></p>
-    <p class="note">macOS 14+ · barre de menus, widgets et une app iPhone</p>
+    <p class="note">macOS 14+ · barre de menus, widgets et une app iPhone <span class="also">· <a href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">ou le .dmg direct</a></span></p>
     </div>
 
     <!-- `autocomplete="off"` on every radio, and it is load-bearing: a
@@ -819,7 +839,12 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
             0:41
           </span>
           <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 6h3.2M6.8 6H10"/><circle cx="6" cy="6" r="1.3"/></svg></span>
-          <span class="item">Mon 2:41&nbsp;AM</span>
+          <!-- The clock is the one thing in this picture a reader can hold
+               against their own menu bar, and it had been wrong on every visit
+               since the mock was drawn. `/clock.js` writes this, the window's
+               hour and the staleness tag below; all three keep the frozen scene
+               in the markup, which is what a reader with no script sees. -->
+          <span class="item" data-clock="menubar">Mon 2:41&nbsp;AM</span>
         </div>
 
         <div class="desk">
@@ -836,13 +861,13 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
         </div>
         <div class="pointer"></div>
         <div class="win" role="img" aria-label="La fenêtre Softcap listant trois comptes avec leurs limites de cinq heures et hebdomadaires, ouverte sous son élément de barre de menus.">
-          <div class="win-head">Limites d'abonnement <span>2:41 AM</span></div>
+          <div class="win-head">Limites d'abonnement <span data-clock="window">2:41 AM</span></div>
 
           <div class="row">
             <div class="row-top">
               <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="5" cy="5" r="4.2"/><circle cx="5" cy="5" r="1.6"/></svg></div>
               <div class="who"><b>alex@example.com</b><i>Codex · Plus</i></div>
-              <span class="tag">Data from 28 Aug</span>
+              <span class="tag">Data from <span data-clock="stale">28 Aug</span></span>
             </div>
             <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:2%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">0%</span><span class="t">—</span></div>
             <div class="meter"><span class="k">week</span><span class="bar"><i style="width:39%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">39%</span><span class="t">3d 22h</span></div>

@@ -15,6 +15,7 @@ bn/privacy/index.html
 bn/support/index.html
 bn/terms/index.html
 changelog/index.html
+clock.js
 es/changelog/index.html
 es/faq/index.html
 es/index.html

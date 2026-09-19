@@ -10,9 +10,18 @@
     <p class="lede">
       {{index.lede_2}}
     </p>
-    <p class="cta"><a class="download" href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">{{index.cta_download}}</a>
+    <!-- The one filled button changed hands the day the store approved the
+         app. It leads there because that is now the build a stranger should
+         be given: signed with a certificate, reviewed, and updated by the
+         platform — where the disk image is signed ad-hoc and needs a
+         right-click and an Open before macOS will run it at all. The .dmg
+         keeps a link in the note rather than becoming a second button: it is
+         the lane with the self-updater and the one this repository builds,
+         and a second pill beside the first is the shape this page has
+         refused from the start. -->
+    <p class="cta"><a class="download" href="https://apps.apple.com/app/id6811539739">{{index.cta_appstore}}</a>
        <a class="source" href="https://github.com/milushov/softcap"><svg width="17" height="17" aria-hidden="true"><use href="#gh-mark"/></svg>{{index.cta_source}}</a></p>
-    <p class="note">{{index.note}}</p>
+    <p class="note">{{index.note}} <span class="also">· <a href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">{{index.note_direct}}</a></span></p>
     </div>
 
     <!-- `autocomplete="off"` on every radio, and it is load-bearing: a
@@ -53,7 +62,12 @@
             0:41
           </span>
           <span class="item"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 6h3.2M6.8 6H10"/><circle cx="6" cy="6" r="1.3"/></svg></span>
-          <span class="item">Mon 2:41&nbsp;AM</span>
+          <!-- The clock is the one thing in this picture a reader can hold
+               against their own menu bar, and it had been wrong on every visit
+               since the mock was drawn. `/clock.js` writes this, the window's
+               hour and the staleness tag below; all three keep the frozen scene
+               in the markup, which is what a reader with no script sees. -->
+          <span class="item" data-clock="menubar">Mon 2:41&nbsp;AM</span>
         </div>
 
         <div class="desk">
@@ -70,13 +84,13 @@
         </div>
         <div class="pointer"></div>
         <div class="win" role="img" aria-label="{{attr:index.win_aria}}">
-          <div class="win-head">{{index.limits_title}} <span>2:41 AM</span></div>
+          <div class="win-head">{{index.limits_title}} <span data-clock="window">2:41 AM</span></div>
 
           <div class="row">
             <div class="row-top">
               <div class="badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="5" cy="5" r="4.2"/><circle cx="5" cy="5" r="1.6"/></svg></div>
               <div class="who"><b>alex@example.com</b><i>Codex · Plus</i></div>
-              <span class="tag">Data from 28 Aug</span>
+              <span class="tag">Data from <span data-clock="stale">28 Aug</span></span>
             </div>
             <div class="meter"><span class="k">5h</span><span class="bar"><i style="width:2%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">0%</span><span class="t">—</span></div>
             <div class="meter"><span class="k">week</span><span class="bar"><i style="width:39%;background:var(--ok)"></i></span><span class="v" style="color:var(--fg-2)">39%</span><span class="t">3d 22h</span></div>

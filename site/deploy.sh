@@ -411,6 +411,10 @@ expect_header "https://$DOMAIN/ru/limits/claude/" Cache-Control "no-cache"
 for asset in og.png icon.svg favicon.ico shots/02-accounts.webp; do
   expect_header "https://$DOMAIN/$asset" Cache-Control "public, max-age=604800"
 done
+# The one served file that is neither a page nor a week-long asset. It is also the
+# one whose absence is silent: a missing script leaves the mock frozen, which is
+# what it looks like when it works.
+expect_header "https://$DOMAIN/clock.js" Cache-Control "no-cache"
 
 # A path that does not exist is a served response too, and it was the one nobody
 # looked at: 404 with an empty body, none of the security headers, and `Server`

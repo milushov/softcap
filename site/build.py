@@ -54,7 +54,8 @@ OG_LOCALE = {
 }
 PAGES = ["index", "privacy", "support", "terms",
          "faq", "changelog", "limits/claude", "limits/codex"]
-ASSETS = ["favicon.ico", "icon.svg", "og.png", "robots.txt", "sitemap.xml"] + [
+ASSETS = ["favicon.ico", "icon.svg", "og.png", "robots.txt", "sitemap.xml",
+          "clock.js"] + [
     f"shots/{name}.webp" for name in
     ["02-accounts", "03-statistics", "04-notifications", "05-minimal"]]
 

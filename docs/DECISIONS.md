@@ -8686,3 +8686,104 @@ Found by reading the change back against its own words. The truth table gained
 the row that distinguishes the two — `from: nil` with `whenRunningIsAnonymous:
 false` is refused — and one test puts the flag to a real ad-hoc bundle, which a
 test can make, unlike a certificate.
+
+---
+
+## 2026-09-19 — The store takes the button, and the disk image keeps a line
+
+**Decision.** The landing's one filled button leads to the Mac App Store; the
+disk image becomes a link in the note beneath it, and the two limits pages make
+the same swap. Two catalogue keys carry it in all ten languages —
+`index.cta_appstore` and `index.note_direct` — and `index.cta_download` is
+gone, because nothing offers the disk image as a button any more. The README
+keeps its download heading, which is machine-written on every release, and
+gains the store in a paragraph outside those markers.
+
+The address is `apps.apple.com/app/id6811539739`, with no storefront and no
+slug. Apple redirects that form to the visitor's own country and language,
+which is the only shape that suits a page rendered in ten of them; a link
+carrying `/us/` would send nine of the ten somewhere they cannot buy from.
+
+**Why.** The app was approved, and that is the moment the two lanes stopped
+being equal. The store build is signed with a certificate, reviewed, and
+updated by the platform. The disk image is signed ad-hoc, so macOS refuses its
+first launch until somebody right-clicks and confirms — and that refusal is
+the first thing to happen to a stranger who took the only button on the page.
+What the disk image has in return has narrowed to one item: `#if !APPSTORE`
+compiles the self-updater out of the store build. The other cost written down
+on 13 September — the sandbox keeping the Codex provider out of `~/.codex` —
+was paid off by 0.1.18, which stopped reading any CLI's files at all, so the
+sandboxed build is no longer the degraded one.
+
+A second button was the other candidate, and the CSS has refused it since the
+first release in as many words: the page asks for one thing, and a link beside
+the button wearing the button's own shape asks for two. Approval did not change
+that; it changed which of the two the one button should be.
+
+**Cost.** The lane this repository builds — the one that can ship a fix on the
+day it is written rather than after a review — is now a grey link in a 12.5 px
+note, and fewer people will find it. The first-launch ritual is not mentioned
+in the hero either, so whoever does take that link meets Gatekeeper with no
+warning on the page that sent them; the support page is still where the reason
+lives. And the destination is one nothing here can test: `build.py` renders the
+link and no check loads it, so the button is worth exactly what the store
+record behind it is worth. Approval is not release — the URL answered 404 in
+every storefront while this was written — so it was held out of the commit
+until the page answered.
+
+---
+
+## 2026-09-19 — The site runs one script, and the policy names it
+
+**Decision.** `site/clock.js` — four and a half kilobytes, served from this origin, loaded
+by the landing and by no other page — writes the real time into the hero's mock:
+the menu bar's clock, the window's hour, and the date on the staleness tag,
+which is set three days back so the row whose reading has stopped arriving still
+reads as one. The Content-Security-Policy gains `script-src 'self'` and nothing
+else. Inline script stays refused by the policy, and `LandingMatchesAppTests`
+refuses it in the repository as well, where the reason can sit next to the rule.
+The file is listed in `build.py`'s `ASSETS` — `deploy.sh` copies `--files-from`
+the manifest, so a name missing there is a file that never reaches the host — is
+served `no-cache` like the document it belongs to rather than the week the
+images get, and is asked for by name in the deploy's header check afterwards.
+
+This reverses two entries. "The landing says what it does not do, in headers"
+justified its policy with "The page runs no JavaScript", and "The site is
+generated into ten committed languages" of 13 September noted that the language
+picker kept it that way. Both stand as written. Neither was a promise made to a
+reader — no page has ever told anybody this site runs no script — and the policy
+named `script-src` nothing because there was nothing yet to allow.
+
+**Why.** The mock is a photograph of an app whose whole subject is time, and its
+menu bar read `Mon 2:41 AM` on every visit, in every language, for as long as
+the page has existed. It is the one detail on this page a reader can hold
+against the corner of their own screen, and so the one the picture was always
+wrong about.
+
+Only a script can know the reader's clock. The alternative was a stamp at build
+time, and the eighty rendered pages are committed: `build.py --check` and
+`theBuiltPagesAreFresh` are both built on those pages being a deterministic
+function of their sources. A stamp of "now" makes every rebuild drift the whole
+tree; a stamp of the last commit's hour is a different wrong time, shown at
+2:41 AM to somebody reading at noon. Neither is what was asked for.
+
+**Cost.** The site is no longer scriptless, and that was worth something by
+itself: the policy could be read in one breath, and a class of injection had
+nowhere at all to land. `script-src 'self'` is narrow, but it is not `'none'` —
+anything that could write a file into this origin can now have it run as well.
+
+There is also a second thing that has to arrive for the page to be right, and
+every way it can fail to is silent: a page that stops loading it, a mock that
+loses the three places it writes, a manifest that does not list it, a policy
+that stops allowing it. All four look identical from outside — a menu bar
+reading 2:41 AM, which is exactly what this page looked like before. That is
+why `TheLandingsOneScriptIsWiredUp` checks all four and the deploy checks the
+served file.
+
+And the scene had to move with the clock. The tag that read `Data from 28 Aug`
+had quietly become a reading twenty-two days old standing beside live counters;
+it is now three days, which is the age the feature is there to show. Its label
+is still English on all ten pages — the one string in this picture that was
+never translated — so the date beside it is formatted in English too, and the
+digits are forced to `latn` so that the Arabic and Bengali pages do not end up
+with one scene counting in two alphabets.
