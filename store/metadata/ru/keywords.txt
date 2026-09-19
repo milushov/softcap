@@ -1,0 +1,1 @@
+anthropic,openai,chatgpt,token,quota,limits,reset,tracker,monitor,meter,cooldown,ccusage,menubar

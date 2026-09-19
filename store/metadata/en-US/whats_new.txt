@@ -1,0 +1,4 @@
+• A widget now says when macOS has not let Softcap open the folder it reads from, instead of showing the empty week it shows when there is genuinely nothing to report.
+• A row in the minimal window is a button: click the period and the row shows the other one, until the window closes.
+• An account list macOS has locked can be opened again, rather than being refused for good.
+• The dates on the statistics chart and the settings window's own title now follow the language chosen in Softcap, not the one the Mac is set to.

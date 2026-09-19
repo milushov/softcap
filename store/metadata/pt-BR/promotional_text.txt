@@ -1,0 +1,1 @@
+Os limites de sessão e semanais de todas as suas contas do Claude Code e do Codex, na barra de menus, com aviso bem antes de acabar.

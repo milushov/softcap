@@ -1,0 +1,4 @@
+• Un widget indique maintenant que macOS n'a pas laissé Softcap ouvrir le dossier qu'il lit, au lieu d'afficher la semaine vide qu'il montre quand il n'y a vraiment rien à signaler.
+• Une ligne de la fenêtre minimale est un bouton : cliquez sur la période et la ligne affiche l'autre, jusqu'à la fermeture de la fenêtre.
+• Une liste de comptes verrouillée par macOS peut être rouverte, au lieu d'être refusée définitivement.
+• Les dates du graphique de statistiques et le titre de la fenêtre des réglages suivent désormais la langue choisie dans Softcap, et non celle du Mac.

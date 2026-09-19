@@ -8879,3 +8879,103 @@ platform closes by itself, and this workflow runs on `push` and
 reach. What is bought for that is a key of its own — one line out of
 `authorized_keys` revokes it and touches nothing else on the host, which was not
 true of the key this deploy used yesterday.
+
+---
+
+## 2026-09-20 — The listing is ten listings, and nine of them keep their keywords in English
+
+**Decision.** `store/metadata/<locale>/` holds six plain files per storefront
+language — name, subtitle, keywords, description, promotional text, release
+notes — for ten locales. `tools/push_store_metadata.py` sends them, and the
+screenshots beside them, to App Store Connect and submits nothing;
+`StoreListingFitsTheStore` holds Apple's six length limits and three rules about
+the keyword field. `tools/store_screenshots.py` photographs the app in each of
+its languages and composites the five store pictures.
+
+The three fields Apple indexes are split by what each one is for. The name is
+`Softcap: Claude & Codex Usage` in nine of the ten and carries the English terms
+the store is actually asked for. The subtitle is written in the reader's
+language. The keyword field is English everywhere except Chinese, where it is
+Chinese.
+
+**Why the keywords are English in nine languages.** Apple publishes no search
+volumes, but the store completes what people type, and `MZSearchHints` returns
+those completions per storefront, ordered by how often that storefront sees
+them. Read in every storefront this app is localised for, on 19 September 2026,
+they agree: this audience searches in English wherever it lives.
+
+In the Russian storefront `claude code`, `codex usage` and `ai usage tracker`
+all complete, with eight competitor names among them. `клод код` completes to
+nothing at all. `лимит` completes to screen-time limiters, `токен` to crypto
+wallets, `трекер` to period and habit trackers. Spanish `límite`, French
+`limite`, Portuguese `limite`: screen time again. `consumo` and `consommation`:
+fuel and electricity. `rastreador`, `seguimiento`: parcels. Indonesian `kuota`
+is mobile data; Arabic `متتبع` is calories and habits. Each of those is the
+right translation and the wrong keyword — it would file this app behind a
+hundred apps that really are about that, for an audience that is not looking
+for it.
+
+Chinese is the exception and is treated as one. `用量` completes to
+`用量追踪器`, `额度` to a competitor shipping under a Chinese name, and `菜单栏`
+to two menu-bar apps. So that listing carries Chinese keywords and a Chinese
+subtitle.
+
+**Why the name carries two trademarks.** It is what the store is asked for —
+`claude usage`, `codex usage`, `usage for claude` — and the Mac App Store today
+answers those with `Usage for Claude`, `Token Usage for Claude`,
+`Code Meter: Claude Codex Usage` and `CodexHUD`, all live. The disclaimer that
+was already in the description does the work Apple asks for in return, and
+`everyListingSaysWhoItIsNot` holds it in all ten languages. Before this, the
+listing was `Softcap` — eight characters of the strongest ranking field spent on
+a word only somebody who already knows the app would type. It ranked nowhere:
+not in the first fifty for `claude usage`, `ai usage`, `codex usage` or
+`claude code`, and first for `softcap`.
+
+**The screenshots are photographs of the app in that language.** The language is
+a setting, so `ScreenshotFixtures` reads `SOFTCAP_SHOT_LANG` and a run hands it
+one — one build, forty-five photographs, nothing clicked. Two things had to be
+right. The window is captured by its window id and not by its rectangle: the
+first run of this produced five pictures of a terminal, because Softcap is an
+accessory app that cannot be relied on to come to the front and
+`screencapture -R` photographs the screen, not the window. And the caption comes
+from `site/strings/<lang>.json` — the same key the landing page's gallery uses —
+so a slide on the site and a picture in the store are one sentence translated
+once.
+
+The composite is drawn by `tools/store_shot.swift` rather than a browser. Core
+Text shapes Arabic, assembles Devanagari and has the Chinese glyphs, which is
+three of the ten languages that an image library gets wrong silently; headless
+Chrome does it too, and was tried first, but hung on the second picture and
+exited 21 on the third. This also answers the 2026-09-14 entry's complaint that
+regenerating the teasers meant returning to an HTML file that was not in the
+repository. It is in the repository now, and it is Swift.
+
+Accounts moved from fifth place to second. Several Claude and Codex accounts in
+one list is the thing none of the competitors' first two screenshots show, and
+the second screenshot is the last one most people scroll to.
+
+**What the screenshots found.** Photographing the app in ten languages is a
+localisation test that nothing else in the suite performs, and it failed twice
+in the first picture. The statistics chart spelled its days `14 Sep` under a
+Russian interface — `AxisValueLabel(format:)` does not read `\.locale` from the
+environment, whatever the views around it set — and every settings window was
+headed `Softcap Settings`, because macOS titles a `Settings` scene in the
+*system's* language and this app's language is its own. Both are fixed and both
+are held: `DatesFollowTheChosenLanguage` scans for a date format that names no
+locale, `TheWindowIsTitledInItsOwnLanguage` for a language change that does not
+reach the title bar. The date bug is the third appearance of one mistake;
+`UpdatesPane` carries a comment about the second.
+
+**Cost.** Ten listings is ten of everything: a sentence changed in the English
+description is now nine translations out of date, and nothing in the suite can
+tell a stale translation from a deliberate difference. The screenshots are 400
+MB and are not committed — the tool is what the repository keeps — so a listing
+cannot be rebuilt without a Mac that can run the app and photograph it. `es-MX`
+is a second Spanish that will drift from the first. And the keyword decision is
+a reading of one day's completions: the terms this audience uses are eighteen
+months old, and the day `claude code` stops being what people type, this file
+will still say it is.
+
+Bengali has no listing because App Store Connect has no Bengali. The app speaks
+it; the Bangladesh storefront shows the English listing and, once installed, an
+app in Bengali.

@@ -1,0 +1,28 @@
+Softcap muestra cuánto te queda de tus suscripciones a Claude Code y OpenAI Codex, en la barra de menús, antes de quedarte sin nada en mitad de algo.
+
+Todos los límites de tus suscripciones en una sola pantalla. Softcap lee la ventana de sesión de cinco horas y la ventana semanal de cada cuenta que añadas, y mantiene ambas a la vista: una cuenta atrás en la barra de menús, una ventana a un clic y widgets en el escritorio.
+
+VARIAS CUENTAS A LA VEZ
+Cuentas de Claude y de Codex una al lado de la otra, tantas como tengas. Inicias sesión en tu propio navegador, así que Softcap nunca te pide la contraseña ni cierra la sesión de tus herramientas de línea de comandos. Oculta las cuentas que no estés vigilando y ordena el resto arrastrándolas.
+
+TE AVISA ANTES DE LLEGAR
+Notificaciones al 80 % y al 95 % de fábrica, o en los niveles que tú decidas: una por cada cruce, no una por cada lectura. Las horas de silencio dejan la noche en paz, y nada se entrega más tarde para compensarlo.
+
+UN TEMPORIZADOR EN LA BARRA DE MENÚS
+El límite que está más cerca de agotarse y cuánto falta para que se libere, sin hacer clic en nada. La barra puede llevar la cuenta atrás, el porcentaje o solo el icono.
+
+WIDGETS
+Los cuatro tamaños, dibujados desde la misma fila de cuenta que usa la ventana, para que no puedan contradecirse.
+
+HISTORIAL DE USO
+Gráficas del límite semanal de la última semana o del último mes, guardadas en tu Mac y borradas a los 35 días.
+
+TUS CREDENCIALES SE QUEDAN DONDE ESTÁN
+Las credenciales viven en el llavero y nunca se copian a los ajustes ni a los registros. Consultar el uso no envía ninguna petición al modelo y no gasta nada de tu cuota: una consulta por cuenta y lectura, cada cinco minutos en segundo plano y una vez por minuto mientras la ventana está abierta.
+
+DIEZ IDIOMAS
+Árabe, bengalí, chino, español, francés, hindi, indonesio, inglés, portugués y ruso, con el árabe de derecha a izquierda. El cambio surte efecto al instante, sin reiniciar, y VoiceOver lee toda la aplicación.
+
+Gratis y de código abierto.
+
+Softcap es una aplicación independiente y no oficial. No está creada por Anthropic ni por OpenAI, ni afiliada, avalada o patrocinada por ellas.

@@ -1,0 +1,28 @@
+O Softcap mostra quanto resta das suas assinaturas do Claude Code e do OpenAI Codex, na barra de menus, antes que acabe no meio de alguma coisa.
+
+Todos os limites da assinatura em uma tela só. O Softcap lê a janela de sessão de cinco horas e a janela semanal de cada conta que você adiciona e mantém as duas à vista: uma contagem regressiva na barra de menus, uma janela a um clique e widgets na mesa.
+
+VÁRIAS CONTAS AO MESMO TEMPO
+Contas do Claude e do Codex lado a lado, quantas você tiver. O login acontece no seu próprio navegador, então o Softcap nunca pede senha e nunca desconecta suas ferramentas de linha de comando. Esconda as contas que você não está acompanhando e arraste o resto para a ordem que quiser.
+
+AVISA ANTES DE ACABAR
+Notificações em 80% e 95% de fábrica, ou nos níveis que você definir — uma por cruzamento, não uma por leitura. As horas silenciosas deixam a noite em paz, e nada é entregue depois para compensar.
+
+UM CRONÔMETRO NA BARRA DE MENUS
+O limite mais perto de acabar e quanto falta para ele liberar, sem clicar em nada. A barra pode levar a contagem regressiva, a porcentagem ou só o ícone.
+
+WIDGETS
+Os quatro tamanhos, desenhados a partir da mesma linha de conta que a janela usa, para que não possam divergir.
+
+HISTÓRICO DE USO
+Gráficos do limite semanal da última semana ou do último mês, guardados no seu Mac e apagados depois de 35 dias.
+
+SEUS TOKENS FICAM ONDE ESTÃO
+As credenciais ficam nas Chaves e nunca são copiadas para as preferências nem para os registros. Consultar o uso não envia nenhum prompt e não gasta nada da sua cota: uma requisição por conta a cada leitura, de cinco em cinco minutos em segundo plano e uma vez por minuto com a janela aberta.
+
+DEZ IDIOMAS
+Árabe, bengali, chinês, espanhol, francês, hindi, indonésio, inglês, português e russo — com o árabe da direita para a esquerda. A troca vale na hora, sem reiniciar, e o VoiceOver lê o aplicativo inteiro.
+
+Gratuito e de código aberto.
+
+O Softcap é um aplicativo independente e não oficial. Não é criado pela Anthropic nem pela OpenAI, nem tem vínculo, endosso ou patrocínio delas.

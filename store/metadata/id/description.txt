@@ -1,0 +1,28 @@
+Softcap menunjukkan sisa langganan Claude Code dan OpenAI Codex Anda di menu bar, sebelum habis di tengah pekerjaan.
+
+Semua batas langganan dalam satu layar. Softcap membaca jendela sesi lima jam dan jendela mingguan untuk setiap akun yang Anda tambahkan, dan menjaga keduanya tetap terlihat: hitung mundur di menu bar, jendela sejauh satu klik, widget di desktop.
+
+BEBERAPA AKUN SEKALIGUS
+Akun Claude dan Codex berdampingan, sebanyak yang Anda punya. Anda masuk lewat browser Anda sendiri, jadi Softcap tidak pernah meminta kata sandi dan tidak pernah mengeluarkan alat baris perintah Anda. Sembunyikan akun yang tidak Anda pantau, dan seret sisanya ke urutan yang Anda mau.
+
+MEMBERI TAHU SEBELUM MENTOK
+Notifikasi di 80% dan 95% sejak awal, atau di level yang Anda tentukan — sekali per pelampauan, bukan sekali per pembacaan. Jam tenang menjaga malam tetap sunyi, dan tidak ada yang dikirim menyusul.
+
+PENGHITUNG WAKTU DI MENU BAR
+Batas yang paling dekat habis dan berapa lama sampai terisi lagi, tanpa mengeklik apa pun. Bilahnya bisa menampilkan hitung mundur, persentase, atau ikonnya saja.
+
+WIDGET
+Keempat ukuran, digambar dari baris akun yang sama dengan jendelanya, sehingga keduanya tidak mungkin berbeda.
+
+RIWAYAT PEMAKAIAN
+Grafik batas mingguan selama seminggu atau sebulan terakhir, disimpan di Mac Anda dan dihapus setelah 35 hari.
+
+TOKEN ANDA TETAP DI TEMPATNYA
+Kredensial tinggal di Keychain, tidak pernah disalin ke preferensi atau log. Memeriksa pemakaian tidak mengirim prompt dan tidak menghabiskan jatah Anda: satu permintaan per akun per pembacaan, lima menit sekali di latar belakang dan semenit sekali selama jendela terbuka.
+
+SEPULUH BAHASA
+Arab, Bengali, Hindi, Indonesia, Inggris, Mandarin, Portugis, Prancis, Rusia, dan Spanyol — termasuk Arab dari kanan ke kiri. Pergantian langsung berlaku tanpa memulai ulang, dan VoiceOver membaca seluruh aplikasi.
+
+Gratis dan open source.
+
+Softcap adalah aplikasi independen dan tidak resmi. Aplikasi ini tidak dibuat oleh, tidak berafiliasi dengan, tidak didukung, dan tidak disponsori oleh Anthropic atau OpenAI.

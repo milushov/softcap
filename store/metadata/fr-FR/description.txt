@@ -1,0 +1,28 @@
+Softcap montre ce qu'il vous reste de vos abonnements Claude Code et OpenAI Codex, dans la barre des menus, avant que tout s'arrête au milieu de quelque chose.
+
+Toutes les limites d'abonnement sur un seul écran. Softcap lit la fenêtre de session de cinq heures et la fenêtre hebdomadaire de chaque compte que vous ajoutez, et garde les deux sous vos yeux : un compte à rebours dans la barre des menus, une fenêtre à un clic, des widgets sur le bureau.
+
+PLUSIEURS COMPTES À LA FOIS
+Les comptes Claude et Codex côte à côte, autant que vous en avez. La connexion passe par votre propre navigateur : Softcap ne demande jamais de mot de passe et ne déconnecte jamais vos outils en ligne de commande. Masquez les comptes que vous ne surveillez pas et rangez les autres par glisser-déposer.
+
+IL PRÉVIENT AVANT
+Des notifications à 80 % et 95 % par défaut, ou aux seuils que vous choisissez — une par franchissement, pas une par relevé. Les heures silencieuses laissent la nuit tranquille, et rien n'est livré en retard pour rattraper.
+
+UN MINUTEUR DANS LA BARRE DES MENUS
+La limite la plus proche de l'épuisement et le temps qui reste avant qu'elle se libère, sans rien cliquer. La barre peut porter le compte à rebours, le pourcentage ou seulement l'icône.
+
+WIDGETS
+Les quatre tailles, dessinées à partir de la même ligne de compte que la fenêtre : impossible qu'elles se contredisent.
+
+HISTORIQUE D'UTILISATION
+Des courbes de la limite hebdomadaire sur la dernière semaine ou le dernier mois, conservées sur votre Mac et effacées au bout de 35 jours.
+
+VOS JETONS RESTENT OÙ ILS SONT
+Les identifiants vivent dans le trousseau et ne sont jamais recopiés dans les réglages ni dans les journaux. Consulter l'utilisation n'envoie aucune requête au modèle et ne consomme rien de votre quota : une requête par compte et par relevé, toutes les cinq minutes en arrière-plan et une fois par minute quand la fenêtre est ouverte.
+
+DIX LANGUES
+Anglais, arabe, bengali, chinois, espagnol, français, hindi, indonésien, portugais et russe — l'arabe de droite à gauche. Le changement prend effet immédiatement, sans redémarrage, et VoiceOver lit toute l'application.
+
+Gratuit et open source.
+
+Softcap est une application indépendante et non officielle. Elle n'est ni créée par, ni affiliée à, ni approuvée ni sponsorisée par Anthropic ou OpenAI.

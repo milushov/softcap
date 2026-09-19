@@ -28,7 +28,14 @@ enum ScreenshotFixtures {
         func read() async -> Data? {
             var value = Preferences.defaults
             value.appearance = .dark
-            value.languageCode = "en"
+            // The store listing is ten listings, and each one's screenshots
+            // have to be in the language its text is written in — a Russian
+            // description over an English window is the picture contradicting
+            // the page. The language is a setting, so it comes in the same way
+            // the window shape does, by environment rather than by rebuilding:
+            // one build photographed ten times. English when nothing is named,
+            // because that is what a run with no argument used to produce.
+            value.languageCode = ProcessInfo.processInfo.environment["SOFTCAP_SHOT_LANG"] ?? "en"
             value.rowLayout = .twoWindows
             value.showSnapshotAge = true
             // The one screen taken twice. An environment variable rather than a

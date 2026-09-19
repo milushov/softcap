@@ -1,0 +1,28 @@
+Softcap shows how much of your Claude Code and OpenAI Codex subscriptions you have left, in the menu bar, before you run out in the middle of something.
+
+Every subscription limit, on one screen. Softcap reads the five-hour session window and the weekly window for each account you add, and keeps both in front of you: a countdown in the menu bar, a window one click away, widgets on the desktop.
+
+SEVERAL ACCOUNTS AT ONCE
+Claude and Codex accounts side by side, as many as you have. You sign in through your own browser, so Softcap never asks for a password and never signs your command line tools out. Hide the accounts you are not watching, and drag the rest into the order you want.
+
+IT TELLS YOU BEFORE YOU HIT IT
+Notifications at 80% and 95% out of the box, or whichever levels you set instead — once per crossing, not once per reading. Quiet hours keep the night silent, and nothing is delivered late to make up for it.
+
+A TIMER IN THE MENU BAR
+Whichever limit is closest to running out, and how long until it frees up, without clicking anything. The strip can carry the countdown, the percentage, or only the icon.
+
+WIDGETS
+All four sizes, drawn from the same account row the window uses, so the two cannot drift apart.
+
+USAGE HISTORY
+Weekly-limit charts over the last week or the last month, kept on your Mac and pruned after 35 days.
+
+YOUR TOKENS STAY PUT
+Credentials stay in the keychain, never copied into preferences or logs. Checking usage sends no prompts and spends none of your allowance: one request per account per reading, five minutes apart in the background and once a minute while the window is open.
+
+TEN LANGUAGES
+Arabic, Bengali, Chinese, English, French, Hindi, Indonesian, Portuguese, Russian and Spanish — including Arabic laid out right to left. Switching takes effect immediately, with no restart, and VoiceOver reads the whole app.
+
+Free, and open source.
+
+Softcap is an independent, unofficial app. It is not created by, affiliated with, endorsed by, or sponsored by Anthropic or OpenAI.

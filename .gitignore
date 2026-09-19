@@ -38,3 +38,6 @@ build-*/
 # Release output of tools/make_dmg.sh and the Release workflow.
 dist/
 *.dmg
+
+# Python leaves these beside the tools; none of them is source.
+__pycache__/

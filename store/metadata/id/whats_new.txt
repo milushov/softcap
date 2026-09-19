@@ -1,0 +1,4 @@
+• Widget kini memberi tahu saat macOS tidak mengizinkan Softcap membuka folder yang dibacanya, alih-alih menampilkan minggu kosong yang muncul ketika memang tidak ada yang bisa dilaporkan.
+• Baris di jendela ringkas kini sebuah tombol: klik periodenya dan baris itu menampilkan periode satunya, sampai jendela ditutup.
+• Daftar akun yang dikunci macOS bisa dibuka lagi, bukan ditolak selamanya.
+• Tanggal pada grafik statistik dan judul jendela pengaturan kini mengikuti bahasa yang dipilih di Softcap, bukan bahasa Mac.

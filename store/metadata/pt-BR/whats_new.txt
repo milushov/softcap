@@ -1,0 +1,4 @@
+• Um widget agora avisa quando o macOS não deixou o Softcap abrir a pasta de onde ele lê, em vez de mostrar a semana vazia que aparece quando realmente não há nada a relatar.
+• Uma linha da janela mínima é um botão: clique no período e a linha mostra o outro, até a janela fechar.
+• Uma lista de contas travada pelo macOS pode ser aberta de novo, em vez de ficar recusada para sempre.
+• As datas do gráfico de estatísticas e o título da janela de ajustes agora seguem o idioma escolhido no Softcap, não o do Mac.

@@ -1,0 +1,4 @@
+• Un widget ahora dice cuándo macOS no ha dejado que Softcap abra la carpeta de la que lee, en lugar de mostrar la semana vacía que muestra cuando de verdad no hay nada que contar.
+• Una fila de la ventana mínima es un botón: pulsa el periodo y la fila muestra el otro, hasta que se cierre la ventana.
+• Una lista de cuentas que macOS ha bloqueado se puede volver a abrir, en vez de quedar rechazada para siempre.
+• Las fechas de la gráfica de estadísticas y el título de la ventana de ajustes siguen ahora el idioma elegido en Softcap, no el del Mac.
