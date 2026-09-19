@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Cuts the app window out of each App Store screenshot.
 
-    python3 tools/crop_screenshots.py [out-dir]     writes PNGs; run cwebp after
+    python3 tools/crop_screenshots.py [out-dir]     writes PNGs
+
+Then, for each of the four the site serves:
+
+    cwebp -q 90 -m 6 -alpha_q 100 <name>.png -o site/shots/<name>.webp
 
 The five shots in `docs/screenshots` are marketing images: a saturated gradient,
 a baked-in English caption, and the window in the lower two thirds. Neither the
@@ -13,13 +17,32 @@ Four of the five are found by saturation: the window chrome is neutral and every
 pixel of the gradient behind it, shadow included, is a saturated blue or teal.
 `05-minimal` is the exception and is measured rather than found — its window is
 a vibrancy material that takes the wallpaper's own blue, so it is no more
-neutral than the background it sits on. Its edges were read off a luminance scan
-instead: a bright one-pixel border at x 392 and 1046, y 314 and 699.
+neutral than the background it sits on. Its edges were read off a luminance
+scan: the window's own bright rim runs down x 393 and 1046 and across y 315 and
+700, with the shadow's near-black contact line one pixel outside each of them.
 
 All five are cut, and the site serves four: the landing's first slide is the
 hand-built mock rather than a photograph of the same window, so `01-limits` has
 nowhere to go. It is still cut here because the next thing to want it is the
 README, and a tool that quietly skipped one of its inputs would be a trap.
+
+Two things about the corners, both of which showed as black horns on the light
+palette before they were fixed.
+
+The mask is drawn at eight times the size and averaged down, because
+`ImageDraw.rounded_rectangle` writes 0 or 255 and nothing between: at 1:1 the
+arc is a staircase, and a staircase cut through a dark window on a near-white
+page is visible at the size the page shows it. Averaging an 8x mask gives each
+edge pixel its real coverage, which is what an antialiased edge is.
+
+And the radius is larger than the corner looks. A macOS window corner is a
+continuous curve, not a circular arc: it leaves the straight edge earlier than
+an arc of the same visual size and sits further from the corner along the
+diagonal. A circle drawn at the radius the corner appears to have therefore
+passes outside the window for most of the arc, and what it keeps is the shadow
+— which is at its darkest and widest exactly there, at the corner. The radii
+below are the ones that put the whole arc on the window's own rim; each was
+chosen by counting what survives outside it, not by eye.
 """
 
 import pathlib
@@ -33,8 +56,9 @@ OUT = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "site" / "shots
 OUT.mkdir(parents=True, exist_ok=True)
 
 CAPTION_ENDS = 240          # no window starts above this; every caption ends by it
-MEASURED = {"05-minimal": ((391, 313, 1048, 701), 15)}
-RADIUS = 10                 # the macOS window corner at this scale
+MEASURED = {"05-minimal": ((392, 314, 1048, 701), 36)}
+RADIUS = 15                 # the settings window's corner, cut on its own rim
+SUPERSAMPLE = 8             # mask resolution, averaged back down for the edge
 
 
 def found_by_saturation(image):
@@ -55,6 +79,18 @@ def found_by_saturation(image):
     return left + 1, top + 1, right, bottom
 
 
+def rounded_mask(size, radius, scale=SUPERSAMPLE):
+    """An antialiased rounded rectangle: drawn hard at `scale`, averaged to 1:1."""
+    width, height = size
+    big = Image.new("L", (width * scale, height * scale), 0)
+    ImageDraw.Draw(big).rounded_rectangle(
+        [0, 0, width * scale - 1, height * scale - 1],
+        radius=radius * scale, fill=255)
+    # BOX is an exact area average at an integer reduction, so every edge pixel
+    # ends up holding the fraction of itself the shape covers. LANCZOS rings.
+    return big.resize((width, height), Image.BOX)
+
+
 for path in sorted(SOURCE.glob("*.webp")):
     image = Image.open(path).convert("RGB")
     box, radius = MEASURED.get(path.stem, (None, RADIUS))
@@ -62,11 +98,7 @@ for path in sorted(SOURCE.glob("*.webp")):
         box = found_by_saturation(image)
 
     cut = image.crop(box)
-    width, height = cut.size
-    mask = Image.new("L", (width, height), 0)
-    ImageDraw.Draw(mask).rounded_rectangle([0, 0, width - 1, height - 1],
-                                           radius=radius, fill=255)
-    out = Image.new("RGBA", (width, height))
-    out.paste(cut, mask=mask)
+    out = Image.new("RGBA", cut.size)
+    out.paste(cut, mask=rounded_mask(cut.size, radius))
     out.save(OUT / f"{path.stem}.png")
-    print(f"  {path.stem}: {width}x{height}")
+    print(f"  {path.stem}: {cut.size[0]}x{cut.size[1]}")
