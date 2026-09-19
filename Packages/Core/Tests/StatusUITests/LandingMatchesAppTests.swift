@@ -391,12 +391,18 @@ import Foundation
         #expect(page.contains("\"@type\":\"SoftwareApplication\""),
                 "the structured data no longer describes an application")
 
-        // The platforms it names are the ones the package is actually built
-        // for. Nothing else on the page states a version, so this is the one
-        // place that figure could go quietly wrong.
-        #expect(page.contains("macOS 14") && page.contains("iOS 17"), """
-            the structured data names platforms the package does not: \
-            Package.swift says macOS 14 and iOS 17
+        // The platforms it names are ones the package is actually built for, and
+        // it may not name one the page does not offer. Nothing else on the page
+        // states a version, so this is the one place that figure could go
+        // quietly wrong — and since 20 September the iPhone app is not offered
+        // at all, which a structured-data block is the easiest place to forget.
+        #expect(page.contains("macOS 14"), """
+            the structured data does not name the platform the package is built \
+            for: Package.swift says macOS 14
+            """)
+        #expect(!page.contains("iOS 17"), """
+            the page names iOS 17 again — the iPhone app is not offered, and \
+            structured data is read by machines that will not notice
             """)
     }
 

@@ -8979,3 +8979,58 @@ will still say it is.
 Bengali has no listing because App Store Connect has no Bengali. The app speaks
 it; the Bangladesh storefront shows the English listing and, once installed, an
 app in Bengali.
+
+---
+
+## 2026-09-20 — The site stops offering an iPhone app
+
+**Decision.** There will be no iPhone app, so the site stops describing one. Five
+strings change in all ten catalogues — the note under the button, the requirement
+in the facts list, the widgets cell, the fourth feature in the structured data,
+and the support page's requirement — and `operatingSystem` in the landing's
+JSON-LD is `macOS 14` alone. The changelog keeps its line about home and lock
+screen widgets on iPhone: that entry says what the 0.1.2 release contained, which
+is still true of 0.1.2, and a changelog rewritten to match today's plans is not a
+record of anything.
+
+**Why.** The plan changed. A page that offers software nobody can have is the
+failure "The page and the README agree on availability" was written for, in the
+other direction.
+
+**Cost, and it is owed.** `Package.swift` still declares `.iOS(.v17)` and
+`project.yml` still builds `iOS` and `iOSWidget`. The repository therefore builds
+an application the site does not mention, and until those targets go that
+mismatch is real rather than tidy.
+
+Two tests held the page to it, and both had to be turned around rather than
+deleted. They required the page to name every platform the package is built for;
+they now require the page to name macOS, and the page and its structured data to
+agree with each other about the phone — so a reinstated `iOS 17` in the markup
+alone still fails, which is the direction that could go quietly wrong. What is no
+longer checked is the case this entry creates on purpose: a platform built and
+not advertised.
+
+---
+
+## 2026-09-20 — One button and one line
+
+**Decision.** The hero's call to action is the button and nothing else. The
+source link comes down into the note, which now carries three things on one line
+— the requirement, the source, the direct disk image — separated by bullets, each
+bound to what follows it by a non-breaking space. The link keeps its GitHub mark
+and gives up its own size and weight, taking the note's mono type instead.
+`index.note` is down to `macOS 14+` in every language.
+
+**Why.** Three stacked bands for one action read as a list of things rather than
+as an offer, and that is what the block had become: a wide button, a link alone
+on its own line beneath it, then a two-line remark. The middle band was there
+because the store's name made the button too wide to keep a link beside it in
+four of the ten languages, which was the wrong problem to solve by adding a row.
+The note also repeated itself: "menu bar, widgets" is what the lede two
+paragraphs above already says in a whole sentence.
+
+**Cost.** The source link is now small, grey and third in a line, where it used
+to be a sentence of its own next to the button — fewer people will follow it, and
+this is a public repository whose author would rather they did. A 12.5 px mono
+link with a 12 px mark is also a smaller target than a 14.5 px one, which is
+worth knowing on a phone.

@@ -19,9 +19,15 @@
          the lane with the self-updater and the one this repository builds,
          and a second pill beside the first is the shape this page has
          refused from the start. -->
-    <p class="cta"><a class="download" href="https://apps.apple.com/app/id6811539739">{{index.cta_appstore}}</a>
-       <a class="source" href="https://github.com/milushov/softcap"><svg width="17" height="17" aria-hidden="true"><use href="#gh-mark"/></svg>{{index.cta_source}}</a></p>
-    <p class="note">{{index.note}} ·&nbsp;<a href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">{{index.note_direct}}</a></p>
+    <p class="cta"><a class="download" href="https://apps.apple.com/app/id6811539739">{{index.cta_appstore}}</a></p>
+    <!-- One button and one line under it. The source link used to have a band of
+         its own between the two, and three stacked bands for one action read as
+         a list of things rather than as an offer. What the note used to add —
+         "menu bar, widgets" — the lede two paragraphs up already says, so the
+         line is down to the requirement and the two ways past the button.
+         A non-breaking space after each bullet: they introduce what follows and
+         should never be left ending a line, or opening one alone. -->
+    <p class="note">{{index.note}} ·&nbsp;<a class="source" href="https://github.com/milushov/softcap"><svg width="12" height="12" aria-hidden="true"><use href="#gh-mark"/></svg>{{index.cta_source}}</a> ·&nbsp;<a href="https://github.com/milushov/softcap/releases/latest/download/Softcap.dmg">{{index.note_direct}}</a></p>
     </div>
 
     <!-- `autocomplete="off"` on every radio, and it is load-bearing: a

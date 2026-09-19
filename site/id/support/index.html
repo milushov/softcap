@@ -121,23 +121,14 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius
 .download:hover{filter:brightness(1.07);text-decoration:none}
 .download:active{transform:translateY(1px)}
 .download:focus-visible{outline-offset:3px}
-/* Deliberately not a second button. The page asks for one thing, and a link
-   beside the button wearing the button's own shape asks for two — so this one
-   keeps the weight of body text and earns its place by the mark alone. */
-.source{
-  display:inline-flex;align-items:center;gap:8px;
-  font-size:14.5px;font-weight:500;letter-spacing:-.01em;
-  color:var(--fg-2);text-decoration:none;
-}
-.source:hover{color:var(--fg);text-decoration:underline;
-  text-decoration-color:color-mix(in srgb,var(--fg) 35%,transparent)}
-.source svg{display:block;flex:none}
-/* On a line of its own, always. Naming the store made the button 60 to 80 px
-   wider in every language, and the row stopped fitting in four of the ten —
-   English by nine pixels, Russian by nineteen, Bengali by thirty-one, French by
-   forty-eight. Left to `flex-wrap` that is the worst of both: a composition
-   that rearranges itself when the reader changes language. */
-.cta .source{flex-basis:100%}
+/* Still deliberately not a second button — and no longer a band of its own
+   either. Naming the store made the button too wide to keep a link beside it in
+   four of the ten languages, and a link given its own line between the button
+   and the note turned one offer into three stacked rows. It sits in the note
+   now and keeps only the mark, which is what earned it its place; the type is
+   the note's, because a 14.5 px sans link inside a 12.5 px mono line reads as
+   two lines pretending to be one. */
+.source svg{width:12px;height:12px;vertical-align:-2px;margin-right:5px}
 .wrap{max-width:980px;margin:0 auto;padding:0 28px}
 .rule{height:1px;background:var(--line);border:0;margin:0}
 
@@ -199,6 +190,7 @@ header{padding:34px 0 0}
 .hero.split h1{font-size:clamp(28px,3.3vw,41px);max-width:19ch;margin-bottom:18px}
 .hero.split .lede{max-width:42ch}
 .hero.split .cta{margin-top:26px}
+.hero.split .note{margin-top:18px}
 
 /* ---------- the gallery ---------- */
 .shots input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
@@ -786,7 +778,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Apa yang dibutuhkan</h2>
-      <p>macOS 14 atau lebih baru. Aplikasi iPhone memerlukan iOS 17 atau lebih baru. Satu akun penyedia — Claude atau Codex — yang masuk lewat peramban.</p>
+      <p>macOS 14 atau lebih baru. Satu akun penyedia — Claude atau Codex — yang masuk lewat peramban.</p>
     </section>
     <section>
       <h2>Membuka aplikasi untuk pertama kali</h2>

@@ -105,11 +105,22 @@ import ClaudeProvider
 
         let visibleNamesMac = try Self.visibleSays("macOS \(mac)")
         #expect(visibleNamesMac, "the landing does not tell a reader it needs macOS \(mac)")
+
+        // The iPhone app is no longer offered, and the page stopped naming it on
+        // 20 September. The package still builds for iOS, so the floor above is
+        // still read — what changed is the direction this asks in: the page must
+        // name what it offers, and may not offer what the package cannot build.
+        // Advertising iOS while the page says nothing about a phone is the fault
+        // now, and it is the one a reinstated `iOS 17` in the markup would be.
         let visibleNamesIOS = try Self.visibleSays("iOS \(ios)")
-        #expect(visibleNamesIOS, "the landing does not tell a reader the phone app needs iOS \(ios)")
+        let markupNamesIOS = try Self.page().contains("iOS \(ios)")
+        #expect(markupNamesIOS == visibleNamesIOS, """
+            the page and its structured data disagree about the phone: one names \
+            iOS \(ios) and the other does not
+            """)
 
         let markupAgrees = try Self.page()
-            .contains("\"operatingSystem\":\"macOS \(mac), iOS \(ios)\"")
+            .contains("\"operatingSystem\":\"macOS \(mac)\"")
         #expect(markupAgrees, "the structured data names a different system than the manifest sets")
 
         // Two build systems describe the same floor, and only one of them is the
