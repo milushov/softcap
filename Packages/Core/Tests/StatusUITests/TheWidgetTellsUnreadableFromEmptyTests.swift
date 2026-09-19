@@ -134,16 +134,45 @@ import Preferences
     /// where the app truthfully found nothing.
     @Test func eachStateKeepsItsOwnWords() throws {
         let view = try String(contentsOf: Self.widgetView, encoding: .utf8)
-        guard let unreadable = view.range(of: "private var unreadable") else {
-            Issue.record("the view for an unreadable container is gone")
-            return
+        let unreadable = try #require(Self.body(of: "private var unreadable", in: view),
+                                      "the view for an unreadable container is gone")
+        let empty = try #require(Self.body(of: "private var empty", in: view),
+                                 "the empty state is gone")
+
+        #expect(unreadable != empty, "the two states are drawn by one view again")
+        #expect(!unreadable.contains("No accounts found"), """
+            the state for a container that could not be read says "No accounts \
+            found" — which is the claim it exists to stop being made
+            """)
+        #expect(empty.contains("No accounts found"), "the honest empty state lost its words")
+    }
+
+    /// One declaration's body, by counting braces from its first one.
+    ///
+    /// The check this replaces compared `view[unreadable...]` against
+    /// `view[empty...]` — two suffixes of one file taken at different offsets,
+    /// which differ by their length alone. It passed however the two states
+    /// were drawn, including when one was a copy of the other, which is the
+    /// regression it names.
+    private static func body(of declaration: String, in source: String) -> Substring? {
+        guard let start = source.range(of: declaration) else { return nil }
+        var depth = 0
+        var opened: String.Index?
+        var index = start.upperBound
+        while index < source.endIndex {
+            switch source[index] {
+            case "{":
+                if depth == 0 { opened = index }
+                depth += 1
+            case "}":
+                depth -= 1
+                if depth == 0, let opened { return source[opened...index] }
+            default:
+                break
+            }
+            index = source.index(after: index)
         }
-        guard let empty = view.range(of: "private var empty") else {
-            Issue.record("the empty state is gone")
-            return
-        }
-        let separate = view[unreadable.lowerBound...] != view[empty.lowerBound...]
-        #expect(separate, "the two states are drawn by one view again")
+        return nil
     }
 
     private static var widgetView: URL {

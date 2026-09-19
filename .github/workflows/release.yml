@@ -157,15 +157,16 @@ jobs:
           security set-keychain-settings -lut 21600 "$KEYCHAIN"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
           echo "$CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          # Before the import rather than after it: an import that fails takes
+          # the step with it under `set -e`, and the decoded certificate would
+          # stay on the runner for everything that follows.
+          trap 'rm -P "$RUNNER_TEMP/cert.p12"' EXIT
           security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" \
             -P "$CERT_PASSWORD" -T /usr/bin/codesign
           # Without this codesign would stop for a UI prompt no runner can answer.
           security set-key-partition-list -S apple-tool:,apple:,codesign: \
             -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" > /dev/null
           security list-keychain -d user -s "$KEYCHAIN" login.keychain-db
-          # -P overwrites before unlinking: the runner is discarded anyway, but
-          # a private key should not outlive the step that needed it.
-          rm -P "$RUNNER_TEMP/cert.p12"
           echo "signed=true" >> "$GITHUB_OUTPUT"
 
       - name: Sign
@@ -229,6 +230,12 @@ jobs:
           # the run can clean it up rather than into a fixed directory.
           KEY="$RUNNER_TEMP/notary.p8"
           printf '%s\n' "$ASC_KEY_P8" > "$KEY"
+          chmod 600 "$KEY"
+          # On the way out however it goes. `set -e` and a rejected submission
+          # are the ordinary ways this step ends early, and a line at the bottom
+          # would leave the key on the runner for every step after it. Same
+          # idiom as the TestFlight upload below, for the same reason.
+          trap 'rm -P "$KEY"' EXIT
           notarise() {
             xcrun notarytool submit "$1" \
               --key "$KEY" --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER_ID" --wait
@@ -243,11 +250,6 @@ jobs:
           codesign --force --timestamp --sign "$SIGN_IDENTITY" "dist/Softcap-$V.dmg"
           notarise "dist/Softcap-$V.dmg"
           xcrun stapler staple "dist/Softcap-$V.dmg"
-
-          # Overwrites before unlinking, as the certificate import does: the
-          # runner is discarded anyway, but a private key should not outlive
-          # the step that needed it.
-          rm -P "$KEY"
 
           cp "dist/Softcap-$V.dmg" dist/Softcap.dmg
           cd dist && shasum -a 256 ./*.dmg ./*.zip > SHA256SUMS.txt

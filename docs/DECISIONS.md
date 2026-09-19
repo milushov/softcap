@@ -8664,3 +8664,25 @@ arriving code are all still demanded. And the rule is a function over two
 identities rather than a comparison inside the check, because the bundles cannot
 put the question here: a test can sign ad-hoc and has no certificate for the
 other side, so the truth table is where the guarantee lives.
+
+---
+
+## Correction: anonymity is a flag, not a missing name
+
+The entry above — "Nobody may be replaced by somebody" — describes the rule
+correctly and the first code for it did not. `identityMayChange(from:to:)` read
+`nil` as "ad-hoc", and `teamIdentifier(of:)` answers `nil` for three different
+things: an ad-hoc signature, a certificate carrying no team, and signing
+information this process could not read at all. So a copy re-signed locally by
+its owner — intact, identified to macOS, nameless to this check — had the guard
+dropped for it, and would have taken its next update from any team at all.
+
+It asks the signature now. `isAdHoc(_:)` reads `kSecCodeInfoFlags` and tests
+for `.adhoc`, and the rule takes that answer rather than inferring it. Signed
+and nameless is back to demanding the same nothing it had, which is what the
+entry above always said.
+
+Found by reading the change back against its own words. The truth table gained
+the row that distinguishes the two — `from: nil` with `whenRunningIsAnonymous:
+false` is refused — and one test puts the flag to a real ad-hoc bundle, which a
+test can make, unlike a certificate.

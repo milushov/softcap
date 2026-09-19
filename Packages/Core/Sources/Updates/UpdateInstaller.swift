@@ -200,7 +200,9 @@ public struct UpdateInstaller: Sendable {
 
         let running = Self.teamIdentifier(of: current)
         let arriving = Self.teamIdentifier(of: new)
-        guard Self.identityMayChange(from: running, to: arriving) else {
+        guard Self.identityMayChange(
+            from: running, to: arriving, whenRunningIsAnonymous: Self.isAdHoc(current)
+        ) else {
             throw UpdateFailure(kind: .signatureChanged,
                                 diagnostic: "signed by \(arriving ?? "nobody")")
         }
@@ -221,8 +223,32 @@ public struct UpdateInstaller: Sendable {
     /// instead, and that has always been accepted for an ad-hoc install. What
     /// stays refused is every direction that loses something: an identified copy
     /// replaced by an anonymous one, or by another team's.
-    static func identityMayChange(from running: String?, to arriving: String?) -> Bool {
-        running == nil || running == arriving
+    ///
+    /// Anonymity is a fact about the signature, not about a missing name. The
+    /// first version of this read "no team identifier" as "ad-hoc", and a team
+    /// is also absent from a signature this process could not parse and from a
+    /// certificate that carries no team at all — somebody who re-signed their
+    /// own copy locally would have had the guard quietly dropped for them, and
+    /// taken the next bundle from anybody.
+    static func identityMayChange(
+        from running: String?, to arriving: String?, whenRunningIsAnonymous anonymous: Bool
+    ) -> Bool {
+        anonymous || running == arriving
+    }
+
+    /// Whether the signature is ad-hoc — sealed, and identifying nobody.
+    static func isAdHoc(_ bundle: URL) -> Bool {
+        var code: SecStaticCode?
+        guard SecStaticCodeCreateWithPath(bundle as CFURL, [], &code) == errSecSuccess,
+              let code else { return false }
+        var information: CFDictionary?
+        guard SecCodeCopySigningInformation(
+                  code, SecCSFlags(rawValue: kSecCSSigningInformation), &information
+              ) == errSecSuccess,
+              let dictionary = information as? [String: Any],
+              let flags = dictionary[kSecCodeInfoFlags as String] as? UInt32
+        else { return false }
+        return SecCodeSignatureFlags(rawValue: flags).contains(.adhoc)
     }
 
     /// Whether the signature still matches what it covers.
@@ -277,15 +303,25 @@ public struct UpdateInstaller: Sendable {
                                 diagnostic: "nothing at the path this copy was launched from")
         }
 
+        // One name, not a fresh one each time. Nothing here can promise the
+        // removal below happens — the process can be killed between the two
+        // lines, and the unlink can fail on its own — and a probe named after a
+        // new UUID every attempt turns that into a pile of hidden files in
+        // `/Applications`. Named once, the worst case is a single empty file
+        // that the next attempt overwrites and clears.
         let probe = bundle.deletingLastPathComponent()
-            .appendingPathComponent(".softcap-update-probe-\(UUID().uuidString)")
+            .appendingPathComponent(".softcap-update-probe")
         do {
             // `.atomic` writes a neighbour and renames it, which is the pair of
             // operations `replace(_:with:)` needs the directory to allow.
             try Data().write(to: probe, options: .atomic)
         } catch {
-            throw UpdateFailure(kind: .notWritable,
-                                diagnostic: "nothing can be written beside the installed app")
+            // The reason, not just the refusal: a read-only mount and a full
+            // disk are the same sentence on screen and different things to do
+            // about it, and the log is where that difference can live.
+            throw UpdateFailure(
+                kind: .notWritable,
+                diagnostic: "nothing can be written beside the installed app: \(error)")
         }
         try? fileManager.removeItem(at: probe)
     }

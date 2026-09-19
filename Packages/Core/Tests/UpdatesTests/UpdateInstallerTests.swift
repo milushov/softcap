@@ -408,6 +408,25 @@ import ProviderKit
                 "the archive was fetched before anyone asked where it would go")
     }
 
+    /// The flag the rule above is asked about, put to a real bundle.
+    ///
+    /// The truth table cannot reach this half: it is a fact about a signature,
+    /// and a test can make exactly one kind — the ad-hoc kind, which is also
+    /// the one every published build carries.
+    @Test func anadHocSignatureIsRecognisedAsAnonymous() throws {
+        let scratch = try scratch()
+        defer { try? FileManager.default.removeItem(at: scratch) }
+
+        let signed = try makeBundle(
+            in: try subdirectory("signed", of: scratch), version: "0.1.47", signed: true)
+        #expect(UpdateInstaller.isAdHoc(signed))
+
+        // And not claimed of a bundle with no signature at all, which is the
+        // other way a team identifier goes missing.
+        let bare = try makeBundle(in: try subdirectory("bare", of: scratch), version: "0.1.47")
+        #expect(!UpdateInstaller.isAdHoc(bare))
+    }
+
     /// The downloaded archive is gone once the install has finished.
     ///
     /// It is the megabytes, and it is the one with a seam to hold on to: the
@@ -571,25 +590,39 @@ import ProviderKit
 @Suite struct WhoMayReplaceWhom {
 
     @Test func anonymousStaysAcceptableToAnonymous() {
-        #expect(UpdateInstaller.identityMayChange(from: nil, to: nil))
+        #expect(UpdateInstaller.identityMayChange(
+            from: nil, to: nil, whenRunningIsAnonymous: true))
     }
 
     /// The transition this was written for: every copy installed so far is
     /// ad-hoc, and the first signed release has to be installable by them.
     @Test func anonymousAcceptsSomebodyIdentified() {
-        #expect(UpdateInstaller.identityMayChange(from: nil, to: "A1B2C3D4E5"))
+        #expect(UpdateInstaller.identityMayChange(
+            from: nil, to: "A1B2C3D4E5", whenRunningIsAnonymous: true))
     }
 
     @Test func thesameTeamGoesOnReplacingItself() {
-        #expect(UpdateInstaller.identityMayChange(from: "A1B2C3D4E5", to: "A1B2C3D4E5"))
+        #expect(UpdateInstaller.identityMayChange(
+            from: "A1B2C3D4E5", to: "A1B2C3D4E5", whenRunningIsAnonymous: false))
     }
 
     /// The direction that loses something, and the one this check exists for.
     @Test func anidentifiedCopyRefusesAnanonymousOne() {
-        #expect(!UpdateInstaller.identityMayChange(from: "A1B2C3D4E5", to: nil))
+        #expect(!UpdateInstaller.identityMayChange(
+            from: "A1B2C3D4E5", to: nil, whenRunningIsAnonymous: false))
     }
 
     @Test func anidentifiedCopyRefusesAdifferentTeam() {
-        #expect(!UpdateInstaller.identityMayChange(from: "A1B2C3D4E5", to: "F6G7H8I9J0"))
+        #expect(!UpdateInstaller.identityMayChange(
+            from: "A1B2C3D4E5", to: "F6G7H8I9J0", whenRunningIsAnonymous: false))
+    }
+
+    /// A missing team is not the same as an ad-hoc signature, and reading it as
+    /// one dropped the guard for somebody who had re-signed their own copy with
+    /// a certificate carrying no team: the next bundle could then arrive from
+    /// anybody. Signed and nameless still demands the same nothing it has.
+    @Test func asignatureWithNoTeamIsNotTreatedAsAnonymous() {
+        #expect(!UpdateInstaller.identityMayChange(
+            from: nil, to: "A1B2C3D4E5", whenRunningIsAnonymous: false))
     }
 }
