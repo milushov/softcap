@@ -32,6 +32,13 @@ every storefront this app is localised for, in September 2026, they say the same
 thing: the audience for a Claude Code and Codex usage monitor searches in
 English wherever it lives.
 
+The questions can be asked again — `python3 tools/aso_research.py hints ru
+клод` for the completions, `rivals us "claude usage"` for what answers a term
+today, `rank us "claude usage"` for where this app sits in the answer. On the
+day the listing was written, `rank` said *nowhere in the first fifty* for
+`claude usage`, `ai usage`, `codex usage` and `claude code`, and first for
+`softcap`. That is the number this work is measured against.
+
 In the Russian storefront `claude code`, `ai usage tracker` and `codex usage`
 all complete; `клод код` completes to nothing at all, `лимит` completes to
 screen-time apps and `токен` to crypto wallets. Spanish `límite`, French
