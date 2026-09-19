@@ -209,3 +209,4 @@
 "The running copy of Softcap has been moved or deleted, so it cannot replace itself. Download the new version yourself." = "La copie de Softcap en cours d'exécution a été déplacée ou supprimée, elle ne peut donc pas se remplacer. Téléchargez la nouvelle version vous-même.";
 "Data not readable" = "Données illisibles";
 "Open Softcap to see your limits." = "Ouvrez Softcap pour voir vos limites.";
+"%@ Settings" = "Réglages de %@";

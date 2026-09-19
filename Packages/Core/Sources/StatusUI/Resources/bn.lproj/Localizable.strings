@@ -209,3 +209,4 @@
 "The running copy of Softcap has been moved or deleted, so it cannot replace itself. Download the new version yourself." = "চালু থাকা Softcap-এর কপিটি সরানো হয়েছে বা মুছে ফেলা হয়েছে, তাই সেটি নিজেকে বদলাতে পারছে না। নতুন সংস্করণ নিজে ডাউনলোড করুন।";
 "Data not readable" = "ডেটা পড়া যায়নি";
 "Open Softcap to see your limits." = "আপনার সীমা দেখতে Softcap খুলুন।";
+"%@ Settings" = "%@ সেটিংস";

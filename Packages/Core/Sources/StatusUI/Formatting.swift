@@ -25,6 +25,29 @@ public extension Localization {
         }
     }
 
+    /// The settings window's own title: `Softcap Settings`, `Настройки Softcap`.
+    ///
+    /// macOS writes this title itself, in the *system's* language — so a Russian
+    /// interface opened on an English Mac was headed `Softcap Settings` while
+    /// every label under it read Russian. The app chooses its language, so it
+    /// spells its own title. The name is a placeholder because the languages
+    /// put it in different places, and it is a brand rather than a word: it is
+    /// not translated.
+    func settingsWindowTitle(_ app: String) -> String {
+        String(format: self("%@ Settings"), app)
+    }
+
+    /// The day a chart's axis is labelled with: `14 Sep`, `14 сент.`, `١٤ سبتمبر`.
+    ///
+    /// The locale is named here rather than left to the environment because
+    /// Swift Charts does not read the environment for it. `SettingsView` sets
+    /// `\.locale` for everything inside it and the axis ignored it, spelling
+    /// its days in the system's language under all ten interfaces —
+    /// `DatesFollowTheChosenLanguage` holds it.
+    var chartDay: Date.FormatStyle {
+        .dateTime.day().month(.abbreviated).locale(activeLocale)
+    }
+
     /// A percentage spelled the way the language spells it.
     ///
     /// Not `"\(n)%"`: Russian, French and Spanish put a non-breaking space

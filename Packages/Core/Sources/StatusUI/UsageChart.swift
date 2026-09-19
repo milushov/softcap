@@ -185,7 +185,7 @@ public struct UsageChart: View {
         .chartXAxis {
             AxisMarks(values: .automatic(desiredCount: range == .week ? 7 : 5)) { value in
                 AxisGridLine()
-                AxisValueLabel(format: .dateTime.day().month(.abbreviated))
+                AxisValueLabel(format: loc.chartDay)
                     .font(.system(size: 9.5))
             }
         }

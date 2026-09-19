@@ -43,6 +43,10 @@ final class PreferencesModel: ObservableObject {
     /// the settings is the only one who knows the current value.
     private func applyLanguage() {
         Localization.shared.use(AppLanguage(code: value.languageCode))
+        // The settings window's title is written by macOS in the system's
+        // language; the app writes its own instead, and has to write it again
+        // here — a window already open keeps the title it was given.
+        SettingsWindow.retitle()
     }
 
     /// Light or dark, applied here and only here — the same lesson as the

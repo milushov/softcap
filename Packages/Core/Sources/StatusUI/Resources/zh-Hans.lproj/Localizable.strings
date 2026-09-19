@@ -209,3 +209,4 @@
 "The running copy of Softcap has been moved or deleted, so it cannot replace itself. Download the new version yourself." = "正在运行的 Softcap 已被移动或删除，因此无法替换自身。请自行下载新版本。";
 "Data not readable" = "无法读取数据";
 "Open Softcap to see your limits." = "打开 Softcap 查看用量上限。";
+"%@ Settings" = "%@ 设置";

@@ -1,4 +1,5 @@
 import AppKit
+import StatusUI
 
 /// Opening the settings window.
 ///
@@ -59,7 +60,19 @@ enum SettingsWindow {
         // minimised window is not brought back by `makeKeyAndOrderFront` alone.
         if window.isMiniaturized { window.deminiaturize(nil) }
         window.makeKeyAndOrderFront(nil)
+        retitle()
         watchForClose(window)
+    }
+
+    /// Puts the app's own language on the title bar.
+    ///
+    /// Called when the window opens and again whenever the language changes,
+    /// from the one place that applies a language — a title set only at opening
+    /// would stay in the old language for as long as the window was left open,
+    /// which is exactly how somebody changes a language: with the settings in
+    /// front of them. Silent when there is no window, which is the usual case.
+    static func retitle() {
+        existing()?.title = Localization.shared.settingsWindowTitle("Softcap")
     }
 
     /// Finds the settings item in the main menu and performs it.
