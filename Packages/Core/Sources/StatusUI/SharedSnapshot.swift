@@ -83,6 +83,38 @@ public struct SharedSnapshot: Codable, Sendable, Equatable {
     }
 }
 
+/// What was found where the app leaves its reading.
+///
+/// `read` answered `nil` for three different situations — a file nobody has
+/// written yet, a file this process is not allowed to open, and a file that is
+/// not a snapshot at all — and the widget drew one sentence for all three. Two
+/// of them are "the app has not said anything yet"; the middle one is "the app
+/// said something and it did not reach here", which is the opposite claim.
+///
+/// It is the common one on macOS. An ad-hoc signature carries no team, so the
+/// app group entitlement is not honoured, the container falls to the same guard
+/// as another program's files, and a widget is refused it without being asked.
+/// Somebody with four subscriptions was told they had none.
+public enum SnapshotReading: Sendable, Equatable {
+    /// The app's reading, whatever it holds — including no accounts at all.
+    /// That one is a fact about the accounts and may be shown as one.
+    case snapshot(SharedSnapshot)
+    /// Nothing has been written here. The app has never polled with a widget on
+    /// screen, which is ordinary before the first reading.
+    case nothingWritten
+    /// Something is there and this process cannot make sense of it: refused, or
+    /// not a snapshot. Nothing may be concluded about the accounts.
+    case unreadable
+
+    /// The snapshot when there is one, for the places that need the data and
+    /// have nothing different to say about the ways of not having it — the
+    /// language the widget draws itself in, before it knows what it is drawing.
+    public var snapshot: SharedSnapshot? {
+        guard case .snapshot(let snapshot) = self else { return nil }
+        return snapshot
+    }
+}
+
 /// Snapshot exchange between the app and the widget.
 ///
 /// An App Group container on both platforms. A plain path under `Application
@@ -190,6 +222,16 @@ public enum SharedStore {
         return read(from: url)
     }
 
+    /// The same look, with the three ways of finding nothing kept apart.
+    ///
+    /// No container at all counts as unreadable rather than as nothing written:
+    /// the app may have been writing for weeks, and this process simply has no
+    /// way to reach it. `url` has already said so in the log.
+    public static func reading() -> SnapshotReading {
+        guard let url else { return .unreadable }
+        return reading(from: url)
+    }
+
     /// The app's own copy — written on every poll, read at startup.
     public static func writeLocal(_ snapshot: SharedSnapshot) {
         guard let localURL else { return }
@@ -234,7 +276,46 @@ public enum SharedStore {
     }
 
     public static func read(from url: URL) -> SharedSnapshot? {
-        guard let data = try? Data(contentsOf: url) else { return nil }
-        return try? JSONDecoder().decode(SharedSnapshot.self, from: data)
+        guard case .snapshot(let snapshot) = reading(from: url) else { return nil }
+        return snapshot
+    }
+
+    public static func reading(from url: URL) -> SnapshotReading {
+        let data: Data
+        do {
+            data = try Data(contentsOf: url)
+        } catch {
+            return isAbsent(error) ? .nothingWritten : .unreadable
+        }
+        guard let snapshot = try? JSONDecoder().decode(SharedSnapshot.self, from: data) else {
+            // Reported, because it is the one outcome here with a bug behind it
+            // rather than a permission: the decoder above is built to survive a
+            // snapshot from any other build, so reaching this means the file is
+            // not one.
+            log.error("the snapshot at \(url.lastPathComponent, privacy: .public) did not decode")
+            return .unreadable
+        }
+        return .snapshot(snapshot)
+    }
+
+    /// Whether the failure means there is nothing at that path, as opposed to
+    /// something this process may not open.
+    ///
+    /// Asked of the error rather than of `FileManager.fileExists`, which is the
+    /// obvious way round and the wrong one: the case this whole distinction
+    /// exists for is a container macOS refuses, where the existence check is
+    /// refused too and the file comes back absent — the exact answer that would
+    /// put "No accounts found" back on the screen.
+    private static func isAbsent(_ error: some Error) -> Bool {
+        let error = error as NSError
+        if error.domain == NSPOSIXErrorDomain { return error.code == Int(ENOENT) }
+        guard error.domain == NSCocoaErrorDomain else { return false }
+        if error.code == NSFileReadNoSuchFileError || error.code == NSFileNoSuchFileError {
+            return true
+        }
+        // Cocoa wraps the POSIX error it got; a code it has no name for arrives
+        // only as that.
+        let underlying = error.userInfo[NSUnderlyingErrorKey] as? NSError
+        return underlying?.domain == NSPOSIXErrorDomain && underlying?.code == Int(ENOENT)
     }
 }

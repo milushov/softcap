@@ -8549,6 +8549,70 @@ actually catches it.
 
 ---
 
+## 2026-09-19 — The widget tells a container it may not read from a list with nothing in it
+
+**Decision.** `SharedStore.reading()` answers with three states instead of an
+optional: the app's reading, nothing written yet, or unreadable. The widget
+draws its own view for the last one — "Data not readable", and a line pointing
+at the window, which reads the app's own copy and needs nobody's permission.
+`read()` stays as it was, for the iPhone widget and for the app's own copy,
+where the distinction buys nothing.
+
+**Why.** `read()` returned `nil` for three different situations, and the widget
+drew "No accounts found" for all of them. Two are "nobody has told us about any
+accounts yet", which that sentence says fairly. The third is "the app wrote a
+reading and this process was refused it", which is the opposite claim — and it
+was made to a person with four live subscriptions on the screen behind it.
+
+This log already holds the same mistake twice, both times about this file: the
+decoder was made field-by-field forgiving so that one unknown key could not
+answer "No accounts found", and the poll was made to ask whether the account
+list had been read before publishing an empty one. Both fixed a way of telling
+that lie. This fixes the last one, where the reading never arrived at all.
+
+**The refusal is not rare, and it is not the reader's fault.** Measured on a Mac
+with a release build installed. An ad-hoc signature carries no team, so:
+
+```
+trustd:   Entitlement com.apple.security.application-groups=(…) is ignored
+          because of invalid application signature or incorrect provisioning profile
+tccd:     Preventing prompt from Avocado widget … for service kTCCServiceSystemPolicyAppData
+sandboxd: kTCCServiceSystemPolicyAppData denied by TCC for SoftcapWidget
+```
+
+The entitlement being ignored drops the container to the same guard as another
+program's files. A widget extension is never allowed to raise that prompt
+itself, and the consent the app holds does not carry: the record is filed under
+the app's bundle identifier and the widget has its own. So on an ad-hoc build
+the widget is refused the container on every reload, with nothing on screen to
+say so.
+
+**Two earlier entries assumed otherwise, and neither is wrong about what it
+looked at.** "The group container is opened for the widget, and only for it"
+(2026-09-14) is about the app's *write* and the prompt it raises, and it settles
+that correctly; the widget's own read is not in it. "The macOS widget uses the
+app group too — a file never worked" (2026-08-30) says in its own last line that
+the widget rendering the data was not yet observed, and what it verified was a
+build signed with a real team certificate. Nothing measured then has been
+contradicted — the untested half simply turned out to be the half that fails.
+
+**Why the error is classified rather than the file checked.** The obvious way to
+tell "no file" from "refused" is to ask whether the file exists, and it is the
+wrong way round: in the case this exists for, the existence check is refused
+too, and the file comes back absent — the exact answer that would put "No
+accounts found" back on the screen. So `isAbsent` reads the error instead, and
+treats only `ENOENT` as nothing written. A file that will not decode counts as
+unreadable and is logged, because the decoder above it is built to survive a
+snapshot from any other build: reaching that branch means the file is not one.
+
+**Cost.** Two strings in ten catalogues and one more state in a view with very
+little room. The widget still shows no numbers on an ad-hoc release — this
+stops it claiming something false about the accounts, and does not make the
+container reachable. What would is a signing identity with a team behind it,
+which is a decision about the release lane and is not made here.
+
+---
+
 ## 2026-09-19 — Notarisation signs in with the key that is already here
 
 **Decision.** The Developer ID gate asks for four secrets and the App Store

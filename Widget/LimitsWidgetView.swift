@@ -22,7 +22,7 @@ struct LimitsWidgetView: View {
     init(entry: LimitsEntry) {
         self.entry = entry
         let localization = Localization()
-        localization.use(AppLanguage(code: entry.snapshot?.languageCode))
+        localization.use(AppLanguage(code: entry.reading.snapshot?.languageCode))
         self.loc = localization
     }
 
@@ -40,13 +40,19 @@ struct LimitsWidgetView: View {
 
     @ViewBuilder
     private var content: some View {
-        if let snapshot = entry.snapshot, !snapshot.accounts.isEmpty {
+        switch entry.reading {
+        case .snapshot(let snapshot) where !snapshot.accounts.isEmpty:
             switch family {
             case .systemSmall: compact(snapshot)
             default:           list(snapshot)
             }
-        } else {
+        // A reading that found no accounts, and a container the app has not
+        // written to yet, are both "nobody has told us about any accounts" —
+        // which is what the empty state says, and it is true of both.
+        case .snapshot, .nothingWritten:
             empty
+        case .unreadable:
+            unreadable
         }
     }
 
@@ -195,6 +201,30 @@ struct LimitsWidgetView: View {
             Text(loc("No accounts found"))
                 .font(.system(size: 11, weight: .medium))
             Text(loc("Open Softcap to load data."))
+                .font(.system(size: 9.5))
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// Said instead of the above when the reading did not arrive at all.
+    ///
+    /// The difference is the whole point: "No accounts found" is a conclusion
+    /// about somebody's subscriptions, and this widget is in no position to
+    /// draw it — the app may have read four of them a minute ago. So it reports
+    /// what happened to it, and sends the person where the numbers are, which
+    /// is the window: that one reads the app's own copy and needs nobody's
+    /// permission.
+    private var unreadable: some View {
+        VStack(spacing: 5) {
+            Image(systemName: "eye.slash")
+                .font(.system(size: 18))
+                .foregroundStyle(.secondary)
+            Text(loc("Data not readable"))
+                .font(.system(size: 11, weight: .medium))
+                .multilineTextAlignment(.center)
+            Text(loc("Open Softcap to see your limits."))
                 .font(.system(size: 9.5))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
