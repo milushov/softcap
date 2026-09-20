@@ -9080,3 +9080,52 @@ generator launched — and so does the activation. The 2026-09-18 note about a
 second copy retriggering the TCC dialog was the same fact from the other side:
 two processes with one name, and every tool that reaches for the name gets
 whichever it gets.
+
+---
+
+## 2026-09-21 — The store copy is told about a newer version, and the store installs it
+
+**Decision.** The App Store build checks for a newer version the way the disk
+image build does — at launch, once a day, and while the Updates screen is open,
+behind the same switch — but asks the App Store's own lookup record rather than
+GitHub's release feed, and offers no install. It says `Version 0.1.31 is on the
+App Store.` in the Updates screen, `Update to 0.1.31` in the menu and the
+settings footer, and its one button opens the app's page in the App Store,
+under a line saying the store will ask to quit Softcap first. `UpdateModel`
+carries the choice as `Channel`, fixed when the app is built; `StoreListing`
+reads the record; `Release.download` is optional, and `UpdateInstaller` refuses
+a release without one.
+
+**Why.** The store build had no Updates screen, no menu item and no check, on
+the reasoning — written at the time and correct as far as it went — that the
+store updates that copy. It does. It does not do it while the app is running:
+it asks the person to quit first, and its automatic updates wait for the same.
+A menu bar app that starts at login and is quit at the next restart is
+therefore updated by the store at the next restart, which for this app's
+audience is weeks, and nothing in the app said so. The one copy that could not
+update itself was the one copy never told an update existed.
+
+GitHub is not the source for that copy, because the two lanes are days apart.
+A release is on GitHub when the workflow ends and on the store when review
+ends; for those days the store copy would have been offering a version its
+owner could not have. The lookup record is what the store itself sells, a few
+hours behind the storefront, and that is the honest answer to "is there a
+newer one" for somebody who can only get it from there.
+
+The install button stays out. The sandbox forbids the swap, review would refuse
+it, and `install()` is refused by the channel before `UpdateInstaller` refuses
+the release for having nothing to download — so that the sentence a person
+meets is "the App Store installs it" and not "no build".
+
+**Cost.** One more host leaves the machine, and the privacy page now says so:
+its update sentence names both sources, in ten languages, and the date on it
+moved. The lookup is unauthenticated public data and carries nothing about the
+person, but it is a request this copy did not make yesterday. The store copy
+now has a Version row and a Last checked row that read as the disk image's,
+and the two lanes' Updates screens are one pane with a channel switch inside
+it, which is one more `if` in a view that already had a switch over six
+states. And the announcement is as quiet as the other lane's — a menu item
+that changes its words, a footer that changes its words — which somebody who
+never opens the menu will not see. A notification was considered and not sent:
+the app's notifications are about limits, and a system banner about a version
+number is the interruption this app was built not to be.

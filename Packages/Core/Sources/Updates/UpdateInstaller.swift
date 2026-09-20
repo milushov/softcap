@@ -60,10 +60,18 @@ public struct UpdateInstaller: Sendable {
         let work = try scratchDirectory()
         defer { try? FileManager.default.removeItem(at: work) }
 
+        // The App Store's releases carry no files: the store installs them.
+        // One cannot reach this installer through the interface, and the
+        // refusal is here so that it cannot reach it any other way either.
+        guard let download = release.download else {
+            throw UpdateFailure(kind: .malformedRelease,
+                                diagnostic: "release \(release.version) has nothing to download")
+        }
+
         progress(.downloading(0))
         let archive: URL
         do {
-            archive = try await downloader.download(release.archive) {
+            archive = try await downloader.download(download.archive) {
                 progress(.downloading($0))
             }
         } catch {
@@ -72,7 +80,7 @@ public struct UpdateInstaller: Sendable {
         defer { try? FileManager.default.removeItem(at: archive) }
 
         progress(.verifying)
-        try await verify(archive, of: release)
+        try await verify(archive, of: download)
 
         let unpacked = try unpack(archive, into: work)
         try check(unpacked, isSoftcapAt: release.version)
@@ -84,10 +92,10 @@ public struct UpdateInstaller: Sendable {
 
     // MARK: - verifying
 
-    private func verify(_ archive: URL, of release: Release) async throws {
+    private func verify(_ archive: URL, of download: Release.Download) async throws {
         let published: Checksums
         do {
-            let (data, status) = try await http.get(release.checksums, headers: [:])
+            let (data, status) = try await http.get(download.checksums, headers: [:])
             // Not reaching the sums is not the same as the sums disagreeing.
             // Both were reported as a mismatch, so an outage or a rate limit
             // told the reader their download had been tampered with.
@@ -105,9 +113,9 @@ public struct UpdateInstaller: Sendable {
             throw Self.networkFailure(error)
         }
 
-        guard let expected = published.digest(for: release.archiveName) else {
+        guard let expected = published.digest(for: download.archiveName) else {
             throw UpdateFailure(kind: .checksumMismatch,
-                                diagnostic: "no line for \(release.archiveName)")
+                                diagnostic: "no line for \(download.archiveName)")
         }
 
         let actual = try Checksums.digest(ofFileAt: archive)

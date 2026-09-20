@@ -94,14 +94,35 @@ struct UpdatesPane: View {
         case .available(let release):
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    Text(String(format: loc("Version %@ is available."),
+                    Text(String(format: loc(UpdateModel.channel == .appStore
+                                            ? "Version %@ is on the App Store."
+                                            : "Version %@ is available."),
                                 release.version.description))
                         .font(.system(size: 12.5, weight: .medium))
                     Spacer()
-                    Button(String(format: loc("Update to %@"), release.version.description)) {
-                        Task { await updates.install() }
+                    // The store copy cannot install anything: the store does,
+                    // from its own page, and only once the app has been quit.
+                    // So the button goes there, and the line under it says
+                    // what will happen next — a person who opens the store,
+                    // presses Update and is told to close the app should have
+                    // been told here first.
+                    switch UpdateModel.channel {
+                    case .github:
+                        Button(String(format: loc("Update to %@"), release.version.description)) {
+                            Task { await updates.install() }
+                        }
+                        .keyboardShortcut(.defaultAction)
+                    case .appStore:
+                        Button(loc("Open the App Store")) {
+                            NSWorkspace.shared.open(updates.pageToOpen)
+                        }
+                        .keyboardShortcut(.defaultAction)
                     }
-                    .keyboardShortcut(.defaultAction)
+                }
+                if UpdateModel.channel == .appStore {
+                    Text(loc("The App Store installs it, and asks you to quit Softcap first."))
+                        .font(.system(size: 11)).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 if !release.notes.isEmpty { notes(release.notes) }
                 // Its own row, the way `.failed` carries its two.
@@ -134,7 +155,8 @@ struct UpdatesPane: View {
                 HStack {
                     checkButton
                     // A way out that does not depend on the updater working.
-                    Button(loc("Open the release page")) {
+                    Button(loc(UpdateModel.channel == .appStore
+                               ? "Open the App Store" : "Open the release page")) {
                         NSWorkspace.shared.open(updates.pageToOpen)
                     }
                 }
@@ -200,7 +222,9 @@ struct UpdatesPane: View {
     private func sentence(for kind: UpdateFailure.Kind) -> String {
         switch kind {
         case .network:
-            loc("GitHub could not be reached. Check the connection and try again.")
+            loc(UpdateModel.channel == .appStore
+                ? "The App Store could not be reached. Check the connection and try again."
+                : "GitHub could not be reached. Check the connection and try again.")
         case .malformedRelease:
             loc("The newest release has no build to download.")
         case .checksumMismatch:

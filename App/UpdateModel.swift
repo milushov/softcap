@@ -15,6 +15,22 @@ import Updates
 @MainActor
 final class UpdateModel: ObservableObject {
 
+    /// Where a newer version is looked for, and what is done about one.
+    ///
+    /// The copy from GitHub reads GitHub's release feed and installs what it
+    /// finds. The copy from the App Store reads the store's record and only
+    /// says so: the store installs its own releases — and not while the app is
+    /// running, which for a menu bar app means never, unless somebody is told.
+    /// Decided when the app is built, because the two are different programs
+    /// with one codebase, not one program with a setting.
+    enum Channel { case github, appStore }
+
+    #if APPSTORE
+    static let channel = Channel.appStore
+    #else
+    static let channel = Channel.github
+    #endif
+
     enum State: Equatable {
         case idle
         case checking
@@ -77,7 +93,10 @@ final class UpdateModel: ObservableObject {
     var versionText: String { runningVersion?.description ?? "—" }
 
     var releasePage: URL {
-        Repository.releases
+        switch Self.channel {
+        case .github:   Repository.releases
+        case .appStore: Storefront.inStore
+        }
     }
 
     /// Where the escape hatch goes: the page of the release that was being
@@ -87,6 +106,9 @@ final class UpdateModel: ObservableObject {
     /// `/releases/latest` — so an install of 0.1.47 that failed could send
     /// somebody to 0.1.48 to download it by hand.
     var pageToOpen: URL {
+        // The store's record names its web page; the Update button is in the
+        // App Store app, so that is where the store copy sends a person.
+        if Self.channel == .appStore { return releasePage }
         if case .available(let release) = state { return release.page }
         if case .installing = state { return releasePage }
         return offered?.page ?? releasePage
@@ -219,22 +241,29 @@ final class UpdateModel: ObservableObject {
             return
         }
 
-        let url = ReleaseFeed.latestURL(owner: Repository.owner, repository: Repository.name)
         do {
-            let (data, status) = try await http.get(url, headers: [
-                "Accept": "application/vnd.github+json",
-            ])
-            // A 404 carries two answers at once: nothing has been published,
-            // and the repository is not one this caller can see. An
-            // unauthenticated request cannot tell them apart and the screen says
-            // the same thing either way — so the status goes to the log, where
-            // somebody wondering why a check never finds anything can read it.
-            // It was a private repository the first time this mattered.
-            if status == 404 {
-                Self.log.info("releases: 404, so nothing published or nothing visible")
+            let found: Release?
+            switch Self.channel {
+            case .github:
+                let url = ReleaseFeed.latestURL(owner: Repository.owner, repository: Repository.name)
+                let (data, status) = try await http.get(url, headers: [
+                    "Accept": "application/vnd.github+json",
+                ])
+                // A 404 carries two answers at once: nothing has been published,
+                // and the repository is not one this caller can see. An
+                // unauthenticated request cannot tell them apart and the screen
+                // says the same thing either way — so the status goes to the
+                // log, where somebody wondering why a check never finds anything
+                // can read it. It was a private repository the first time this
+                // mattered.
+                if status == 404 {
+                    Self.log.info("releases: 404, so nothing published or nothing visible")
+                }
+                found = try ReleaseFeed.update(from: data, status: status, running: running)
+            case .appStore:
+                let (data, status) = try await http.get(Storefront.lookup, headers: [:])
+                found = try StoreListing.update(from: data, status: status, running: running)
             }
-
-            let found = try ReleaseFeed.update(from: data, status: status, running: running)
             recordCheck?(now)
             lastChecked = now
             settle(on: found, announcing: announcing)
@@ -317,6 +346,11 @@ final class UpdateModel: ObservableObject {
 
     func install() async {
         guard case .available(let release) = state else { return }
+        // The store copy never shows the button that calls this; the guard is
+        // for the day something else does. `UpdateInstaller` would refuse the
+        // release anyway — it has nothing to download — but "the App Store
+        // installs it" is the sentence to end on, not "no build to download".
+        guard Self.channel == .github else { return }
 
         let bundle = Bundle.main.bundleURL
         let installer = UpdateInstaller(downloader: downloader, http: http)

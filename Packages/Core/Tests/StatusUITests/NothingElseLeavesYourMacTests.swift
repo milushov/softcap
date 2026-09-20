@@ -47,6 +47,8 @@ import Foundation
             "localhost":           "the loopback the PKCE redirect comes back to",
             "api.github.com":      "the release feed, daily and while the update screen is open, switchable off",
             "github.com":          "the release page, and the build a release publishes",
+            "itunes.apple.com":    "the App Store's own record of the newest version — the store copy's release feed, on the same schedule and the same switch",
+            "apps.apple.com":      "the App Store page the store copy sends a person to; nothing is fetched from it",
             "sentry.softcap.app":  "where a failure is described, scrubbed, and switchable off",
         ]
 

@@ -115,12 +115,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             // most it changes the words on a menu item and in the settings
             // footer.
             //
-            // Not in the App Store build: there updates arrive through
-            // TestFlight and the store, and a binary that replaces itself
-            // would fail review — and could not swap a sandboxed bundle anyway.
-            #if !APPSTORE
+            // In both lanes. The App Store build used to skip it — the store
+            // updates that copy, and a binary that replaces itself would fail
+            // review — but the store will not update an app that is running,
+            // and this one always is. So the store copy asks the store, and
+            // says what it found; it still installs nothing. `UpdateModel.Channel`.
             updates.startChecking()
-            #endif
 
             #if SCREENSHOTS
             stageScreenshot()

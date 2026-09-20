@@ -210,3 +210,7 @@
 "Data not readable" = "Données illisibles";
 "Open Softcap to see your limits." = "Ouvrez Softcap pour voir vos limites.";
 "%@ Settings" = "Réglages de %@";
+"Version %@ is on the App Store." = "La version %@ est sur l'App Store.";
+"Open the App Store" = "Ouvrir l'App Store";
+"The App Store installs it, and asks you to quit Softcap first." = "C'est l'App Store qui l'installe, et il demandera d'abord de quitter Softcap.";
+"The App Store could not be reached. Check the connection and try again." = "Impossible de joindre l'App Store. Vérifiez la connexion et réessayez.";

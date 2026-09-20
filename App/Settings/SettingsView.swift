@@ -34,15 +34,12 @@ struct SettingsView: View {
         .task { await model.load() }
     }
 
-    /// The App Store build has no Updates screen: those builds are updated by
-    /// TestFlight and the store, not by the app.
-    private var visibleSections: [SettingsSection] {
-        #if APPSTORE
-        SettingsSection.allCases.filter { $0 != .updates }
-        #else
-        SettingsSection.allCases
-        #endif
-    }
+    /// Every section, in both lanes. The App Store build used to hide Updates
+    /// on the grounds that the store updates it — which is true, and which the
+    /// store does not do while the app is running, so a menu bar app that is
+    /// never quit was never told. The screen is back; what it offers there is
+    /// the store's page rather than an install. See `UpdateModel.Channel`.
+    private var visibleSections: [SettingsSection] { SettingsSection.allCases }
 
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 1) {
@@ -82,13 +79,11 @@ struct SettingsView: View {
     private var footer: some View {
         HStack(spacing: 6) {
             Spacer()
-            #if !APPSTORE
             Button(footerTitle) { appModel.settingsSection = .updates }
                 .buttonStyle(.plain)
                 .font(.system(size: 11.5))
                 .foregroundStyle(.secondary)
             Text(verbatim: "·").font(.system(size: 11.5)).foregroundStyle(.secondary)
-            #endif
             Text(updates.versionText)
                 .font(.system(size: 11.5))
                 .monospacedDigit()
@@ -112,24 +107,12 @@ struct SettingsView: View {
                 case .appearance:    AppearancePane(model: model, appModel: appModel)
                 case .notifications: NotificationsPane(model: model, appModel: appModel)
                 case .polling:       PollingPane(model: model)
-                // Empty in a store build, with every other route to it.
-                //
-                // The sidebar filters this section out, the footer button and
-                // the menu item are both `#if !APPSTORE`, and `startChecking()`
-                // never runs. This case alone was reachable in principle, and it
-                // stopped being harmless the day rendering the pane became a
-                // request: a store build stamps no check at all, so `isStale`
-                // would find every single open overdue — in a sandboxed app that
-                // cannot install an update and promises never to ask about one.
-                //
-                // The case stays so the switch stays exhaustive; what it builds
-                // is what changes.
-                case .updates:
-                    #if APPSTORE
-                    EmptyView()
-                    #else
-                    UpdatesPane(updates: updates, model: model)
-                    #endif
+                // The same pane in both lanes; the pane itself knows which
+                // channel it is on. It was `EmptyView()` in a store build, with
+                // every route to it closed, on the reasoning that the store
+                // installs updates — see the comment on `visibleSections` for
+                // why that reasoning was half of the picture.
+                case .updates:       UpdatesPane(updates: updates, model: model)
                 case .services:      ServicesPane(model: model)
                 case .contribute:    ContributePane()
                 case .about:         AboutPane(model: model, appModel: appModel)

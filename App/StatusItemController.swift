@@ -451,8 +451,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
         // Reads as an offer once there is one to make. This change, and the
         // same one in the settings footer, is the whole of how loudly a found
-        // update announces itself.
-        #if !APPSTORE
+        // update announces itself — in both lanes: the store copy is told the
+        // same way, and opens a screen that sends it to the store.
         let update = NSMenuItem(
             title: updates.availableVersion.map {
                 String(format: Localization.shared("Update to %@"), $0.description)
@@ -461,7 +461,6 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         )
         update.target = self
         menu.addItem(update)
-        #endif
 
         menu.addItem(.separator())
 

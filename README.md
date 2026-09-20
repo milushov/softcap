@@ -52,9 +52,11 @@ A disk image for macOS 14 and later. Released 20 September 2026 — [all version
 <!-- download:end -->
 
 Or from the [Mac App Store](https://apps.apple.com/app/id6811539739) — the
-same app, sandboxed and updated by the store instead of by itself. The disk
-image above is the lane this repository builds, and the one that carries the
-in-app updater.
+same app, sandboxed and updated by the store instead of by itself. That copy
+still checks for a newer version, against the store's own record, and says so
+in the menu and on the Updates screen; the store does the installing, and asks
+to quit Softcap first. The disk image above is the lane this repository builds,
+and the one that carries the in-app updater.
 
 ### Opening it the first time
 
@@ -134,7 +136,7 @@ browser once, and then holds a credential of its own.
 | Mac widgets | All four sizes: small, medium, large, extra large; data comes from the app |
 | Demo | Sample accounts with limits filling and resetting, shown until you sign in; switched on the Accounts screen |
 | Statistics | Weekly-limit charts over the last week or month, built from the readings the app has taken |
-| Updates | GitHub check daily by default, and again while Settings → Updates is open; installation starts from the menu or that screen |
+| Updates | A daily check by default, and again while Settings → Updates is open — against GitHub's release feed, or the App Store's record in the store copy; the disk-image copy installs from the menu or that screen, the store copy opens the App Store |
 
 Settings open with **⌘,**. Nine sections: Accounts, Statistics, Appearance,
 Notifications, Polling and launch, Updates, Services, Contribute, About and data.

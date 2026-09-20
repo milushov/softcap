@@ -210,3 +210,7 @@
 "Data not readable" = "Данные не читаются";
 "Open Softcap to see your limits." = "Откройте Softcap, чтобы увидеть лимиты.";
 "%@ Settings" = "Настройки %@";
+"Version %@ is on the App Store." = "Версия %@ уже в App Store.";
+"Open the App Store" = "Открыть App Store";
+"The App Store installs it, and asks you to quit Softcap first." = "Устанавливает её App Store — и сначала попросит закрыть Softcap.";
+"The App Store could not be reached. Check the connection and try again." = "Не удалось связаться с App Store. Проверьте соединение и попробуйте ещё раз.";
