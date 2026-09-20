@@ -38,12 +38,14 @@ import Foundation
             not among them
             """)
 
-        // The app's own languages, minus the one App Store Connect cannot take.
-        let spoken = Set(AppLanguage.allCases.map(\.rawValue))
-            .subtracting(["system", "bn"])
-        let listed = Set(found.map { $0.split(separator: "-").first.map(String.init) ?? $0 })
-        for language in spoken where !listed.contains(language.split(separator: "-").map(String.init)[0]) {
-            Issue.record("the app speaks \(language) and the store listing does not")
+        // The app's own languages, minus the one App Store Connect cannot take,
+        // compared by language alone: the app says `ar` and `es`, the store
+        // `ar-SA` and `es-ES`, and `pt-BR` is `pt-BR` on both sides.
+        func language(_ code: String) -> String { String(code.split(separator: "-")[0]) }
+        let spoken = Set(AppLanguage.allCases.map(\.rawValue)).subtracting(["system", "bn"])
+        let listed = Set(found.map(language))
+        for code in spoken where !listed.contains(language(code)) {
+            Issue.record("the app speaks \(code) and the store listing does not")
         }
     }
 

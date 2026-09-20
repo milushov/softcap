@@ -2,7 +2,7 @@
 """Takes the App Store screenshots, in every language the app speaks.
 
     make screenshots                       # build the app this photographs
-    python3 tools/store_screenshots.py     # ~45 pictures, about four minutes
+    python3 tools/store_screenshots.py     # 45 photographs, 50 pictures, ~6 min
 
 Five screens, nine languages, one build. The language is a setting, so a run
 hands it to the app in `SOFTCAP_SHOT_LANG` and the app draws itself in it;
@@ -26,13 +26,12 @@ uses for the same screen. Both halves matter:
 
 The output is a directory per App Store locale, named the way App Store Connect
 names them, holding five 2880×1800 PNGs each — the size Apple asks for a Mac
-screenshot. They are not committed: fifty of them are 90 MB, and this script is
-what the repository keeps instead.
+screenshot. They are not committed: fifty of them are 400 MB, and this script
+is what the repository keeps instead.
 """
 
 import json
 import pathlib
-import shutil
 import subprocess
 import sys
 import time
@@ -74,9 +73,11 @@ RIGHT_TO_LEFT = {"ar"}
 
 
 def build(source: pathlib.Path, out: pathlib.Path) -> pathlib.Path:
-    """Compiles one of the two Swift helpers. Once per run, not once per picture."""
+    """Compiles one of the two Swift helpers — once per run, and again when the
+    source has changed since: a binary kept from last week's run draws last
+    week's design and says nothing about it."""
     binary = out / source.stem
-    if not binary.exists():
+    if not binary.exists() or binary.stat().st_mtime < source.stat().st_mtime:
         subprocess.run(["swiftc", "-O", str(source), "-o", str(binary)], check=True)
     return binary
 
@@ -116,7 +117,10 @@ def capture(language: str, screen: str, into: pathlib.Path, finder: pathlib.Path
         subprocess.run(["screencapture", "-x", "-o", f"-l{number}", str(into)], check=True)
     finally:
         app.terminate()
-        app.wait(timeout=10)
+        try:
+            app.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            app.kill()
     return into
 
 
@@ -130,14 +134,6 @@ def compose(shot: pathlib.Path, title: str, caption: str, language: str,
     into.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run([str(renderer), str(shot), str(into), language, title, caption],
                    check=True)
-
-
-def size(png: pathlib.Path) -> tuple[int, int]:
-    read = subprocess.run(["sips", "-g", "pixelWidth", "-g", "pixelHeight", str(png)],
-                          capture_output=True, text=True, check=True).stdout
-    numbers = [int(line.split(":")[1]) for line in read.splitlines() if ":" in line
-               and line.strip().startswith("pixel")]
-    return numbers[0], numbers[1]
 
 
 def main() -> int:

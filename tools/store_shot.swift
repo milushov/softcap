@@ -72,8 +72,9 @@ func draw(_ text: String, size fontSize: CGFloat, weight: NSFont.Weight,
           top: CGFloat, width: CGFloat, alpha: CGFloat, leading: CGFloat) -> CGFloat {
     let paragraph = NSMutableParagraphStyle()
     paragraph.alignment = .center
-    // Natural, not forced: the direction belongs to the language, and Arabic
-    // punctuation lands on the wrong end of the line when it is overruled.
+    // Set from the language rather than left to `.natural`, which reads the
+    // first strong character: an Arabic caption that opens with `Claude` would
+    // be laid out left to right and its full stop would land at the wrong end.
     paragraph.baseWritingDirection = rightToLeft ? .rightToLeft : .leftToRight
     paragraph.lineHeightMultiple = leading
 
@@ -90,13 +91,11 @@ func draw(_ text: String, size fontSize: CGFloat, weight: NSFont.Weight,
     let height = ceil(bounds.height)
     // Flipped: the numbers in this file measure down from the top, the way the
     // page they came from does, and AppKit measures up from the bottom.
-    string.draw(with: NSRect(x: (size_width - width) / 2, y: 900 - top - height,
+    string.draw(with: NSRect(x: (size.width - width) / 2, y: size.height - top - height,
                              width: width, height: height),
                 options: [.usesLineFragmentOrigin, .usesFontLeading])
     return height
 }
-
-let size_width: CGFloat = 1440
 
 let titleHeight = draw(title, size: 74, weight: .bold, top: 52, width: 1180,
                        alpha: 1, leading: language == "hi" || language == "bn" ? 1.24 : 1.04)
@@ -105,13 +104,15 @@ draw(caption, size: 30, weight: .regular, top: 52 + titleHeight + 18, width: 100
 
 // The window is never enlarged past its own pixels — the store shows these at
 // sizes where a scaled-up screenshot is visibly soft — and never taller than
-// the space left under the caption.
-let pixels = NSSize(width: CGFloat(window.representations[0].pixelsWide) / 2,
-                    height: CGFloat(window.representations[0].pixelsHigh) / 2)
-let scale = min(560 / pixels.height, 900 / pixels.width, 1.25)
-let drawn = NSSize(width: (pixels.width * scale).rounded(), height: (pixels.height * scale).rounded())
-let frame = NSRect(x: ((size_width - drawn.width) / 2).rounded(),
-                   y: 900 - 300 - drawn.height, width: drawn.width, height: drawn.height)
+// the space left under the caption. `window.size` is in points: screencapture
+// writes the display's density into the file, so a Retina photograph reports
+// half its pixels here and a 1× one all of them, and either is drawn at 1.25×
+// at most.
+let points = window.size
+let scale = min(560 / points.height, 900 / points.width, 1.25)
+let drawn = NSSize(width: (points.width * scale).rounded(), height: (points.height * scale).rounded())
+let frame = NSRect(x: ((size.width - drawn.width) / 2).rounded(),
+                   y: size.height - 300 - drawn.height, width: drawn.width, height: drawn.height)
 
 context.saveGState()
 context.setShadow(offset: CGSize(width: 0, height: -26), blur: 46,
@@ -122,4 +123,9 @@ context.restoreGState()
 NSGraphicsContext.restoreGraphicsState()
 
 guard let png = rep.representation(using: .png, properties: [:]) else { exit(1) }
-try! png.write(to: URL(fileURLWithPath: outPath))
+do {
+    try png.write(to: URL(fileURLWithPath: outPath))
+} catch {
+    FileHandle.standardError.write("store_shot: cannot write \(outPath): \(error)\n".data(using: .utf8)!)
+    exit(1)
+}

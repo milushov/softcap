@@ -59,7 +59,10 @@ SITE_LANGUAGE = {
 
 
 def links(locale: str) -> dict:
-    prefix = f"https://softcap.app/{SITE_LANGUAGE.get(locale, '')}"
+    if locale not in SITE_LANGUAGE:
+        raise SystemExit(f"{locale} has a listing but no entry in SITE_LANGUAGE — "
+                         "which page should its three links open?")
+    prefix = f"https://softcap.app/{SITE_LANGUAGE[locale]}"
     return {"marketingUrl": prefix,
             "supportUrl": f"{prefix}support/",
             "privacyPolicyUrl": f"{prefix}privacy/"}
@@ -127,16 +130,30 @@ def app_id() -> str:
     return found["data"][0]["id"]
 
 
+# The states in which App Store Connect lets the text be changed. Anything else
+# is either finished with — on sale, replaced, taken down — or locked while
+# Apple looks at it, and writing into a locked version is refused one field at a
+# time with a 409 that does not say why.
+EDITABLE = {"PREPARE_FOR_SUBMISSION", "READY_FOR_REVIEW", "DEVELOPER_REJECTED",
+            "REJECTED", "METADATA_REJECTED", "INVALID_BINARY",
+            "WAITING_FOR_EXPORT_COMPLIANCE"}
+FINISHED = {"READY_FOR_SALE", "REPLACED_WITH_NEW_VERSION", "REMOVED_FROM_SALE",
+            "DEVELOPER_REMOVED_FROM_SALE"}
+
+
 def editable_version(app: str, want: str | None) -> str:
     """The version being prepared, created if `want` names one that is not there."""
     versions = call("GET", f"/v1/apps/{app}/appStoreVersions?limit=20"
                            "&fields[appStoreVersions]=versionString,appStoreState")
     for version in versions["data"]:
+        number = version["attributes"]["versionString"]
         state = version["attributes"]["appStoreState"]
-        if state not in ("READY_FOR_SALE", "REPLACED_WITH_NEW_VERSION", "REMOVED_FROM_SALE",
-                         "DEVELOPER_REMOVED_FROM_SALE"):
-            print(f"editing version {version['attributes']['versionString']} ({state})")
+        if state in EDITABLE:
+            print(f"editing version {number} ({state})")
             return version["id"]
+        if state not in FINISHED:
+            raise SystemExit(f"version {number} is {state}: Apple has it, and its text is "
+                             "locked until review ends or it is pulled from review")
     if not want:
         raise SystemExit("every version is on sale and --version did not name a new one")
     made = call("POST", "/v1/appStoreVersions", {"data": {
@@ -152,7 +169,7 @@ def editable_info(app: str) -> str:
     """The `appInfo` that is not the one describing what is on sale."""
     infos = call("GET", f"/v1/apps/{app}/appInfos")
     for info in infos["data"]:
-        if info["attributes"].get("appStoreState") not in ("READY_FOR_SALE", "REPLACED_WITH_NEW_VERSION"):
+        if info["attributes"].get("appStoreState") in EDITABLE:
             return info["id"]
     raise SystemExit("no editable appInfo — is there a version in preparation?")
 

@@ -30,7 +30,7 @@ import Foundation
         // 14 September 2026, 12:00 UTC — a day and a month that are spelled
         // differently in each of the three, and far from a month boundary so no
         // time zone can move it.
-        let day = Date(timeIntervalSince1970: 1_789_128_000)
+        let day = Date(timeIntervalSince1970: 1_789_387_200)
 
         localization.use(.english)
         let english = day.formatted(localization.chartDay)
