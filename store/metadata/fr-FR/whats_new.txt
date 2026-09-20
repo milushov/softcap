@@ -2,3 +2,4 @@
 • Une ligne de la fenêtre minimale est un bouton : cliquez sur la période et la ligne affiche l'autre, jusqu'à la fermeture de la fenêtre.
 • Une liste de comptes verrouillée par macOS peut être rouverte, au lieu d'être refusée définitivement.
 • Les dates du graphique de statistiques et le titre de la fenêtre des réglages suivent désormais la langue choisie dans Softcap, et non celle du Mac.
+• La copie venue de l'App Store signale désormais qu'une version plus récente est sur l'App Store — dans le menu, en bas des réglages et sur l'écran des mises à jour, qui ouvre la boutique. C'est toujours l'App Store qui installe.

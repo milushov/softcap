@@ -2,3 +2,4 @@
 • Una fila de la ventana mínima es un botón: pulsa el periodo y la fila muestra el otro, hasta que se cierre la ventana.
 • Una lista de cuentas que macOS ha bloqueado se puede volver a abrir, en vez de quedar rechazada para siempre.
 • Las fechas de la gráfica de estadísticas y el título de la ventana de ajustes siguen ahora el idioma elegido en Softcap, no el del Mac.
+• La copia del App Store ahora avisa cuando hay una versión más nueva en el App Store: en el menú, en el pie de los ajustes y en la pantalla de actualizaciones, que abre la tienda. La instalación la sigue haciendo el App Store.

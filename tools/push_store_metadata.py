@@ -17,8 +17,10 @@ halves behave differently:
   which is why `--version` exists: it creates the next one if it is not there,
   and that is the only thing here that changes what Apple will review.
 
-Nothing is submitted for review. This writes the listing and stops; a person
-presses the button.
+Nothing is submitted for review unless `--submit` is passed. Without it this
+writes the listing and stops; with it, the version — text, screenshots, the
+build it carries — goes to App Review, which is the one thing here that cannot
+be taken back by running it again. The flag is the person pressing the button.
 
 The three ASC_ variables are read from the environment and never written down:
 they name an Apple account, and this repository publishes everything in it.
@@ -209,6 +211,39 @@ def attach_latest_build(app: str, version: str) -> None:
     raise SystemExit("no build has finished processing yet")
 
 
+def submit(app: str, version: str) -> None:
+    """Sends the version to App Review.
+
+    Three calls, because that is how the store's own page does it: a review
+    submission for the platform, the version as its one item, and then the
+    submission marked submitted. A submission already open — somebody pressed
+    the button on the website an hour ago — is reused rather than duplicated,
+    which is what the store would refuse anyway.
+    """
+    open_ones = call("GET", f"/v1/reviewSubmissions?filter[app]={app}&filter[platform]=MAC_OS"
+                            "&filter[state]=READY_FOR_REVIEW,WAITING_FOR_REVIEW,IN_REVIEW,UNRESOLVED_ISSUES")
+    if open_ones["data"]:
+        state = open_ones["data"][0]["attributes"]["state"]
+        raise SystemExit(f"a review submission is already {state}; nothing sent")
+
+    submission = call("POST", "/v1/reviewSubmissions", {"data": {
+        "type": "reviewSubmissions",
+        "attributes": {"platform": "MAC_OS"},
+        "relationships": {"app": {"data": {"type": "apps", "id": app}}},
+    }})["data"]["id"]
+    call("POST", "/v1/reviewSubmissionItems", {"data": {
+        "type": "reviewSubmissionItems",
+        "relationships": {
+            "reviewSubmission": {"data": {"type": "reviewSubmissions", "id": submission}},
+            "appStoreVersion": {"data": {"type": "appStoreVersions", "id": version}},
+        },
+    }})
+    call("PATCH", f"/v1/reviewSubmissions/{submission}", {"data": {
+        "type": "reviewSubmissions", "id": submission, "attributes": {"submitted": True},
+    }})
+    print("submitted for review")
+
+
 # MARK: - the text
 
 
@@ -348,6 +383,8 @@ def main() -> int:
     parser.add_argument("--text", action="store_true", help="write the text only")
     parser.add_argument("--build", action="store_true",
                         help="attach the newest processed build, and take its version number")
+    parser.add_argument("--submit", action="store_true",
+                        help="then send the version to App Review — the one step that cannot be undone")
     arguments = parser.parse_args()
 
     for name in ("ASC_KEY_ID", "ASC_ISSUER_ID", "ASC_KEY_PATH"):
@@ -363,7 +400,10 @@ def main() -> int:
     push_text(editable_info(app), version, only)
     if arguments.screenshots and not arguments.text:
         push_screenshots(version, arguments.screenshots, only)
-    print("written. Nothing was submitted for review.")
+    if arguments.submit:
+        submit(app, version)
+    else:
+        print("written. Nothing was submitted for review.")
     return 0
 
 

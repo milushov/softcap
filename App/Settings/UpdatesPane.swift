@@ -17,6 +17,10 @@ struct UpdatesPane: View {
 
     @ObservedObject private var loc = Localization.shared
 
+    /// The copy the store installs: it is told where the newer version is and
+    /// sent there, and never offered an install. See `UpdateModel.Channel`.
+    private var fromTheStore: Bool { UpdateModel.channel == .appStore }
+
     var body: some View {
         Pane(title: loc("Updates"),
              subtitle: loc("Where new versions come from, and when to look for one.")) {
@@ -94,9 +98,8 @@ struct UpdatesPane: View {
         case .available(let release):
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    Text(String(format: loc(UpdateModel.channel == .appStore
-                                            ? "Version %@ is on the App Store."
-                                            : "Version %@ is available."),
+                    Text(String(format: loc(fromTheStore ? "Version %@ is on the App Store."
+                                                         : "Version %@ is available."),
                                 release.version.description))
                         .font(.system(size: 12.5, weight: .medium))
                     Spacer()
@@ -119,7 +122,7 @@ struct UpdatesPane: View {
                         .keyboardShortcut(.defaultAction)
                     }
                 }
-                if UpdateModel.channel == .appStore {
+                if fromTheStore {
                     Text(loc("The App Store installs it, and asks you to quit Softcap first."))
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -155,8 +158,7 @@ struct UpdatesPane: View {
                 HStack {
                     checkButton
                     // A way out that does not depend on the updater working.
-                    Button(loc(UpdateModel.channel == .appStore
-                               ? "Open the App Store" : "Open the release page")) {
+                    Button(loc(fromTheStore ? "Open the App Store" : "Open the release page")) {
                         NSWorkspace.shared.open(updates.pageToOpen)
                     }
                 }
@@ -222,7 +224,7 @@ struct UpdatesPane: View {
     private func sentence(for kind: UpdateFailure.Kind) -> String {
         switch kind {
         case .network:
-            loc(UpdateModel.channel == .appStore
+            loc(fromTheStore
                 ? "The App Store could not be reached. Check the connection and try again."
                 : "GitHub could not be reached. Check the connection and try again.")
         case .malformedRelease:

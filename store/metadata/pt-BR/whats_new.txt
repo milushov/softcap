@@ -2,3 +2,4 @@
 • Uma linha da janela mínima é um botão: clique no período e a linha mostra o outro, até a janela fechar.
 • Uma lista de contas travada pelo macOS pode ser aberta de novo, em vez de ficar recusada para sempre.
 • As datas do gráfico de estatísticas e o título da janela de ajustes agora seguem o idioma escolhido no Softcap, não o do Mac.
+• A cópia da App Store agora avisa quando há uma versão mais nova na App Store — no menu, no rodapé dos ajustes e na tela de atualizações, que abre a loja. Quem instala continua sendo a App Store.

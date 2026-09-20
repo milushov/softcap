@@ -42,8 +42,8 @@ import Foundation
             UpdateModel no longer reads the App Store's record in the store lane
             """)
         let pane = try Self.app("Settings/UpdatesPane.swift")
-        #expect(!pane.contains("case .appStore:") || pane.contains("Open the App Store"), """
-            the store lane's Updates screen has no way to the store
+        #expect(pane.contains("Open the App Store") && pane.contains("updates.pageToOpen"), """
+            the store lane's Updates screen has no button that opens the store
             """)
         // The store copy must never offer to install: the sandbox forbids it and
         // review would refuse it. The install call is behind the channel.

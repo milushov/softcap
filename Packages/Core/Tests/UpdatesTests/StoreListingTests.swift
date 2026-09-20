@@ -54,13 +54,15 @@ import Foundation
         #expect(release.notes.isEmpty)
     }
 
+    /// Both are the store not answering, and the screen says so in one
+    /// sentence: `.network` is the kind whose sentence names the store.
     @Test func anythingButAnAnswerIsANetworkFailure() throws {
         let running = try #require(ReleaseVersion("0.1.25"))
-        #expect(throws: UpdateFailure.self) {
-            try StoreListing.update(from: Data(), status: 503, running: running)
-        }
-        #expect(throws: UpdateFailure.self) {
-            try StoreListing.update(from: Data("not json".utf8), status: 200, running: running)
+        for (data, status) in [(Data(), 503), (Data("not json".utf8), 200)] {
+            let failure = #expect(throws: UpdateFailure.self) {
+                try StoreListing.update(from: data, status: status, running: running)
+            }
+            #expect(failure?.kind == .network)
         }
     }
 

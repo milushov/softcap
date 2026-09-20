@@ -14,7 +14,7 @@ one of them is a diff rather than a form somebody filled in from memory.
 that has grown past four thousand characters fails the suite rather than the
 upload.
 
-Sending it:
+Sending it (and `--submit` to send the version to App Review afterwards):
 
     ASC_KEY_ID=… ASC_ISSUER_ID=… ASC_KEY_PATH=/path/AuthKey_….p8 \
         python3 tools/push_store_metadata.py --version 0.1.28 \
