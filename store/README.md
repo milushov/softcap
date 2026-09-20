@@ -22,7 +22,9 @@ Sending it:
 
 The screenshots come from `python3 tools/store_screenshots.py`, which
 photographs the app in each of its languages — `make screenshots` builds what it
-photographs. Neither script submits anything for review.
+photographs. Each of the five carries a one-word headline from
+`store/headlines.json` and, under it, the sentence the website's gallery uses
+for the same screen. Neither script submits anything for review.
 
 ## Why the keywords are in English in all ten
 

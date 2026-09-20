@@ -142,6 +142,48 @@ import Foundation
             """)
     }
 
+    /// Each of the five screenshots has a background of its own and a one-word
+    /// headline of its own, and the three files that know this — the screen
+    /// list in the generator, the palette in the renderer, the headlines — are
+    /// held to one set of names. The first store set had one background under
+    /// all five, which nothing here would have caught; the second had five
+    /// palettes keyed by name, which a renamed screen would fall out of and
+    /// come back as a refused run rather than a wrong picture.
+    @Test func everyScreenshotHasItsOwnBackgroundAndHeadline() throws {
+        let generator = try Self.tool("tools/store_screenshots.py")
+        let renderer = try Self.tool("tools/store_shot.swift")
+        let screens = Self.screenNames(in: generator)
+        #expect(screens.count == 5, "the generator lists \(screens.sorted())")
+
+        let painted = Self.screenNames(in: renderer)
+        #expect(painted == screens, "the renderer has backgrounds for \(painted.sorted())")
+
+        let data = try Data(contentsOf: Self.repositoryRoot.appendingPathComponent("store/headlines.json"))
+        let headlines = try JSONSerialization.jsonObject(with: data) as? [String: [String: String]] ?? [:]
+        #expect(Set(headlines.keys) == screens, "headlines exist for \(headlines.keys.sorted())")
+
+        let languages = Set(AppLanguage.allCases.map(\.rawValue)).subtracting(["system"])
+        for (screen, words) in headlines {
+            #expect(Set(words.keys) == languages, "\(screen) is headlined in \(words.keys.sorted())")
+            for (language, word) in words {
+                #expect(!word.isEmpty && word.count <= 14,
+                        "\(screen)/\(language): \"\(word)\" is not one short word")
+            }
+        }
+    }
+
+    private static func tool(_ path: String) throws -> String {
+        try String(contentsOf: repositoryRoot.appendingPathComponent(path), encoding: .utf8)
+    }
+
+    /// Every quoted `NN-name` in a source file — the screenshot names, and only
+    /// them. Anchored on the name's own shape rather than on pairs of quotes:
+    /// a scan that pairs quotes loses its footing at the first `\n` and comes
+    /// back with the text *between* the literals.
+    private static func screenNames(in source: String) -> Set<String> {
+        Set(source.matches(of: /"(0[1-5]-[a-z]+)"/).map { String($0.1) })
+    }
+
     private static func locales() throws -> Set<String> {
         let root = repositoryRoot.appendingPathComponent("store/metadata")
         let found = try FileManager.default.contentsOfDirectory(atPath: root.path)

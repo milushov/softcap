@@ -1,0 +1,62 @@
+{
+  "01-limits": {
+    "en": "Clear",
+    "zh-Hans": "一目了然",
+    "hi": "साफ़",
+    "es": "Claro",
+    "ar": "واضح",
+    "fr": "Clair",
+    "bn": "স্পষ্ট",
+    "pt-BR": "Claro",
+    "ru": "Ясно",
+    "id": "Jelas"
+  },
+  "02-accounts": {
+    "en": "Together",
+    "zh-Hans": "一起",
+    "hi": "एक साथ",
+    "es": "Juntas",
+    "ar": "معًا",
+    "fr": "Ensemble",
+    "bn": "একসাথে",
+    "pt-BR": "Juntas",
+    "ru": "Вместе",
+    "id": "Bersama"
+  },
+  "03-notifications": {
+    "en": "Ahead",
+    "zh-Hans": "提前",
+    "hi": "पहले से",
+    "es": "A tiempo",
+    "ar": "مسبقًا",
+    "fr": "À temps",
+    "bn": "আগেই",
+    "pt-BR": "A tempo",
+    "ru": "Заранее",
+    "id": "Lebih awal"
+  },
+  "04-statistics": {
+    "en": "Counted",
+    "zh-Hans": "有数",
+    "hi": "हिसाब",
+    "es": "Contado",
+    "ar": "محسوب",
+    "fr": "Compté",
+    "bn": "হিসাব",
+    "pt-BR": "Contado",
+    "ru": "Посчитано",
+    "id": "Terhitung"
+  },
+  "05-minimal": {
+    "en": "Quiet",
+    "zh-Hans": "安静",
+    "hi": "शांत",
+    "es": "Discreto",
+    "ar": "هادئ",
+    "fr": "Discret",
+    "bn": "শান্ত",
+    "pt-BR": "Discreto",
+    "ru": "Тихо",
+    "id": "Tenang"
+  }
+}

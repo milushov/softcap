@@ -9034,3 +9034,49 @@ to be a sentence of its own next to the button — fewer people will follow it, 
 this is a public repository whose author would rather they did. A 12.5 px mono
 link with a 12 px mark is also a smaller target than a 14.5 px one, which is
 worth knowing on a phone.
+
+---
+
+## Correction: five pictures, not one picture five times
+
+The entry above says the store pictures were composited "on the gradient", as
+if there were one. There were five. The teasers that had been on the store had
+a gradient apiece — blue to violet, magenta to orange, blue to teal, green,
+slate to black — and a one-word headline apiece — *Clear*, *Together*,
+*Counted*, *Ahead*, *Quiet* — with the sentence under it held to two lines. The
+first localised set was drawn from a look at the first of the five: the blue
+gradient under all fifty, the gallery's section name where the word had been,
+and the sentence on one line. On the store page, where the five sit side by
+side, that read as one picture repeated, and it was said so.
+
+It also carried a line. A radial light had been added under the window, and
+`NSGradient` draws a radial fill out to the corners of the rectangle it is
+given — so along the rectangle's top edge, a hundred points down, the light had
+not faded to nothing and the edge showed.
+
+The renderer now holds the five gradients, sampled along the diagonal of each
+original at five points, and no light. The headlines live in
+`store/headlines.json` in the ten languages — the store's alone, since the
+website has no use for a word with no sentence — and the caption under each is
+still the website's sentence, now balanced over two lines by narrowing its
+column until a third would be needed. The window is placed and scaled as the
+originals had it: the settings window at 1×, the minimal one at 2×. And the
+app is brought to the front before it is photographed, because whichever
+terminal runs the tool takes the focus back and the window was being
+photographed with three grey buttons where the originals have a red one.
+
+`everyScreenshotHasItsOwnBackgroundAndHeadline` holds the three files that
+know the five names to one set of names. It earned its place at once: the
+generator had put notifications third and statistics fourth, the palette and
+the headlines had them the other way round, and the first regeneration with
+five palettes stopped at the third picture.
+
+The second regeneration produced fifty pictures of the wrong application. The
+window was found by its owner's name, and the copy in /Applications is also
+called Softcap; it was running by then, with its settings open on the Updates
+pane offering the release the morning's push had just made, and the largest
+window named Softcap was that one. The finder takes a pid now — the one the
+generator launched — and so does the activation. The 2026-09-18 note about a
+second copy retriggering the TCC dialog was the same fact from the other side:
+two processes with one name, and every tool that reaches for the name gets
+whichever it gets.

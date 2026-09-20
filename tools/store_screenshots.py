@@ -22,7 +22,9 @@ uses for the same screen. Both halves matter:
   The caption comes from site/strings/<lang>.json, the same key the landing
   page's gallery uses. A screenshot in the store and a slide on the website are
   then one sentence translated once, and `SiteCataloguesAgree` is already
-  holding those ten files to the same key set.
+  holding those ten files to the same key set. The one-word headline above it
+  is the store's alone — `Clear`, `Together`, `Counted`, `Ahead`, `Quiet` —
+  and lives in store/headlines.json in the same ten languages.
 
 The output is a directory per App Store locale, named the way App Store Connect
 names them, holding five 2880×1800 PNGs each — the size Apple asks for a Mac
@@ -98,17 +100,29 @@ def capture(language: str, screen: str, into: pathlib.Path, finder: pathlib.Path
         # id is asked for until it exists, and then the picture waits: a capture
         # fired at the first frame catches the window mid-layout, with the
         # sidebar drawn and the pane still empty.
+        # By pid, both here and below: the copy in /Applications is also called
+        # Softcap, and when it has a window open, "the largest window named
+        # Softcap" is whichever of the two is bigger. Fifty pictures of the
+        # installed copy's Updates pane were made that way.
         found = ""
         for _ in range(60):
             time.sleep(0.4)
-            found = subprocess.run([str(finder), "Softcap"], capture_output=True,
+            found = subprocess.run([str(finder), str(app.pid)], capture_output=True,
                                    text=True).stdout.strip()
             if found:
                 break
         if not found:
             raise SystemExit(f"no window appeared for {language}/{screen}")
+        # Brought to the front, or the window is photographed inactive: three
+        # grey buttons in the corner where the originals have a red one. The
+        # app activates itself on launch, and whichever terminal runs this
+        # takes the focus straight back.
+        subprocess.run(["osascript", "-e",
+                        'tell application "System Events" to set frontmost of '
+                        f'(first process whose unix id is {app.pid}) to true'],
+                       capture_output=True)
         time.sleep(1.6)
-        found = subprocess.run([str(finder), "Softcap"], capture_output=True,
+        found = subprocess.run([str(finder), str(app.pid)], capture_output=True,
                                text=True).stdout.strip()
         number = found.split()[0]
         # -o leaves the shadow out: it is drawn again at composite time, where it
@@ -128,11 +142,11 @@ def strings(language: str) -> dict:
     return json.loads((HERE / f"site/strings/{language}.json").read_text(encoding="utf-8"))
 
 
-def compose(shot: pathlib.Path, title: str, caption: str, language: str,
+def compose(shot: pathlib.Path, screen: str, headline: str, caption: str, language: str,
             into: pathlib.Path, renderer: pathlib.Path) -> None:
-    """Puts one photographed window on the gradient, under its caption."""
+    """Puts one photographed window on its gradient, under its caption."""
     into.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run([str(renderer), str(shot), str(into), language, title, caption],
+    subprocess.run([str(renderer), str(shot), str(into), screen, language, headline, caption],
                    check=True)
 
 
@@ -150,6 +164,7 @@ def main() -> int:
     # One capture per language, shared by the locales that speak it: es-ES and
     # es-MX are the same Spanish, and photographing it twice would only mean two
     # chances for the clock in the corner to differ.
+    headlines = json.loads((HERE / "store/headlines.json").read_text(encoding="utf-8"))
     for language in sorted(set(LOCALES.values())):
         catalogue = strings(language)
         for name, screen, key in SCREENS:
@@ -157,7 +172,7 @@ def main() -> int:
             for locale, spoken in LOCALES.items():
                 if spoken != language:
                     continue
-                compose(raw, catalogue[f"index.{key}_name"],
+                compose(raw, name, headlines[name][language],
                         catalogue[f"index.{key}_caption"], language,
                         out / locale / f"{name}.png", renderer)
             print(f"  {language}/{name}", flush=True)
