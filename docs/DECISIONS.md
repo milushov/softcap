@@ -9129,3 +9129,46 @@ that changes its words, a footer that changes its words — which somebody who
 never opens the menu will not see. A notification was considered and not sent:
 the app's notifications are about limits, and a system banner about a version
 number is the interruption this app was built not to be.
+
+---
+
+## 2026-09-22 — A release opens with what changed, and a push that changed nothing publishes nothing
+
+**Decision.** The body of every GitHub release now opens with the subjects of
+the commits since the previous release that touched what the disk image is
+made of — `App/`, `Packages/` less its tests, `Widget/`, `Resources/`,
+`project.yml`, `Signing.xcconfig`, the release workflow and the two scripts
+that sign and package — oldest first, with `[skip ci]` trimmed and merge
+commits left out; then the commit and the day, linking to everything since
+the previous release. The same list decides whether there is a release at
+all: a push in which no commit touched those paths runs the tests and
+publishes nothing. A run started by hand always builds, and when nothing
+changed its notes say so. `tools/release_notes.py` answers both questions,
+and `EveryReleaseListsItsChanges` asks them in a repository it builds for
+the purpose.
+
+**Why.** Thirty-six releases, and not one said what was in it. The list was
+already written — every subject in this repository is the sentence a reader
+wants — and the pipeline was throwing it away and printing checksums, which
+is also what the app's Updates screen showed to somebody deciding whether to
+update. Reading the subjects out costs nothing to keep up; a changelog file
+would have been the same sentence written twice, and at one or two commits a
+release the second copy would have gone stale by the third release.
+
+The gate came out of trying the list on the last seven releases: four of
+them would have said "nothing in the app changed". They were the site, the
+store listing and the screenshot tooling — pushes that moved the version
+number, cost fifteen minutes of signing and notarisation, and had the updater
+offer everyone a download identical to the one they had. What a commit
+*touched* is the test, not how its subject reads: the commit that let the
+staleness badge shrink touched the landing page's mock, and the release it
+triggered was the app again.
+
+**Cost.** A change to the store lane's own tooling — `asc_preflight.py`, the
+export options — no longer exercises the TestFlight upload until the next
+change to the app; a run started by hand does. Two full-history checkouts per
+run instead of one shallow one, on a repository of forty megabytes. A commit
+that mixed an app change with tooling is listed under its subject as written,
+tooling flavour and all — the price of reading the list out rather than
+writing it twice. And the past stays as it was: the thirty-six bodies already
+published still say nothing, because the ask was for every future version.

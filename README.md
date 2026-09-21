@@ -99,7 +99,9 @@ xcodebuild -project Softcap.xcodeproj -scheme Softcap -configuration Debug \
 
 Unsigned builds cannot use the App Group for widget data and history storage.
 The [release workflow](.github/workflows/release.yml) builds macOS on pushes to
-`main` except documentation-only changes, then signs and packages a DMG and ZIP.
+`main` that change the app — the release notes list the commits that did — then
+signs and packages a DMG and ZIP. A push that changes only the site, the store
+listing or a tool runs the tests and publishes nothing.
 
 ## Accounts and usage
 

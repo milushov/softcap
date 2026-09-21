@@ -1,7 +1,7 @@
 # Every release lists what changed — design
 
 **Date:** 2026-09-22
-**Status:** approved
+**Status:** approved, implemented 2026-09-22
 
 ## The problem
 
