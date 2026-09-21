@@ -76,6 +76,98 @@ import Foundation
         #expect(notes.status == 2, "the notes were written from a shallow checkout")
     }
 
+    // MARK: the list
+
+    @Test func theCommitsThatChangedTheAppAreListedOldestFirst() throws {
+        let repo = try Fixture()
+        defer { repo.discard() }
+        try repo.commit("Start", touching: "App/Main.swift")
+        try repo.tag("v0.1.1")
+        try repo.commit("Let the badge shrink [skip ci]", touching: "App/Badge.swift")
+        try repo.commit("Rewrite the landing", touching: "site/index.html")
+        try repo.commit("Read the widget's folder", touching: "Widget/Reader.swift")
+        try repo.commit("Strengthen a guard",
+                        touching: "Packages/Core/Tests/StatusUITests/AGuardTests.swift")
+        try repo.commit("Sign with a timestamp", touching: "tools/sign_app.sh")
+        try repo.merge("Give the chart its dates", touching: "Packages/Core/Sources/Chart.swift")
+
+        let answer = try repo.tool("notes")
+        #expect(answer.status == 0, "\(answer.err)")
+        let listed = answer.out.split(separator: "\n").filter { $0.hasPrefix("- ") }
+        #expect(listed == [
+            "- Let the badge shrink",
+            "- Read the widget's folder",
+            "- Sign with a timestamp",
+            "- Give the chart its dates",
+        ], """
+            the list is not the commits that changed the app, oldest first, \
+            with the CI instruction trimmed and the merge commit left out
+            """)
+        #expect(!answer.out.contains("Merge topic"))
+    }
+
+    @Test func aRebuildSaysNothingChanged() throws {
+        let repo = try Fixture()
+        defer { repo.discard() }
+        try repo.commit("Start", touching: "App/Main.swift")
+        try repo.tag("v0.1.1")
+        try repo.commit("Rewrite the landing", touching: "site/index.html")
+
+        let answer = try repo.tool("notes")
+        #expect(answer.status == 0, "\(answer.err)")
+        #expect(answer.out.hasPrefix("Nothing in the app changed since 0.1.1"), "\(answer.out)")
+        #expect(!answer.out.contains("\n- "), "a rebuild lists something")
+    }
+
+    @Test func theReleasedCommitBuiltAgainIsARebuild() throws {
+        let repo = try Fixture()
+        defer { repo.discard() }
+        try repo.commit("Start", touching: "App/Main.swift")
+        try repo.tag("v0.1.1")
+
+        let answer = try repo.tool("notes")
+        #expect(answer.status == 0, "\(answer.err)")
+        #expect(answer.out.hasPrefix("Nothing in the app changed since 0.1.1"), "\(answer.out)")
+    }
+
+    @Test func theBodyNamesTheCommitAndLinksEverythingSinceTheLastRelease() throws {
+        let repo = try Fixture()
+        defer { repo.discard() }
+        try repo.commit("Start", touching: "App/Main.swift")
+        try repo.tag("v0.1.1")
+        try repo.commit("Let the badge shrink", touching: "App/Badge.swift")
+        let head = try repo.shortHead()
+
+        let linked = try repo.tool("notes", "--tag", "v0.1.2", "--repository", "owner/name")
+        #expect(linked.status == 0, "\(linked.err)")
+        let built = linked.out.split(separator: "\n").last.map(String.init) ?? ""
+        // The list, a blank line, then this — the shape the workflow appends to.
+        #expect(linked.out.contains("\n\nBuilt from `\(head)` on "), "\(linked.out)")
+        #expect(built.range(of: #"on \d{4}-\d{2}-\d{2} — "#, options: .regularExpression) != nil,
+                "\(built)")
+        #expect(built.hasSuffix(
+            "[everything since 0.1.1](https://github.com/owner/name/compare/v0.1.1...v0.1.2)."),
+            "\(built)")
+
+        // A preview at a terminal has no tag and no repository to link to.
+        let plain = try repo.tool("notes")
+        #expect(plain.status == 0, "\(plain.err)")
+        #expect(!plain.out.contains("compare/"), "\(plain.out)")
+        #expect(plain.out.range(of: #"Built from `[0-9a-f]{7}` on \d{4}-\d{2}-\d{2}\.$"#,
+                                options: .regularExpression) != nil, "\(plain.out)")
+    }
+
+    @Test func theFirstReleaseHasNothingToBeSince() throws {
+        let repo = try Fixture()
+        defer { repo.discard() }
+        try repo.commit("Start", touching: "App/Main.swift")
+
+        let answer = try repo.tool("notes", "--tag", "v0.1.1", "--repository", "owner/name")
+        #expect(answer.status == 0, "\(answer.err)")
+        #expect(answer.out.hasPrefix("Built from `"), "\(answer.out)")
+        #expect(!answer.out.contains("since"), "\(answer.out)")
+    }
+
     // MARK: -
 
     /// A git repository of its own, thrown away afterwards.

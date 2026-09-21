@@ -109,8 +109,35 @@ def changed():
 
 
 def notes(tag, repository):
-    """Task 2."""
-    raise NotImplementedError
+    """The top of the release body, written for two readers at once.
+
+    GitHub renders it under the version; the app's Updates screen shows the
+    same text in a box a few lines tall, interpreting inline Markdown only —
+    so the list is first, and there is no heading over it to print literally.
+    """
+    previous = previous_release()
+    lines = []
+    if previous is not None:
+        changes = changes_since(previous)
+        if changes:
+            lines.extend("- " + subject for subject in changes)
+        else:
+            lines.append(
+                "Nothing in the app changed since %s — the same sources, built again."
+                % version_of(previous)
+            )
+        lines.append("")
+
+    # UTC, as the README's download line is: a release is dated when it was
+    # published, not where the author was standing (DECISIONS, 2026-09-14).
+    today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    built = "Built from `%s` on %s" % (git("rev-parse", "--short=7", "HEAD"), today)
+    if previous is not None and tag and repository:
+        built += " — [everything since %s](https://github.com/%s/compare/%s...%s)" % (
+            version_of(previous), repository, previous, tag
+        )
+    lines.append(built + ".")
+    print("\n".join(lines))
 
 
 def main(argv):
