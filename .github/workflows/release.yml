@@ -1,6 +1,10 @@
 name: Release
 
-# Every push to main that touches the app produces a downloadable build. The
+# Every push to main that changes the app produces a downloadable build, and
+# the release notes open with the commits that changed it. A push that changed
+# nothing in the app — the site, the store listing, a tool — runs the tests and
+# publishes nothing: the version number would move and the app would not, and
+# the updater would offer everyone a download that changes nothing. The
 # README link never has to change: GitHub keeps
 # /releases/latest/download/<name> pointing at the newest release, so the
 # workflow uploads the disk image twice — once under its version, once under a
@@ -21,7 +25,8 @@ permissions:
   contents: write
 
 # Two releases building at once would race for the same tag and for the README
-# commit. Queue them instead of cancelling: every push to main deserves a build.
+# commit. Queue them instead of cancelling: every push that changes the app
+# deserves a build.
 concurrency:
   group: release
   cancel-in-progress: false
@@ -41,12 +46,47 @@ jobs:
       - name: Browser authentication lifecycle
         run: python3 tools/test_authentication.py
 
+  # Whether anything in the app changed since the previous release. The answer
+  # comes from the tool that writes the release notes, so what is listed and
+  # what is built are one question asked twice — a build that lists nothing
+  # cannot happen by accident, and neither can a list nobody built.
+  changes:
+    name: What changed
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.ask.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The previous release's tag, and the commits since it. The tool
+          # refuses a shallow checkout rather than read it as "no release yet".
+          fetch-depth: 0
+
+      - name: Ask the tool
+        id: ask
+        run: |
+          set -euo pipefail
+          # Two statements, not `echo "changed=$(…)"`: a substitution that
+          # fails inside an echo is an echo that succeeds, and the answer
+          # written would be empty rather than the step failing.
+          changed=$(python3 tools/release_notes.py changed)
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+          echo "Something in the app changed since the previous release: $changed"
+
   release:
     name: Build and publish
-    needs: test
+    needs: [test, changes]
+    # Only when something in the app changed — or on request, which is how a
+    # rebuild is asked for: a new certificate, a re-notarisation. GitHub puts
+    # success() in front of an `if` that names no status function, so a failed
+    # test job still blocks this one.
+    if: needs.changes.outputs.app == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The release notes are read from the history — see the changes job.
+          fetch-depth: 0
 
       - name: Install xcodegen
         run: brew install xcodegen
@@ -294,8 +334,13 @@ jobs:
         id: notes
         run: |
           set -euo pipefail
+          # The list first. The Updates screen in the app shows the top of this
+          # body in a box a few lines tall, and a checksum is not what somebody
+          # deciding whether to update wants to read there.
+          python3 tools/release_notes.py notes \
+            --tag "${{ steps.v.outputs.tag }}" \
+            --repository "${{ github.repository }}" > notes.md
           {
-            echo "Built from \`${GITHUB_SHA:0:7}\` on $(date -u '+%Y-%m-%d')."
             echo
             echo "**Install** — open the disk image and drag Softcap to Applications."
             echo
@@ -320,7 +365,7 @@ jobs:
             echo '```'
             cat dist/SHA256SUMS.txt
             echo '```'
-          } > notes.md
+          } >> notes.md
           cat notes.md
 
       - name: Publish the release

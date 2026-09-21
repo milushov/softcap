@@ -168,6 +168,70 @@ import Foundation
         #expect(!answer.out.contains("since"), "\(answer.out)")
     }
 
+    // MARK: the workflow
+
+    @Test func theBuildIsGatedOnTheToolsAnswer() throws {
+        let workflow = try Self.read(".github/workflows/release.yml", least: 20_000)
+        let changes = try Self.job("changes", in: workflow)
+        #expect(changes.contains("python3 tools/release_notes.py changed"),
+                "the changes job no longer asks the tool")
+        #expect(changes.contains("changed=$(python3 tools/release_notes.py changed)"), """
+            the answer is read inside an echo, where a tool that fails leaves \
+            an empty answer and a green step
+            """)
+
+        let release = try Self.job("release", in: workflow)
+        #expect(release.contains("needs: [test, changes]"),
+                "the release job no longer waits for the answer")
+        #expect(release.contains(
+            "if: needs.changes.outputs.app == 'true' || github.event_name == 'workflow_dispatch'"
+        ), "the release job builds whether or not the app changed, or cannot be asked for by hand")
+    }
+
+    @Test func bothJobsThatReadTheHistoryCheckItOut() throws {
+        let workflow = try Self.read(".github/workflows/release.yml", least: 20_000)
+        for name in ["changes", "release"] {
+            let job = try Self.job(name, in: workflow)
+            #expect(job.contains("fetch-depth: 0"), """
+                the \(name) job checks out one commit, and the tool refuses a \
+                shallow checkout — the run would fail at the first question
+                """)
+        }
+    }
+
+    @Test func theNotesLeadWithTheList() throws {
+        let workflow = try Self.read(".github/workflows/release.yml", least: 20_000)
+        let release = try Self.job("release", in: workflow)
+        guard let list = release.range(of: "tools/release_notes.py notes"),
+              let install = release.range(of: "**Install**") else {
+            Issue.record("the release notes step no longer runs the tool, or no longer says how to install")
+            return
+        }
+        #expect(list.lowerBound < install.lowerBound, """
+            the install paragraph comes before the list, and the Updates screen \
+            in the app shows the top of the body
+            """)
+        #expect(release.contains("--tag \"${{ steps.v.outputs.tag }}\""),
+                "the notes are written without the tag, so the compare link is missing")
+        #expect(release.contains("--repository \"${{ github.repository }}\""),
+                "the notes are written without the repository, so the compare link is missing")
+    }
+
+    /// The lines of one job: from `  name:` to the next two-space key.
+    private static func job(_ name: String, in workflow: String) throws -> String {
+        var lines: [Substring] = []
+        var inside = false
+        for line in workflow.split(separator: "\n", omittingEmptySubsequences: false) {
+            if line == "  \(name):" { inside = true; continue }
+            if inside, line.range(of: #"^  [a-z]+:$"#, options: .regularExpression) != nil { break }
+            if inside { lines.append(line) }
+        }
+        guard !lines.isEmpty else {
+            throw ScanIsLookingInTheWrongPlace(what: "\(name) job", found: 0, least: 1)
+        }
+        return lines.joined(separator: "\n")
+    }
+
     // MARK: -
 
     /// A git repository of its own, thrown away afterwards.
