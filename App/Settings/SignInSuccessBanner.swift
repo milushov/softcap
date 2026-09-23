@@ -33,8 +33,8 @@ struct SignInSuccessBanner: View {
                 Button { login.dismissSuccessNotice() } label: {
                     Image(systemName: "xmark").font(.system(size: 10, weight: .semibold))
                 }
-                .buttonStyle(.plain).foregroundStyle(.secondary)
-                .clickAffordance(inset: CGSize(width: 4, height: 4))
+                .buttonStyle(.clickable(inset: CGSize(width: 4, height: 4)))
+                .foregroundStyle(.secondary)
                 .accessibilityLabel(loc("Dismiss"))
                 .help(loc("Dismiss"))
             }

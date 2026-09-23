@@ -76,6 +76,52 @@ import Foundation
         #expect(notes.status == 2, "the notes were written from a shallow checkout")
     }
 
+    /// The gate compares two trees, not a list of commits, and this is why.
+    @Test func aMergeThatCarriesItsOwnChangeIsStillABuild() throws {
+        let repo = try Fixture()
+        defer { repo.discard() }
+        try repo.commit("Start", touching: "App/Main.swift")
+        try repo.tag("v0.1.1")
+        try repo.mergeCarrying("App/Resolved.swift")
+
+        let answer = try repo.tool("changed")
+        #expect(answer.status == 0, "\(answer.err)")
+        #expect(answer.out == "true", """
+            an app change carried by a merge commit itself — a conflict \
+            resolved by hand — reads as nothing to build, and the release is \
+            skipped with every step green
+            """)
+
+        // And the notes do not claim the opposite of what the gate just said.
+        let notes = try repo.tool("notes")
+        #expect(notes.status == 0, "\(notes.err)")
+        #expect(!notes.out.contains("Nothing in the app changed"), """
+            the body says nothing changed while the build it heads exists \
+            because something did
+            """)
+    }
+
+    /// A tag that survives a rewritten history describes nothing, and git says
+    /// so with an error. Read as "there has been no release" it would quietly
+    /// empty every release body from then on.
+    @Test func aTagThatDescribesNothingStopsTheRun() throws {
+        let repo = try Fixture()
+        defer { repo.discard() }
+        try repo.commit("Start", touching: "App/Main.swift")
+        try repo.tag("v0.1.1")
+        try repo.strandTheTag()
+
+        for command in ["changed", "notes"] {
+            let answer = try repo.tool(command)
+            #expect(answer.status == 2, """
+                `\(command)` answered \(answer.out) where the release tags \
+                cannot be reached from HEAD
+                """)
+            #expect(answer.err.contains("rewritten"),
+                    "the refusal does not say what it thinks happened")
+        }
+    }
+
     // MARK: the list
 
     @Test func theCommitsThatChangedTheAppAreListedOldestFirst() throws {
@@ -89,6 +135,10 @@ import Foundation
         try repo.commit("Strengthen a guard",
                         touching: "Packages/Core/Tests/StatusUITests/AGuardTests.swift")
         try repo.commit("Sign with a timestamp", touching: "tools/sign_app.sh")
+        // GitHub honours the marker anywhere in the subject, and this one is at
+        // the front, where an anchored trim leaves it on the release page.
+        try repo.commit("[skip ci] Re-sign with the new identity",
+                        touching: "Packages/Core/Sources/StatusUI/Signing.swift")
         try repo.merge("Give the chart its dates", touching: "Packages/Core/Sources/Chart.swift")
 
         let answer = try repo.tool("notes")
@@ -98,6 +148,7 @@ import Foundation
             "- Let the badge shrink",
             "- Read the widget's folder",
             "- Sign with a timestamp",
+            "- Re-sign with the new identity",
             "- Give the chart its dates",
         ], """
             the list is not the commits that changed the app, oldest first, \
@@ -117,6 +168,14 @@ import Foundation
         #expect(answer.status == 0, "\(answer.err)")
         #expect(answer.out.hasPrefix("Nothing in the app changed since 0.1.1"), "\(answer.out)")
         #expect(!answer.out.contains("\n- "), "a rebuild lists something")
+
+        let linked = try repo.tool("notes", "--tag", "v0.1.2", "--repository", "owner/name")
+        #expect(linked.status == 0, "\(linked.err)")
+        #expect(!linked.out.contains("compare/"), """
+            a rebuild offers everything since the last release under a sentence \
+            saying nothing since it changed — two answers to one question, and \
+            an empty comparison when HEAD is the tagged commit itself
+            """)
     }
 
     @Test func theReleasedCommitBuiltAgainIsARebuild() throws {
@@ -143,10 +202,13 @@ import Foundation
         let built = linked.out.split(separator: "\n").last.map(String.init) ?? ""
         // The list, a blank line, then this — the shape the workflow appends to.
         #expect(linked.out.contains("\n\nBuilt from `\(head)` on "), "\(linked.out)")
-        #expect(built.range(of: #"on \d{4}-\d{2}-\d{2} — "#, options: .regularExpression) != nil,
+        // Two sentences, not a clause hanging off the first: the app's Updates
+        // box strips the link and keeps the words, where a dangling "— \
+        // everything since 0.1.1." reads as an unfinished thought.
+        #expect(built.range(of: #"on \d{4}-\d{2}-\d{2}\. \["#, options: .regularExpression) != nil,
                 "\(built)")
         #expect(built.hasSuffix(
-            "[everything since 0.1.1](https://github.com/owner/name/compare/v0.1.1...v0.1.2)."),
+            "[Everything since 0.1.1](https://github.com/owner/name/compare/v0.1.1...v0.1.2)."),
             "\(built)")
 
         // A preview at a terminal has no tag and no repository to link to.
@@ -183,9 +245,16 @@ import Foundation
         let release = try Self.job("release", in: workflow)
         #expect(release.contains("needs: [test, changes]"),
                 "the release job no longer waits for the answer")
-        #expect(release.contains(
-            "if: needs.changes.outputs.app == 'true' || github.event_name == 'workflow_dispatch'"
-        ), "the release job builds whether or not the app changed, or cannot be asked for by hand")
+        #expect(release.contains("needs.changes.outputs.app == 'true'")
+                && release.contains("github.event_name == 'workflow_dispatch'"),
+                "the release job builds whether or not the app changed, or cannot be asked for by hand")
+        // The implied success() covers every entry in `needs`, so left implicit
+        // it gated the hand-started rebuild on the new job as well — the one
+        // run whose whole point is that it does not care what that job thinks.
+        #expect(release.contains("!cancelled()") && release.contains("needs.test.result"), """
+            the gate is back on the implied success(), so a `changes` job that \
+            fails for any reason takes the manual rebuild down with it
+            """)
     }
 
     @Test func bothJobsThatReadTheHistoryCheckItOut() throws {
@@ -324,8 +393,21 @@ import Foundation
             process.standardOutput = out
             process.standardError = err
             try process.run()
+            // Both pipes drained at once. Read one to the end and then the
+            // other, and a child that fills the pipe nobody is reading — a git
+            // that turns chatty with warnings, sixty-four kilobytes of them —
+            // waits for a reader that is itself waiting for the child. The
+            // test would hang rather than fail, and CI would kill the job with
+            // nothing to show for it.
+            let errSink = Sink()
+            let drained = DispatchSemaphore(value: 0)
+            DispatchQueue.global().async {
+                errSink.data = err.fileHandleForReading.readDataToEndOfFile()
+                drained.signal()
+            }
             let outData = out.fileHandleForReading.readDataToEndOfFile()
-            let errData = err.fileHandleForReading.readDataToEndOfFile()
+            drained.wait()
+            let errData = errSink.data
             process.waitUntilExit()
             return Answer(
                 status: process.terminationStatus,
@@ -333,6 +415,34 @@ import Foundation
                     .trimmingCharacters(in: .whitespacesAndNewlines),
                 err: String(decoding: errData, as: UTF8.self)
                     .trimmingCharacters(in: .whitespacesAndNewlines))
+        }
+
+        /// Somewhere for the other thread to put what it read.
+        private final class Sink: @unchecked Sendable { var data = Data() }
+
+        /// A merge that carries a change of its own — a conflict resolved by
+        /// hand, which belongs to the merge commit and to no other. `git log
+        /// --no-merges` cannot see it.
+        func mergeCarrying(_ path: String) throws {
+            try git("checkout", "-q", "-b", "sideline")
+            try commit("On the branch", touching: "site/branch.html")
+            try git("checkout", "-q", "main")
+            try commit("On the trunk", touching: "site/trunk.html")
+            try git("merge", "-q", "--no-ff", "--no-commit", "sideline")
+            let file = directory.appendingPathComponent(path)
+            try FileManager.default.createDirectory(
+                at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try "resolved\n".write(to: file, atomically: true, encoding: .utf8)
+            try git("add", "-A")
+            try git("commit", "-q", "-m", "Merge sideline")
+        }
+
+        /// A tag that describes nothing HEAD can reach, which is what a
+        /// rewritten history leaves behind.
+        func strandTheTag() throws {
+            try git("checkout", "-q", "--orphan", "elsewhere")
+            try git("rm", "-rq", "--cached", ".")
+            try commit("A history of its own", touching: "App/Main.swift")
         }
 
         struct GitRefused: Error, CustomStringConvertible {

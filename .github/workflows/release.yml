@@ -77,10 +77,18 @@ jobs:
     name: Build and publish
     needs: [test, changes]
     # Only when something in the app changed — or on request, which is how a
-    # rebuild is asked for: a new certificate, a re-notarisation. GitHub puts
-    # success() in front of an `if` that names no status function, so a failed
-    # test job still blocks this one.
-    if: needs.changes.outputs.app == 'true' || github.event_name == 'workflow_dispatch'
+    # rebuild is asked for: a new certificate, a re-notarisation.
+    #
+    # Spelled out rather than left to the implied success(). GitHub puts that in
+    # front of an `if` naming no status function, and it covers every entry in
+    # `needs` — so a `changes` job that failed for any reason at all took the
+    # hand-started rebuild down with it, which is the one run whose whole point
+    # is that it does not care what `changes` thinks. The tests still block
+    # both; that part was right.
+    if: >-
+      ${{ !cancelled() && needs.test.result == 'success'
+          && (needs.changes.outputs.app == 'true'
+              || github.event_name == 'workflow_dispatch') }}
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
@@ -510,12 +518,17 @@ jobs:
           python3 - "$V" "$TAG" "$REPO" <<'PY'
           import re, sys, datetime, pathlib
           version, tag, repo = sys.argv[1:4]
+          # UTC, like the release notes beside it and for the reason DECISIONS
+          # gives on 2026-09-14: a release is dated when it was published, not
+          # where the author was standing. A runner happens to be set to UTC,
+          # so `date.today()` was right by luck rather than by saying so.
+          today = datetime.datetime.now(datetime.timezone.utc).date()
           block = (
               "<!-- download:start -->\n"
               f"### [⬇︎ Download Softcap {version}]"
               f"(https://github.com/{repo}/releases/latest/download/Softcap.dmg)\n\n"
               f"A disk image for macOS 14 and later. Released "
-              f"{datetime.date.today():%d %B %Y} — "
+              f"{today:%d %B %Y} — "
               f"[all versions](https://github.com/{repo}/releases/tag/{tag}).\n"
               "<!-- download:end -->"
           )

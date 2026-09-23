@@ -27,11 +27,24 @@ import Foundation
             beside it leaves room, which differs by a digit from row to row
             """)
         for id in ["session", "weekly"] {
-            #expect(row.contains("Text(loc.windowTitle(\"\(id)\"))"), """
-                the sizing no longer measures the \(id) word, so a row showing \
-                it is as wide as the other word instead of as wide as both
+            // The call the hidden copy makes, not the text it contains: written
+            // as `Text(loc.windowTitle(…))` this passed on `periodText(…)` as a
+            // substring, which is the drift it was meant to catch.
+            #expect(row.contains("periodText(loc.windowTitle(\"\(id)\"))"), """
+                the sizing no longer measures the \(id) word through the same \
+                helper the label uses, so a font changed in one place measures \
+                the column at the other's size
                 """)
         }
+        // Inside `widestPeriod`, not anywhere in the file: the unclickable
+        // branch carries the same call, so a check for the bare string passed
+        // with the measuring copy stripped of it. Found by breaking it.
+        #expect(try Self.body(of: "private var widestPeriod").contains(
+            ".padded(by: Self.periodInset)"), """
+            the hidden copy is no longer padded the way the button pads its \
+            word — the column is then measured without the room the chip takes, \
+            and the clickable rows sit a chip's width off the rest
+            """)
     }
 
     @Test func thePercentageColumnIsAsWideAsAHundred() throws {
@@ -48,7 +61,10 @@ import Foundation
     /// ragged, which for a number is the wrong edge.
     @Test func bothColumnsAreFilledFromTheRight() throws {
         let row = try Self.row()
-        #expect(row.components(separatedBy: "ZStack(alignment: .trailing)").count - 1 == 2, """
+        // At least the two, rather than exactly them: a third measured column
+        // would be somebody adding to this, and turning one of the two back to
+        // leading is what this watches for — that drops the count to one.
+        #expect(row.components(separatedBy: "ZStack(alignment: .trailing)").count - 1 >= 2, """
             the two measured columns are no longer both trailing-aligned — a \
             number lines up on its last digit, not its first
             """)
@@ -73,6 +89,20 @@ import Foundation
             hidden copies that size the columns are now two words VoiceOver \
             reads on its way through the row
             """)
+    }
+
+    /// One declaration out of the row, from its opening line to the closing
+    /// brace at its own indentation.
+    private static func body(of declaration: String) throws -> String {
+        let row = try Self.row()
+        guard let start = row.range(of: declaration) else {
+            throw ScanIsLookingInTheWrongPlace(what: declaration, found: 0, least: 1)
+        }
+        let rest = row[start.upperBound...]
+        guard let end = rest.range(of: "\n    }") else {
+            throw ScanIsLookingInTheWrongPlace(what: declaration + " body", found: 0, least: 1)
+        }
+        return String(rest[..<end.lowerBound])
     }
 
     private static func row() throws -> String {

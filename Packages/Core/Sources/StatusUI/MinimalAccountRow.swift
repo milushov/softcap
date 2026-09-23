@@ -154,40 +154,46 @@ public struct MinimalAccountRow: View {
     private func periodLabel(_ window: LimitWindow) -> some View {
         if snapshot.hasAnotherPeriod {
             Button { peek = snapshot.peek(after: window, setting: choice) } label: {
-                periodText(window)
+                periodText(loc.windowTitle(window.id))
             }
-            .buttonStyle(.plain)
+            // The fill, the hand and the room they need, all inside the
+            // button — see `ClickableButton`. The room is why the two
+            // unclickable copies of this label below are padded to match:
+            // this is a column, and a row whose word sat where another row's
+            // did not would be the raggedness this change removed.
+            .buttonStyle(.clickable(inset: Self.periodInset))
             // The same line `SignInPrompt` and `quietButton` carry, for the
             // same reason: the first button in the popover otherwise opens
             // wearing the accent-coloured focus fill.
             .focusEffectDisabled()
-            // The fill and the hand, and with them the explicit forgetting of
-            // the hover that the popover being cached requires. See
-            // `ClickAffordance`, which also explains why it takes up no room:
-            // this label is a column, and a column that widened under the
-            // pointer would move the two beside it.
-            .clickAffordance()
         } else {
-            periodText(window)
+            periodText(loc.windowTitle(window.id)).padded(by: Self.periodInset)
         }
     }
 
-    private func periodText(_ window: LimitWindow) -> some View {
-        Text(loc.windowTitle(window.id))
+    /// What the period label is, wherever it is drawn — the button's own, the
+    /// unclickable one beside it, and the hidden pair that measures the column.
+    /// One declaration, because a font changed in one of four places measures
+    /// the column at the old size and the word overflows it.
+    private func periodText(_ title: String) -> some View {
+        Text(title)
             .font(.system(size: 10))
             .foregroundStyle(.secondary)
     }
 
     /// The period column's width: whichever of the two words is longer in the
-    /// language on screen. Drawn to be measured, never seen — the row collapses
-    /// into one spoken element, so there is nothing here for VoiceOver to read
-    /// twice.
+    /// language on screen, plus the room the button puts around it. Drawn to be
+    /// measured, never seen — the row collapses into one spoken element, so
+    /// there is nothing here for VoiceOver to read twice.
+    ///
+    /// The two identifiers are every one there is: `LimitWindow.id` is
+    /// documented in `ProviderKit.Models` as either `session` or `weekly`.
     private var widestPeriod: some View {
         ZStack {
-            Text(loc.windowTitle("session"))
-            Text(loc.windowTitle("weekly"))
+            periodText(loc.windowTitle("session"))
+            periodText(loc.windowTitle("weekly"))
         }
-        .font(.system(size: 10))
+        .padded(by: Self.periodInset)
     }
 
     /// The percentage column's, the same way: `100%` is the widest it goes.
@@ -196,6 +202,18 @@ public struct MinimalAccountRow: View {
             .font(.system(size: 11.5))
             .monospacedDigit()
     }
+
+    /// The room the period button puts around its word, which the two copies
+    /// that are not buttons have to match.
+    ///
+    /// Three points rather than the five every other button gets, and one
+    /// rather than two. Every point of it is a point the account name gives
+    /// up — the chip is inside the button, so the column is as wide as the
+    /// word plus this — and at five the longest name in the demo began to
+    /// truncate where it had not before. Three still reads as a chip around a
+    /// word of ten-point text; the row is the one place in the app where this
+    /// room is taken from something.
+    private static let periodInset = CGSize(width: 3, height: 1)
 
     /// Grey until it matters. `LimitBar` is not reused: it paints every
     /// percentage, which is right in the full window and is the one habit this

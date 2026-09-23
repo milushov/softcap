@@ -48,18 +48,38 @@ THE_APP = [
     "tools/make_dmg.sh",
 ]
 
-# Under Packages, and not in the build.
+# Inside one of those paths and not in the macOS build. `Resources/` holds the
+# phone's asset catalogue beside the Mac's, and a redrawn iOS icon would
+# otherwise publish a disk image identical to the last one — the harm the gate
+# exists to prevent, inverted. The same hole remains inside `project.yml`, which
+# declares the two iOS targets in the same file as the Mac ones: a pathspec
+# cannot see half a file, and splitting the project definition to close it would
+# cost more than the occasional wasted build.
 NOT_THE_APP = [
     "Packages/Core/Tests",
+    "Resources/iOSAssets.xcassets",
 ]
 
 # GitHub's five spellings of "run no workflow for this commit" — an instruction
 # to CI, not part of the change, and not for the reader.
+#
+# Unanchored, because GitHub honours the marker anywhere in the subject and this
+# repository's own habit of putting it last is a habit rather than a rule. Left
+# anchored to the end, `[skip ci] Re-sign with the new Developer ID` reached the
+# release page and the app's Updates box with the brackets still on, where the
+# markdown reader renders them as the wreckage of a link.
 SKIP_CI = re.compile(
-    r"\s*\[(?:skip ci|ci skip|no ci|skip actions|actions skip)\]\s*$", re.IGNORECASE
+    r"\s*\[(?:skip ci|ci skip|no ci|skip actions|actions skip)\]\s*", re.IGNORECASE
 )
 
 RELEASE_TAG = "v[0-9]*"
+
+
+def fail(message):
+    """Say what is wrong in one line, and stop. Exit 2, as the shallow refusal
+    does: the workflow treats it as "this question could not be answered"."""
+    print("release-notes: " + message, file=sys.stderr)
+    sys.exit(2)
 
 
 def git(*arguments):
@@ -67,6 +87,13 @@ def git(*arguments):
     return subprocess.run(
         ["git", *arguments], check=True, capture_output=True, text=True
     ).stdout.strip()
+
+
+def pathspecs():
+    """The app, as git pathspecs. `:(top)` makes each one relative to the
+    repository's root rather than to wherever the tool was run from."""
+    return ([":(top)" + path for path in THE_APP]
+            + [":(top,exclude)" + path for path in NOT_THE_APP])
 
 
 def refuse_a_shallow_checkout():
@@ -81,11 +108,25 @@ def refuse_a_shallow_checkout():
 
 
 def previous_release():
-    """The nearest version tag HEAD descends from, or None before the first."""
+    """The nearest version tag HEAD descends from, or None before the first.
+
+    A failure to describe is not the same answer as "there has been no release",
+    and treating it as one walks into the fault the shallow refusal above exists
+    to prevent, by another door: after a history rewrite — which this repository
+    has done twice — the tags survive without being ancestors of anything, git
+    answers "No tags can describe", and every release would quietly go back to
+    listing nothing. So the two are told apart by asking whether any release tag
+    exists at all.
+    """
     try:
         return git("describe", "--tags", "--abbrev=0", "--match", RELEASE_TAG, "HEAD")
     except subprocess.CalledProcessError:
-        return None
+        pass
+    if git("tag", "--list", RELEASE_TAG):
+        fail("there are release tags, and none of them describes HEAD — the history "
+             "was rewritten, or this branch grew from somewhere else. Nothing can be "
+             "said about what changed since the last release until that is sorted out.")
+    return None
 
 
 def version_of(tag):
@@ -94,18 +135,45 @@ def version_of(tag):
 
 
 def changes_since(tag):
-    """The subjects of the commits since `tag` that touched the app, oldest first."""
-    log = git(
-        "log", "--no-merges", "--reverse", "--format=%s", tag + "..HEAD", "--",
-        *(":(top)" + path for path in THE_APP),
-        *(":(top,exclude)" + path for path in NOT_THE_APP),
-    )
-    return [SKIP_CI.sub("", line) for line in log.splitlines() if line.strip()]
+    """The subjects of the commits since `tag` that touched the app, oldest first.
+
+    `--no-merges`, because "Merge remote-tracking branch 'origin/main'" tells a
+    reader nothing and the commits it brought in are in the range anyway. That
+    is also what makes this the wrong question to gate a build on — see
+    `app_changed_since`.
+
+    Emptiness is judged after the instruction to CI is trimmed, not before: a
+    commit whose whole subject is `[skip ci]` is a line in the log and nothing
+    at all to a reader, and judged before it would have been published as a
+    bullet with no words after it.
+    """
+    log = git("log", "--no-merges", "--reverse", "--format=%s", tag + "..HEAD", "--",
+              *pathspecs())
+    subjects = (SKIP_CI.sub(" ", line).strip() for line in log.splitlines())
+    return [subject for subject in subjects if subject]
+
+
+def app_changed_since(tag):
+    """Whether the tree differs from `tag` in anything the image is made of.
+
+    Two trees compared, not a list of commits counted, because the list leaves
+    merge commits out and a merge commit can carry a change of its own: a
+    conflict resolved by hand belongs to the merge and to nothing else. This
+    repository makes that shape routinely — CI pushes a README commit, the
+    author pulls — and a gate reading the list would have skipped such a
+    release with every step green.
+    """
+    answer = subprocess.run(["git", "diff", "--quiet", tag, "HEAD", "--", *pathspecs()],
+                            capture_output=True, text=True)
+    if answer.returncode in (0, 1):
+        return answer.returncode == 1
+    fail("git could not compare this checkout with %s: %s"
+         % (tag, answer.stderr.strip() or "no reason given"))
 
 
 def changed():
     previous = previous_release()
-    print("true" if previous is None or changes_since(previous) else "false")
+    print("true" if previous is None or app_changed_since(previous) else "false")
 
 
 def notes(tag, repository):
@@ -116,27 +184,37 @@ def notes(tag, repository):
     so the list is first, and there is no heading over it to print literally.
     """
     previous = previous_release()
+    changes = changes_since(previous) if previous is not None else []
     lines = []
-    if previous is not None:
-        changes = changes_since(previous)
-        if changes:
-            lines.extend("- " + subject for subject in changes)
-        else:
-            lines.append(
-                "Nothing in the app changed since %s — the same sources, built again."
-                % version_of(previous)
-            )
+    if changes:
+        lines.extend("- " + subject for subject in changes)
         lines.append("")
+    elif previous is not None and not app_changed_since(previous):
+        lines.append("Nothing in the app changed since %s — the same sources, built again."
+                     % version_of(previous))
+        lines.append("")
+    # The third case says nothing at all: the tree differs and no ordinary
+    # commit accounts for it, which is a merge carrying its own change. Better
+    # a body that opens with the commit it was built from than one asserting
+    # that nothing changed while the build proves otherwise.
 
-    # UTC, as the README's download line is: a release is dated when it was
-    # published, not where the author was standing (DECISIONS, 2026-09-14).
+    # UTC, which is also what the workflow dates the README's download line in:
+    # a release is dated when it was published, not where the author was
+    # standing (DECISIONS, 2026-09-14).
     today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
-    built = "Built from `%s` on %s" % (git("rev-parse", "--short=7", "HEAD"), today)
-    if previous is not None and tag and repository:
-        built += " — [everything since %s](https://github.com/%s/compare/%s...%s)" % (
+    built = "Built from `%s` on %s." % (git("rev-parse", "--short=7", "HEAD"), today)
+    # Its own sentence rather than a clause hanging off that one, because the
+    # app's Updates box strips the link and keeps the words: "— everything since
+    # 0.1.36." dangles there, where "Everything since 0.1.36." reads.
+    #
+    # Not on the rebuild branch: a line offering everything since 0.1.36 under a
+    # sentence saying nothing since 0.1.36 changed is two answers to one
+    # question, and when HEAD is the tagged commit it links an empty comparison.
+    if changes and tag and repository:
+        built += " [Everything since %s](https://github.com/%s/compare/%s...%s)." % (
             version_of(previous), repository, previous, tag
         )
-    lines.append(built + ".")
+    lines.append(built)
     print("\n".join(lines))
 
 
@@ -149,11 +227,20 @@ def main(argv):
     notes_parser.add_argument("--repository", help="owner/name on GitHub, for the compare link")
     args = parser.parse_args(argv)
 
-    refuse_a_shallow_checkout()
-    if args.command == "changed":
-        changed()
-    else:
-        notes(args.tag, args.repository)
+    # Every git failure that is not one of the answers above arrives here, and
+    # arrives as a sentence: run outside a repository, this printed a traceback
+    # with git's own "not a git repository" swallowed inside it.
+    try:
+        refuse_a_shallow_checkout()
+        if args.command == "changed":
+            changed()
+        else:
+            notes(args.tag, args.repository)
+    except subprocess.CalledProcessError as refusal:
+        fail("git refused `%s`: %s" % (" ".join(refusal.cmd[1:]),
+                                       (refusal.stderr or "").strip() or "no reason given"))
+    except FileNotFoundError:
+        fail("git is not on the PATH, so nothing here can be answered.")
     return 0
 
 

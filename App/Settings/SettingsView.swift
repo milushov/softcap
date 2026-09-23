@@ -63,12 +63,12 @@ struct SettingsView: View {
                     )
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
                 // The pointer's own answer, over and above the selection: a
-                // sidebar entry that is not the current one had nothing to
-                // say it could be pressed. The radius is the selection's, so
-                // the hover fill and the accent fill are the same shape.
-                .clickAffordance(inset: .zero, radius: 6)
+                // sidebar entry that is not the current one had nothing to say
+                // it could be pressed. No inset — the label is padded already —
+                // and the selection's own radius, so the hover fill and the
+                // accent fill are the same shape.
+                .buttonStyle(.clickable(inset: .zero, radius: 6))
             }
             Spacer(minLength: 0)
         }
@@ -85,10 +85,9 @@ struct SettingsView: View {
         HStack(spacing: 6) {
             Spacer()
             Button(footerTitle) { appModel.settingsSection = .updates }
-                .buttonStyle(.plain)
+                .buttonStyle(.clickable)
                 .font(.system(size: 11.5))
                 .foregroundStyle(.secondary)
-                .clickAffordance()
             Text(verbatim: "·").font(.system(size: 11.5)).foregroundStyle(.secondary)
             Text(updates.versionText)
                 .font(.system(size: 11.5))

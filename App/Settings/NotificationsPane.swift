@@ -40,11 +40,11 @@ struct NotificationsPane: View {
                                 } label: {
                                     Image(systemName: "xmark").font(.system(size: 8))
                                 }
-                                .buttonStyle(.plain)
-                                .foregroundStyle(.secondary)
                                 // Inside a capsule already, so the chip is
                                 // small and round rather than a second pill.
-                                .clickAffordance(inset: CGSize(width: 3, height: 3), radius: 7)
+                                .buttonStyle(.clickable(inset: CGSize(width: 3, height: 3),
+                                                        radius: 7))
+                                .foregroundStyle(.secondary)
                             }
                             .padding(.horizontal, 8).padding(.vertical, 3)
                             .background(.quaternary, in: Capsule())

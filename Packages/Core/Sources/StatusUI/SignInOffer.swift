@@ -138,7 +138,7 @@ struct SignInPrompt: View {
         _ title: String, enabled: Bool, _ act: @escaping () -> Void
     ) -> some View {
         Button(title) { act() }
-            .buttonStyle(.plain)
+            .buttonStyle(.clickable)
             .font(.system(size: 11))
             // The tint is worked out rather than left to `.disabled`, which
             // greys a bordered button and does nothing visible to a plain one:
@@ -151,11 +151,6 @@ struct SignInPrompt: View {
             // the same thing `PopoverView.quietButton` guards against, for the
             // same reason and with the same one line.
             .focusEffectDisabled()
-            // The fill and the hand, and neither when the button is refusing
-            // to be pressed — for which this has to be told, exactly as the
-            // tint above has to be: `.disabled` does nothing visible to a
-            // plain button.
-            .clickAffordance(enabled: enabled)
     }
 }
 

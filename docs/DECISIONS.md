@@ -9220,3 +9220,62 @@ once. A session row now gives up about eight points of its name to a period
 column sized for the longer word. And the published screenshots still show
 the ragged version: the store's five and the site's `05-minimal.webp` are a
 separate regeneration, fifty pictures and six minutes of it.
+
+---
+
+## Correction: the affordance was a modifier, and the modifier lit what it could not press
+
+The entry above — *The minimal window's values are columns, and every button
+says it can be pressed* — describes `ClickAffordance` as a modifier applied
+after `.buttonStyle(.plain)`, drawn outside the layout so that a word lighting
+up could not move the column it sits in. It was all three of those things, and
+the third was bought with the first two.
+
+**What was wrong.** `.contentShape` and the padding were applied to a *parent*
+of the button. A parent's shape decides where the pointer is noticed and where
+the fill is drawn; it does not extend what the button will answer. So the fill
+and the hand covered the chip while the press covered the glyphs alone — on the
+popover's three footer symbols, an eleven-point glyph lit over a twenty-three
+point chip, about half of the lit area doing nothing when clicked. A control
+that offers to be pressed where it cannot be is worse than one that offers
+nothing, and this shipped nowhere: it was found in review before the push.
+
+The same mechanism cut the other way in the settings sidebar. An ancestor's
+`.contentShape` *does* gate hit-testing for everything underneath it, so
+passing a rounded shape there quietly bit the corners off a row whose own label
+had claimed them with a rectangle.
+
+**What it is now.** `ClickableButton`, a `ButtonStyle`. The padding goes inside
+`configuration.label`, so one rectangle is lit, hovered, pointed at and
+pressed; the hit shape is a rectangle while the fill is rounded, so corners are
+drawn away rather than taken away. Three things follow from being a style.
+`isEnabled` comes from the environment, which fixes a second fault the review
+found: the × on a threshold pill sat inside a disabled section and still lit up
+and still promised a hand, because the modifier had to be told and that one
+call site had not been. `isPressed` is available, so the label dims while held,
+which `.plain` did and a replacement would otherwise have dropped. And there is
+no `.plain` left in the app to apply instead of the affordance, which is a
+stronger guard than the count of affordances per file that the first suite
+compared — two changes in one file could balance that out.
+
+**Cost, and it is a real one.** The chip now takes room, because the room is
+inside the button. Two points of vertical padding grew the minimal window by
+eighteen; at one point no row grows at all and the window is six points taller
+for the footer's symbols alone, which is what it costs to make those glyphs a
+target. Horizontally the period column is as wide as its word plus the chip, so
+that room comes out of the account name beside it: at five points the longest
+name in the demo began to truncate where it had not, so the row's chip is three.
+The two copies of that label which are not buttons — a row with one period, and
+the hidden pair that measures the column — are padded to match, or the rows
+would not line up, which was the point of the entry above.
+
+The inventory in that entry is also wrong twice, and being append-only it stays
+there: the popover's footer has three named buttons rather than two, and the
+demo note's **Sign in…** was never listed at all. Eleven controls wear the
+affordance, and the suite names none of them — it reads the absence of `.plain`.
+
+**Not verified on screen.** The fill and the hand were photographed under a real
+pointer for the modifier version. The style version has been photographed for
+its layout only: the Mac was locked when it was written, and a locked session
+delivers no synthetic pointer events to any application, which is also why the
+hit area was argued from the review's measurement rather than re-measured here.
