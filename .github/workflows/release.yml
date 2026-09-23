@@ -15,6 +15,14 @@ on:
     branches: [main]
     # Doc-only pushes produce an identical binary, and the README is rewritten
     # by this workflow itself — without this the run would trigger itself.
+    #
+    # One trap this cannot see, and it has caught a push already: GitHub reads
+    # its skip-CI marker anywhere in a commit message, body included, so a
+    # message that merely quotes the marker while explaining it publishes the
+    # commit and starts nothing at all. There is no run to look at afterwards —
+    # not a red one, none — and the release simply never happens. Write about
+    # the marker without spelling it, or the next reader of this file finds out
+    # the same way.
     paths-ignore:
       - 'README.md'
       - 'docs/**'
