@@ -9172,3 +9172,51 @@ that mixed an app change with tooling is listed under its subject as written,
 tooling flavour and all — the price of reading the list out rather than
 writing it twice. And the past stays as it was: the thirty-six bodies already
 published still say nothing, because the ask was for every future version.
+
+---
+
+## 2026-09-23 — The minimal window's values are columns, and every button says it can be pressed
+
+**Decision.** In `MinimalAccountRow` the period, the percentage and the time
+left are three columns rather than three words. Each is as wide as the widest
+thing it can hold, measured by drawing that thing hidden underneath it —
+`5h` against `week` for the period, `100%` for the percentage — and filled
+from the right. The time column keeps the fixed width it already had.
+
+Every plain button in the app wears `ClickAffordance`: the fill macOS draws
+behind the menu item under the pointer, and the hand it shows over anything
+pressable. Eleven of them — the period label, the popover's three symbols and
+its two named buttons, the sidebar's entries, the settings footer, the
+banner's dismiss, the threshold pill's cross, the sign-in offer. The period
+label's hover underline is gone; this replaces it.
+
+**Why.** Both were asked for, and both were visible in a screenshot of the
+running app. A row at a hundred percent spells three digits where the row
+under it spells two, so its period label sat a digit's width further left —
+measured on the demo data, right edges at 425, 425 and 409 pixels, which is
+eight points of raggedness down a window whose whole argument is four lines
+read at a glance. They are 410, 410 and 409 now.
+
+The buttons are all borderless, which is the look this app is for and left
+the pointer with nothing to find: the only way to learn that the period label
+could be clicked was to click it. The two signals are the system's own rather
+than invented ones.
+
+Measured rather than given a number of points, because a number of points is
+a measurement of one language. `5h` and `week` are `5ч` and `нед` in Russian,
+and neither pair is the same width; the hidden copy is measured in whichever
+of the ten is on screen.
+
+**Cost.** The hand is SwiftUI's `pointerStyle`, which is macOS 15, and the app
+supports 14 — where the fill is the whole affordance. `NSCursor` would have
+reached 14 and is refused twice over: `CoreStaysPortable` allows no AppKit in
+that package at all, and a cursor pushed on hover stays on screen when the
+view under the pointer is taken away without a mouse-exit, which is what a
+closing popover does to every row in it. The fill is drawn outside the layout
+— padded, shaped, unpadded — so that a word lighting up cannot push the
+columns it sits in sideways; the hover and the pointer are read before the
+padding is taken back, which is the one ordering that makes both true at
+once. A session row now gives up about eight points of its name to a period
+column sized for the longer word. And the published screenshots still show
+the ragged version: the store's five and the site's `05-minimal.webp` are a
+separate regeneration, fifty pictures and six minutes of it.

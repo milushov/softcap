@@ -40,11 +40,6 @@ public struct MinimalAccountRow: View {
     /// the same way: the new answer outranks the look.
     @State private var peek: PrimaryWindow?
 
-    /// Whether the pointer is over the period label. Hover is the affordance
-    /// that the label is clickable — underlining, not a cursor: `NSCursor` is
-    /// AppKit, which `CoreStaysPortable` bans from this package absolutely.
-    @State private var hoveringPeriod = false
-
     public init(
         snapshot: AccountSnapshot,
         now: Date,
@@ -112,11 +107,28 @@ public struct MinimalAccountRow: View {
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)
                 }
-                periodLabel(window)
-                Text(loc.percent(window.percent))
-                    .font(.system(size: 11.5))
-                    .monospacedDigit()
-                    .foregroundStyle(window.severity.numberTint)
+                // Three columns rather than three words, so that the rows read
+                // down the window as well as across. Each is as wide as the
+                // widest thing it can ever hold, and is sized by drawing that
+                // thing hidden underneath rather than by a number of points:
+                // the widest is a different word and a different numeral in
+                // each of ten languages, and a measurement in points is the
+                // one thing that cannot survive being translated.
+                //
+                // What it fixes is small and was on every screenshot: a row at
+                // a hundred percent spells three digits where the row under it
+                // spells two, so the period label beside it sat further left
+                // by the width of a digit, in a window whose whole point is
+                // four short lines that can be read at a glance.
+                ZStack(alignment: .trailing) {
+                    widestPeriod.hidden()
+                    periodLabel(window)
+                }
+                ZStack(alignment: .trailing) {
+                    percentText(loc.percent(100)).hidden()
+                    percentText(loc.percent(window.percent))
+                        .foregroundStyle(window.severity.numberTint)
+                }
                 Text(loc.remaining(window.remaining(from: now)))
                     .font(.system(size: 11))
                     .monospacedDigit()
@@ -142,29 +154,47 @@ public struct MinimalAccountRow: View {
     private func periodLabel(_ window: LimitWindow) -> some View {
         if snapshot.hasAnotherPeriod {
             Button { peek = snapshot.peek(after: window, setting: choice) } label: {
-                periodText(window, underlined: hoveringPeriod)
+                periodText(window)
             }
             .buttonStyle(.plain)
             // The same line `SignInPrompt` and `quietButton` carry, for the
             // same reason: the first button in the popover otherwise opens
             // wearing the accent-coloured focus fill.
             .focusEffectDisabled()
-            .onHover { hoveringPeriod = $0 }
-            // The popover close and the branch swap both remove this button
-            // without a mouse-exit event, so the flag needs the same explicit
-            // forgetting as the peek — left `true`, the label would come back
-            // underlined with the pointer nowhere near it.
-            .onDisappear { hoveringPeriod = false }
+            // The fill and the hand, and with them the explicit forgetting of
+            // the hover that the popover being cached requires. See
+            // `ClickAffordance`, which also explains why it takes up no room:
+            // this label is a column, and a column that widened under the
+            // pointer would move the two beside it.
+            .clickAffordance()
         } else {
             periodText(window)
         }
     }
 
-    private func periodText(_ window: LimitWindow, underlined: Bool = false) -> some View {
+    private func periodText(_ window: LimitWindow) -> some View {
         Text(loc.windowTitle(window.id))
-            .underline(underlined)
             .font(.system(size: 10))
             .foregroundStyle(.secondary)
+    }
+
+    /// The period column's width: whichever of the two words is longer in the
+    /// language on screen. Drawn to be measured, never seen — the row collapses
+    /// into one spoken element, so there is nothing here for VoiceOver to read
+    /// twice.
+    private var widestPeriod: some View {
+        ZStack {
+            Text(loc.windowTitle("session"))
+            Text(loc.windowTitle("weekly"))
+        }
+        .font(.system(size: 10))
+    }
+
+    /// The percentage column's, the same way: `100%` is the widest it goes.
+    private func percentText(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 11.5))
+            .monospacedDigit()
     }
 
     /// Grey until it matters. `LimitBar` is not reused: it paints every

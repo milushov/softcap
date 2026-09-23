@@ -110,6 +110,7 @@ struct PopoverView: View {
             .buttonStyle(.plain)
             .font(.system(size: 10.5))
             .foregroundStyle(.tint)
+            .clickAffordance()
         }
         .foregroundStyle(.secondary)
         .padding(.horizontal, 13)
@@ -357,18 +358,21 @@ struct PopoverView: View {
             Button(loc("Refresh")) { Task { await model.refresh() } }
                 .buttonStyle(.plain)
                 .font(.system(size: 11.5))
+                .clickAffordance()
                 .keyboardShortcut("r")
             Spacer()
             Button(loc("Settings…")) { SettingsWindow.open() }
                 .buttonStyle(.plain)
                 .font(.system(size: 11.5))
                 .foregroundStyle(.secondary)
+                .clickAffordance()
                 .keyboardShortcut(",")
             Spacer()
             Button(loc("Quit")) { NSApplication.shared.terminate(nil) }
                 .buttonStyle(.plain)
                 .font(.system(size: 11.5))
                 .foregroundStyle(.secondary)
+                .clickAffordance()
                 .keyboardShortcut("q")
         }
         .padding(.horizontal, 12).padding(.vertical, 8)
@@ -405,6 +409,11 @@ struct PopoverView: View {
         // this size reads as somebody else's app icon sitting in the footer
         // rather than as a button that is ready. The shortcut still works.
         .focusEffectDisabled()
+        // A symbol with no border around it, which is the one thing in this
+        // window that looks least like a control. See `ClickAffordance`: the
+        // chip is bigger than the glyph, so the press lands where it looks
+        // like it should.
+        .clickAffordance(inset: CGSize(width: 6, height: 4))
         .help(title)
         .accessibilityLabel(title)
         .keyboardShortcut(key)

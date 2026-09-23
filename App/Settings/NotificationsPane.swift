@@ -42,6 +42,9 @@ struct NotificationsPane: View {
                                 }
                                 .buttonStyle(.plain)
                                 .foregroundStyle(.secondary)
+                                // Inside a capsule already, so the chip is
+                                // small and round rather than a second pill.
+                                .clickAffordance(inset: CGSize(width: 3, height: 3), radius: 7)
                             }
                             .padding(.horizontal, 8).padding(.vertical, 3)
                             .background(.quaternary, in: Capsule())

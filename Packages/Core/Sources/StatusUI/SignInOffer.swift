@@ -151,6 +151,11 @@ struct SignInPrompt: View {
             // the same thing `PopoverView.quietButton` guards against, for the
             // same reason and with the same one line.
             .focusEffectDisabled()
+            // The fill and the hand, and neither when the button is refusing
+            // to be pressed — for which this has to be told, exactly as the
+            // tint above has to be: `.disabled` does nothing visible to a
+            // plain button.
+            .clickAffordance(enabled: enabled)
     }
 }
 
