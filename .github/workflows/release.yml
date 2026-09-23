@@ -43,6 +43,11 @@ jobs:
   test:
     name: Tests
     runs-on: macos-26
+    # Two minutes is what this takes; twenty is the point at which it is not
+    # slow but stuck. Without a limit a hung step holds the runner for six
+    # hours and produces no log at all — a job's log arrives when the job
+    # does — so the one thing nobody can read is the run that went wrong.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -61,6 +66,7 @@ jobs:
   changes:
     name: What changed
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       app: ${{ steps.ask.outputs.changed }}
     steps:
@@ -98,6 +104,9 @@ jobs:
           && (needs.changes.outputs.app == 'true'
               || github.event_name == 'workflow_dispatch') }}
     runs-on: macos-26
+    # Eight minutes is the usual, and notarisation is the part that can crawl:
+    # an hour is the ceiling, not the expectation.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:

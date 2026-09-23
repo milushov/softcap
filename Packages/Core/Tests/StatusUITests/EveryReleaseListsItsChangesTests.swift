@@ -319,7 +319,10 @@ import Foundation
 
         private init(at directory: URL) { self.directory = directory }
 
-        func discard() { try? FileManager.default.removeItem(at: directory) }
+        func discard() {
+            try? FileManager.default.removeItem(at: directory)
+            try? FileManager.default.removeItem(at: URL(fileURLWithPath: directory.path + ".io"))
+        }
 
         /// A commit whose only change is `path`. The file's content is the
         /// commit's number, so that touching the same path twice is two changes.
@@ -389,26 +392,43 @@ import Foundation
             environment["GIT_COMMITTER_DATE"] = date
             process.environment = environment
 
-            let out = Pipe(), err = Pipe()
-            process.standardOutput = out
-            process.standardError = err
+            // Files, not pipes, and nothing read until the child has gone.
+            //
+            // Two pipes read one after the other deadlock when the child fills
+            // the one nobody is draining — sixty-four kilobytes of git warnings
+            // is all it takes — and a test that deadlocks hangs rather than
+            // fails. Draining the second on a background queue is the usual
+            // answer and brings a waiting primitive into a test that Swift
+            // Testing runs in parallel with every other; a file needs neither
+            // a second thread nor anything to wait on.
+            let io = URL(fileURLWithPath: directory.path + ".io")
+            try FileManager.default.createDirectory(at: io, withIntermediateDirectories: true)
+            let outURL = io.appendingPathComponent("stdout")
+            let errURL = io.appendingPathComponent("stderr")
+            FileManager.default.createFile(atPath: outURL.path, contents: nil)
+            FileManager.default.createFile(atPath: errURL.path, contents: nil)
+            let outFile = try FileHandle(forWritingTo: outURL)
+            let errFile = try FileHandle(forWritingTo: errURL)
+            defer { try? outFile.close(); try? errFile.close() }
+            process.standardOutput = outFile
+            process.standardError = errFile
             try process.run()
-            // Both pipes drained at once. Read one to the end and then the
-            // other, and a child that fills the pipe nobody is reading — a git
-            // that turns chatty with warnings, sixty-four kilobytes of them —
-            // waits for a reader that is itself waiting for the child. The
-            // test would hang rather than fail, and CI would kill the job with
-            // nothing to show for it.
-            let errSink = Sink()
-            let drained = DispatchSemaphore(value: 0)
-            DispatchQueue.global().async {
-                errSink.data = err.fileHandleForReading.readDataToEndOfFile()
-                drained.signal()
+            // A bounded wait, because the unbounded one has no failure: a
+            // command that never returns takes the suite with it, and a suite
+            // that hangs on a runner is thirty-five minutes of nothing —
+            // no log, since a job's log arrives when the job does. Sixty
+            // seconds is four orders of magnitude more than these take.
+            let deadline = Date().addingTimeInterval(60)
+            while process.isRunning && Date() < deadline { usleep(20_000) }
+            if process.isRunning {
+                process.terminate()
+                usleep(200_000)
+                if process.isRunning { kill(process.processIdentifier, SIGKILL) }
+                throw TookTooLong(program: program, arguments: arguments)
             }
-            let outData = out.fileHandleForReading.readDataToEndOfFile()
-            drained.wait()
-            let errData = errSink.data
             process.waitUntilExit()
+            let outData = (try? Data(contentsOf: outURL)) ?? Data()
+            let errData = (try? Data(contentsOf: errURL)) ?? Data()
             return Answer(
                 status: process.terminationStatus,
                 out: String(decoding: outData, as: UTF8.self)
@@ -416,9 +436,6 @@ import Foundation
                 err: String(decoding: errData, as: UTF8.self)
                     .trimmingCharacters(in: .whitespacesAndNewlines))
         }
-
-        /// Somewhere for the other thread to put what it read.
-        private final class Sink: @unchecked Sendable { var data = Data() }
 
         /// A merge that carries a change of its own — a conflict resolved by
         /// hand, which belongs to the merge commit and to no other. `git log
@@ -443,6 +460,16 @@ import Foundation
             try git("checkout", "-q", "--orphan", "elsewhere")
             try git("rm", "-rq", "--cached", ".")
             try commit("A history of its own", touching: "App/Main.swift")
+        }
+
+        struct TookTooLong: Error, CustomStringConvertible {
+            let program: String, arguments: [String]
+            var description: String {
+                "\(program) \(arguments.joined(separator: " ")) was still running after a "
+                + "minute and was killed — it is waiting for something this fixture does not "
+                + "provide, which on a machine other than the author's is how this suite would "
+                + "otherwise stop without saying anything"
+            }
         }
 
         struct GitRefused: Error, CustomStringConvertible {
