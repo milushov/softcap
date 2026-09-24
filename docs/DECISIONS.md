@@ -9443,3 +9443,43 @@ supported providers sets the standard — a provider that cannot be checked agai
 a live account would quietly show zero, which is worse than nothing — so nothing
 on the site claims Copilot yet, and this stays unreleased until one real
 subscription signs in and the numbers agree with what GitHub shows.
+
+## 2026-09-24 — The headline carries a mark, and the picture gives up the room
+
+**Decided.** The landing's headline opens with a mark that cycles the three
+services — the Claude sparkle, the Codex rings, the Copilot chevrons — three
+seconds each, in CSS. The hero grid goes from `0.95fr 1.05fr` to
+`1.06fr 0.94fr`.
+
+**Why.** "Every subscription limit" is the promise, and naming the services in
+the sentence would date it the day a fourth arrives. A picture that changes says
+"whichever of these" in the space of one glyph. It is CSS and not a script
+because the page runs one script and it draws a clock; the gallery below already
+cycles this way, and the mark copies its shape — keyframes, staggered delays, and
+a `prefers-reduced-motion` branch that shows the first and stops.
+
+The grid moved because the measurement said to. The left column was 439 points
+and the first phrase had 27 of slack; the mark takes 47. `max-width` was not the
+constraint and widening it changed nothing — the column was. The 50 points come
+off the mock, which scales and has `min-width:0`, rather than out of the
+sentence, which breaks: at 439 the headline split as "Every subscription /
+limit," and lost the two-part rhythm the `h1 em` rule exists to protect at the
+other end.
+
+**Cost.** The window mock is about a tenth narrower on wide screens, and the
+floating widget sits further inside it. Ten languages re-rendered and eight
+widths re-checked; Arabic was looked at rather than reasoned about, because the
+mark is spaced with `margin-inline-end` and that is only a claim until somebody
+sees which side it lands on.
+
+The mark is `aria-hidden`: the services are named in prose further down, and a
+screen reader spelling out three logos before the headline would put the list in
+front of the promise.
+
+**What this does not do.** It does not make the page true about Copilot. A dozen
+strings still say the app supports two services, and `faq.a3` still answers that
+GitHub Copilot is not supported — correctly, until a live account has been read.
+The third glyph is written and sits in the markup with the other two; it is the
+whole change — provider, screens and page alike — that is held back, not one
+element of it, because a mark cycling a logo the prose says is unsupported would
+be the page arguing with itself.

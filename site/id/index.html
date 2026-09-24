@@ -184,10 +184,18 @@ header{padding:34px 0 0}
    lines up with every heading below it. */
 .wrap.wide{max-width:980px}
 .hero.split{
-  display:grid;grid-template-columns:minmax(0,0.95fr) minmax(0,1.05fr);
+  /* 1.06/0.94, from 0.95/1.05, when the mark moved in ahead of the first
+     word. The left column governs the headline — `max-width` sits above it
+     and never binds — and at 439 px the first phrase had 27 px of slack,
+     which the mark takes 47 of. The 50 px come off the picture, which
+     scales, rather than out of the sentence, which breaks. */
+  display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,0.94fr);
   gap:56px;align-items:center;padding:56px 0 52px;
 }
-.hero.split h1{font-size:clamp(28px,3.3vw,41px);max-width:19ch;margin-bottom:18px}
+/* Above the column's own width on purpose, so the grid is the one thing
+   deciding where this headline breaks. At 19ch it was the binding constraint
+   and widening the column alone changed nothing. */
+.hero.split h1{font-size:clamp(28px,3.3vw,41px);max-width:22ch;margin-bottom:18px}
 .hero.split .lede{max-width:42ch}
 .hero.split .cta{margin-top:26px}
 .hero.split .note{margin-top:18px}
@@ -307,7 +315,7 @@ header{padding:34px 0 0}
 }
 @media(max-width:960px){
   .hero.split{grid-template-columns:minmax(0,1fr);gap:44px;padding-top:44px}
-  .hero.split h1{max-width:22ch}
+  .hero.split h1{max-width:24ch}
 }
 @media(max-width:560px){.panes img{max-height:330px}}
 
@@ -322,6 +330,34 @@ h1{
    in a wider fallback than SF it split "on one / screen." across two lines and
    lost the rhythm the two halves are written for. */
 h1 em{display:block;font-style:normal;color:var(--fg-3)}
+
+/* The headline's mark: three services, three seconds each.
+   Same shape of rule as the gallery above and for the same reason — the page
+   runs one script and it draws a clock, so anything that moves by itself moves
+   in CSS. An `inline-grid` stacks the three in one cell, which keeps the
+   headline's line box the same height whichever is showing; a stack of
+   absolutely positioned glyphs let the first line jump by a pixel as the font
+   loaded.
+   Sized in `em` so it tracks the headline through its `clamp()` rather than
+   being three sizes at three widths, and `margin-inline-end` rather than
+   `margin-right` so the Arabic page spaces it on the correct side. */
+.cycle{display:inline-grid;vertical-align:-.1em;inline-size:.84em;block-size:.84em;
+  margin-inline-end:.3em}
+.cycle svg{grid-area:1/1;inline-size:100%;block-size:100%;opacity:0;color:var(--fg-3);
+  animation:mark-cycle 9s infinite}
+.cycle svg:nth-of-type(2){animation-delay:3s}
+.cycle svg:nth-of-type(3){animation-delay:6s}
+/* Visible for two and a half of its three seconds; the quarter second either
+   side is a cross-fade rather than a cut. */
+@keyframes mark-cycle{
+  0%{opacity:0} 3%{opacity:1} 30%{opacity:1} 33%{opacity:0} 100%{opacity:0}
+}
+/* Asked for less movement: the first mark, and no cycle at all — the same
+   answer the gallery gives. */
+@media (prefers-reduced-motion: reduce){
+  .cycle svg{animation:none}
+  .cycle svg:nth-of-type(1){opacity:1}
+}
 .lede{font-size:clamp(16.5px,2.1vw,19px);color:var(--fg-2);max-width:58ch;margin:0 0 8px;line-height:1.62}
 .note{margin-top:30px;font-family:var(--mono);font-size:12.5px;color:var(--fg-3);letter-spacing:.01em}
 .note b{color:var(--accent);font-weight:500}
@@ -776,7 +812,15 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 <div class="wrap wide">
   <div class="hero split">
     <div class="hero-text">
-    <h1>Semua batas langganan, <em>di satu layar.</em></h1>
+    <!-- The mark cycles the three services. It carries what the headline's
+         words deliberately do not: "every subscription limit" is the promise,
+         and naming the services in the sentence would date it on the day a
+         fourth arrives. A picture that changes says "whichever of these" in
+         the space of one glyph.
+         Decorative, and marked so: the services are named in prose further
+         down the page, and a screen reader spelling out three logos before the
+         headline would put the list in front of the promise. -->
+    <h1><span class="cycle" aria-hidden="true"><svg viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="5" cy="5" r="4.2"/><circle cx="5" cy="5" r="1.6"/></svg><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 3.1 1.5 5l2.1 1.9M6.4 3.1 8.5 5 6.4 6.9M5.7 2.3 4.3 7.7"/></svg></span>Semua batas langganan, <em>di satu layar.</em></h1>
     <p class="lede">
       Anda membeli paket Claude kedua supaya tidak perlu berhenti bekerja — lalu memeriksa apakah paket itu masih punya ruang berarti harus masuk ke akunnya.
     </p>

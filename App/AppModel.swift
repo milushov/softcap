@@ -23,6 +23,10 @@ final class AppModel: ObservableObject {
     /// failure is not restated every five minutes.
     private var loggedFailures: [String: ProviderFailure.Kind] = [:]
     @Published private(set) var summary: MenuBarSummary?
+    /// The account being worked with, or nil while nothing has been seen to
+    /// rise. The menu bar draws its figure from it under `menuBarAccount ==
+    /// .inUse`, and the window marks its row.
+    @Published private(set) var accountInUse: String?
     @Published private(set) var isRefreshing = false
     @Published private(set) var lastUpdated: Date?
     /// What the system allows, as opposed to what the settings ask for.
@@ -163,6 +167,13 @@ final class AppModel: ObservableObject {
     let history = UsageHistoryStore(url: SharedStore.historyURL)
     #endif
 
+    /// Fed by every poll, seeded from the history at the first one. A value
+    /// type held here rather than behind an actor: it is read on the main actor
+    /// while the summary is built, and a hop would put the figure and the name
+    /// it belongs to one await apart.
+    private var activity = ActiveAccountTracker()
+    private var activitySeeded = false
+
     private var started = false
     /// Whether a refresh was requested while the previous one was running.
     private var needsAnotherPass = false
@@ -209,6 +220,19 @@ final class AppModel: ObservableObject {
                 snapshots = orderedForDisplay(
                     snapshots, ordering: preferences.ordering,
                     customAccountOrder: preferences.customAccountOrder
+                )
+            }
+
+            // Both of these change what the figure means, and neither reached
+            // the menu bar until a poll rewrote the summary — up to five
+            // minutes of a setting that appears not to work. `Primary window`
+            // has had that delay since it was added; the new one would have
+            // inherited it.
+            if oldValue.primaryWindow != preferences.primaryWindow
+                || oldValue.menuBarAccount != preferences.menuBarAccount {
+                summary = menuBarSummary(
+                    snapshots, now: Date(), window: preferences.primaryWindow,
+                    account: preferences.menuBarAccount, inUse: accountInUse
                 )
             }
 
@@ -353,7 +377,15 @@ final class AppModel: ObservableObject {
             customAccountOrder: preferences.customAccountOrder
         )
         snapshots = rows
-        summary = menuBarSummary(rows, now: now, window: preferences.primaryWindow)
+        // `inUse: nil` on purpose, like the threshold tracker below: the sample
+        // accounts are a function of the demo clock, so feeding them in would
+        // have the figure hop between invented accounts every few seconds. With
+        // nobody named the figure ranks the list, which is what the demo showed
+        // before this setting existed.
+        summary = menuBarSummary(
+            rows, now: now, window: preferences.primaryWindow,
+            account: preferences.menuBarAccount, inUse: nil
+        )
         lastUpdated = now
 
         // The tracker is deliberately not fed. One sample sits at a hundred
@@ -375,7 +407,10 @@ final class AppModel: ObservableObject {
         // Derived the way a real poll derives it, rather than written out beside
         // the fixtures: a menu bar label that disagreed with the window below it
         // would be a lie told in a screenshot, and this is one line.
-        summary = menuBarSummary(snapshots, now: Date(), window: preferences.primaryWindow)
+        summary = menuBarSummary(
+            snapshots, now: Date(), window: preferences.primaryWindow,
+            account: preferences.menuBarAccount, inUse: nil
+        )
         lastUpdated = Date()
         // The statistics screen draws the history rather than the snapshots, so
         // it needs its own fixtures — otherwise that screen alone would show the
@@ -545,9 +580,27 @@ final class AppModel: ObservableObject {
         syncDemo()
 
         snapshots = result
-        await history.record(result, at: Date())
-        summary = menuBarSummary(result, now: Date(), window: preferences.primaryWindow)
-        lastUpdated = Date()
+        let at = Date()
+        await history.record(result, at: at)
+
+        // Seeded here rather than at init, and after the readings are recorded:
+        // the history lives behind an actor, and the marks have to be in place
+        // before this poll is measured against them. Recording first is what
+        // makes the first poll of a launch honest either way — a rise the
+        // thinning rule kept is credited by the seed, one it dropped is caught
+        // by the comparison below, and neither is counted twice.
+        if !activitySeeded {
+            activitySeeded = true
+            activity = ActiveAccountTracker(seededFrom: await history.current())
+        }
+        activity.observe(result, at: at)
+        accountInUse = activity.accountInUse
+
+        summary = menuBarSummary(
+            result, now: at, window: preferences.primaryWindow,
+            account: preferences.menuBarAccount, inUse: accountInUse
+        )
+        lastUpdated = at
 
         // A reading of nothing is published. A reading of nothing arrived at
         // because the app could not look is not.
