@@ -25,13 +25,29 @@ import ProviderKit
         #expect(Set(ProviderID.allCases.filter { !$0.rotatesCredentials }) == [.copilot, .glm])
     }
 
+    /// The services that have a reader written for them. Everything else in
+    /// the enum is named and not yet reachable.
+    ///
+    /// This is the list that has to be edited when a service is *implemented*,
+    /// which is the direction that keeps the check honest: a new case joins the
+    /// group below by doing nothing, so it is checked the moment it exists.
+    private static let implemented: Set<ProviderID> = [.claude, .codex, .copilot, .glm]
+
     /// `true` is the answer for anything not yet implemented, because of the
     /// two possible mistakes it is the visible one: a rotating service wrongly
     /// marked static goes on serving a token the server has retired, which
     /// arrives as an unexplained failure; a static service wrongly marked
     /// rotating asks for a sign-in that plainly works.
+    ///
+    /// Derived rather than listed. It was written as `[.cursor, .gemini]` —
+    /// the same per-provider list this file was created to get rid of, in the
+    /// file that got rid of it, where a seventh case would have passed in
+    /// silence.
     @Test func theServicesNotYetBuiltClaimTheVisibleMistake() {
-        for provider in [ProviderID.cursor, .gemini] {
+        let waiting = ProviderID.allCases.filter { !Self.implemented.contains($0) }
+        #expect(!waiting.isEmpty, "nothing is waiting; this check now proves nothing")
+
+        for provider in waiting {
             #expect(provider.rotatesCredentials, """
                 \(provider.rawValue) is not implemented and claims it does not rotate, \
                 which is the mistake that fails silently

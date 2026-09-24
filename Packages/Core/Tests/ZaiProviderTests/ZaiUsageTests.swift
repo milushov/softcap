@@ -135,6 +135,48 @@ private func windows(_ json: String) throws -> [LimitWindow] {
         }
     }
 
+    /// The same refusal with its fields as strings. This service is changing
+    /// its schema, and a revoked key must stay a revoked key through that —
+    /// `malformed` would take the way back in off every screen.
+    @Test func aRefusalSpeltWithStringsIsStillARefusedKey() throws {
+        do {
+            _ = try windows(#"{"code":"401","msg":"invalid token","success":"false"}"#)
+            Issue.record("a refusal spelt with strings must not parse to a row")
+        } catch let failure as ProviderFailure {
+            #expect(failure.kind == .needsLogin)
+        }
+    }
+
+    /// A share far too large is full, not empty.
+    ///
+    /// The direction matters more than the number. Clamping used to send
+    /// anything it could not make sense of to nought, and nought is the one
+    /// reading this app must never invent — a window at a hundred is at worst
+    /// alarming, a window at zero is a lie that reassures.
+    @Test func anAbsurdShareIsFullRatherThanEmpty() throws {
+        let read = try windows(#"""
+            {"success":true,"data":{"limits":[
+              {"unit":3,"number":5,"percentage":1e308},
+              {"unit":6,"number":1,"usage":100,"currentValue":25}]}}
+            """#)
+        #expect(read.map(\.id) == ["session", "weekly"])
+        #expect(read.map(\.percent) == [100, 25])
+    }
+
+    /// The diagnostic names what the service sent, not what survived reading
+    /// it: "held 0 limits" would point at an empty array rather than at the
+    /// schema change that is the actual cause.
+    @Test func theDiagnosticCountsWhatArrived() throws {
+        do {
+            _ = try windows(#"""
+                {"success":true,"data":{"limits":["one","two","three"]}}
+                """#)
+            Issue.record("three unreadable entries must not parse to a row")
+        } catch let failure as ProviderFailure {
+            #expect(failure.diagnostic.contains("3 limits"))
+        }
+    }
+
     /// Any other refusal is still a reply this app could not turn into windows.
     @Test func anotherRefusalInsideATwoHundredIsMalformed() throws {
         do {

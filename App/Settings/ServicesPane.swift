@@ -34,7 +34,15 @@ struct ServicesPane: View {
                 Section(loc("Later")) {
                     ForEach(Self.planned, id: \.self) { provider in
                         HStack {
-                            Text(provider.title)
+                            // The product name, as the site, the FAQ in ten
+                            // languages and the README all give it. `title` is
+                            // Core's short caption for a row twenty points
+                            // high; it happened to equal the product name for
+                            // Cursor and Gemini, and GLM is the first planned
+                            // service where the two differ — so this screen
+                            // said "GLM" while everything else said "GLM
+                            // Coding Plan", and `productName` sat unread.
+                            Text(provider.productName)
                             Spacer()
                             Text(loc("later"))
                                 .font(.system(size: 10, weight: .semibold))

@@ -9820,3 +9820,59 @@ a sign-in there are no accounts for this provider to read.
 
 **Not verified against a live account**, and neither is Copilot. Two services
 now sit in this repository that no real subscription has answered.
+
+## 2026-09-25 — One test log per run, because one path is not one machine
+
+**Decided.** `make test` writes its transcript to a file `mktemp` names rather
+than to `/tmp/softcap-test.log`, and prints where it put it. The file is not
+removed afterwards.
+
+**Why.** The fixed path is one path shared by every checkout, every worktree and
+every session on this Mac — and worktrees exist precisely so that two runs can
+happen at once. `tee` does not append: each writer truncates the file and then
+writes at its own offset, so with three runs going the file grows to the largest
+offset any of them reached and everything between is a hole. It reported
+forty-two gigabytes over thirteen gigabytes of real data, on a volume already at
+ninety-nine per cent. The smaller half of the same bug is that no run could read
+its own output: the failure path greps that file for link errors, and with three
+transcripts interleaved the grep is answering about somebody else's build.
+
+Found by filling the disk. Three concurrent `make test` runs were started from
+this session, which is the operator error that exposed it — but one shared
+mutable path is the defect, and it would have been hit by two people as easily
+as by one agent in a hurry.
+
+A failed `mktemp` is checked for, and that is not pedantry. The recipe runs
+under `pipefail` and not `set -e`, so an empty `$log` would make `tee ""` fail,
+which would make a *passing* `swift test` take the failure branch and report a
+green run as a broken build, with nothing on screen to say why. The condition
+that breaks `mktemp` is a full or unwritable temporary directory — which is the
+exact circumstance this whole entry is about.
+
+**Cost.** A transcript per run left in the system's temporary directory. It is
+not deleted, because this repository does not delete, and the system reaps that
+directory on its own schedule. The path is echoed at the start of the run so it
+can be found without guessing. Both branches of the recipe were exercised by
+breaking a test on purpose: the failure path exits non-zero, prints its log path
+and produces 122 KB rather than gigabytes.
+
+## 2026-09-25 — A failing assertion prints the answer, not the document
+
+**Decided.** The landing check that fires whenever a provider is added asks its
+question into a `Bool` before `#expect` sees it.
+
+**Why.** `#expect(page.contains(x))` makes `page` an operand, and a failure
+prints every operand. `page` is a whole rendered document, so one failing
+assertion wrote 330 KB of HTML with the sentence explaining the failure
+somewhere inside it. Measured before and after: 330,945 bytes down to 3,327, and
+the message is the first thing on screen rather than the last.
+
+This one because it is the assertion that fires every time a provider is added —
+it did twice this week — so its failure is the one that has to be readable.
+
+**Cost.** Two lines, and an inconsistency: thirty-six other assertions across
+eight files still hand a document to `#expect`. They are cheaper now that each
+run has its own log and the disk is no longer the stake, but a failure in any of
+them is still unreadable. Whether to change them all is a question of taste
+about test style rather than a defect, and is left open rather than answered by
+one file quietly disagreeing with seven.

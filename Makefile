@@ -18,11 +18,29 @@ SHELL := /bin/bash
 # which is always zero, and every run passes. That is the same mistake this
 # Makefile already had in its build recipes — made again here, and caught by
 # breaking a source file on purpose to see whether the retry masked it.
+# One log per run, not one log for the machine.
+#
+# This wrote to a fixed `/tmp/softcap-test.log`, which is one path shared by
+# every checkout, every worktree and every session on this Mac. Two runs at once
+# is not exotic — worktrees exist so that two can — and `tee` does not append:
+# each writer truncates and then writes at its own offset, so the file grows to
+# the largest offset any of them reached and the space in between is a hole.
+# Three concurrent runs left a sparse file reporting forty-two gigabytes over
+# thirteen gigabytes of real data, on a volume that was already at ninety-nine
+# per cent. Neither run could read the other's output either, which is the
+# smaller half of the same bug.
+#
+# `mktemp` gives each run its own. It is not removed afterwards: this repository
+# does not delete, and the system reaps its own temporary directory.
 test:
-	@set -o pipefail; cd Packages/Core && \
-	  if swift test 2>&1 | tee /tmp/softcap-test.log; then \
+	@set -o pipefail; log="$$(mktemp -t softcap-test)"; \
+	  if [ -z "$$log" ]; then \
+	    echo "could not make a log file — is the disk full?" >&2; exit 1; \
+	  fi; \
+	  echo "test log: $$log"; cd Packages/Core && \
+	  if swift test 2>&1 | tee "$$log"; then \
 	    exit 0; \
-	  elif grep -q "link command failed\|Undefined symbols\|missing required module" /tmp/softcap-test.log; then \
+	  elif grep -q "link command failed\|Undefined symbols\|missing required module" "$$log"; then \
 	    echo "--- stale build; cleaning the package and retrying once ---"; \
 	    swift package clean >/dev/null && swift test; \
 	  else \

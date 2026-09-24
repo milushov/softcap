@@ -50,9 +50,9 @@ public struct ZaiQuotaResponse: Sendable, Hashable {
         // actually fix, because every screen gates the way back in on
         // `needsLogin`: the row's offer, the minimal row's, the window's and
         // the Accounts list's. Read the code the envelope already carries.
-        if let succeeded = root["success"] as? Bool, !succeeded {
+        if let succeeded = flag(root["success"]), !succeeded {
             let said = (root["msg"] as? String) ?? "no reason given"
-            let code = (root["code"] as? NSNumber)?.intValue
+            let code = whole(root["code"])
             throw ProviderFailure(
                 kind: code == 401 || code == 403 ? .needsLogin : .malformed,
                 diagnostic: "usage refused (\(code.map(String.init) ?? "no code")): \(said)")
@@ -89,7 +89,7 @@ public struct ZaiQuotaResponse: Sendable, Hashable {
         guard !windows.isEmpty else {
             throw ProviderFailure(
                 kind: .malformed,
-                diagnostic: "usage reply held \(entries.count) limits and no window this app knows")
+                diagnostic: "usage reply held \(listed.count) limits and no window this app knows")
         }
 
         return ZaiQuotaResponse(plan: payload["level"], windows: windows)
@@ -133,9 +133,42 @@ public struct ZaiQuotaResponse: Sendable, Hashable {
         return nil
     }
 
-    private static func clamp(_ percent: Double) -> Double {
-        guard percent.isFinite else { return 0 }
+    /// A share that is not a number is not a share.
+    ///
+    /// This returned `0` for anything non-finite, which drew the window at
+    /// nought — the confident zero this file refuses three times in its own
+    /// comments, arrived at by the one path that was not looking.
+    ///
+    /// No reply can reach it today: `JSONSerialization` refuses a document
+    /// holding an overflowing literal rather than handing back an infinity, and
+    /// the division above cannot produce a NaN now that a zero allowance is
+    /// turned away before it. Kept because the cost is a word and the failure
+    /// it guards against is the one that looks like good news.
+    private static func clamp(_ percent: Double) -> Double? {
+        guard percent.isFinite else { return nil }
         return min(max(percent, 0), 100)
+    }
+
+    /// The envelope's own fields, read whatever JSON kind they arrive as.
+    ///
+    /// Only these two. A refusal that came back as `"success": "false"` would
+    /// otherwise skip the block above, fall through to the `limits` guard and
+    /// land on `malformed` — so a revoked key would read "the reply could not
+    /// be read" and no screen would offer the way back in, which is exactly
+    /// what that block exists to prevent. `unit` and `number` stay strict on
+    /// purpose: a string there skips the window, and a skipped window is a
+    /// visible failure rather than a silent number.
+    private static func flag(_ value: Any?) -> Bool? {
+        if let bool = value as? Bool { return bool }
+        if let text = value as? String { return Bool(text.lowercased()) }
+        if let number = value as? NSNumber { return number.boolValue }
+        return nil
+    }
+
+    private static func whole(_ value: Any?) -> Int? {
+        if let number = value as? NSNumber { return number.intValue }
+        if let text = value as? String { return Int(text) }
+        return nil
     }
 
     /// `nextResetTime` is epoch milliseconds. Read as seconds it lands fifty

@@ -537,12 +537,22 @@ import Foundation
 
         #expect(planned.count == 4,
                 "the app now plans \(planned.count) more services; the page names four")
+        // The question is asked before `#expect` sees it, and that is the point.
+        //
+        // `#expect(page.contains(x))` makes `page` an operand, and a failure
+        // prints every operand — so one failing assertion here wrote 330 KB of
+        // rendered HTML, and the sentence explaining what was wrong was
+        // somewhere inside it. Measured, twice, while adding a provider: this
+        // is the assertion that fires every time one is added, so it is the one
+        // whose failure has to be readable. A `Bool` prints as `false`.
         for provider in planned {
-            #expect(page.contains(provider.title),
+            let named = page.contains(provider.title)
+            #expect(named,
                     "the page does not name \(provider.title), which the app lists as coming")
         }
         for provider in built {
-            #expect(page.contains(provider.title),
+            let named = page.contains(provider.title)
+            #expect(named,
                     "the page does not name \(provider.title), which the app reads today")
         }
     }
