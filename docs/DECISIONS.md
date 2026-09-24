@@ -9581,3 +9581,41 @@ press.
 `onlyARefusedReadMayPromiseTheAccountsAreComingBack` reads the arm the sentence
 sits in and asks which reasons reach it, so widening it again fails a test
 rather than shipping.
+
+---
+
+## 2026-09-24 — The menu bar figure is about the account in use
+
+**Decision.** The figure beside the icon shows the limit of the account being
+worked with, not the fullest limit anybody has. Which account that is, is
+inferred: the one whose usage rose most recently, across every window and every
+provider, with the larger rise settling a tie inside one poll. A new
+`Account shown` setting keeps the old behaviour, and defaults to the new one.
+
+**Why.** With more than one account signed in, the fullest limit is usually not
+the one being spent, so the number a person glanced at all day was about
+somebody else's afternoon. The app may not ask the CLI which account is
+current — see *Softcap opens one keychain item, and it is its own*
+(2026-09-14), which closed the route *The active Claude account is read-only*
+(2026-08-30) had used — so the answer comes out of the polls that were already
+happening. That constraint widened the feature rather than narrowing it: a rule
+built on readings works for every provider, while reading the CLI would have
+answered for Claude alone.
+
+A rate — "whichever is melting fastest" — was the obvious reading of the idea
+and is the wrong measure. Percentages from different services are not
+comparable, so ranking them by points per hour compares nothing; and a rate
+needs a window to be measured over, which puts lag between switching accounts
+and the strip noticing. "Who rose last" has no window. Rate survives only as
+the tie-break inside a single poll, which is no more principled but is rare,
+consistent, and defensible either way, because both accounts really were used
+in the last minute.
+
+**Cost.** A guess, presented as a fact. A scheduled job spending a little of
+another account moves the figure, and nothing available can tell that from a
+person at the keyboard; `Account shown: Busiest` is the way out. Detection is
+as slow as polling — a minute with the window open, five in the background — so
+switching accounts and looking immediately shows the old one. The strip stops
+warning about whichever account is nearest its limit, which notifications still
+do. And `Primary window` quietly narrowed: its three choices now describe one
+account's windows rather than everybody's, under the same three labels.
