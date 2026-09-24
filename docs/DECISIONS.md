@@ -9483,3 +9483,66 @@ The third glyph is written and sits in the markup with the other two; it is the
 whole change — provider, screens and page alike — that is held back, not one
 element of it, because a mark cycling a logo the prose says is unsupported would
 be the page arguing with itself.
+
+## 2026-09-24 — Cursor is not the next service, and the reason is not effort
+
+**Decided.** Cursor will not be implemented while its only route for an
+individual subscriber is the one described below. Gemini becomes the next
+service, and it waits on one thing nobody here can shorten.
+
+**Why.** Three routes exist to a Cursor subscriber's usage, and each is closed
+for a different reason.
+
+The official API is real and documented — `api.cursor.com`, basic
+authentication, usage and spend among what it returns — and it is **team
+scoped**. The key is created by a team administrator in the team dashboard.
+Individual plans, which is who installs this app, cannot make one.
+
+The editor's own backend, `api2.cursor.sh`, answers
+`aiserver.v1.DashboardService/GetCurrentPeriodUsage`. It speaks Connect over
+HTTP/2 with binary Protobuf rather than JSON, which alone would be work and not
+an obstacle. What makes it an obstacle is the header beside it:
+`x-cursor-checksum`, a value derived from the machine identifier through a
+proprietary cipher, sent with `x-cursor-client-type: ide`.
+
+That is a different act from the one this project already performs. Softcap
+presents itself as a published client — Claude Code's constants, the Codex
+CLI's, the Copilot editor's — and says so in `docs/authentication.md` as a
+compatibility boundary it accepts the consequences of. Reproducing a
+machine-derived checksum is reproducing an anti-abuse control, not using a
+public client. The distinction is worth writing down because the two look
+similar from inside a diff and are not similar at all.
+
+The third route is the web dashboard's own JSON, reached with the browser
+session cookie. It requires lifting a credential out of somebody's browser,
+which is the rule this app has refused since the day it stopped reading the
+Claude Code keychain item — and that rule has no exception to make for a
+service that would otherwise be convenient.
+
+**What it cost to find out.** A recommendation made a few hours earlier, in
+this session, said Cursor was the cheap next step: its sign-in is a poll
+against a challenge, which is the shape `DeviceCodeAuthenticating` had just
+been built for, and its included-budget limit maps onto the monthly window
+Copilot had just introduced. Both halves of that are true and neither
+mattered — the transport and the checksum were not looked at before the
+recommendation was given. The order was wrong: what a service will let a third
+party read comes before what it would cost us to read it.
+
+**Gemini instead, and what it waits on.** `cloudcode-pa.googleapis.com`
+answers `v1internal:retrieveUserQuota` with, per model, a `remainingFraction`
+and a `resetTime` — the cleanest fit any service has offered, since
+`LimitWindow` wants exactly a percentage and an instant, and the browser
+sign-in this app already has needs no second shape.
+
+It waits on a Google OAuth client of our own. The scope Code Assist requires is
+sensitive in Google's classification, so the client needs verification; without
+it the consent screen warns that the app is unverified and the client is capped
+at a hundred users, which is not a thing to ship. Registering the project and
+submitting it is the author's to do, and Google's review is neither quick nor
+certain. No code here is blocked by that, but no code here is worth writing
+before it is known whether the client can exist.
+
+**Not changed.** The Services screen still lists Cursor under **Later**,
+because "later" may yet be true: an official individual-scoped API would open
+the first route tomorrow and change nothing else. What this entry records is
+that no amount of work on our side opens it today.
