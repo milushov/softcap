@@ -200,7 +200,14 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // Spoken separately from the label: the label is an abbreviation tuned
         // for width, and abbreviations read badly.
         button.setAccessibilityLabel(Localization.shared.spokenMenuBar(
-            percent: summary.percent, remaining: summary.remaining))
+            percent: summary.percent, remaining: summary.remaining,
+            // Resolved from the list rather than carried as a name: the
+            // summary holds an identifier, and the sentence wants the service,
+            // the address and the plan, which only the row has. Nil whenever
+            // the figure is about the whole list, and the word comes back.
+            account: summary.accountID.flatMap { id in
+                model.snapshots.first { $0.id == id }
+            }))
 
         let percent = Localization.shared.percent(summary.percent)
         let timer = Localization.shared.remainingCompact(summary.remaining)

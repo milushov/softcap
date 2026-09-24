@@ -64,8 +64,15 @@ public extension Localization {
     /// The menu bar item. Its label reads "0:47", which spoken back is "zero
     /// colon forty-seven" — a time of day, not a duration. And the icon's
     /// colour, the only sign of how bad things are, is silent.
-    func spokenMenuBar(percent used: Double, remaining: TimeInterval?) -> String {
-        let name = self("Busiest")
+    ///
+    /// `account` is the one the figure is about, or nil when it is about the
+    /// whole list. Naming it is not a flourish: under `Account shown: In use`
+    /// the word "Busiest" is a claim about every account made about one, and it
+    /// is made to the only person who cannot check it against the screen.
+    func spokenMenuBar(
+        percent used: Double, remaining: TimeInterval?, account: AccountSnapshot? = nil
+    ) -> String {
+        let name = account.map(identity(of:)) ?? self("Busiest")
         // Spelled by the formatter rather than written into the sentence: the
         // sentence is a per-language template, and three of the ten catalogues
         // had the sign in the wrong place because each had to remember the rule

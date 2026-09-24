@@ -152,6 +152,43 @@ import ProviderKit
             #expect(!text.contains("%3$@"), "\(language.rawValue): placeholder left unfilled")
         }
     }
+
+    // MARK: - the strip, and who it is about
+
+    /// Under `Account shown: Busiest` the figure really is about the whole
+    /// list, and the word is the truth.
+    @Test func theStripSaysBusiestWhenTheFigureIsAboutTheList() {
+        let loc = english()
+        let spoken = loc.spokenMenuBar(percent: 43, remaining: 7200, account: nil)
+        #expect(spoken.contains("Busiest"))
+        #expect(!spoken.contains("name@example.com"))
+    }
+
+    /// And under `In use` it is not. "Busiest" would be a claim about every
+    /// account, made about one, to the only person who cannot check it against
+    /// the screen.
+    @Test func theStripNamesTheAccountTheFigureIsAbout() {
+        let loc = english()
+        let spoken = loc.spokenMenuBar(percent: 43, remaining: 7200,
+                                       account: snapshot(windows: []))
+        #expect(!spoken.contains("Busiest"))
+        #expect(spoken.contains("Claude"))
+        #expect(spoken.contains("name@example.com"))
+        #expect(spoken.contains("Max 20x"))
+    }
+
+    /// The figure and the countdown still get said, whoever the sentence is
+    /// about — naming the account must not cost the numbers.
+    @Test func namingTheAccountKeepsTheFigureAndTheCountdown() {
+        let loc = english()
+        let spoken = loc.spokenMenuBar(percent: 43, remaining: 7200,
+                                       account: snapshot(windows: []))
+        #expect(spoken.contains(loc.percent(43)))
+        #expect(spoken.contains("hours"))
+        #expect(!spoken.contains("%1$@"))
+        #expect(!spoken.contains("%2$@"))
+        #expect(!spoken.contains("%3$@"))
+    }
 }
 
 /// Percentages are typography, not arithmetic: the spacing and the sign's side
