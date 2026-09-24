@@ -85,4 +85,81 @@ import ProviderKit
         let summary = menuBarSummary([account("a", weekly: (96, 600))], now: now)
         #expect(summary?.severity == Severity(percent: 96))
     }
+
+    // MARK: - the figure is about one account
+
+    @Test func theFigureComesFromTheAccountInUse() {
+        let summary = menuBarSummary(
+            [account("a", session: (20, 3600)), account("b", session: (91, 3600))],
+            now: now, window: .worst, account: .inUse, inUse: "a"
+        )
+        #expect(summary?.percent == 20)
+        #expect(summary?.accountID == "a")
+    }
+
+    @Test func thePrimaryWindowStillChoosesWithinThatAccount() {
+        let rows = [account("a", session: (20, 3600), weekly: (60, 86_400)),
+                    account("b", session: (91, 3600))]
+        #expect(menuBarSummary(rows, now: now, window: .session,
+                               account: .inUse, inUse: "a")?.percent == 20)
+        #expect(menuBarSummary(rows, now: now, window: .weekly,
+                               account: .inUse, inUse: "a")?.percent == 60)
+        #expect(menuBarSummary(rows, now: now, window: .worst,
+                               account: .inUse, inUse: "a")?.percent == 60)
+    }
+
+    @Test func theBusiestSettingIsUntouched() {
+        let summary = menuBarSummary(
+            [account("a", session: (20, 3600)), account("b", session: (91, 3600))],
+            now: now, window: .worst, account: .busiest, inUse: "a"
+        )
+        #expect(summary?.percent == 91)
+        // Nil says the figure is about the whole list, which is what the spoken
+        // label needs in order to say "Busiest" rather than name somebody.
+        #expect(summary?.accountID == nil)
+    }
+
+    @Test func anUnknownAccountFallsBackToTheBusiest() {
+        let summary = menuBarSummary(
+            [account("a", session: (20, 3600)), account("b", session: (91, 3600))],
+            now: now, window: .worst, account: .inUse, inUse: nil
+        )
+        #expect(summary?.percent == 91)
+        #expect(summary?.accountID == nil)
+    }
+
+    @Test func anAccountNoLongerInTheListFallsBackToTheBusiest() {
+        let summary = menuBarSummary(
+            [account("a", session: (20, 3600)), account("b", session: (91, 3600))],
+            now: now, window: .worst, account: .inUse, inUse: "gone"
+        )
+        #expect(summary?.percent == 91)
+        #expect(summary?.accountID == nil)
+    }
+
+    @Test func anAccountWithNoWindowsFallsBackToTheBusiest() {
+        // What a failed poll leaves behind: the row is there, carrying nothing.
+        let summary = menuBarSummary(
+            [account("a", failed: true), account("b", session: (91, 3600))],
+            now: now, window: .worst, account: .inUse, inUse: "a"
+        )
+        #expect(summary?.percent == 91)
+        #expect(summary?.accountID == nil)
+    }
+
+    /// An account reporting one monthly allowance and nothing else. Asking for
+    /// the five-hour window inside it must not empty the strip — the fallback
+    /// `headlineWindow(for:)` makes for a row is made here too.
+    @Test func anAccountWithOnlyAMonthlyWindowStillAnswers() {
+        let monthly = AccountSnapshot(
+            id: "c", provider: .copilot, displayName: "c", planLabel: "Pro",
+            windows: [LimitWindow(id: "premium", percent: 33,
+                                  resetsAt: now.addingTimeInterval(86_400))],
+            freshness: .live(now), failure: nil
+        )
+        let summary = menuBarSummary([monthly], now: now, window: .session,
+                                     account: .inUse, inUse: "c")
+        #expect(summary?.percent == 33)
+        #expect(summary?.accountID == "c")
+    }
 }
