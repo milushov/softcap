@@ -9619,3 +9619,56 @@ switching accounts and looking immediately shows the old one. The strip stops
 warning about whichever account is nearest its limit, which notifications still
 do. And `Primary window` quietly narrowed: its three choices now describe one
 account's windows rather than everybody's, under the same three labels.
+
+## Correction: the pin is raised around the dialog, and the pass reads the count
+
+A review of the two entries above found four faults in the pinning, all of them
+in the same direction — the window ends up pinned open with nothing left that
+could unpin it, or unpinned at the one moment it must not be.
+
+**The release covered the poll.** `defer { keychainDialogRequests -= 1 }` sat in
+`openSavedAccounts()`'s own scope, so it covered `await refresh()` as well as
+the dialog. A poll that never returns never leaves that scope and never runs the
+defer — and this app has watched polls not return; `RefreshGate` exists for it.
+Both other paths that restore `.transient` turn on `isPreviewing`, so nothing
+would have unpinned the window for the rest of the session. The release exists
+to prevent exactly that and, placed there, caused it. It is now raised and
+released inside a `do` scope holding the keychain call and nothing else.
+
+**The pass acted on a value captured when the count changed.** The sink carried
+its boolean onto a main-actor hop. Twenty lines above it, the appearance
+preview's signals say why that is wrong — hops onto the main actor are not
+ordered against each other — and a dialog refused as it opens raises and
+releases the count in one turn, so `true` and `false` can land in either order.
+It re-reads now, like the pass it sits beside.
+
+**Activation happened before the pin.** `NSApp.activate(ignoringOtherApps:)` ran
+in the model, a full hop before the controller could set `.applicationDefined`.
+Activating is a focus move and a `.transient` popover closes on the first of
+those, which `showPopoverForScreenshot` states plainly — so the one focus move
+this app makes on purpose was made while the window was still set to close
+itself. It is done by `holdWindowOpen`, after the pin.
+
+**The preview closed the window out from under a standing dialog.** The window
+yields to the preview; the preview did not yield back. `dropAppearancePreview()`
+runs when the app stops being frontmost, which a keychain dialog taking the
+focus is — so pressing **Open saved accounts** in a window the Appearance screen
+had brought out closed it and left a password prompt with nothing beside it to
+say what had asked for one. It is deferred rather than refused: returning to the
+app runs the pass again.
+
+**And the note outlived the window.** "That did not work, and nothing was
+changed" is `@State` on a view the popover builds once and keeps, so a refusal
+stayed under the buttons across every close and reopening — reporting a press
+nobody had made since. Cleared when the window closes.
+
+One comment was wrong rather than the code: the early read of the reason was
+explained as getting the window off "No accounts found" sooner, which cannot
+happen — `empty` asks `lastUpdated == nil` first and says it is still looking
+until the poll finishes. It is read once so the window and the widget guard
+decide from the same answer, and it now says so.
+
+**Cost.** Two scans added. The one holding the release asks the `do` scope
+rather than the function, because asked of the function a defer moved back out
+reads exactly like one kept in place — checked by moving it and watching the
+scan fail.

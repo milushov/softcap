@@ -215,10 +215,60 @@ import Foundation
             the repair no longer holds the limits window open, so the keychain's \
             dialog closes the window that asked for it
             """)
-        #expect(repair.contains("defer { keychainDialogRequests -= 1 }"), """
-            the window is released somewhere other than a defer — a refused \
-            dialog throws, and a popover left pinned never closes by itself \
-            again
+
+        // Everything about the pin is asked of the scope it is raised in, not
+        // of the function. Asked of the function, a defer moved back out to
+        // function scope — which is the defect this is here to catch — reads
+        // exactly like one kept in place.
+        guard let dialog = Self.body(of: "do {", in: repair) else {
+            throw ScanIsLookingInTheWrongPlace(
+                what: "the scope the dialog is raised in", found: 0, least: 1)
+        }
+        #expect(dialog.contains("openWithPermission"), """
+            the scope the window is pinned for no longer contains the call that \
+            raises the dialog, so this scan is measuring the wrong braces
+            """)
+        #expect(dialog.contains("defer { keychainDialogRequests -= 1 }"), """
+            the window is released outside the scope the dialog is raised in — \
+            either somewhere other than a defer, which a refused dialog would \
+            throw straight past, or in a wider scope that the poll runs inside
+            """)
+        #expect(!dialog.contains("refresh()"), """
+            the poll runs inside the scope that holds the window pinned. A poll \
+            that never returns never leaves that scope, so the defer that \
+            unpins the window is never reached — a window pinned open for the \
+            rest of the session by a dialog answered minutes ago
+            """)
+    }
+
+    /// The pass reads the count, and the preview yields to it.
+    ///
+    /// Two rules, both learned elsewhere in this file's own history. A value
+    /// carried onto the main actor can arrive after a newer one, so the pass
+    /// re-reads instead of trusting what it was handed. And the preview drops
+    /// the window when the app stops being frontmost — which a keychain dialog
+    /// taking the focus is — so it has to ask whether one is standing before it
+    /// closes anything.
+    @Test func theStatusItemDecidesByReadingAndYieldsToAStandingDialog() throws {
+        let source = try String(contentsOf: Self.statusItem, encoding: .utf8)
+
+        #expect(source.contains("holdWindowOpen(model.keychainDialogRequests > 0)"), """
+            the pin is decided from a value captured when the count changed \
+            rather than read when the pass runs — two hops carrying true and \
+            false can land in either order, and the wrong one leaves the window \
+            pinned with nothing left to unpin it
+            """)
+
+        guard let drop = Self.body(
+            of: "private func dropAppearancePreview() {", in: source
+        ) else {
+            throw ScanIsLookingInTheWrongPlace(
+                what: "the preview's release", found: 0, least: 1)
+        }
+        #expect(drop.contains("keychainDialogRequests"), """
+            the appearance preview closes the window without asking whether a \
+            keychain dialog is standing in front of it — which leaves a \
+            password prompt on screen with nothing beside it to say what asked
             """)
     }
 

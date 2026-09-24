@@ -124,8 +124,18 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         model.$keychainDialogRequests
             .map { $0 > 0 }
             .removeDuplicates()
-            .sink { [weak self] asking in
-                Task { @MainActor [weak self] in self?.holdWindowOpen(asking) }
+            // The pass reads the count when it runs rather than carrying the
+            // answer decided when it changed, for the reason written above the
+            // preview's own signals: hops onto the main actor are not ordered
+            // against each other. A dialog refused the moment it opens raises
+            // and releases the count in one turn, and two hops carrying `true`
+            // and `false` can land in that order or the other one — the second
+            // of which leaves the window pinned with nothing left to unpin it.
+            .sink { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    holdWindowOpen(model.keychainDialogRequests > 0)
+                }
             }
             .store(in: &cancellables)
 
@@ -335,6 +345,15 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         guard let popover else { return }
         if asking {
             popover.behavior = .applicationDefined
+            // Brought forward here, after the window is pinned, rather than
+            // beside the call that raises the dialog. Activating is itself a
+            // focus move and a `.transient` popover closes on the first of
+            // those — `showPopoverForScreenshot` says so in as many words. Done
+            // from the model it ran a whole main-actor hop before this line
+            // could, so the one focus move this app performs on purpose was
+            // the one it performed while the window was still set to close
+            // itself.
+            NSApp.activate(ignoringOtherApps: true)
         } else if !isPreviewing {
             popover.behavior = .transient
         }
@@ -344,6 +363,15 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     /// its own judgement about when to close.
     private func dropAppearancePreview() {
         guard isPreviewing else { return }
+        // Not out from under a dialog this app asked for. The preview is
+        // dropped when the app stops being frontmost, and a keychain dialog
+        // taking the focus is exactly that — so pressing Open saved accounts in
+        // a window the Appearance screen had brought out closed the window and
+        // left a password prompt standing with nothing beside it to say what
+        // had asked for one. Deferred rather than refused: returning to the app
+        // runs this pass again, and the preview goes then if it is still
+        // unwanted.
+        guard model.keychainDialogRequests == 0 else { return }
         isPreviewing = false
         popover?.behavior = .transient
         popover?.performClose(nil)

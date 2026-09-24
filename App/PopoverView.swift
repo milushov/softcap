@@ -64,6 +64,14 @@ struct PopoverView: View {
         // the flag false while the window was plainly open. Polling then dropped
         // to the background interval in front of somebody watching it.
         .onReceive(tick) { now = $0 }
+        // A press that changed nothing is news about this visit to the window.
+        // The view behind the popover is built once and kept, so the note
+        // outlived every close: a refusal, a click elsewhere, and the next
+        // opening of the window still carried the red line under the buttons —
+        // reporting a press nobody had made since.
+        .onChange(of: model.isPopoverOpen) { _, open in
+            if !open { openingFailed = false }
+        }
     }
 
     /// Whether any row carries the mark for the account in use.

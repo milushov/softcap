@@ -189,7 +189,7 @@ final class AppModel: ObservableObject {
     /// closes the window on every switch between this app and another, and
     /// somebody moving back and forth faster than the interval was never read
     /// again. `preferences` below carries the same guard, for the same reason.
-    var isPopoverOpen = false {
+    @Published var isPopoverOpen = false {
         didSet { if oldValue != isPopoverOpen { restartTimer() } }
     }
 
@@ -518,10 +518,17 @@ final class AppModel: ObservableObject {
 
         await rebuildPoller()
 
-        // Before the network, not after it. This is the one fact on the window
-        // that is already known — the store read the keychain at launch — and a
-        // window opened during the first poll should not have to wait on two
-        // services answering before it can stop saying the accounts are gone.
+        // Read once, here, and used twice: the window draws from it and the
+        // widget guard below turns on it. Two reads of the same fact in one
+        // poll can disagree — a button can answer the keychain between them —
+        // and then the window and the widget are deciding from different
+        // answers within the same pass.
+        //
+        // It is not read early to get the window off "No accounts found"
+        // sooner: `empty` asks `lastUpdated == nil` first and says it is still
+        // looking until this poll finishes, which is the order
+        // `itAsksWhetherAPollHasFinishedFirstOfAll` holds it to. During the
+        // first poll nothing reads this.
         savedAccountsProblem = await accountsProblem()
 
         guard let poller else { return }
@@ -772,10 +779,20 @@ final class AppModel: ObservableObject {
     /// the way out would leave a popover pinned open for the rest of the
     /// session with nothing left that could unpin it.
     func openSavedAccounts() async throws {
-        keychainDialogRequests += 1
-        defer { keychainDialogRequests -= 1 }
-        NSApp.activate(ignoringOtherApps: true)
         do {
+            // Raised around the dialog and around nothing else.
+            //
+            // The `defer` used to sit in the function's own scope, which put
+            // the poll below inside it — and a poll that never returns never
+            // reaches the end of a scope. This file documents that happening
+            // and `RefreshGate` exists because of it. The window pinned for a
+            // dialog answered minutes ago would then stay pinned for the rest
+            // of the session, with nothing left that could unpin it: both other
+            // paths that restore `.transient` turn on `isPreviewing`. That is
+            // the exact outcome the release exists to prevent, reached through
+            // the release itself.
+            keychainDialogRequests += 1
+            defer { keychainDialogRequests -= 1 }
             try await store.openWithPermission()
         } catch {
             Self.log.error("saved accounts did not open: \(String(describing: error), privacy: .public)")
@@ -788,8 +805,8 @@ final class AppModel: ObservableObject {
             await refreshSavedAccountsProblem()
             throw error
         }
-        // Before the poll, and not only after it. `refresh()` is gated: a poll
-        // already in flight turns it into a request for another pass and
+        // Before the poll, and not only through it. `refresh()` is gated: a
+        // poll already in flight turns it into a request for another pass and
         // returns at once, leaving the window drawing a refusal that has just
         // been lifted — under a spinner that has stopped. The reason is the one
         // fact here that needs no network, so it is taken back immediately and
