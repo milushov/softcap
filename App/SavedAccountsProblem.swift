@@ -29,20 +29,28 @@ struct SavedAccountsProblem {
 
     /// The first thing read, and the one that has to be true.
     ///
-    /// Two of the three reasons mean the accounts are coming back whole, and
-    /// saying so is the single most useful sentence this app can put on that
-    /// screen: what it replaced was "No accounts found", which is the opposite
-    /// claim about the same accounts.
+    /// Only one of the three reasons entitles anybody to say the accounts
+    /// survived, and saying it there is the single most useful sentence this app
+    /// can put on that screen: what it replaced was "No accounts found", the
+    /// opposite claim about the same accounts. A refused read establishes both
+    /// halves of it — the item is there, and this build was turned away from it.
     ///
-    /// The third is not that. A list this build opened and could not understand
-    /// has one way on, and it deletes every refresh token in the item — so the
-    /// heading there is the settings screen's older one, which states what
-    /// happened and promises nothing.
+    /// The other two establish no such thing, and get the older heading, which
+    /// states what happened and promises nothing. A keychain that did not answer
+    /// is "locked, missing, or broken" by its own definition, and *missing* is
+    /// the case where the accounts are not still here — a sentence covering all
+    /// three would be right two thirds of the time, to somebody who cannot tell
+    /// which third they are in. A list that opened and could not be understood
+    /// has one way on, and it deletes every refresh token in the item.
+    ///
+    /// The button does not follow the heading, and should not: `mayBeOpened`
+    /// answers what is worth trying, and this answers what is known. An unlock
+    /// is worth trying without anybody claiming in advance what it will find.
     var heading: String {
         switch reason {
-        case .keychainRefusedThisBuild, .keychainDidNotOpen:
+        case .keychainRefusedThisBuild:
             loc("Your accounts are still here")
-        case .contentNotUnderstood:
+        case .keychainDidNotOpen, .contentNotUnderstood:
             loc("Saved accounts could not be opened")
         }
     }
@@ -51,9 +59,10 @@ struct SavedAccountsProblem {
     ///
     /// Unchanged from the settings screen, deliberately and word for word:
     /// somebody who has read one screen should not have to work out that the
-    /// other means the same thing. It runs to four lines in a window this
-    /// narrow, where a sentence written for the window would run to two — and
-    /// it says *why* as well as *what*, in ten languages that already exist.
+    /// other means the same thing. The longest of the three runs to three lines
+    /// in a window this narrow, where a sentence written for the window would
+    /// run to two — and it says *why* as well as *what*, in ten languages that
+    /// already exist.
     var explanation: String {
         switch reason {
         case .keychainRefusedThisBuild:

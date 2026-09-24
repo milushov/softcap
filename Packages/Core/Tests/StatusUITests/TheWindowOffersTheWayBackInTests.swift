@@ -64,15 +64,24 @@ import Foundation
 
     /// One way into the keychain, not two.
     ///
-    /// `openSavedAccounts()` is where the dialog is allowed to be raised, where
-    /// the refusal is written to the log, and where the window is kept open for
-    /// as long as the question stands. A second path from this window would
-    /// have all three to get right again.
+    /// `AppModel.openSavedAccounts()` is where the dialog is allowed to be
+    /// raised, where the refusal is written to the log, and where the window is
+    /// held open for as long as the question stands. A second path from this
+    /// window would have all three to get right again.
+    ///
+    /// The chain is checked link by link — button to press, press to model —
+    /// because the ends can agree while the middle does nothing: the file would
+    /// contain both names whether or not one reaches the other.
     @Test func theWindowPressesTheSameRepairTheSettingsScreenDoes() throws {
         let offer = try Self.repairOffer()
+        #expect(offer.contains("askTheKeychain()"), """
+            the window's repair button no longer runs the window's own press, \
+            so nothing sets the spinner or reports an attempt that changed
+            """)
 
-        #expect(offer.contains("openSavedAccounts"), """
-            the window's repair no longer goes through the model's \
+        let press = try Self.press()
+        #expect(press.contains("model.openSavedAccounts()"), """
+            the window's press no longer goes through the model's \
             openSavedAccounts — the one place that raises the keychain's dialog \
             deliberately and holds the window open while it stands
             """)
@@ -81,6 +90,19 @@ import Foundation
         #expect(settings.contains("openSavedAccounts"), """
             the settings screen has stopped calling openSavedAccounts, so the \
             two screens no longer repair the same way
+            """)
+    }
+
+    /// And it reaches the keychain only through there. A window holding its own
+    /// `CredentialStore` would be a second read with none of the care the first
+    /// one takes.
+    @Test func theWindowDoesNotReachTheKeychainItself() throws {
+        let window = try String(contentsOf: Self.popover, encoding: .utf8)
+
+        #expect(!window.contains("openWithPermission"), """
+            the limits window opens the keychain item itself, bypassing the \
+            model — which is where the dialog is made to arrive in front, the \
+            window is pinned, and the status is logged
             """)
     }
 
@@ -120,25 +142,53 @@ import Foundation
             """)
     }
 
-    /// The good news is told only where it is true. Three reasons share this
-    /// screen and only two of them mean the accounts are coming back.
-    @Test func theHeadingPromisesTheAccountsOnlyWhereTheyAreComingBack() throws {
+    /// The good news is told only where it has been established.
+    ///
+    /// One of the three reasons entitles anybody to say the accounts survived:
+    /// a refused read proves the item is there and that this build was turned
+    /// away from it. A keychain that did not answer is "locked, missing, or
+    /// broken" by its own definition, and *missing* is the case where they are
+    /// not still here — so that heading would be right two thirds of the time,
+    /// to somebody with no way of telling which third they are in. A list that
+    /// opened and could not be understood is worse: the only way on deletes
+    /// every token it holds.
+    ///
+    /// This reads the arm the promise sits in and asks which reasons reach it,
+    /// so a later edit that widens the arm fails here rather than shipping a
+    /// sentence the app cannot stand behind.
+    @Test func onlyARefusedReadMayPromiseTheAccountsAreComingBack() throws {
         let source = try String(contentsOf: Self.problem, encoding: .utf8)
 
-        guard let heading = Self.body(of: "var heading: String {", in: source),
-              let answer = heading.range(of: "case .contentNotUnderstood:") else {
+        guard let heading = Self.body(of: "var heading: String {", in: source) else {
             throw ScanIsLookingInTheWrongPlace(
                 what: "the heading decision", found: 0, least: 1)
         }
+        guard let promise = heading.range(of: "Your accounts are still here") else {
+            throw ScanIsLookingInTheWrongPlace(
+                what: "the sentence saying the accounts survived", found: 0, least: 1)
+        }
 
-        let afterwards = String(heading[answer.upperBound...])
-        #expect(!afterwards.says("Your accounts are still here"), """
+        // From the last `case` before the promise up to the promise itself: the
+        // reasons the arm carrying it is written for.
+        let above = heading[..<promise.lowerBound]
+        guard let arm = above.range(of: "case ", options: .backwards) else {
+            throw ScanIsLookingInTheWrongPlace(
+                what: "the arm the promise is in", found: 0, least: 1)
+        }
+        let reasons = above[arm.upperBound...]
+
+        #expect(reasons.contains("keychainRefusedThisBuild"), """
+            the sentence saying the accounts survived is no longer shown for a \
+            refused read, which is the one state that establishes it
+            """)
+        #expect(!reasons.contains("keychainDidNotOpen"), """
+            a keychain that did not answer is headed "Your accounts are still \
+            here" — it may equally be an item that is gone, and nothing here \
+            has established which
+            """)
+        #expect(!reasons.contains("contentNotUnderstood"), """
             a saved list this build cannot understand is headed "Your accounts \
             are still here" — a promise whose only way out is deleting them
-            """)
-        #expect(heading.says("Your accounts are still here"), """
-            the window no longer tells anybody their accounts survived the \
-            update, which is the one thing they need to read
             """)
     }
 
@@ -240,6 +290,18 @@ import Foundation
             index = source.index(after: index)
         }
         return nil
+    }
+
+    /// The window's own press: the spinner, the model call, the note about an
+    /// attempt that changed nothing.
+    private static func press() throws -> String {
+        let source = try String(contentsOf: popover, encoding: .utf8)
+        guard let press = body(of: "private func askTheKeychain() async {", in: source)
+        else {
+            throw ScanIsLookingInTheWrongPlace(
+                what: "the window's press", found: 0, least: 1)
+        }
+        return press
     }
 
     private static var popover: URL { root("App/PopoverView.swift") }

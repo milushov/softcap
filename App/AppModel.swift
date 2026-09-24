@@ -788,6 +788,13 @@ final class AppModel: ObservableObject {
             await refreshSavedAccountsProblem()
             throw error
         }
+        // Before the poll, and not only after it. `refresh()` is gated: a poll
+        // already in flight turns it into a request for another pass and
+        // returns at once, leaving the window drawing a refusal that has just
+        // been lifted — under a spinner that has stopped. The reason is the one
+        // fact here that needs no network, so it is taken back immediately and
+        // the readings follow when they follow.
+        await refreshSavedAccountsProblem()
         await refresh()
     }
 

@@ -9546,3 +9546,38 @@ before it is known whether the client can exist.
 because "later" may yet be true: an official individual-scoped API would open
 the first route tomorrow and change nothing else. What this entry records is
 that no amount of work on our side opens it today.
+
+## Correction: only a refused read may say the accounts are still here
+
+The entry above gives the heading **Your accounts are still here** to two of the
+three reasons — a keychain that refused this build, and a keychain that did not
+answer. The second is wrong, and `UnreadableAccountList` says so four lines
+above the case it is about: a keychain that did not answer is "locked, missing,
+or broken", and nothing establishes which. *Missing* is the reading where the
+accounts are not still here. The heading would have been right two thirds of the
+time, told to somebody with no way of knowing which third they were in — which
+is the fault that enum was split in two to prevent, arriving through the screen
+rather than through the store.
+
+It now reads **Saved accounts could not be opened** there, the same heading the
+unreadable case gets and the one the settings screen has always used. **Open
+saved accounts** is still offered: an unlock is a question worth putting, and
+`mayBeOpened` answers what is worth trying while the heading answers what is
+known. They were one decision and are now two, which is why the first could be
+wrong without the second being wrong with it.
+
+Found reading the diff back, along with three smaller things fixed in the same
+pass. The window's own press was called `openSavedAccounts()` — the model's
+method name with `model.` in front of it one line down, which compiles, works,
+and is one dropped receiver away from calling itself forever; it is
+`askTheKeychain()` now. A successful open refreshed the reason only through
+`refresh()`, which is gated and returns at once while a poll is in flight — so
+the window could draw a refusal that had just been lifted, under a spinner that
+had stopped; the reason is taken back before the poll as well as by it. And the
+spinner that replaces the button was given the button's height, because the six
+points it did not fill moved everything under it upwards at the moment of the
+press.
+
+`onlyARefusedReadMayPromiseTheAccountsAreComingBack` reads the arm the sentence
+sits in and asks which reasons reach it, so widening it again fails a test
+rather than shipping.

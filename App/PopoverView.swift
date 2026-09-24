@@ -302,6 +302,10 @@ struct PopoverView: View {
             .font(.system(size: 18))
             .foregroundStyle(problem.mayBeOpened ? Color.accentColor : Severity.hot.tint)
             .padding(.bottom, 4)
+            // Decoration. The heading under it says the same thing in words,
+            // and VoiceOver reading "lock, filled" before that sentence spends
+            // the listener's first impression on an ornament.
+            .accessibilityHidden(true)
 
         // The heading and its explanation are one thing said twice, so they sit
         // closer to each other than to anything else. At the surrounding stack's
@@ -324,9 +328,15 @@ struct PopoverView: View {
             // to press — and a button still offering to do what is already
             // being done invites a second dialog for the same item.
             if opening {
-                ProgressView().controlSize(.small).padding(.top, 5)
+                // Given the button's height rather than its own. Swapped for a
+                // bare spinner the block lost six points at the moment of the
+                // press, and everything under it — including the Settings…
+                // beneath — jumped up under the pointer that had just pressed
+                // something.
+                ProgressView().controlSize(.small)
+                    .frame(height: 22).padding(.top, 2)
             } else {
-                Button(loc("Open saved accounts")) { Task { await openSavedAccounts() } }
+                Button(loc("Open saved accounts")) { Task { await askTheKeychain() } }
                     .padding(.top, 2)
             }
             Button(loc("Settings…")) { openAccounts() }
@@ -363,13 +373,18 @@ struct PopoverView: View {
 
     /// One press of the keychain's question.
     ///
+    /// Named for what it does rather than for the model method it calls. It was
+    /// `openSavedAccounts()`, the same name one line down with `model.` in
+    /// front of it — which compiles, does the right thing, and is one dropped
+    /// receiver away from calling itself forever.
+    ///
     /// The note is spoken only when the reason is the same afterwards as it was
     /// before, which is the rule `AccountsPane.repair` already follows: an
     /// attempt that failed and nonetheless moved — the item opened, and what
     /// came out could not be understood — has rewritten the explanation above,
     /// and "nothing was changed" under a changed explanation is the one untrue
     /// line on the screen.
-    private func openSavedAccounts() async {
+    private func askTheKeychain() async {
         opening = true
         openingFailed = false
         let before = model.savedAccountsProblem
