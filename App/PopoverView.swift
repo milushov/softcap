@@ -35,6 +35,13 @@ struct PopoverView: View {
     /// The code from the page, when a sign-in has come back asking for one.
     @State private var pastedCode = ""
 
+    /// Whether the keychain's question is on screen, and whether the last one
+    /// came back with nothing changed. Held by the window rather than the model
+    /// because they describe this window's own press: the settings screen runs
+    /// the same repair and keeps its own pair for the same reason.
+    @State private var opening = false
+    @State private var openingFailed = false
+
     var body: some View {
         Group {
             if model.preferences.minimalWindow { minimal } else { full }
@@ -227,11 +234,27 @@ struct PopoverView: View {
     /// a reading has been taken off it. The sentence carries the meaning; the
     /// spinner only ever said the same thing less clearly.
     ///
-    /// An empty list that has been read has exactly one cause now: no account
-    /// has been added. There used to be a second — Claude Code's keychain item
-    /// refusing to be read — and two different sentences to tell them apart.
-    /// The app no longer opens that item, so the second cause cannot happen and
-    /// the advice is one line: add an account, which means the browser.
+    /// An empty list that has been read has two causes, and they want opposite
+    /// advice. No account has been added, which the browser fixes. Or the saved
+    /// list was refused — the keychain binds access to the signature that wrote
+    /// the item, so an update can be enough — and then every account is intact
+    /// behind a question nobody has been asked yet.
+    ///
+    /// The window used to state the first one over both. To the second it read:
+    /// your accounts are gone, go and sign in again — which is a conclusion
+    /// drawn where the app has been refused the right to draw one, beside advice
+    /// that spends a grant replacing a credential that still works. The store
+    /// has told the two apart since 0.1.26 and the window simply never asked.
+    ///
+    /// Asking costs nothing and raises nothing: `load()` made that read at
+    /// launch with the keychain's own dialog turned off, and `savedAccountsProblem`
+    /// is the answer it already had. It is also what keeps this off a fresh
+    /// install's screen — an item that was never written is not a refusal, and
+    /// leaves that property `nil`.
+    ///
+    /// A third cause exists and gets its own screen a layer down: see
+    /// `SavedAccountsProblem`, where what is said about each of the three is
+    /// decided once for this window and the settings pane together.
     private var empty: some View {
         VStack(spacing: 6) {
             if model.lastUpdated == nil {
@@ -241,6 +264,8 @@ struct PopoverView: View {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 18)
+            } else if let reason = model.savedAccountsProblem {
+                shut(SavedAccountsProblem(reason))
             } else {
                 Text(loc("No accounts found")).font(.system(size: 12, weight: .medium))
                 Text(loc("Add an account in Settings — Softcap opens your browser to sign in."))
@@ -253,6 +278,104 @@ struct PopoverView: View {
             }
         }
         .frame(maxWidth: .infinity).padding(.vertical, 22)
+    }
+
+    /// The accounts are there and shut, and this is the way back in.
+    ///
+    /// The symbol is the one thing this window has that the settings pane does
+    /// not spend: a column with nothing else in it, and four lines of
+    /// explanation under a heading read as an error report without something
+    /// above them saying which kind of trouble this is. A lock is shut, not
+    /// broken.
+    ///
+    /// **Start over…** is not here. It deletes the only copy of every refresh
+    /// token in the item, and this window opens under the pointer on a click of
+    /// the menu bar — the two facts do not belong within a few pixels of each
+    /// other. That button stays behind the settings screen's confirmation, and
+    /// `Settings…` is how somebody who needs it gets there.
+    @ViewBuilder
+    private func shut(_ problem: SavedAccountsProblem) -> some View {
+        Image(systemName: problem.symbol)
+            .font(.system(size: 18))
+            .foregroundStyle(problem.mayBeOpened ? Color.accentColor : Severity.hot.tint)
+            .padding(.bottom, 4)
+
+        // The heading and its explanation are one thing said twice, so they sit
+        // closer to each other than to anything else. At the surrounding stack's
+        // spacing all four elements were equally far apart, and the symbol read
+        // as a fourth line of text rather than as the thing the lines are about.
+        VStack(spacing: 3) {
+            Text(problem.heading).font(.system(size: 12, weight: .medium))
+
+            Text(problem.explanation)
+                .font(.system(size: 11)).foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 18)
+        }
+
+        if problem.mayBeOpened {
+            // The spinner replaces the button rather than sitting beside it.
+            // The press puts a system dialog on screen and the answer is a
+            // person's to give, so there is nothing to cancel and nothing else
+            // to press — and a button still offering to do what is already
+            // being done invites a second dialog for the same item.
+            if opening {
+                ProgressView().controlSize(.small).padding(.top, 5)
+            } else {
+                Button(loc("Open saved accounts")) { Task { await openSavedAccounts() } }
+                    .padding(.top, 2)
+            }
+            Button(loc("Settings…")) { openAccounts() }
+                .buttonStyle(.clickable)
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+        } else {
+            Button(loc("Settings…")) { openAccounts() }
+                .padding(.top, 2)
+        }
+
+        if openingFailed {
+            Text(loc("That did not work, and nothing was changed."))
+                .font(.system(size: 10.5)).foregroundStyle(Severity.hot.tint)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 18)
+        }
+    }
+
+    /// Settings, opened on the screen this window is talking about.
+    ///
+    /// The footer's `Settings…` opens whichever section was last looked at,
+    /// which is right for a button that means "settings". This one means the
+    /// rest of what can be done about a list that will not open — the repair
+    /// again, and **Start over…**, which is the only way out of the third
+    /// reason and is deliberately not in this window. Landing on Appearance
+    /// with that errand is a dead end the person has to find their own way out
+    /// of.
+    private func openAccounts() {
+        model.settingsSection = .accounts
+        SettingsWindow.open()
+    }
+
+    /// One press of the keychain's question.
+    ///
+    /// The note is spoken only when the reason is the same afterwards as it was
+    /// before, which is the rule `AccountsPane.repair` already follows: an
+    /// attempt that failed and nonetheless moved — the item opened, and what
+    /// came out could not be understood — has rewritten the explanation above,
+    /// and "nothing was changed" under a changed explanation is the one untrue
+    /// line on the screen.
+    private func openSavedAccounts() async {
+        opening = true
+        openingFailed = false
+        let before = model.savedAccountsProblem
+        do {
+            try await model.openSavedAccounts()
+        } catch {
+            openingFailed = model.savedAccountsProblem == before
+        }
+        opening = false
     }
 
     // MARK: - signing in on the spot

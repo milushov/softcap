@@ -9279,3 +9279,82 @@ pointer for the modifier version. The style version has been photographed for
 its layout only: the Mac was locked when it was written, and a locked session
 delivers no synthetic pointer events to any application, which is also why the
 hit area was argued from the review's measurement rather than re-measured here.
+
+## 2026-09-24 — The window that says the accounts are gone offers them back
+
+**Decision.** `PopoverView.empty` asks why the list is empty before it says
+nothing is in it. Two branches join the two it had, in this order: still
+looking, refused, not understood, nothing saved. A refused list — the keychain
+turned this build away, or did not answer — is headed **Your accounts are still
+here** under a lock, carries the settings screen's own explanation word for
+word, and offers **Open saved accounts**, which is the repair that screen has
+had since 0.1.26. A list that opened and could not be understood keeps the older
+heading, **Saved accounts could not be opened**, and is offered `Settings…`
+alone.
+
+`AppModel` publishes `savedAccountsProblem`, taken once at the top of each poll
+before the network, and `SavedAccountsProblem` decides what is said about each
+of the three reasons for both screens at once. `AccountsPane` reads the same
+published property and its own `@State` copy is gone.
+
+The press holds the window open: `keychainDialogRequests` on the model,
+`holdWindowOpen` on the status item, raised and released inside
+`openSavedAccounts()` — the one place that raises this dialog and therefore the
+one place that has to survive it.
+
+**Why.** The store has distinguished a refused list from an empty one since
+0.1.26, and the window never asked. It branched on `lastUpdated` alone, so
+somebody whose accounts were intact behind an unanswered question read "No
+accounts found" and, under it, advice to sign in again. That is a conclusion
+about the accounts drawn in the one state where the app has been refused the
+right to draw one, beside advice that spends a grant to replace a credential
+that still works. It is the state a GitHub update used to produce every time and
+a Developer ID one can still produce once, and the screen that could fix it is
+the settings screen — which is not where anybody in that state goes looking.
+
+Knowing in advance whether there is anything to offer this for costs nothing.
+`load()` reads the keychain at launch with user interaction turned off:
+`errSecItemNotFound` is not a failure to read and leaves the reason `nil`, so a
+fresh install cannot reach the new branches. Nobody is offered a repair for
+accounts they never had — which was the condition on doing this at all.
+
+The third reason is kept apart from the other two on purpose. There the item
+opened and what came out makes no sense to this build; the only way on deletes
+every refresh token in it. "Your accounts are still here" would be a promise the
+app cannot keep, and **Start over…** is a button that destroys credentials — it
+stays behind the settings screen's confirmation rather than sitting in a window
+that opens under the pointer on a click of the menu bar.
+
+The heading is the one new sentence, in ten catalogues. Everything else was
+already translated, including the explanations, which the window repeats word
+for word rather than shortening: somebody who has read one screen should not
+have to work out that the other means the same thing, and a sentence written for
+the narrower window would have cost ten translations to save two lines.
+
+`SavedAccountsProblem` lives in the App target rather than `StatusUI`, where the
+catalogues are. That target is what the widgets are built from and does not
+depend on `Credentials`; a dependency added for three sentences would put the
+credential store inside a timeline of pictures.
+
+**Cost.** One sentence in ten languages. A window that had one empty state now
+has four, and every future edit to it has to keep four straight — the two
+ordering checks in `TheWindowSaysItIsStillLooking` and
+`TheWindowOffersTheWayBackIn` exist to make a wrong one fail rather than ship.
+
+A popover that can be pinned open by a counter is a popover a bug can leave
+pinned for the session, so the release is in `defer` and a test holds it there.
+It also yields to the appearance preview, which pins the same window for its own
+reasons and has its own release.
+
+`TheWidgetIsNotBlankedByAClosedList` had to be reworded. It asked for
+`await accountsProblem() == nil` in the poll, and the reason is now read once at
+the top and the guard turns on the copy — the same rule, spelled differently.
+The check held the spelling; what it means to hold is that publishing to the
+widget is decided by whether the list could be read, not by whether the reading
+came back empty.
+
+**What this does not fix.** A move between distribution channels. The App Store
+build is sandboxed into a keychain access group of its own, so the item the
+GitHub build wrote is not refused — it is not found, which is indistinguishable
+from a fresh install from inside. That case still reads "No accounts found", and
+it is telling the truth about the keychain it can see.

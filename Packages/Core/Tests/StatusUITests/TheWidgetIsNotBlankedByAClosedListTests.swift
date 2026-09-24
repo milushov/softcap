@@ -41,12 +41,19 @@ import Foundation
     /// The other direction, which matters just as much: a list that reads
     /// correctly and holds nothing — everything forgotten — must still reach the
     /// widget, or it would show accounts that are gone.
+    ///
+    /// The guard used to call `accountsProblem()` on the spot and this read
+    /// `await accountsProblem() == nil`. The reason is now taken once at the top
+    /// of the poll, because the limits window needs it while it is drawing — so
+    /// what the guard turns on is the copy. The rule is unchanged and the
+    /// spelling is not: what matters is that publishing is decided by whether
+    /// the list could be read, not by whether the reading came back empty.
     @Test func anEmptyListThatWasReadIsStillPublished() throws {
         let model = try String(contentsOf: Self.appModel, encoding: .utf8)
         guard let poll = Self.function("poll", in: model) else {
             throw ScanIsLookingInTheWrongPlace(what: "poll", found: 0, least: 1)
         }
-        #expect(poll.contains("await accountsProblem() == nil"), """
+        #expect(poll.contains("savedAccountsProblem == nil"), """
             the guard no longer lets a readable empty list through — forgetting \
             every account would leave the widget showing them
             """)

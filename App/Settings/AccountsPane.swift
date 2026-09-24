@@ -13,8 +13,6 @@ struct AccountsPane: View {
     @State private var pendingForget: AccountRow?
     @State private var manualCode = ""
     @State private var accountError: String?
-    /// Why the saved list could not be read, when it could not be read.
-    @State private var problem: UnreadableAccountList?
     @State private var repairing = false
     @State private var repairNote: String?
     @State private var confirmingStartOver = false
@@ -47,9 +45,16 @@ struct AccountsPane: View {
                 // there, and offered them a sign-in that could not be saved.
                 if let problem {
                     VStack(alignment: .leading, spacing: 6) {
+                        // This screen's own heading rather than the one the
+                        // limits window draws. That window has a lock above it
+                        // and a column with nothing else in it; here the
+                        // sentence sits under a pane title, and "Your accounts
+                        // are still here" arriving with no visible claim to
+                        // correct reads as an answer to a question nobody
+                        // asked.
                         Text(loc("Saved accounts could not be opened"))
                             .font(.system(size: 12.5, weight: .medium))
-                        Text(explanation(of: problem))
+                        Text(problem.explanation)
                             .font(.system(size: 11)).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                         HStack(spacing: 8) {
@@ -57,7 +62,7 @@ struct AccountsPane: View {
                             // too, and the same press puts it on screen — only
                             // an item that opened and made no sense has nobody
                             // left to ask.
-                            if problem != .contentNotUnderstood {
+                            if problem.mayBeOpened {
                                 Button(loc("Open saved accounts")) { Task { await open() } }
                                     .disabled(repairing)
                             }
@@ -203,23 +208,20 @@ struct AccountsPane: View {
         }
     }
 
-    private func reload() async {
-        rows = await appModel.accountRows()
-        problem = await appModel.accountsProblem()
+    /// Why the saved list could not be read, when it could not be read.
+    ///
+    /// Derived from the model rather than kept here. It used to be `@State`,
+    /// reloaded from three separate `onChange` hooks — which was one fact held
+    /// in two places while this pane was the only place it could be read. The
+    /// limits window reads it too now, and three copies of a fact are three
+    /// chances for two screens to disagree about what the keychain said.
+    private var problem: SavedAccountsProblem? {
+        appModel.savedAccountsProblem.map { SavedAccountsProblem($0, loc) }
     }
 
-    /// The two situations read the same from here — an empty list — and are
-    /// not the same thing at all. One of them is a question away from being
-    /// over; the other cannot be talked out of.
-    private func explanation(of problem: UnreadableAccountList) -> String {
-        switch problem {
-        case .keychainRefusedThisBuild:
-            loc("This copy of the app is not the one that saved them. The keychain will ask once — choose “Always Allow”.")
-        case .keychainDidNotOpen:
-            loc("The keychain did not open them. It may be locked.")
-        case .contentNotUnderstood:
-            loc("What is saved cannot be read by this version.")
-        }
+    private func reload() async {
+        rows = await appModel.accountRows()
+        await appModel.refreshSavedAccountsProblem()
     }
 
     private func open() async { await repair { try await appModel.openSavedAccounts() } }
@@ -236,7 +238,7 @@ struct AccountsPane: View {
     private func repair(_ work: () async throws -> Void) async {
         repairing = true
         repairNote = nil
-        let before = problem
+        let before = appModel.savedAccountsProblem
         var failed = false
         do {
             try await work()
@@ -245,7 +247,7 @@ struct AccountsPane: View {
         }
         repairing = false
         await reload()
-        if failed, problem == before {
+        if failed, appModel.savedAccountsProblem == before {
             repairNote = loc("That did not work, and nothing was changed.")
         }
     }

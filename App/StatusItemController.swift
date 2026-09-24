@@ -116,6 +116,19 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             }
             .store(in: &cancellables)
 
+        // A keychain dialog this app asked for holds the window open for as
+        // long as it stands. Without it the window that offers the repair is
+        // the window the repair takes off the screen: a `.transient` popover
+        // closes itself the moment focus moves, and a system dialog moving the
+        // focus is the whole of what the button does.
+        model.$keychainDialogRequests
+            .map { $0 > 0 }
+            .removeDuplicates()
+            .sink { [weak self] asking in
+                Task { @MainActor [weak self] in self?.holdWindowOpen(asking) }
+            }
+            .store(in: &cancellables)
+
         // The label beside the icon is recomputed on every data update and
         // whenever the "In the menu bar" setting changes.
         model.$summary
@@ -298,6 +311,26 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         isPreviewing = true
         popover.behavior = .applicationDefined
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
+    }
+
+    /// Stops the window closing itself while a dialog this app asked for is
+    /// standing in front of it.
+    ///
+    /// The release is not conditional on the window being open. A popover is
+    /// kept and reused, so a behaviour left on one that closed in the meantime
+    /// is a behaviour the next ordinary click inherits — a window that no longer
+    /// puts itself away, for a dialog that finished minutes ago.
+    ///
+    /// It does yield to the appearance preview, which pins the same window for
+    /// its own reasons and has its own release. Taking the pin away here would
+    /// close a window the Appearance screen is still showing.
+    private func holdWindowOpen(_ asking: Bool) {
+        guard let popover else { return }
+        if asking {
+            popover.behavior = .applicationDefined
+        } else if !isPreviewing {
+            popover.behavior = .transient
+        }
     }
 
     /// Puts away only what the preview brought out, and gives the window back

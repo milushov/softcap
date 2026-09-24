@@ -482,6 +482,12 @@ final class AppModel: ObservableObject {
 
         await rebuildPoller()
 
+        // Before the network, not after it. This is the one fact on the window
+        // that is already known — the store read the keychain at launch — and a
+        // window opened during the first poll should not have to wait on two
+        // services answering before it can stop saying the accounts are gone.
+        savedAccountsProblem = await accountsProblem()
+
         guard let poller else { return }
         let result = orderedForDisplay(
             await poller.refresh(), ordering: preferences.ordering,
@@ -551,7 +557,7 @@ final class AppModel: ObservableObject {
         // surface with no room to explain itself and nothing to press. The last
         // good reading stays instead, with the age the widget already shows,
         // and the repair in Accounts is what puts a new one there.
-        let listWasRead = await accountsProblem() == nil
+        let listWasRead = savedAccountsProblem == nil
         if listWasRead || !snapshots.isEmpty {
             publishToWidget(snapshots)
         }
@@ -637,6 +643,35 @@ final class AppModel: ObservableObject {
 
     // MARK: - An account list this build cannot open
 
+    /// The same answer, published, because the limits window needs it while it
+    /// is drawing rather than at the end of an `await`.
+    ///
+    /// Nothing is read from the keychain to keep this current. `load()` asked
+    /// once at launch, with the keychain's own question turned off, and the
+    /// store has been holding the answer since — so a poll can copy it out for
+    /// the price of an actor hop.
+    ///
+    /// It is also the whole of knowing whether there is anything to offer a
+    /// repair for. An item that was never written answers `errSecItemNotFound`,
+    /// which is not a failure to read and leaves this `nil`; somebody who
+    /// installed the app a minute ago cannot reach the sentence about accounts
+    /// surviving an update, because as far as the keychain is concerned they
+    /// have none to survive it.
+    @Published private(set) var savedAccountsProblem: UnreadableAccountList?
+
+    /// How many keychain dialogs this app has deliberately asked for.
+    ///
+    /// The keychain's question is a system dialog, and a `.transient` popover
+    /// closes itself as soon as the focus moves — so the window that offers the
+    /// repair is the window the repair takes off the screen, leaving a password
+    /// prompt with nothing beside it to say what asked for one.
+    ///
+    /// A count rather than a flag, for the reason written above
+    /// `appearancePreviewRequests`, and read by `StatusItemController`, which
+    /// owns the window. Both facts travel this way for the same reason: the
+    /// screens are handed no way to reach the status item.
+    @Published private(set) var keychainDialogRequests = 0
+
     /// Why the saved accounts could not be read, or `nil` when they were.
     ///
     /// Shaped like `accountRows()` above and for the same two reasons: a
@@ -651,6 +686,16 @@ final class AppModel: ObservableObject {
         return await store.whyUnreadable()
     }
 
+    /// Re-reads the reason without polling.
+    ///
+    /// For the two moments a poll is the wrong instrument: a screen appearing,
+    /// and a repair that failed. Both want the reason as it stands now, and a
+    /// poll would fetch two services over the network to deliver a fact the
+    /// store has been holding since launch.
+    func refreshSavedAccountsProblem() async {
+        savedAccountsProblem = await accountsProblem()
+    }
+
     /// Puts the keychain's own question on screen, and takes the accounts back
     /// if it is answered yes.
     ///
@@ -658,11 +703,32 @@ final class AppModel: ObservableObject {
     /// and the button can be pressed again. The refusal is written down for the
     /// same reason the failure to read it was — the screen has one sentence to
     /// spend, and the status code belongs where somebody can read it later.
+    ///
+    /// The window is held open for the length of it, and the app is brought
+    /// forward so the dialog arrives in front of whatever was there. Both are
+    /// wanted by only one of the two callers — the settings screen is already
+    /// frontmost and has no popover to lose — and both are harmless to the
+    /// other, which is why they are here rather than in the window: the one
+    /// place that raises this dialog is the one place that has to survive it.
+    ///
+    /// Released in `defer`. A refused dialog throws, and a count let go only on
+    /// the way out would leave a popover pinned open for the rest of the
+    /// session with nothing left that could unpin it.
     func openSavedAccounts() async throws {
+        keychainDialogRequests += 1
+        defer { keychainDialogRequests -= 1 }
+        NSApp.activate(ignoringOtherApps: true)
         do {
             try await store.openWithPermission()
         } catch {
             Self.log.error("saved accounts did not open: \(String(describing: error), privacy: .public)")
+            // A failed attempt can still have moved: the item opened, and what
+            // came out could not be understood. The reason is re-read before
+            // the throw so the screens see the new one — they decide what to
+            // say about the press by comparing the reason before with the
+            // reason after, and a stale copy makes a changed situation read as
+            // a press that did nothing.
+            await refreshSavedAccountsProblem()
             throw error
         }
         await refresh()
