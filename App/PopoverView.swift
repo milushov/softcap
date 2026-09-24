@@ -66,6 +66,17 @@ struct PopoverView: View {
         .onReceive(tick) { now = $0 }
     }
 
+    /// Whether any row carries the mark for the account in use.
+    ///
+    /// It follows the setting that put the figure in the menu bar. Under
+    /// `Busiest` somebody has said they do not want this idea, and a dot
+    /// still marking the account in use would be a leftover from a feature
+    /// they turned off. Nil when nobody is named either — nothing has been
+    /// seen to rise yet — so a fresh launch draws the list it always drew.
+    private var marksRows: Bool {
+        model.preferences.menuBarAccount == .inUse && model.accountInUse != nil
+    }
+
     /// The window as it has always been: a heading, two meters per account,
     /// three named buttons.
     private var full: some View {
@@ -82,7 +93,8 @@ struct PopoverView: View {
                         layout: model.preferences.rowLayout,
                         showSnapshotAge: model.preferences.showSnapshotAge,
                         localization: loc,
-                        signIn: signIn(for: snapshot)
+                        signIn: signIn(for: snapshot),
+                        inUse: marksRows ? snapshot.id == model.accountInUse : nil
                     )
                     if index < model.snapshots.count - 1 { Divider().opacity(0.35) }
                 }
@@ -153,7 +165,8 @@ struct PopoverView: View {
                         choice: model.preferences.primaryWindow,
                         showSnapshotAge: model.preferences.showSnapshotAge,
                         localization: loc,
-                        signIn: signIn(for: snapshot)
+                        signIn: signIn(for: snapshot),
+                        inUse: marksRows ? snapshot.id == model.accountInUse : nil
                     )
                 }
             }
