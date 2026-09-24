@@ -379,7 +379,25 @@ import Foundation
 
             var environment = ProcessInfo.processInfo.environment
             // Nothing from this machine: not its global config, not its
-            // signing key, not its hooks, not its name.
+            // signing key, not its hooks, not its name — and not the
+            // repository it is standing in.
+            //
+            // That last one arrives by itself. Git exports these when it runs a
+            // hook, so this suite inherits them whenever it is run *by* the
+            // pre-commit hook, and every `git` below then addresses the outer
+            // repository instead of the sandbox it just built. It is invisible
+            // until the commit is made with a pathspec — `git commit -- path` —
+            // because only then is the exported index a temporary file the
+            // child also tries to lock, and the whole suite fails at once with
+            // "Unable to create … next-index-NNNN.lock.lock".
+            for inherited in [
+                "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_PREFIX",
+                "GIT_COMMON_DIR", "GIT_OBJECT_DIRECTORY",
+                "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_NAMESPACE",
+                "GIT_CEILING_DIRECTORIES",
+            ] {
+                environment.removeValue(forKey: inherited)
+            }
             environment["GIT_CONFIG_GLOBAL"] = "/dev/null"
             environment["GIT_CONFIG_NOSYSTEM"] = "1"
             environment["GIT_AUTHOR_NAME"] = "Softcap tests"
