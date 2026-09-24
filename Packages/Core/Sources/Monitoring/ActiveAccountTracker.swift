@@ -39,6 +39,33 @@ public struct ActiveAccountTracker: Sendable, Equatable {
 
     public init() {}
 
+    /// Picks up where the last run left off.
+    ///
+    /// A fresh tracker knows nothing, and a menu bar that falls back to the
+    /// busiest account for the first minutes of every launch is a feature that
+    /// works except when you have just opened your laptop. The history is
+    /// loaded at startup anyway, so the tracker is built out of it: each
+    /// account's last rise, and each window's last percentage as its mark.
+    ///
+    /// The kept readings are thinned — no two closer than five minutes, an
+    /// unchanged one only every half hour — so a seeded time is approximate. It
+    /// only has to order accounts against each other, and for that it is
+    /// enough. Marks being up to half an hour stale is harmless in the same
+    /// way: the first live poll may then see a rise that happened slightly
+    /// earlier, and will credit it to the account that really made it.
+    public init(seededFrom history: UsageHistory) {
+        // `samples` is kept in ascending time order, so one pass is the same
+        // walk `observe` makes poll by poll.
+        for sample in history.samples {
+            let mark = Mark(account: sample.accountID, window: sample.windowID)
+            defer { marks[mark] = sample.percent }
+            guard let previous = marks[mark] else { continue }
+            let change = sample.percent - previous
+            guard change >= Self.floor else { continue }
+            rises[sample.accountID] = Rise(at: sample.at, points: change)
+        }
+    }
+
     /// The account whose usage rose most recently, or nil if none ever has.
     ///
     /// Ties inside one poll go to the larger rise. That comparison is no more

@@ -138,4 +138,63 @@ import ProviderKit
                         at: start.addingTimeInterval(120))
         #expect(tracker.accountInUse == "a")
     }
+
+    // MARK: - picking up where the last run left off
+
+    private func sample(_ account: String, _ window: String, _ percent: Double,
+                        _ minutes: Double) -> UsageSample {
+        UsageSample(at: start.addingTimeInterval(minutes * 60),
+                    accountID: account, windowID: window, percent: percent)
+    }
+
+    @Test func anEmptyHistorySeedsNothing() {
+        let tracker = ActiveAccountTracker(seededFrom: UsageHistory())
+        #expect(tracker.accountInUse == nil)
+    }
+
+    @Test func theSeedNamesTheAccountOfTheLastRise() {
+        let history = UsageHistory(samples: [
+            sample("a", "session", 10, 0),
+            sample("b", "session", 80, 0),
+            sample("b", "session", 84, 10),
+            sample("a", "session", 14, 20),
+        ])
+        #expect(ActiveAccountTracker(seededFrom: history).accountInUse == "a")
+    }
+
+    @Test func theSeedIgnoresAFallInTheHistory() {
+        let history = UsageHistory(samples: [
+            sample("a", "session", 10, 0),
+            sample("a", "session", 14, 10),
+            sample("b", "session", 80, 20),
+            sample("b", "session", 0, 30),
+        ])
+        #expect(ActiveAccountTracker(seededFrom: history).accountInUse == "a")
+    }
+
+    @Test func theSeedDoesNotReCountARiseTheHistoryAlreadyHolds() {
+        let history = UsageHistory(samples: [
+            sample("a", "session", 10, 0),
+            sample("a", "session", 14, 10),
+            sample("b", "session", 80, 10),
+        ])
+        var tracker = ActiveAccountTracker(seededFrom: history)
+        // The first live poll repeats what the history last saw. Nobody has
+        // done anything since, so the answer must not move to b.
+        tracker.observe([account("a", session: 14), account("b", session: 80)],
+                        at: start.addingTimeInterval(20 * 60))
+        #expect(tracker.accountInUse == "a")
+    }
+
+    @Test func aLivePollOutranksTheSeed() {
+        let history = UsageHistory(samples: [
+            sample("a", "session", 10, 0),
+            sample("a", "session", 14, 10),
+            sample("b", "session", 80, 10),
+        ])
+        var tracker = ActiveAccountTracker(seededFrom: history)
+        tracker.observe([account("a", session: 14), account("b", session: 85)],
+                        at: start.addingTimeInterval(20 * 60))
+        #expect(tracker.accountInUse == "b")
+    }
 }
