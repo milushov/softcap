@@ -276,6 +276,8 @@ Report names and categories are Apple's, and they change. The tool therefore **l
 - Consumes: `token()` and `call()` from `tools/push_store_metadata.py`, imported as a module. Both already exist; `call(method, path, body=None, raw=None, headers=None)` prefixes `BASE` when `path` does not start with `http` and attaches the bearer token.
 - Produces: two commands — `list` (prints `category  name  id` per report) and `fetch <substring>` (prints a per-day, per-storefront summary of the matching report). No other task depends on it.
 
+**Why this task has no test.** Every line of it is a shape Apple defines and can change without notice — the resource paths, the report names, the column headings inside a segment, whether a segment arrives gzipped. A test written against those shapes asserts this plan's guess about Apple rather than the tool's behaviour, and would pass forever while the tool returned nothing. The verification is Steps 2 and 3: run it against the real account and read what comes back. If it is ever worth pinning, the thing to pin is a saved segment file, and there is none to save until Step 3 has run once.
+
 - [ ] **Step 1: Write the tool**
 
 Create `tools/asc_analytics.py`:
