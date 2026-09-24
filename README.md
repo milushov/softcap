@@ -148,7 +148,9 @@ The App Store copy has eight: it has no Updates.
 
 History keeps a reading when usage moves by a point, at most every five minutes,
 plus one every half hour regardless while polling; pruned after 35 days.
-Cursor, GitHub Copilot and Gemini CLI are placeholders, not implemented providers.
+Cursor, Gemini CLI and the GLM Coding Plan appear under **Later**: named, not
+yet reachable. GitHub Copilot and the GLM reading are implemented and have not
+been checked against a live subscription, so neither is offered as supported.
 
 ## Data
 

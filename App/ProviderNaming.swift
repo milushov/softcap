@@ -24,6 +24,7 @@ extension ProviderID {
         case .copilot: "GitHub Copilot"
         case .cursor:  "Cursor"
         case .gemini:  "Gemini"
+        case .glm:     "GLM Coding Plan"
         }
     }
 }

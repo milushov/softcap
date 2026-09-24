@@ -737,7 +737,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
  {"@type":"Question","name":"What does Softcap actually measure?","acceptedAnswer":{"@type":"Answer","text":"For every account you add it shows the two windows a subscription runs on: the five-hour session limit and the weekly limit — what is used, what is left, and when each resets."}},
  {"@type":"Question","name":"Does checking my limits spend my limits?","acceptedAnswer":{"@type":"Answer","text":"No. Softcap reads usage endpoints with your own credentials; the requests carry no prompt and run no model, so the quota they describe is not touched by describing it."}},
- {"@type":"Question","name":"Which providers does it support?","acceptedAnswer":{"@type":"Answer","text":"Claude and OpenAI Codex, several accounts of each at once. Cursor, GitHub Copilot and Gemini CLI are not supported yet: a provider that cannot be checked against a live account would quietly show zero, which is worse than nothing."}},
+ {"@type":"Question","name":"Which providers does it support?","acceptedAnswer":{"@type":"Answer","text":"Claude and OpenAI Codex, several accounts of each at once. Cursor, GitHub Copilot, Gemini CLI and the GLM Coding Plan are not supported yet: a provider that cannot be checked against a live account would quietly show zero, which is worse than nothing."}},
  {"@type":"Question","name":"Do I have to sign in through the browser?","acceptedAnswer":{"@type":"Answer","text":"Signing in through the browser with OAuth gives Softcap a grant of its own. That is the only way an account is added: nothing is picked up from a CLI, and no credential belonging to one is ever read."}},
  {"@type":"Question","name":"Will it sign my CLI out?","acceptedAnswer":{"@type":"Answer","text":"No. Softcap never reads or writes your CLI's credentials — it holds only the grants you gave it in the browser, and refreshing one touches nothing else on the machine."}},
  {"@type":"Question","name":"Where do my tokens live?","acceptedAnswer":{"@type":"Answer","text":"In the macOS keychain, and nowhere else — never in preferences, logs or files. Removing an account removes its credentials from the keychain at that moment."}},
@@ -830,7 +830,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Which providers does it support?</h2>
-      <p>Claude and OpenAI Codex, several accounts of each at once. Cursor, GitHub Copilot and Gemini CLI are not supported yet: a provider that cannot be checked against a live account would quietly show zero, which is worse than nothing.</p>
+      <p>Claude and OpenAI Codex, several accounts of each at once. Cursor, GitHub Copilot, Gemini CLI and the GLM Coding Plan are not supported yet: a provider that cannot be checked against a live account would quietly show zero, which is worse than nothing.</p>
     </section>
     <section>
       <h2>Do I have to sign in through the browser?</h2>

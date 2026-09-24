@@ -1,7 +1,7 @@
 import Foundation
 
 public enum ProviderID: String, Sendable, Hashable, Codable, CaseIterable {
-    case claude, codex, cursor, copilot, gemini
+    case claude, codex, cursor, copilot, gemini, glm
 
     /// The service caption shown in an account row.
     public var title: String {
@@ -11,6 +11,9 @@ public enum ProviderID: String, Sendable, Hashable, Codable, CaseIterable {
         case .cursor:  "Cursor"
         case .copilot: "Copilot"
         case .gemini:  "Gemini"
+        // The plan is Z.ai's; the thing a person runs is GLM, and every other
+        // caption here names what they run rather than who sells it.
+        case .glm:     "GLM"
         }
     }
 
@@ -37,6 +40,11 @@ public enum ProviderID: String, Sendable, Hashable, Codable, CaseIterable {
         // when it is, the reply carries a refresh token and the ordinary path
         // takes over — this flag only decides what the *absence* of one means.
         case .copilot: false
+        // A coding-plan key is not a grant that rotates. It is handed over
+        // whole, it does not expire on its own, and reading a quota with it
+        // cannot retire it — which is also why a key given by hand is
+        // admissible where a refresh token copied from a CLI is not.
+        case .glm: false
         }
     }
 }

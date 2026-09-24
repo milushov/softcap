@@ -23,7 +23,9 @@ import Foundation
 @Suite struct OneNamePerService {
 
     /// The product names, as a person choosing between services reads them.
-    private static let productNames = ["Claude Code", "OpenAI Codex", "GitHub Copilot"]
+    private static let productNames = [
+        "Claude Code", "OpenAI Codex", "GitHub Copilot", "GLM Coding Plan",
+    ]
 
     @Test func noScreenWritesAProductNameOfItsOwn() throws {
         let files = try Self.appSources()

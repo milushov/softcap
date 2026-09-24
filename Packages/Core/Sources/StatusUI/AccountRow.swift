@@ -292,6 +292,7 @@ public struct ProviderBadge: View {
         case .cursor:  "cube"
         case .copilot: "chevron.left.forwardslash.chevron.right"
         case .gemini:  "diamond"
+        case .glm:     "hexagon"
         }
     }
 }

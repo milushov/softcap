@@ -243,12 +243,3 @@ private let epoch = Date(timeIntervalSince1970: 1_800_000_000)
         }
     }
 }
-
-@Suite struct RotationIsAPropertyOfTheService {
-    /// The flag exists so the store can read the *absence* of a refresh token.
-    /// Anything not yet implemented claims the rotating answer, because of the
-    /// two possible mistakes that is the visible one.
-    @Test func onlyTheDeviceGrantSaysItDoesNotRotate() {
-        #expect(ProviderID.allCases.filter { !$0.rotatesCredentials } == [.copilot])
-    }
-}

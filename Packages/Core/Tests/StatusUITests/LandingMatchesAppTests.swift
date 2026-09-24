@@ -520,18 +520,23 @@ import Foundation
 
     /// The services the page says are coming are the ones the app lists.
     ///
-    /// `ProviderID` has five cases; two are implemented and three appear in
-    /// Settings under "Later". The page names those three in its own words —
-    /// "GitHub Copilot", "Gemini CLI" — which is right for a reader and means
-    /// the two lists agree by memory. A fourth provider would be added to the
-    /// enum and to Settings, and the page would keep promising three.
+    /// `ProviderID` has six cases; two are read today and four appear in
+    /// Settings under "Later". The page names those four in its own words —
+    /// "GitHub Copilot", "Gemini CLI", "GLM Coding Plan" — which is right for a
+    /// reader and means the two lists agree by memory alone.
+    ///
+    /// Which is why this exists, and it has now caught the thing it was written
+    /// for: a sixth case was added to the enum and to Settings, and the page
+    /// went on naming three until this failed. The count below is deliberate —
+    /// it fails on the *next* one too, so somebody has to look at the page
+    /// rather than at a list that grew by itself.
     @Test func thePageNamesTheServicesTheAppHasNotBuiltYet() throws {
         let page = try Self.landing()
         let built: Set<ProviderID> = [.claude, .codex]
         let planned = ProviderID.allCases.filter { !built.contains($0) }
 
-        #expect(planned.count == 3,
-                "the app now plans \(planned.count) more services; the page names three")
+        #expect(planned.count == 4,
+                "the app now plans \(planned.count) more services; the page names four")
         for provider in planned {
             #expect(page.contains(provider.title),
                     "the page does not name \(provider.title), which the app lists as coming")

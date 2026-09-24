@@ -737,7 +737,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
  {"@type":"Question","name":"¿Qué mide Softcap exactamente?","acceptedAnswer":{"@type":"Answer","text":"Por cada cuenta que añadas muestra las dos ventanas sobre las que corre una suscripción: el límite de sesión de cinco horas y el límite semanal — lo gastado, lo que queda y cuándo se renueva cada uno."}},
  {"@type":"Question","name":"¿Consultar mis límites gasta mis límites?","acceptedAnswer":{"@type":"Answer","text":"No. Softcap lee los endpoints de uso con tus propias credenciales; las peticiones no llevan ningún prompt ni ejecutan ningún modelo, así que la cuota que describen no se toca al describirla."}},
- {"@type":"Question","name":"¿Qué proveedores admite?","acceptedAnswer":{"@type":"Answer","text":"Claude y OpenAI Codex, varias cuentas de cada uno a la vez. Cursor, GitHub Copilot y Gemini CLI todavía no: un proveedor que no se puede consultar contra una cuenta real mostraría cero en silencio, y eso es peor que nada."}},
+ {"@type":"Question","name":"¿Qué proveedores admite?","acceptedAnswer":{"@type":"Answer","text":"Claude y OpenAI Codex, varias cuentas de cada uno a la vez. Cursor, GitHub Copilot, Gemini CLI y el GLM Coding Plan todavía no: un proveedor que no se puede consultar contra una cuenta real mostraría cero en silencio, y eso es peor que nada."}},
  {"@type":"Question","name":"¿Tengo que entrar desde el navegador?","acceptedAnswer":{"@type":"Answer","text":"Iniciar sesión en el navegador con OAuth le da a Softcap una concesión propia. Es la única forma de añadir una cuenta: nada se toma de una CLI y no se lee ninguna credencial que le pertenezca."}},
  {"@type":"Question","name":"¿Cerrará la sesión de mi CLI?","acceptedAnswer":{"@type":"Answer","text":"No. Softcap nunca lee ni escribe las credenciales de tu CLI: solo tiene las concesiones que le diste en el navegador, y renovar una no toca nada más en el equipo."}},
  {"@type":"Question","name":"¿Dónde viven mis tokens?","acceptedAnswer":{"@type":"Answer","text":"En el llavero de macOS y en ningún otro sitio — nunca en preferencias, registros ni archivos. Al quitar una cuenta, sus credenciales salen del llavero en ese mismo momento."}},
@@ -830,7 +830,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>¿Qué proveedores admite?</h2>
-      <p>Claude y OpenAI Codex, varias cuentas de cada uno a la vez. Cursor, GitHub Copilot y Gemini CLI todavía no: un proveedor que no se puede consultar contra una cuenta real mostraría cero en silencio, y eso es peor que nada.</p>
+      <p>Claude y OpenAI Codex, varias cuentas de cada uno a la vez. Cursor, GitHub Copilot, Gemini CLI y el GLM Coding Plan todavía no: un proveedor que no se puede consultar contra una cuenta real mostraría cero en silencio, y eso es peor que nada.</p>
     </section>
     <section>
       <h2>¿Tengo que entrar desde el navegador?</h2>

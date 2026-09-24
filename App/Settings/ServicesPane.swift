@@ -7,7 +7,7 @@ struct ServicesPane: View {
     @ObservedObject var model: PreferencesModel
     @ObservedObject private var loc = Localization.shared
 
-    private static let planned: [ProviderID] = [.cursor, .gemini]
+    private static let planned: [ProviderID] = [.cursor, .gemini, .glm]
 
     var body: some View {
         Pane(title: loc("Services"),

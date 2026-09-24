@@ -52,6 +52,7 @@ import Foundation
             // are all gone, and the disk image is the only copy with an updater.
             "api.github.com":      "the release feed, daily and while the update screen is open, switchable off — the disk image only; and the Copilot identity and allowance reads",
             "github.com":          "the release page, the build a release publishes, and the Copilot device sign-in — code, polling and the page a person types it into",
+            "api.z.ai":            "the GLM Coding Plan's quota, read with the key and nothing else",
             "sentry.softcap.app":  "where a failure is described, scrubbed, and switchable off",
         ]
 

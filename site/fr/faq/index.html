@@ -737,7 +737,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
  {"@type":"Question","name":"Que mesure Softcap au juste ?","acceptedAnswer":{"@type":"Answer","text":"Pour chaque compte ajouté, l'app montre les deux fenêtres sur lesquelles tourne un abonnement : la limite de session de cinq heures et la limite hebdomadaire — ce qui est consommé, ce qui reste, et quand chacune se renouvelle."}},
  {"@type":"Question","name":"Vérifier mes limites consomme-t-il mes limites ?","acceptedAnswer":{"@type":"Answer","text":"Non. Softcap lit les points d'accès d'usage avec vos propres identifiants ; les requêtes ne portent aucun prompt et n'exécutent aucun modèle, donc le quota qu'elles décrivent n'est pas entamé par cette description."}},
- {"@type":"Question","name":"Quels fournisseurs sont pris en charge ?","acceptedAnswer":{"@type":"Answer","text":"Claude et OpenAI Codex, plusieurs comptes de chaque à la fois. Cursor, GitHub Copilot et Gemini CLI ne sont pas encore pris en charge : un fournisseur qu'on ne peut pas interroger sur un compte réel afficherait zéro en silence, ce qui est pire que rien."}},
+ {"@type":"Question","name":"Quels fournisseurs sont pris en charge ?","acceptedAnswer":{"@type":"Answer","text":"Claude et OpenAI Codex, plusieurs comptes de chaque à la fois. Cursor, GitHub Copilot, Gemini CLI et le GLM Coding Plan ne sont pas encore pris en charge : un fournisseur qu'on ne peut pas interroger sur un compte réel afficherait zéro en silence, ce qui est pire que rien."}},
  {"@type":"Question","name":"Dois-je me connecter depuis le navigateur ?","acceptedAnswer":{"@type":"Answer","text":"Se connecter dans le navigateur avec OAuth donne à Softcap une autorisation à lui. C'est la seule façon d'ajouter un compte : rien n'est récupéré depuis une CLI, et aucun identifiant lui appartenant n'est jamais lu."}},
  {"@type":"Question","name":"Cela va-t-il déconnecter ma CLI ?","acceptedAnswer":{"@type":"Answer","text":"Non. Softcap ne lit ni n'écrit jamais les identifiants de votre CLI — il ne détient que les autorisations que vous lui avez données dans le navigateur, et en renouveler une ne touche rien d'autre sur la machine."}},
  {"@type":"Question","name":"Où vivent mes jetons ?","acceptedAnswer":{"@type":"Answer","text":"Dans le trousseau macOS, et nulle part ailleurs — jamais dans les préférences, les journaux ou des fichiers. Retirer un compte enlève ses identifiants du trousseau à cet instant même."}},
@@ -830,7 +830,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Quels fournisseurs sont pris en charge ?</h2>
-      <p>Claude et OpenAI Codex, plusieurs comptes de chaque à la fois. Cursor, GitHub Copilot et Gemini CLI ne sont pas encore pris en charge : un fournisseur qu'on ne peut pas interroger sur un compte réel afficherait zéro en silence, ce qui est pire que rien.</p>
+      <p>Claude et OpenAI Codex, plusieurs comptes de chaque à la fois. Cursor, GitHub Copilot, Gemini CLI et le GLM Coding Plan ne sont pas encore pris en charge : un fournisseur qu'on ne peut pas interroger sur un compte réel afficherait zéro en silence, ce qui est pire que rien.</p>
     </section>
     <section>
       <h2>Dois-je me connecter depuis le navigateur ?</h2>

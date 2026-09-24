@@ -9765,3 +9765,58 @@ written in the reader's language. `zh-Hans` metadata stays and still serves
 Simplified Chinese readers in the other 174. The app was "available in 175
 countries" in every place that counted them, including the memory of it, and is
 not any more.
+## 2026-09-25 — A window is the pair, and the reading survives a schema that moved
+
+**Decided.** The GLM Coding Plan is read from
+`api.z.ai/api/monitor/usage/quota/limit`, and an entry in its `limits` array is
+matched by the pair `(unit, number)` — `(3, 5)` is the five-hour window, `(6, 1)`
+is the weekly one. Not by `type`, and not by `unit` alone. Anything else is
+skipped, and a reply holding no window this app knows is `malformed`.
+
+This slice is the reading only: the endpoint, the parser, the provider and their
+tests. There is no way to add such an account yet, for the reason at the end.
+
+**Why not `type`.** It read `TOKENS_LIMIT` and `TIME_LIMIT` until recently and
+reads `CREDIT_LIMIT` now. Every reader that keyed on it dropped the new entries
+and drew zeros — a schema change turned into a confident statement about
+somebody's account, which is the failure this project treats as worse than
+showing nothing. It happened to several of them in the same week, in public, and
+the issues are still open. Ignoring the field entirely is what makes the change
+a non-event here, in both directions: the older shape parses too, and a test
+holds it.
+
+**Why not `unit` alone.** `unit` is the unit of time and `number` is how many.
+Keying on the unit would file a one-hour window as `session`, and `session` is
+labelled `5h` in ten catalogues — a wrong period stated confidently beside a
+right number, which is the same class of defect the compact row had last week.
+The pair says exactly which window an entry is.
+
+**What it fits.** Both windows land on `session` and `weekly`, the two
+identifiers this app already has. No catalogue gains a key, no column is
+remeasured, no new window kind is named. Of the four services examined this is
+the only one whose data needed nothing built for it.
+
+**Cost.** `usage` is the allowance and `currentValue` is what has gone — the
+names are the wrong way round from what they look like, and the obvious reading
+is wrong in the reassuring direction. That is a comment and a test, not a
+mechanism, and it will mislead the next reader exactly once.
+
+The key goes in `Authorization` bare; the `Bearer` prefix every other service
+here requires is refused with a 401, which reads as a dead key rather than as a
+malformed header.
+
+`api.z.ai` joins the named hosts. The landing's answer about supported providers
+names the plan among those not supported yet, which is true and is what
+`thePageNamesTheServicesTheAppHasNotBuiltYet` exists to keep true.
+
+**What this waits on.** The endpoint returns a plan level and no identity at
+all. Every other service answers who the account belongs to — Claude a profile,
+Codex an ID token, Copilot `api.github.com/user` — and a row here would read
+`glm/1`, which is what `AccountRef.lastKnownName` exists to prevent. Asking the
+person to name the account beside the key is the obvious answer and adds a
+field; taking the plan level is not an answer, because two accounts on one plan
+would be one word twice. Until that is settled there is no sign-in, and without
+a sign-in there are no accounts for this provider to read.
+
+**Not verified against a live account**, and neither is Copilot. Two services
+now sit in this repository that no real subscription has answered.
