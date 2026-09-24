@@ -16,7 +16,13 @@ public extension Localization {
     /// One account, as a sentence:
     /// "Claude, name@example.com, Max 20x. Five-hour: 23% used, 3 hours 39
     /// minutes left. Weekly: 45% used, 5 days 2 hours left."
-    func spokenSummary(for snapshot: AccountSnapshot, now: Date) -> String {
+    ///
+    /// `inUse` adds the sentence the dot on screen stands for. The row is a
+    /// single accessibility element with `children: .ignore`, so a marker drawn
+    /// inside it is never read — it has to be said here or not at all.
+    func spokenSummary(
+        for snapshot: AccountSnapshot, now: Date, inUse: Bool = false
+    ) -> String {
         var sentences = [identity(of: snapshot)]
 
         if let failure = snapshot.failure {
@@ -28,6 +34,7 @@ public extension Localization {
         if snapshot.freshness.isStale, let captured = spokenCaptureDate(snapshot.freshness) {
             sentences.append(captured)
         }
+        if inUse { sentences.append(self("In use")) }
         return sentences.joined(separator: ". ")
     }
 

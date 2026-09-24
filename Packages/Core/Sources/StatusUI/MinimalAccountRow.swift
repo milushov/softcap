@@ -28,6 +28,18 @@ public struct MinimalAccountRow: View {
     /// anybody to, which is every surface but this window.
     private let signIn: SignInOffer?
 
+    /// Whether this is the account being worked with — and, in the third
+    /// state, whether any row is.
+    ///
+    /// `nil` draws no mark and reserves no room. `false` reserves the room
+    /// another row is using. The middle state has to exist because this
+    /// row's other end is three columns measured to the widest word in ten
+    /// languages, so the mark goes at the leading edge — and a leading mark
+    /// drawn on one row alone would push that row's name past its
+    /// neighbours', which is the raggedness those columns were measured to
+    /// remove.
+    private let inUse: Bool?
+
     @ObservedObject private var loc: Localization
 
     /// A click on the period label, and nothing longer-lived than that. `nil`
@@ -46,7 +58,8 @@ public struct MinimalAccountRow: View {
         choice: PrimaryWindow,
         showSnapshotAge: Bool,
         localization: Localization,
-        signIn: SignInOffer? = nil
+        signIn: SignInOffer? = nil,
+        inUse: Bool? = nil
     ) {
         self.snapshot = snapshot
         self.now = now
@@ -54,6 +67,7 @@ public struct MinimalAccountRow: View {
         self.showSnapshotAge = showSnapshotAge
         self.loc = localization
         self.signIn = signIn
+        self.inUse = inUse
     }
 
     private var window: LimitWindow? { snapshot.headlineWindow(for: peek ?? choice) }
@@ -73,12 +87,17 @@ public struct MinimalAccountRow: View {
         // contradicting it.
         .onChange(of: choice) { peek = nil }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(loc.spokenSummary(for: snapshot, now: now))
+        .accessibilityLabel(loc.spokenSummary(for: snapshot, now: now, inUse: inUse == true))
         .accessibilitySignIn(signIn, named: loc("Sign in…"), cancel: loc("Cancel"))
     }
 
     private var line: some View {
         HStack(spacing: 6) {
+            if let inUse {
+                InUseDot()
+                    .opacity(inUse ? 1 : 0)
+                    .frame(width: InUseDot.size)
+            }
             Text(snapshot.displayName)
                 .font(.system(size: 12))
                 .lineLimit(1)

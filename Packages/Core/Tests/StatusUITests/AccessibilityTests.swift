@@ -153,6 +153,24 @@ import ProviderKit
         }
     }
 
+    // MARK: - the row that is in use
+
+    /// The dot on screen is inside a row that collapses into one accessibility
+    /// element, so it is never read. The sentence has to carry it.
+    @Test func aRowInUseSaysSo() {
+        let loc = english()
+        #expect(loc.spokenSummary(for: snapshot(windows: []), now: now, inUse: true)
+            .contains("In use"))
+    }
+
+    @Test func aRowNotInUseSaysNothingExtra() {
+        let loc = english()
+        let row = snapshot(windows: [])
+        #expect(!loc.spokenSummary(for: row, now: now, inUse: false).contains("In use"))
+        // The default, which is what the widget and the phone get.
+        #expect(!loc.spokenSummary(for: row, now: now).contains("In use"))
+    }
+
     // MARK: - the strip, and who it is about
 
     /// Under `Account shown: Busiest` the figure really is about the whole

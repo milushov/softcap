@@ -19,6 +19,11 @@ public struct AccountRow: View {
     /// the phone — see `SignInOffer`.
     private let signIn: SignInOffer?
 
+    /// Whether this is the account being worked with. `nil` means nothing is
+    /// marking rows at all — see the fuller note in `MinimalAccountRow`, which
+    /// is the row that needs the third state.
+    private let inUse: Bool?
+
     @ObservedObject private var loc: Localization
     @Environment(\.layoutDirection) private var direction
 
@@ -29,7 +34,8 @@ public struct AccountRow: View {
         showSnapshotAge: Bool = true,
         compactPadding: Bool = false,
         localization: Localization,
-        signIn: SignInOffer? = nil
+        signIn: SignInOffer? = nil,
+        inUse: Bool? = nil
     ) {
         self.snapshot = snapshot
         self.now = now
@@ -38,6 +44,7 @@ public struct AccountRow: View {
         self.compactPadding = compactPadding
         self.loc = localization
         self.signIn = signIn
+        self.inUse = inUse
     }
 
     public var body: some View {
@@ -82,7 +89,7 @@ public struct AccountRow: View {
         .padding(.horizontal, compactPadding ? 0 : 13)
         .padding(.vertical, compactPadding ? 6 : 10)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(loc.spokenSummary(for: snapshot, now: now))
+        .accessibilityLabel(loc.spokenSummary(for: snapshot, now: now, inUse: inUse == true))
         .accessibilitySignIn(signIn, named: loc("Sign in…"), cancel: loc("Cancel"))
     }
 
@@ -101,6 +108,7 @@ public struct AccountRow: View {
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 4)
+            if inUse == true { InUseDot() }
             if snapshot.freshness.isStale && showSnapshotAge {
                 Text(staleLabel)
                     .font(.system(size: 9.5, weight: .semibold))
@@ -285,5 +293,22 @@ public struct ProviderBadge: View {
         case .copilot: "chevron.left.forwardslash.chevron.right"
         case .gemini:  "diamond"
         }
+    }
+}
+
+/// The mark on the row of the account being worked with.
+///
+/// A dot rather than a word: the window is read at a glance and has ten
+/// languages to fit into the same width, and all it has to answer is "why is
+/// the strip showing that number". The sentence for it is in `spokenSummary`,
+/// where a screen reader will actually meet it — a marker drawn inside a row
+/// is never read, because the row collapses into one element.
+struct InUseDot: View {
+    static let size: CGFloat = 6
+
+    var body: some View {
+        Circle()
+            .fill(.tint)
+            .frame(width: Self.size, height: Self.size)
     }
 }
