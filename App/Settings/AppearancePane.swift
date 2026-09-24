@@ -30,6 +30,14 @@ struct AppearancePane: View {
                 }
                 .pickerStyle(.segmented)
 
+                // Between the two deliberately: the three are one question
+                // asked three ways — what the strip says, whose limit it is
+                // about, and which of that account's windows — and they read
+                // in that order.
+                Picker(loc("Account shown"), selection: binding(\.menuBarAccount)) {
+                    ForEach(MenuBarAccount.allCases, id: \.self) { Text(loc.title($0)).tag($0) }
+                }
+
                 Picker(loc("Primary window"), selection: binding(\.primaryWindow)) {
                     ForEach(PrimaryWindow.allCases, id: \.self) { Text(loc.title($0)).tag($0) }
                 }

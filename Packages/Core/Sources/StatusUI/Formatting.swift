@@ -172,6 +172,17 @@ public extension Localization {
         }
     }
 
+    func title(_ value: MenuBarAccount) -> String {
+        switch value {
+        case .inUse:   self("In use")
+        // The same word `PrimaryWindow.worst` wears, and the same key: both say
+        // "whichever is fullest", one of an account's windows and one of the
+        // accounts. Two keys would be two translations of one idea, free to
+        // drift apart in ten languages.
+        case .busiest: self("Busiest")
+        }
+    }
+
     func title(_ value: PrimaryWindow) -> String {
         switch value {
         case .worst:   self("Busiest")
