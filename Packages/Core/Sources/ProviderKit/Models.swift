@@ -13,6 +13,32 @@ public enum ProviderID: String, Sendable, Hashable, Codable, CaseIterable {
         case .gemini:  "Gemini"
         }
     }
+
+    /// Whether this service issues a refresh token that has to be rotated.
+    ///
+    /// The store reads it to decide what an account holding no refresh token
+    /// means. For a service that rotates, it means the grant has been spent and
+    /// the only way forward is a new sign-in — that is the guard which stops a
+    /// dead Claude account from being retried on every poll until somebody
+    /// notices. For a service that does not, it is the normal resting state of
+    /// a working account, and refusing it would report "sign in again" about a
+    /// token that answers.
+    ///
+    /// `true` is the answer for anything not yet implemented, because of the
+    /// two possible mistakes it is the visible one: a rotating service wrongly
+    /// marked as static would go on serving a token the server has retired,
+    /// which arrives as an unexplained failure, while a static service wrongly
+    /// marked as rotating asks for a sign-in that plainly works.
+    public var rotatesCredentials: Bool {
+        switch self {
+        case .claude, .codex, .cursor, .gemini: true
+        // A device grant for a public GitHub client does not expire and comes
+        // with nothing to rotate. GitHub can be configured to expire tokens, and
+        // when it is, the reply carries a refresh token and the ordinary path
+        // takes over — this flag only decides what the *absence* of one means.
+        case .copilot: false
+        }
+    }
 }
 
 public enum Severity: Sendable, Hashable, Codable {
@@ -29,8 +55,15 @@ public enum Severity: Sendable, Hashable, Codable {
 }
 
 public struct LimitWindow: Sendable, Hashable, Codable, Identifiable {
-    /// Either "session" or "weekly". The label is chosen by the app layer:
-    /// it depends on the language, and a model has no business knowing one.
+    /// `session`, `weekly` or `premium` — the last being a monthly allowance,
+    /// named for what it counts rather than for its period because the service
+    /// reports three kinds of allowance and this is the one drawn.
+    ///
+    /// The label is chosen by the app layer: it depends on the language, and a
+    /// model has no business knowing one. Two places size themselves from the
+    /// full list rather than from one row's window — `MinimalAccountRow`'s
+    /// period column and `TheRowsLineUp` — so a fourth identifier is added
+    /// there as well as here.
     public let id: String
     public let percent: Double   // 0…100
     public let resetsAt: Date?

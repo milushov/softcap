@@ -9,6 +9,7 @@ let package = Package(
         .library(name: "ProviderKit", targets: ["ProviderKit"]),
         .library(name: "ClaudeProvider", targets: ["ClaudeProvider"]),
         .library(name: "CodexProvider", targets: ["CodexProvider"]),
+        .library(name: "CopilotProvider", targets: ["CopilotProvider"]),
         .library(name: "Credentials", targets: ["Credentials"]),
         .library(name: "Diagnostics", targets: ["Diagnostics"]),
         .library(name: "Monitoring", targets: ["Monitoring"]),
@@ -20,7 +21,11 @@ let package = Package(
         .target(name: "ProviderKit"),
         .target(name: "ClaudeProvider", dependencies: ["ProviderKit"]),
         .target(name: "CodexProvider", dependencies: ["ProviderKit"]),
-        .target(name: "Credentials", dependencies: ["ProviderKit", "ClaudeProvider", "CodexProvider"]),
+        .target(name: "CopilotProvider", dependencies: ["ProviderKit"]),
+        .target(
+            name: "Credentials",
+            dependencies: ["ProviderKit", "ClaudeProvider", "CodexProvider", "CopilotProvider"]
+        ),
         .target(name: "Diagnostics", dependencies: ["ProviderKit"]),
         .target(name: "Monitoring", dependencies: ["ProviderKit", "Preferences"]),
         .target(name: "Preferences", dependencies: ["ProviderKit"]),
@@ -33,6 +38,7 @@ let package = Package(
         .testTarget(name: "ProviderKitTests", dependencies: ["ProviderKit"]),
         .testTarget(name: "ClaudeProviderTests", dependencies: ["ClaudeProvider"]),
         .testTarget(name: "CodexProviderTests", dependencies: ["CodexProvider"]),
+        .testTarget(name: "CopilotProviderTests", dependencies: ["CopilotProvider"]),
         .testTarget(name: "CredentialsTests", dependencies: ["Credentials"]),
         .testTarget(
             name: "DiagnosticsTests",

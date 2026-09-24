@@ -153,23 +153,28 @@ public struct AccountRow: View {
     // MARK: - layout B: single line
 
     private var compactMeter: some View {
-        let weekly = snapshot.windows.first { $0.id == "weekly" } ?? snapshot.windows.first
-        let session = snapshot.windows.first { $0.id == "session" }
+        // `bar`, not `weekly`. It holds whichever window fills the line, and
+        // the fallback beside it means that is not always the weekly one — for
+        // a service reporting a single monthly allowance it is that. The name
+        // said otherwise and the label below was written from the name rather
+        // than from the value, so the row read `week 42%` about a month.
+        let bar = snapshot.windows.first { $0.id == "weekly" } ?? snapshot.windows.first
+        let tick = snapshot.windows.first { $0.id == "session" }
 
         return VStack(alignment: .leading, spacing: 5) {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule().fill(.quaternary)
-                    if let weekly {
+                    if let bar {
                         Capsule()
-                            .fill(weekly.severity.tint)
-                            .frame(width: max(2, geo.size.width * weekly.percent / 100))
+                            .fill(bar.severity.tint)
+                            .frame(width: max(2, geo.size.width * bar.percent / 100))
                     }
-                    if let session {
+                    if let tick {
                         // The five-hour tick. Under right-to-left writing the
                         // offset is measured from the other edge, so the sign
                         // flips — otherwise the mark leaves the bar.
-                        let offset = geo.size.width * session.percent / 100
+                        let offset = geo.size.width * tick.percent / 100
                         Rectangle()
                             .fill(.primary.opacity(0.55))
                             .frame(width: 1.5, height: 7)
@@ -180,12 +185,15 @@ public struct AccountRow: View {
             .frame(height: 4)
 
             HStack(spacing: 6) {
-                if let weekly {
-                    Text("\(loc.windowTitle("weekly")) \(loc.percent(weekly.percent))")
-                    Text(loc.remaining(weekly.remaining(from: now)))
+                if let bar {
+                    // The window's own identifier, as the other two layouts
+                    // already ask for it. Written as a literal here, the label
+                    // was a claim about the period rather than a reading of it.
+                    Text("\(loc.windowTitle(bar.id)) \(loc.percent(bar.percent))")
+                    Text(loc.remaining(bar.remaining(from: now)))
                 }
-                if let session {
-                    Text("· \(loc.windowTitle("session")) \(loc.percent(session.percent))")
+                if let tick {
+                    Text("· \(loc.windowTitle(tick.id)) \(loc.percent(tick.percent))")
                 }
             }
             .font(.system(size: 10.5))

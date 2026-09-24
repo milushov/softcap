@@ -3,6 +3,7 @@ import SwiftUI
 import ProviderKit
 import ClaudeProvider
 import CodexProvider
+import CopilotProvider
 import Credentials
 import Monitoring
 import Preferences
@@ -68,6 +69,13 @@ final class PhoneModel: ObservableObject {
         }
         if !preferences.disabledProviders.contains(.codex) {
             providers.append(CodexLiveUsageProvider(tokens: store, knownAccounts: refs))
+        }
+        // Polled here like the other two, and for the same reason it can be:
+        // the phone reads saved accounts and never signs one in. It has no
+        // accounts of its own to read until Keychain synchronisation is opted
+        // into, which `docs/authentication.md` explains is not.
+        if !preferences.disabledProviders.contains(.copilot) {
+            providers.append(CopilotUsageProvider(tokens: store, knownAccounts: refs))
         }
         let poller = UsagePoller(providers: providers)
 

@@ -7,6 +7,7 @@ import ProviderKit
     let p = Preferences.defaults
     #expect(p.appearance == .system)
     #expect(p.menuBarContent == .timer)
+    #expect(p.menuBarAccount == .inUse)
     #expect(p.primaryWindow == .worst)
     #expect(p.rowLayout == .twoWindows)
     #expect(p.ordering == .leastLoadedFirst)
@@ -22,6 +23,24 @@ import ProviderKit
     #expect(p.refreshAfterWake)
     #expect(p.disabledProviders.isEmpty)
     #expect(p.hiddenAccounts.isEmpty)
+}
+
+@Test func anOlderSettingsFileGetsTheNewMenuBarDefault() throws {
+    // Written by a build that had never heard of this setting. Every other
+    // field has to survive, and the new one has to arrive at its default —
+    // which is the new behaviour, so an upgrade brings it without being asked.
+    let json = #"{"appearance":"dark","primaryWindow":"weekly"}"#
+    let decoded = try JSONDecoder().decode(Preferences.self, from: Data(json.utf8))
+    #expect(decoded.menuBarAccount == .inUse)
+    #expect(decoded.appearance == .dark)
+    #expect(decoded.primaryWindow == .weekly)
+}
+
+@Test func theChoiceOfAccountSurvivesARoundTrip() throws {
+    var p = Preferences.defaults
+    p.menuBarAccount = .busiest
+    let data = try JSONEncoder().encode(p)
+    #expect(try JSONDecoder().decode(Preferences.self, from: data).menuBarAccount == .busiest)
 }
 
 @Test func thresholdsAreSortedDescendingAndDeduplicated() {

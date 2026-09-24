@@ -14,6 +14,12 @@ import Foundation
 /// measurement of one language: `5h` and `week` in English are `5ч` and `нед`
 /// in Russian and neither pair is the same width.
 ///
+/// "The widest thing it can hold" is the part that goes stale. It was two words
+/// while there were two window kinds, and a third arrived measuring nothing —
+/// so the identifiers are listed here as well as in the view, and a provider
+/// that starts producing a fourth fails this rather than shipping one ragged
+/// row among aligned ones.
+///
 /// Scanned out of the source for the reason `ThePeekIsNotRemembered` gives:
 /// these are views, and a scan cannot prove a window lines up — it can prove
 /// the thing that makes it line up is still written.
@@ -26,7 +32,9 @@ import Foundation
             words — the label goes back to sitting wherever the percentage \
             beside it leaves room, which differs by a digit from row to row
             """)
-        for id in ["session", "weekly"] {
+        // Every identifier a provider produces. A kind missing here is a row
+        // that measures narrower than the word it draws.
+        for id in ["session", "weekly", "premium"] {
             // The call the hidden copy makes, not the text it contains: written
             // as `Text(loc.windowTitle(…))` this passed on `periodText(…)` as a
             // substring, which is the drift it was meant to catch.

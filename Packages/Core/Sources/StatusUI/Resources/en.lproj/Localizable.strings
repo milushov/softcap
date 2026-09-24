@@ -215,3 +215,11 @@
 "The App Store installs it, and asks you to quit Softcap first." = "The App Store installs it, and asks you to quit Softcap first.";
 "The App Store could not be reached. Check the connection and try again." = "The App Store could not be reached. Check the connection and try again.";
 "Your accounts are still here" = "Your accounts are still here";
+"month" = "month";
+"Monthly" = "Monthly";
+"%1$@: %2$@ of the monthly limit" = "%1$@: %2$@ of the monthly limit";
+"The monthly limit reset, you can come back." = "The monthly limit reset, you can come back.";
+"Enter this code on the page that opened:" = "Enter this code on the page that opened:";
+"Copy the code" = "Copy the code";
+"Open the page" = "Open the page";
+"Could not open the browser. Open the page below and enter the code." = "Could not open the browser. Open the page below and enter the code.";

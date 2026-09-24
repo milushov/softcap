@@ -215,3 +215,11 @@
 "The App Store installs it, and asks you to quit Softcap first." = "App Store yang memasangnya, dan akan meminta Softcap ditutup dulu.";
 "The App Store could not be reached. Check the connection and try again." = "App Store tidak dapat dihubungi. Periksa koneksi dan coba lagi.";
 "Your accounts are still here" = "Akun Anda masih ada";
+"month" = "bulan";
+"Monthly" = "Bulanan";
+"%1$@: %2$@ of the monthly limit" = "%1$@: %2$@ dari batas bulanan";
+"The monthly limit reset, you can come back." = "Batas bulanan telah disetel ulang, Anda bisa kembali.";
+"Enter this code on the page that opened:" = "Masukkan kode ini di halaman yang terbuka:";
+"Copy the code" = "Salin kode";
+"Open the page" = "Buka halaman";
+"Could not open the browser. Open the page below and enter the code." = "Tidak dapat membuka browser. Buka halaman di bawah dan masukkan kodenya.";

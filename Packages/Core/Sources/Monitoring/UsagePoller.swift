@@ -90,10 +90,17 @@ public actor UsagePoller {
 public func menuBarSummary(
     _ snapshots: [AccountSnapshot], now: Date, window: PrimaryWindow = .worst
 ) -> MenuBarSummary? {
+    // Each account contributes the window asked for, or its busiest one when it
+    // has no such window. The fallback is the same one `AccountSnapshot.headlineWindow`
+    // makes for the row, and it has to be: without it an account reporting a
+    // monthly allowance matched neither filter, contributed nothing, and a
+    // person whose only accounts are of that kind got an empty menu bar above a
+    // window that was drawing their limits perfectly well — the label and the
+    // row disagreeing about whether there was anything to say.
     let candidates: [LimitWindow] = switch window {
     case .worst:   snapshots.compactMap(\.peakWindow)
-    case .session: snapshots.flatMap(\.windows).filter { $0.id == "session" }
-    case .weekly:  snapshots.flatMap(\.windows).filter { $0.id == "weekly" }
+    case .session: snapshots.compactMap { $0.windows.first { $0.id == "session" } ?? $0.peakWindow }
+    case .weekly:  snapshots.compactMap { $0.windows.first { $0.id == "weekly" } ?? $0.peakWindow }
     }
     guard let worst = candidates.max(by: { $0.percent < $1.percent }) else { return nil }
 

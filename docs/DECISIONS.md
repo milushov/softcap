@@ -9358,3 +9358,88 @@ build is sandboxed into a keychain access group of its own, so the item the
 GitHub build wrote is not refused — it is not found, which is indistinguishable
 from a fresh install from inside. That case still reads "No accounts found", and
 it is telling the truth about the keychain it can see.
+
+## 2026-09-24 — A third service arrives by a second door, and brings one window
+
+**Decided.** GitHub Copilot is implemented as a provider: a device-code sign-in,
+a live read of the plan and its allowance, and a place in Services beside the
+two that were already there. Cursor and Gemini stay under **Later**.
+
+Three things gave way to let it in.
+
+*Sign-in is now two shapes.* `BrowserAuthenticating` opens a browser, binds a
+loopback port and exchanges a code with PKCE. GitHub will not be signed into
+that way: its authorization-code flow wants a client secret at the exchange, and
+a desktop application shipping one ships it to everybody who downloads it. Its
+device grant wants none — ask for a code, show it, send the person to a page,
+poll until they have typed it. So `DeviceCodeAuthenticating` sits beside the
+other protocol rather than under a shared ancestor: the two have no step in
+common, and a common base would exist only to have one. `LoginController` owns
+the loop, the deadline and the screen, which is the division the browser flow
+already had.
+
+*Rotation became a property of the service.* `accessToken(for:)` ended at
+`guard let refresh = accounts[index].refreshToken else { needsLogin }`, and that
+guard is what stops a spent Claude grant being retried until somebody notices. A
+device grant for a public GitHub client has no refresh token and no expiry: the
+same absence, the opposite meaning. `ProviderID.rotatesCredentials` is what tells
+the two apart. A refuser of one request no longer discards the token either —
+for a rotating service the cached copy is cheap to replace, and for a static one
+the stored token *is* the grant, so one stray 401 would have destroyed the
+account.
+
+*The row reports one allowance, not three.* The reply carries premium requests,
+chat and completions. Only premium is drawn, under the identifier `premium` and
+the label `month`.
+
+**Why.** The window vocabulary is periods — `5h`, `week` — and the period column
+is a single width shared by every row on screen so that a glance can read down
+it. The full row fixes that column at 34 points; the compact layout is two bars;
+the "Primary window" setting offers the five-hour or the weekly. All of it was
+built for one window or two. Naming the one allowance that binds, after its
+period, keeps the row saying one kind of thing.
+
+The two that are left out are unlimited on every paid plan, and a bar reading
+nought beside something that cannot run out is the one false statement this app
+exists not to make. They are dropped rather than drawn.
+
+This did **not** avoid widening the column, which is what a first draft of this
+entry claimed. `month` is wider than `week`, so the minimal window's period
+column grew for every row, Claude and Codex included — the stack that measures
+it draws every identifier there is, and leaving the new one out of it made
+Copilot rows measure narrower than the word they then drew. One width for
+everybody is the property worth keeping; a few points is what it costs to keep
+it. Three bars labelled by kind would have cost several times that.
+
+**Cost.** Copilot Free meters chat and completions for real, and Softcap will
+not show them. A plan whose premium allowance is unlimited gets a row with a
+name, a plan and no bars — true, and unlike anything else in the list.
+
+Four keys in ten catalogues for the window and its two notifications, four more
+for the sign-in screen. The product names moved out of two inline ternaries into
+`ProviderID.productName`, because a menu of two can be written as a question and
+a menu of three cannot.
+
+Three more places assumed the two identifiers were all there were, and each
+failed quietly rather than loudly. The compact layout drew the label from a
+literal, so a monthly allowance read `week 42%`. The menu bar's summary filtered
+for the two names, so a person whose only accounts were Copilot got an empty
+label above a window drawing their limits correctly. And `WindowScope` answered
+`includes` with `== "session"` / `== "weekly"`, so anyone who had narrowed the
+notification setting was told nothing about a monthly limit at any level. None
+of the three is visible from the diff that introduces the window; all three were
+found by reading outward from it.
+
+`CredentialStore.addLoggedInAccount` now takes a grant with no refresh token
+when the service does not issue one. That is a narrowing of the oldest guard in
+the file, and `AStaticGrantIsServedAsItIs` holds both halves — the new case
+served, the old case still refused — in one file, so a later widening by
+accident fails rather than ships.
+
+**Not verified against a live account.** Every constant comes from published
+documentation and every test reply is a recording. That proves the adapter reads
+what it was told to expect, not that GitHub sends it. The site's own answer about
+supported providers sets the standard — a provider that cannot be checked against
+a live account would quietly show zero, which is worse than nothing — so nothing
+on the site claims Copilot yet, and this stays unreleased until one real
+subscription signs in and the numbers agree with what GitHub shows.

@@ -21,6 +21,11 @@ public extension Localization {
         switch id {
         case "session": self("5h")
         case "weekly":  self("week")
+        // A third period, and named like the other two rather than after the
+        // kind of allowance it counts. The column these sit in is one width
+        // shared by every row on screen, so a long word here widens rows
+        // belonging to services that will never show it.
+        case "premium": self("month")
         default:        id
         }
     }
@@ -107,6 +112,7 @@ public extension Localization {
             let template = switch event.windowID {
             case "session": self("%1$@: %2$@ of the 5-hour limit")
             case "weekly":  self("%1$@: %2$@ of the weekly limit")
+            case "premium": self("%1$@: %2$@ of the monthly limit")
             default:        self("%1$@: %2$@ of limit")
             }
             return String(format: template, event.accountName, percent(Double(level)))
@@ -131,6 +137,7 @@ public extension Localization {
             switch event.windowID {
             case "session": return self("The 5-hour limit reset, you can come back.")
             case "weekly":  return self("The weekly limit reset, you can come back.")
+            case "premium": return self("The monthly limit reset, you can come back.")
             default:        return self("The limit reset, you can come back.")
             }
         }

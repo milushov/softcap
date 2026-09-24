@@ -215,3 +215,11 @@
 "The App Store installs it, and asks you to quit Softcap first." = "Устанавливает её App Store — и сначала попросит закрыть Softcap.";
 "The App Store could not be reached. Check the connection and try again." = "Не удалось связаться с App Store. Проверьте соединение и попробуйте ещё раз.";
 "Your accounts are still here" = "Ваши аккаунты никуда не делись";
+"month" = "мес";
+"Monthly" = "Месячное";
+"%1$@: %2$@ of the monthly limit" = "%1$@: %2$@ месячного лимита";
+"The monthly limit reset, you can come back." = "Месячный лимит сбросился, можно возвращаться.";
+"Enter this code on the page that opened:" = "Введите этот код на открывшейся странице:";
+"Copy the code" = "Скопировать код";
+"Open the page" = "Открыть страницу";
+"Could not open the browser. Open the page below and enter the code." = "Не удалось открыть браузер. Откройте страницу ниже и введите код.";

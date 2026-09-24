@@ -88,6 +88,8 @@ targets:
       - package: Core
         product: CodexProvider
       - package: Core
+        product: CopilotProvider
+      - package: Core
         product: Credentials
       - package: Core
         product: Monitoring
@@ -181,6 +183,8 @@ targets:
         product: ClaudeProvider
       - package: Core
         product: CodexProvider
+      - package: Core
+        product: CopilotProvider
       - package: Core
         product: Credentials
       - package: Core

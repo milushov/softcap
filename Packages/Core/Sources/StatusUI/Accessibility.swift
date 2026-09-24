@@ -56,6 +56,7 @@ public extension Localization {
         switch id {
         case "session": self("Five-hour")
         case "weekly":  self("Weekly")
+        case "premium": self("Monthly")
         default:        id
         }
     }

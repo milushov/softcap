@@ -11,6 +11,20 @@ public enum MenuBarContent: String, Codable, Sendable, CaseIterable {
 
 }
 
+/// Which account the figure in the menu bar is about.
+///
+/// `PrimaryWindow` answers which of an account's windows to show; this answers
+/// whose. They were one question while the answer was always "everybody's
+/// fullest window", and `PrimaryWindow` now means its three choices within the
+/// account this one picks.
+public enum MenuBarAccount: String, Codable, Sendable, CaseIterable {
+    /// The account whose usage rose most recently — see `ActiveAccountTracker`.
+    case inUse
+    /// The fullest window anybody has, which is what the app did before this
+    /// setting existed.
+    case busiest
+}
+
 public enum PrimaryWindow: String, Codable, Sendable, CaseIterable {
     case worst, session, weekly
 
@@ -31,11 +45,24 @@ public enum WindowScope: String, Codable, Sendable, CaseIterable {
 
 
     /// Whether a window with this identifier falls under the chosen scope.
+    ///
+    /// A scope silences the period it is chosen *against*, not everything it
+    /// does not name. The two cases were written as `== "session"` and
+    /// `== "weekly"` while those were the only two identifiers there were, and
+    /// a third kind then fell outside both: anyone who had narrowed this
+    /// setting got no notification about a monthly allowance at any level,
+    /// including a hundred percent, and nothing on screen said why.
+    ///
+    /// The cost is the other way round and is the cheaper one: somebody who
+    /// picked `Five-hour` to hear less is told about a monthly limit too. A
+    /// notification they did not want is a notification they can turn off; a
+    /// limit they were never told about is the thing this app exists to
+    /// prevent.
     public func includes(windowID: String) -> Bool {
         switch self {
         case .both:    true
-        case .session: windowID == "session"
-        case .weekly:  windowID == "weekly"
+        case .session: windowID != "weekly"
+        case .weekly:  windowID != "session"
         }
     }
 }
@@ -86,6 +113,7 @@ public struct Preferences: Codable, Sendable, Equatable {
     public var languageCode: String?
     public var appearance: Appearance
     public var menuBarContent: MenuBarContent
+    public var menuBarAccount: MenuBarAccount
     public var primaryWindow: PrimaryWindow
     public var rowLayout: RowLayout
     public var ordering: Ordering
@@ -152,6 +180,7 @@ public struct Preferences: Codable, Sendable, Equatable {
         languageCode: nil,
         appearance: .system,
         menuBarContent: .timer,
+        menuBarAccount: .inUse,
         primaryWindow: .worst,
         rowLayout: .twoWindows,
         ordering: .leastLoadedFirst,
@@ -239,6 +268,7 @@ extension Preferences {
         languageCode         = readOptional(.languageCode, fallback.languageCode)
         appearance           = read(.appearance, fallback.appearance)
         menuBarContent       = read(.menuBarContent, fallback.menuBarContent)
+        menuBarAccount       = read(.menuBarAccount, fallback.menuBarAccount)
         primaryWindow        = read(.primaryWindow, fallback.primaryWindow)
         rowLayout            = read(.rowLayout, fallback.rowLayout)
         ordering             = read(.ordering, fallback.ordering)

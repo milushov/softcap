@@ -186,12 +186,27 @@ public struct MinimalAccountRow: View {
     /// measured, never seen — the row collapses into one spoken element, so
     /// there is nothing here for VoiceOver to read twice.
     ///
-    /// The two identifiers are every one there is: `LimitWindow.id` is
-    /// documented in `ProviderKit.Models` as either `session` or `weekly`.
+    /// Every identifier there is, and the list has to stay that way.
+    ///
+    /// The column is one width shared by every row, drawn from the widest word
+    /// it may have to hold. A window kind left out of this stack is a row that
+    /// measures narrower than the label it then draws — and the misalignment
+    /// this whole arrangement exists to remove comes back for that row alone,
+    /// which is worse than the ragged column it replaced, because it looks
+    /// deliberate everywhere else.
+    ///
+    /// `month` is wider than both words that were here, so adding it widened
+    /// the column for Claude and Codex rows too, by the difference between
+    /// `week` and `month`. That is the cost of the third service, paid once and
+    /// in a place a glance can read down.
+    ///
+    /// `TheRowsLineUp` holds this list against the identifiers the providers
+    /// actually produce.
     private var widestPeriod: some View {
         ZStack {
             periodText(loc.windowTitle("session"))
             periodText(loc.windowTitle("weekly"))
+            periodText(loc.windowTitle("premium"))
         }
         .padded(by: Self.periodInset)
     }

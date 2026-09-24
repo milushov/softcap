@@ -215,3 +215,11 @@
 "The App Store installs it, and asks you to quit Softcap first." = "Quem instala é a App Store, e antes ela pede para encerrar o Softcap.";
 "The App Store could not be reached. Check the connection and try again." = "Não foi possível acessar a App Store. Verifique a conexão e tente de novo.";
 "Your accounts are still here" = "Suas contas continuam aqui";
+"month" = "mês";
+"Monthly" = "Mensal";
+"%1$@: %2$@ of the monthly limit" = "%1$@: %2$@ do limite mensal";
+"The monthly limit reset, you can come back." = "O limite mensal foi redefinido, pode voltar.";
+"Enter this code on the page that opened:" = "Digite este código na página que abriu:";
+"Copy the code" = "Copiar o código";
+"Open the page" = "Abrir a página";
+"Could not open the browser. Open the page below and enter the code." = "Não foi possível abrir o navegador. Abra a página abaixo e digite o código.";

@@ -22,7 +22,8 @@ with tempfile.TemporaryDirectory(prefix="softcap-auth-tests-") as directory:
         shutil.copy2(root / "App" / name, source / name)
     for test in (root / "Tests/AuthenticationTests").glob("*.swift"):
         shutil.copy2(test, source / test.name)
-    products = ("ProviderKit", "ClaudeProvider", "CodexProvider", "Credentials", "Diagnostics", "StatusUI")
+    products = ("ProviderKit", "ClaudeProvider", "CodexProvider", "CopilotProvider",
+                "Credentials", "Diagnostics", "StatusUI")
     dependencies = ",\n".join(f'.product(name: "{name}", package: "Core")' for name in products)
     (stage / "Package.swift").write_text('''// swift-tools-version: 6.2
 import PackageDescription

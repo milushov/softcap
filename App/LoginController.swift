@@ -5,6 +5,7 @@ import Network
 import ProviderKit
 import ClaudeProvider
 import CodexProvider
+import CopilotProvider
 import Credentials
 import Diagnostics
 import StatusUI
@@ -36,7 +37,13 @@ struct SignInRequest: Sendable, Hashable {
 /// the provider; cancellation invalidates the attempt before cancelling its work.
 @MainActor
 final class LoginController: ObservableObject {
-    static let providers: [ProviderID] = [.claude, .codex]
+    static let providers: [ProviderID] = [.claude, .codex, .copilot]
+
+    /// Which of them sign in by carrying a code rather than by catching a
+    /// redirect. Named here rather than asked of the provider, because the
+    /// question is "which screen does this need", and the screen is this
+    /// layer's to know.
+    static let deviceProviders: Set<ProviderID> = [.copilot]
     @Published private(set) var isRunning = false
     @Published private(set) var isSavingAccount = false
 
@@ -57,6 +64,11 @@ final class LoginController: ObservableObject {
 
     @Published private(set) var message: String?
     @Published private(set) var manualCodeExpected = false
+
+    /// The code to show and the page to send somebody to, while a device
+    /// sign-in is waiting on them. `nil` at every other moment, which is what
+    /// the screen reads to decide whether to draw it at all.
+    @Published private(set) var deviceGrant: DeviceCodeGrant?
     @Published private(set) var completedSignIns = 0
     @Published private(set) var successNotice: AccountRef?
 
@@ -68,14 +80,27 @@ final class LoginController: ObservableObject {
     private static let log = Logger(subsystem: "app.softcap.Softcap", category: "login")
     private let store: CredentialStore
     private let authentication: @Sendable (ProviderID) -> any BrowserAuthenticating
+    private let deviceAuthentication: @Sendable (ProviderID) -> any DeviceCodeAuthenticating
     private let openURL: @MainActor (URL) -> Bool
     private let timeoutDuration: Duration
+    private let now: @Sendable () -> Date
     private var listener: BrowserCallbackListener?
     private var operation: Task<Void, Never>?
     private var timeout: Task<Void, Never>?
     private var attempt: Attempt?
+    /// The other shape's attempt. Two fields rather than one because they hold
+    /// different things — one carries a verifier, a state and a redirect, the
+    /// other carries nothing but its own identity — and only ever one at a
+    /// time: `start` refuses while `isRunning`, which is the single answer to
+    /// whether an attempt is in hand.
+    private var deviceAttempt: DeviceAttempt?
     private var exchanging = false
     private var pendingBrowserReply: NWConnection?
+
+    private struct DeviceAttempt {
+        let id = UUID()
+        let request: SignInRequest
+    }
 
     private struct Attempt {
         let id = UUID()
@@ -91,13 +116,19 @@ final class LoginController: ObservableObject {
         authentication: @escaping @Sendable (ProviderID) -> any BrowserAuthenticating = {
             $0 == .codex ? CodexOAuthLogin() as any BrowserAuthenticating : OAuthLogin()
         },
+        deviceAuthentication: @escaping @Sendable (ProviderID) -> any DeviceCodeAuthenticating = {
+            _ in CopilotDeviceLogin()
+        },
         openURL: @escaping @MainActor (URL) -> Bool = { NSWorkspace.shared.open($0) },
-        timeoutDuration: Duration = .seconds(300)
+        timeoutDuration: Duration = .seconds(300),
+        now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.store = store
         self.authentication = authentication
+        self.deviceAuthentication = deviceAuthentication
         self.openURL = openURL
         self.timeoutDuration = timeoutDuration
+        self.now = now
     }
 
     /// `.settings` unless a caller says otherwise: that screen has had this
@@ -116,6 +147,12 @@ final class LoginController: ObservableObject {
         // visible whatsoever.
         let request = SignInRequest(provider: provider, origin: origin, account: account)
         self.request = request
+
+        if Self.deviceProviders.contains(provider) {
+            startDevice(request)
+            return
+        }
+
         guard let pair = PKCEPair.generate() else {
             message = Localization.shared("Sign-in did not complete")
             return
@@ -129,6 +166,74 @@ final class LoginController: ObservableObject {
         manualCodeExpected = false
         armTimeout(for: attempt.id)
         operation = Task { await openBrowser(for: attempt) }
+    }
+
+    /// The other shape, from the same button.
+    ///
+    /// No attempt timeout is armed. The grant carries its own deadline and the
+    /// loop below honours it; the five minutes every browser attempt gets would
+    /// end this one while the code still on screen had ten minutes left, and
+    /// the person reading it would have no way to know it had stopped counting.
+    private func startDevice(_ request: SignInRequest) {
+        let started = DeviceAttempt(request: request)
+        deviceAttempt = started
+        deviceGrant = nil
+        isRunning = true
+        exchanging = false
+        manualCodeExpected = false
+        operation = Task { [weak self] in await self?.runDevice(started) }
+    }
+
+    private func runDevice(_ started: DeviceAttempt) async {
+        let login = deviceAuthentication(started.request.provider)
+        do {
+            let grant = try await login.requestCode()
+            guard deviceAttempt?.id == started.id, !Task.isCancelled else { return }
+            deviceGrant = grant
+
+            // The page is opened for them, and the code stays on our screen to
+            // be copied from. A browser that refuses to open is not fatal here
+            // the way it is for a redirect flow — the address is on screen and
+            // can be typed — so it is said and the attempt goes on waiting.
+            if !openURL(grant.verificationURL) {
+                message = Localization.shared(
+                    "Could not open the browser. Open the page below and enter the code.")
+            }
+
+            var interval = grant.interval
+            while true {
+                try await Task.sleep(for: .seconds(interval))
+                guard deviceAttempt?.id == started.id, !Task.isCancelled else { return }
+                // Checked before asking rather than after being refused: once
+                // the code is stale the service answers the same thing forever,
+                // and one more request would only delay saying so.
+                guard now() < grant.expiresAt else {
+                    throw DeviceCodeRejected(reason: .expired)
+                }
+                switch try await login.poll(grant) {
+                case .pending:
+                    continue
+                case .slowDown(let next):
+                    interval = next
+                case .granted(let result):
+                    guard deviceAttempt?.id == started.id, !Task.isCancelled else { return }
+                    await adopt(result, attempt: started.id, origin: started.request.origin)
+                    return
+                }
+            }
+        } catch is CancellationError {
+            return
+        } catch let rejection as DeviceCodeRejected {
+            guard deviceAttempt?.id == started.id else { return }
+            switch rejection.reason {
+            case .denied:  fail("Sign-in was declined.")
+            case .expired: fail("Sign-in timed out")
+            }
+        } catch {
+            guard deviceAttempt?.id == started.id, !Task.isCancelled else { return }
+            report(error)
+            endAttempt()
+        }
     }
 
     func cancel() {
@@ -236,52 +341,83 @@ final class LoginController: ObservableObject {
                 code: code, verifier: started.pair.verifier,
                 redirectURI: uri, state: started.state)
             guard attempt?.id == started.id, !Task.isCancelled else { return }
+            await adopt(result, attempt: started.id, origin: started.request.origin)
+            return
+        } catch {
+            guard attempt?.id == started.id, !Task.isCancelled else { return }
+            report(error)
+        }
+        guard attempt?.id == started.id else { return }
+        endAttempt()
+    }
+
+    /// Whether the attempt that is reporting back is still the one in hand.
+    ///
+    /// Either shape may be the one that owns `id`; identifiers are unique, so
+    /// asking both is the same question as asking the right one, and asking the
+    /// right one would mean every caller knowing which shape it is.
+    private func stillCurrent(_ id: UUID) -> Bool {
+        attempt?.id == id || deviceAttempt?.id == id
+    }
+
+    /// Saving the account, and everything that follows from having saved it.
+    ///
+    /// Both shapes of sign-in end here. A second copy of this would be a second
+    /// place for the success notice, the counter, the browser reply and the
+    /// callback to drift apart — and the drift would show up as a sign-in that
+    /// worked and a screen that never said so.
+    private func adopt(
+        _ result: AuthenticatedAccount, attempt id: UUID, origin: SignInOrigin
+    ) async {
+        do {
             isSavingAccount = true
             timeout?.cancel()
             timeout = nil
             try await store.addLoggedInAccount(result)
-            guard attempt?.id == started.id, !Task.isCancelled else { return }
+            guard stillCurrent(id), !Task.isCancelled else { return }
             message = nil
             successNotice = result.account
             completedSignIns += 1
             finishBrowserReply(succeeded: true)
-            let origin = started.request.origin
             endAttempt()
             didAddAccount?(result.account, origin)
-            return
         } catch {
-            guard attempt?.id == started.id, !Task.isCancelled else { return }
-            if let failure = error as? ProviderFailure {
-                Self.log.error("sign-in failed: \(failure.diagnostic, privacy: .public)")
-                Task { await Diagnostics.shared.report(failure, category: "sign-in") }
-                message = Localization.shared.failureText(failure.kind)
-            } else if error is WouldOverwriteUnreadableAccounts {
-                // The sign-in worked; there was nowhere to put it. "Sign-in did
-                // not complete" sent people back to the browser to do again,
-                // successfully, the one part of this that had not failed — and
-                // it would have gone on doing that for as long as the app was
-                // installed, because nothing about a second attempt is
-                // different from the first.
-                Self.log.error("sign-in failed: the account list could not be written")
-                Task {
-                    await Diagnostics.shared.report(
-                        .error, category: "sign-in", message: "account list unreadable",
-                        failureType: "WouldOverwriteUnreadableAccounts")
-                }
-                message = Localization.shared(
-                    "Signed in, but the saved accounts could not be opened to store it.")
-            } else {
-                let kind = String(describing: type(of: error))
-                Self.log.error("sign-in failed: \(kind, privacy: .public)")
-                Task {
-                    await Diagnostics.shared.report(
-                        .error, category: "sign-in", message: kind, failureType: kind)
-                }
-                message = Localization.shared("Sign-in did not complete")
-            }
+            guard stillCurrent(id), !Task.isCancelled else { return }
+            report(error)
+            endAttempt()
         }
-        guard attempt?.id == started.id else { return }
-        endAttempt()
+    }
+
+    /// What a failed attempt says, and what it writes down.
+    private func report(_ error: any Error) {
+        if let failure = error as? ProviderFailure {
+            Self.log.error("sign-in failed: \(failure.diagnostic, privacy: .public)")
+            Task { await Diagnostics.shared.report(failure, category: "sign-in") }
+            message = Localization.shared.failureText(failure.kind)
+        } else if error is WouldOverwriteUnreadableAccounts {
+            // The sign-in worked; there was nowhere to put it. "Sign-in did
+            // not complete" sent people back to the browser to do again,
+            // successfully, the one part of this that had not failed — and
+            // it would have gone on doing that for as long as the app was
+            // installed, because nothing about a second attempt is
+            // different from the first.
+            Self.log.error("sign-in failed: the account list could not be written")
+            Task {
+                await Diagnostics.shared.report(
+                    .error, category: "sign-in", message: "account list unreadable",
+                    failureType: "WouldOverwriteUnreadableAccounts")
+            }
+            message = Localization.shared(
+                "Signed in, but the saved accounts could not be opened to store it.")
+        } else {
+            let kind = String(describing: type(of: error))
+            Self.log.error("sign-in failed: \(kind, privacy: .public)")
+            Task {
+                await Diagnostics.shared.report(
+                    .error, category: "sign-in", message: kind, failureType: kind)
+            }
+            message = Localization.shared("Sign-in did not complete")
+        }
     }
 
     private func respond(on connection: NWConnection, succeeded: Bool) {
@@ -318,6 +454,8 @@ final class LoginController: ObservableObject {
         // their page never runs the success-only close script.
         finishBrowserReply(succeeded: false)
         attempt = nil
+        deviceAttempt = nil
+        deviceGrant = nil
         operation?.cancel()
         operation = nil
         listener?.stop()

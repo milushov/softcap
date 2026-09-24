@@ -24,9 +24,12 @@ public extension AccountSnapshot {
 public extension LimitWindow {
     /// The choice that shows the other period than this window.
     ///
-    /// Two branches, not three: window identifiers are a closed set —
-    /// `Models.swift` names `session` and `weekly`, and both providers
-    /// normalise to them.
+    /// Two branches because the *setting* has two, not because the identifiers
+    /// do — `Models.swift` now names three. A window that is neither resolves
+    /// to the same window under both choices, so `hasAnotherPeriod` answers no
+    /// and the label above it never becomes a button. What this returns for
+    /// such a window is therefore never acted on, and `peek(after:setting:)` is
+    /// where that is decided rather than here.
     var peekChoice: PrimaryWindow { id == "session" ? .weekly : .session }
 }
 

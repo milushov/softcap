@@ -7,20 +7,26 @@ struct ServicesPane: View {
     @ObservedObject var model: PreferencesModel
     @ObservedObject private var loc = Localization.shared
 
-    private static let planned: [ProviderID] = [.cursor, .copilot, .gemini]
+    private static let planned: [ProviderID] = [.cursor, .gemini]
 
     var body: some View {
         Pane(title: loc("Services"),
              subtitle: loc("Where data comes from. A disabled service is not polled.")) {
             Form {
                 Section {
-                    Toggle("Claude Code", isOn: enabled(.claude))
+                    Toggle(ProviderID.claude.productName, isOn: enabled(.claude))
                     Text(loc("Live data from the API."))
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
 
                 Section {
-                    Toggle("OpenAI Codex", isOn: enabled(.codex))
+                    Toggle(ProviderID.codex.productName, isOn: enabled(.codex))
+                    Text(loc("Live data from the API."))
+                        .font(.system(size: 11)).foregroundStyle(.secondary)
+                }
+
+                Section {
+                    Toggle(ProviderID.copilot.productName, isOn: enabled(.copilot))
                     Text(loc("Live data from the API."))
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }

@@ -11,12 +11,12 @@ public enum CodexOAuthEndpoints {
     public static let scope = "openid profile email offline_access"
     public static let headers = ["Content-Type": "application/x-www-form-urlencoded"]
 
+    /// Kept as a name here, and the encoding itself moved to `FormBody` when a
+    /// third service needed the same bytes. The call sites read the same; the
+    /// two services' constants stay apart, which is the part that must not be
+    /// shared.
     public static func form(_ fields: [String: String]) -> Data {
-        let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~")
-        let text = fields.sorted { $0.key < $1.key }.map { key, value in
-            "\(key.addingPercentEncoding(withAllowedCharacters: allowed)!)=\(value.addingPercentEncoding(withAllowedCharacters: allowed)!)"
-        }.joined(separator: "&")
-        return Data(text.utf8)
+        FormBody.encode(fields)
     }
 
     public static func tokens(from data: Data, now: Date = Date()) throws -> RefreshedTokens {

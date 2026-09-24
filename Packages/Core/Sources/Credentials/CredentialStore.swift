@@ -47,10 +47,16 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
         keychain: any KeychainAccess,
         refresher: any TokenRefreshing,
         codexRefresher: any TokenRefreshing = OpenAITokenRefresher(),
+        // Registered although this service usually issues nothing to rotate:
+        // the flag on `ProviderID` decides what an *absent* refresh token
+        // means, and a present one still has to have somewhere to go.
+        copilotRefresher: any TokenRefreshing = GitHubTokenRefresher(),
         now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.keychain = keychain
-        self.refreshers = [.claude: refresher, .codex: codexRefresher]
+        self.refreshers = [
+            .claude: refresher, .codex: codexRefresher, .copilot: copilotRefresher,
+        ]
         self.now = now
     }
 
@@ -244,6 +250,30 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
             )
         }
 
+        // A grant from a service that does not rotate is served as it is.
+        //
+        // For Anthropic and OpenAI, no refresh token means the grant has been
+        // spent, and the guard below is what stops a dead account being retried
+        // on every poll forever. A device grant for a public GitHub client has
+        // no refresh token to begin with and its access token does not expire —
+        // the same absence, the opposite meaning. Reading it as "spent" would
+        // report "sign in again" about a token that answers, on every poll, and
+        // no sign-in would ever change it because the next one would produce a
+        // credential of exactly the same shape.
+        //
+        // Narrow on purpose. It applies only where the service says rotation is
+        // not its model, only when there is genuinely nothing to refresh with,
+        // and only to a token that has not been given a deadline it is past. A
+        // service that does rotate reaches none of this and keeps today's
+        // behaviour unchanged, which is the property `CredentialStoreTests`
+        // holds in one file beside this one.
+        if !accounts[index].provider.rotatesCredentials,
+           accounts[index].refreshToken == nil,
+           let held = accounts[index].accessToken, !held.isEmpty,
+           accounts[index].accessGoodUntil.map({ $0 > now() }) ?? true {
+            return held
+        }
+
         guard let refresh = accounts[index].refreshToken else {
             throw ProviderFailure(kind: .needsLogin, diagnostic: "own grant spent; sign in")
         }
@@ -375,16 +405,40 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
             tokens: RefreshedTokens(accessToken: "", refreshToken: refreshToken)))
     }
 
+    /// The services a sign-in can produce an account for. A provider absent
+    /// here is one the app names but cannot yet be signed into, and a grant
+    /// claiming to be from one is refused rather than stored unreadably.
+    private static let signInCapable: Set<ProviderID> = [.claude, .codex, .copilot]
+
     public func addLoggedInAccount(_ result: AuthenticatedAccount) async throws {
         let ref = result.account
-        guard [.claude, .codex].contains(ref.provider), !ref.handle.isEmpty,
-              ref.id == "\(ref.provider.rawValue)/\(ref.handle)",
-              let refresh = result.tokens.refreshToken, !refresh.isEmpty else {
+        guard Self.signInCapable.contains(ref.provider), !ref.handle.isEmpty,
+              ref.id == "\(ref.provider.rawValue)/\(ref.handle)" else {
             throw ProviderFailure(kind: .needsLogin, diagnostic: "sign-in has no usable grant")
         }
+
+        // What makes a grant usable depends on what the service issues. A
+        // rotating service must hand over a refresh token, because its access
+        // token is short-lived and an account holding only that one is an
+        // account that stops working within the hour. A service that does not
+        // rotate issues no refresh token at all, and for it the access token is
+        // the grant — requiring one that will never come would refuse every
+        // sign-in it can make.
+        let refresh = result.tokens.refreshToken.flatMap { $0.isEmpty ? nil : $0 }
+        let isStatic = !ref.provider.rotatesCredentials
+        let hasAccess = !result.tokens.accessToken.isEmpty
+        guard refresh != nil || (isStatic && hasAccess) else {
+            throw ProviderFailure(kind: .needsLogin, diagnostic: "sign-in has no usable grant")
+        }
+
         let life = result.tokens.expiresIn ?? 0
-        let keepAccess = life.isFinite && life > Self.expiryMargin && !result.tokens.accessToken.isEmpty
-        let until = keepAccess ? now().addingTimeInterval(life - Self.expiryMargin) : nil
+        let stated = life.isFinite && life > Self.expiryMargin && hasAccess
+        // A static grant keeps its token with no deadline beside it. The service
+        // did not state one, and a guessed deadline would retire a token that
+        // goes on working — the same reason `RefreshedTokens.expiresIn` refuses
+        // to assume a lifetime.
+        let keepAccess = stated || (isStatic && hasAccess)
+        let until = stated ? now().addingTimeInterval(life - Self.expiryMargin) : nil
         // The record is replaced, not updated, and the held access token goes
         // with it. A new grant supersedes whatever was held for this account:
         // updating in place would leave the app serving the previous grant's
@@ -403,6 +457,13 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
     }
 
     public func invalidateAccessToken(for ref: AccountRef, rejectedToken: String) async {
+        // A static grant is not a cached copy of anything, so there is nothing
+        // to throw away and fetch again — the stored token *is* the grant, and
+        // discarding it on one refused request would destroy the account over a
+        // status the next poll might not repeat. A genuinely revoked token goes
+        // on being refused, and the row says so and offers the sign-in; a
+        // momentary one costs a single retry and then works.
+        guard ref.provider.rotatesCredentials else { return }
         guard let index = accounts.firstIndex(where: { $0.id == ref.id }),
               accounts[index].accessToken == rejectedToken else { return }
         accounts[index].accessToken = nil

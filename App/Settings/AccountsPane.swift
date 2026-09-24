@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import ProviderKit
 import Credentials
 import Preferences
@@ -118,7 +119,7 @@ struct AccountsPane: View {
                 HStack(spacing: 8) {
                     Menu(loc("Add account…")) {
                         ForEach(LoginController.providers, id: \.self) { provider in
-                            Button(provider == .claude ? "Claude Code" : "OpenAI Codex") {
+                            Button(provider.productName) {
                                 manualCode = ""
                                 loginController.start(provider: provider, from: .settings)
                             }
@@ -164,6 +165,33 @@ struct AccountsPane: View {
                             }
                         }
                         .disabled(manualCode.isEmpty)
+                    }
+                }
+
+                // The other shape of sign-in: nothing comes back to us, so the
+                // code has to stay on screen for as long as the attempt is
+                // waiting on it. Gated to this screen the same way the pasted
+                // code above is, and for the same reason — one grant must not
+                // be offered by two screens at once.
+                if let grant = loginController.deviceGrant,
+                   loginController.request?.origin == .settings {
+                    VStack(alignment: .leading, spacing: 7) {
+                        Text(loc("Enter this code on the page that opened:"))
+                            .font(.system(size: 11)).foregroundStyle(.secondary)
+                        HStack(spacing: 10) {
+                            // Selectable as well as copyable: a code somebody
+                            // cannot select is a code they have to retype from
+                            // a screen, and this one is deliberately ambiguous
+                            // between letters and digits.
+                            Text(grant.userCode)
+                                .font(.system(size: 18, weight: .semibold, design: .monospaced))
+                                .textSelection(.enabled)
+                            Button(loc("Copy the code")) {
+                                NSPasteboard.general.clearContents()
+                                NSPasteboard.general.setString(grant.userCode, forType: .string)
+                            }
+                            Link(loc("Open the page"), destination: grant.verificationURL)
+                        }
                     }
                 }
 

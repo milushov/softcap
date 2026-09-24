@@ -215,3 +215,11 @@
 "The App Store installs it, and asks you to quit Softcap first." = "由 App Store 安装，它会先请你退出 Softcap。";
 "The App Store could not be reached. Check the connection and try again." = "无法连接 App Store。请检查网络后重试。";
 "Your accounts are still here" = "您的账户仍在这里";
+"month" = "每月";
+"Monthly" = "每月";
+"%1$@: %2$@ of the monthly limit" = "%1$@：每月额度已用 %2$@";
+"The monthly limit reset, you can come back." = "每月额度已重置，可以回来了。";
+"Enter this code on the page that opened:" = "在打开的页面中输入此代码：";
+"Copy the code" = "复制代码";
+"Open the page" = "打开页面";
+"Could not open the browser. Open the page below and enter the code." = "无法打开浏览器。请打开下面的页面并输入代码。";

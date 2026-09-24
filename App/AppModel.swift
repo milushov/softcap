@@ -6,6 +6,7 @@ import UserNotifications
 import ProviderKit
 import ClaudeProvider
 import CodexProvider
+import CopilotProvider
 import Credentials
 import Diagnostics
 import Monitoring
@@ -589,6 +590,9 @@ final class AppModel: ObservableObject {
         }
         if !preferences.disabledProviders.contains(.codex) {
             providers.append(CodexLiveUsageProvider(tokens: store, knownAccounts: refs))
+        }
+        if !preferences.disabledProviders.contains(.copilot) {
+            providers.append(CopilotUsageProvider(tokens: store, knownAccounts: refs))
         }
         poller = UsagePoller(providers: providers)
     }

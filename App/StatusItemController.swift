@@ -451,7 +451,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         let providers = NSMenu()
         for provider in LoginController.providers {
             let item = NSMenuItem(
-                title: provider == .claude ? "Claude Code" : "OpenAI Codex",
+                title: provider.productName,
                 action: #selector(addAccount(_:)), keyEquivalent: "")
             item.target = self
             item.representedObject = provider.rawValue

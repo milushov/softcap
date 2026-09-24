@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import ProviderKit
 import StatusUI
 import Preferences
@@ -88,6 +89,7 @@ struct PopoverView: View {
             }
 
             pastedCodeField
+            deviceCodeField
             if model.isDemo {
                 Divider().opacity(0.35)
                 demoNote
@@ -157,6 +159,7 @@ struct PopoverView: View {
             }
 
             pastedCodeField
+            deviceCodeField
             if model.isDemo { demoNote }
             quietFooter
         }
@@ -467,6 +470,44 @@ struct PopoverView: View {
                     }
                     .font(.system(size: 11))
                     .disabled(pastedCode.isEmpty)
+                }
+            }
+            .padding(.horizontal, 13)
+            .padding(.top, 4)
+            .padding(.bottom, 8)
+        }
+    }
+
+    /// The code this window's sign-in is waiting on, shown in this window.
+    ///
+    /// Same reason as the field above, arrived at from the other side. A device
+    /// sign-in never sends anything back to us: the whole attempt *is* the code
+    /// on screen, so a row here offering "Sign in…" and then showing the code
+    /// only in settings would start something that can be finished nowhere the
+    /// person is looking — worse than the pasted-code case, where at least the
+    /// browser page holds the code too.
+    ///
+    /// Gated to this window for the same reason, and by the same test: one
+    /// grant must not be offered by two screens at once.
+    @ViewBuilder
+    private var deviceCodeField: some View {
+        if let grant = login.deviceGrant, login.request?.origin == .window {
+            VStack(alignment: .leading, spacing: 5) {
+                Text(loc("Enter this code on the page that opened:"))
+                    .font(.system(size: 10.5))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 8) {
+                    Text(grant.userCode)
+                        .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                        .textSelection(.enabled)
+                    Button(loc("Copy the code")) {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(grant.userCode, forType: .string)
+                    }
+                    .font(.system(size: 11))
+                    Link(loc("Open the page"), destination: grant.verificationURL)
+                        .font(.system(size: 11))
                 }
             }
             .padding(.horizontal, 13)
