@@ -63,7 +63,7 @@
   "index.cell_quiet_h": "Quiet hours",
   "index.cell_quiet_p": "Nothing arrives while you sleep, and nothing is delivered late to make up for it.",
   "index.cell_timer_h": "A timer in the menu bar",
-  "index.cell_timer_p": "Whichever limit is closest to running out, and how long until it frees up — without\n           clicking. The strip can carry the countdown, the percentage, both, or just the icon,\n           and a shortcut of your choosing opens the window without reaching for the mouse.",
+  "index.cell_timer_p": "The limit of the account you are working with, and how long until it frees up — without\n           clicking. The strip can carry the countdown, the percentage, both, or just the icon,\n           and a shortcut of your choosing opens the window without reaching for the mouse.",
   "index.cell_widgets_h": "Widgets",
   "index.cell_widgets_p": "All four sizes on macOS. The same\n           account row the window uses, so they cannot drift apart.",
   "index.chart_80": "80% · first nudge",

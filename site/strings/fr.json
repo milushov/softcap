@@ -63,7 +63,7 @@
   "index.cell_quiet_h": "Heures calmes",
   "index.cell_quiet_p": "Rien n'arrive pendant que vous dormez, et rien n'est livré plus tard pour rattraper.",
   "index.cell_timer_h": "Un minuteur dans la barre de menus",
-  "index.cell_timer_p": "La limite la plus proche de l'épuisement, et le temps qu'il reste avant qu'elle se libère — sans un clic. La bande peut porter le compte à rebours, le pourcentage, les deux, ou juste l'icône, et un raccourci de votre choix ouvre la fenêtre sans toucher la souris.",
+  "index.cell_timer_p": "La limite du compte que vous utilisez, et le temps qu'il reste avant qu'elle se libère — sans un clic. La bande peut porter le compte à rebours, le pourcentage, les deux, ou juste l'icône, et un raccourci de votre choix ouvre la fenêtre sans toucher la souris.",
   "index.cell_widgets_h": "Widgets",
   "index.cell_widgets_p": "Les quatre tailles sur macOS. La même ligne de compte que celle de la fenêtre, donc impossible qu'elles divergent.",
   "index.chart_80": "80% · première alerte",

@@ -63,7 +63,7 @@
   "index.cell_quiet_h": "Horas de silencio",
   "index.cell_quiet_p": "Nada llega mientras duermes, y nada se entrega más tarde para compensarlo.",
   "index.cell_timer_h": "Un temporizador en la barra de menús",
-  "index.cell_timer_p": "El límite que esté más cerca de agotarse y cuánto falta para que se libere — sin hacer clic. La tira puede llevar la cuenta atrás, el porcentaje, ambos o solo el icono, y un atajo a tu elección abre la ventana sin tocar el ratón.",
+  "index.cell_timer_p": "El límite de la cuenta con la que estás trabajando y cuánto falta para que se libere — sin hacer clic. La tira puede llevar la cuenta atrás, el porcentaje, ambos o solo el icono, y un atajo a tu elección abre la ventana sin tocar el ratón.",
   "index.cell_widgets_h": "Widgets",
   "index.cell_widgets_p": "Los cuatro tamaños en macOS. La misma fila de cuenta que usa la ventana, así que no pueden desincronizarse.",
   "index.chart_80": "80% · primer aviso",

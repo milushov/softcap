@@ -131,6 +131,7 @@ browser once, and then holds a credential of its own.
 | Feature | Behavior |
 |---|---|
 | Limits | Five-hour and weekly usage, reset countdowns, reading age |
+| Menu bar | The figure is about the account you are working with — worked out from whose usage is rising, never by reading the CLI; **Busiest** across all accounts stays one click away |
 | Accounts | Hide accounts; sort by load, name, or **Custom** drag-and-drop order |
 | Notifications | Thresholds at **80% / 95%** by default, recovery alerts, quiet hours; messages name the limit window |
 | Polling | Every **60 s** with the window open, **300 s** in the background; configurable |

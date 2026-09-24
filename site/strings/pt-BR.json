@@ -63,7 +63,7 @@
   "index.cell_quiet_h": "Horário silencioso",
   "index.cell_quiet_p": "Nada chega enquanto você dorme, e nada é entregue atrasado para compensar.",
   "index.cell_timer_h": "Um cronômetro na barra de menus",
-  "index.cell_timer_p": "Qual limite está mais perto de acabar, e quanto falta para liberar — sem clicar. A faixa pode levar a contagem regressiva, a porcentagem, ambas ou só o ícone, e um atalho à sua escolha abre a janela sem você alcançar o mouse.",
+  "index.cell_timer_p": "O limite da conta que você está usando, e quanto falta para liberar — sem clicar. A faixa pode levar a contagem regressiva, a porcentagem, ambas ou só o ícone, e um atalho à sua escolha abre a janela sem você alcançar o mouse.",
   "index.cell_widgets_h": "Widgets",
   "index.cell_widgets_p": "Os quatro tamanhos no macOS. A mesma linha de conta que a janela usa, então eles não conseguem divergir.",
   "index.chart_80": "80% · primeiro aviso",
