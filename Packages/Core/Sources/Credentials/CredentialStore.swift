@@ -387,8 +387,15 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
             // `TheRowStateAgreesWithTheToken` holds the two together, because
             // one of them being updated and not the other is exactly how this
             // arrived.
+            // The whole of what `accessToken(for:)` asks, including the
+            // deadline. Without that last clause a static account holding a
+            // token whose stated life has run out was reported `refreshed` —
+            // a green badge and no way back in, on an account that could not
+            // poll.
+            let stillGood = account.accessGoodUntil.map { $0 > now() } ?? true
             let holdsSomethingToSpend = account.refreshToken != nil
-                || (!account.provider.rotatesCredentials && !(account.accessToken ?? "").isEmpty)
+                || (!account.provider.rotatesCredentials
+                    && !(account.accessToken ?? "").isEmpty && stillGood)
             let state: AccountState =
                 account.isSpendable && holdsSomethingToSpend ? .refreshed : .needsLogin
             return (account, state)
@@ -421,7 +428,7 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
     /// The services a sign-in can produce an account for. A provider absent
     /// here is one the app names but cannot yet be signed into, and a grant
     /// claiming to be from one is refused rather than stored unreadably.
-    private static let signInCapable: Set<ProviderID> = [.claude, .codex, .copilot, .glm]
+    private static let signInCapable: Set<ProviderID> = [.claude, .codex, .copilot, .glm, .kimi]
 
     public func addLoggedInAccount(_ result: AuthenticatedAccount) async throws {
         let ref = result.account

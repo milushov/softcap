@@ -25,6 +25,12 @@ public struct SignInOffer {
         case blocked
         /// The browser has it.
         case running
+        /// The attempt is in hand and waiting on the person: a key sign-in has
+        /// nothing in flight until one is typed. Separate from `running`
+        /// because a spinner here would say the app is busy with what is in
+        /// fact somebody's typing, and separate from `offered` because there
+        /// is an attempt to cancel and starting a second one is refused.
+        case waiting
         /// The keychain write, which cannot be interrupted or rolled back.
         /// Offering to cancel here would be offering something that is not
         /// true.
@@ -67,7 +73,10 @@ public extension Localization {
     /// that the other means the same thing.
     func signInState(_ progress: SignInOffer.Progress, provider: ProviderID) -> String {
         switch progress {
-        case .offered, .blocked: self("Sign-in required")
+        // `waiting` says the same thing as `offered`, and truthfully: a
+        // sign-in is still required until the key lands. The field below is
+        // where the asking happens.
+        case .offered, .blocked, .waiting: self("Sign-in required")
         case .running:           String(format: self("Signing in to %@…"), provider.title)
         case .saving:            self("Saving account…")
         }
@@ -129,8 +138,8 @@ struct SignInPrompt: View {
         switch offer.progress {
         case .offered, .blocked:
             button(loc("Sign in…"), enabled: offer.progress == .offered, offer.start)
-        case .running, .saving:
-            button(loc("Cancel"), enabled: offer.progress == .running, offer.cancel)
+        case .running, .saving, .waiting:
+            button(loc("Cancel"), enabled: offer.progress != .saving, offer.cancel)
         }
     }
 

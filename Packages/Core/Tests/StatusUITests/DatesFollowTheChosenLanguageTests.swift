@@ -73,6 +73,12 @@ import Foundation
             let text = try String(contentsOf: url, encoding: .utf8)
             let lines = text.components(separatedBy: "\n")
             for (number, line) in lines.enumerated() where line.contains("DateFormatter()") {
+                // `ISO8601DateFormatter` contains the word and is not the
+                // thing this guards. It has no locale to set — the format is
+                // fixed by the standard — so it cannot follow a reader's, and
+                // it is used here to read machine instants off the wire rather
+                // than to write anything anybody sees.
+                guard !line.contains("ISO8601DateFormatter(") else { continue }
                 let next = lines[(number + 1)..<min(number + 4, lines.count)]
                 guard !next.contains(where: { $0.contains(".locale = ") }) else { continue }
                 offenders.append("\(url.lastPathComponent):\(number + 1)")

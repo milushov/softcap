@@ -5,6 +5,7 @@ import ClaudeProvider
 import CodexProvider
 import CopilotProvider
 import ZaiProvider
+import KimiProvider
 import Credentials
 import Monitoring
 import Preferences
@@ -80,6 +81,9 @@ final class PhoneModel: ObservableObject {
         }
         if !preferences.disabledProviders.contains(.glm) {
             providers.append(ZaiUsageProvider(tokens: store, knownAccounts: refs))
+        }
+        if !preferences.disabledProviders.contains(.kimi) {
+            providers.append(KimiUsageProvider(tokens: store, knownAccounts: refs))
         }
         let poller = UsagePoller(providers: providers)
 

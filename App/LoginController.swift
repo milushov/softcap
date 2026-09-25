@@ -7,6 +7,7 @@ import ClaudeProvider
 import CodexProvider
 import CopilotProvider
 import ZaiProvider
+import KimiProvider
 import Credentials
 import Diagnostics
 import StatusUI
@@ -38,7 +39,7 @@ struct SignInRequest: Sendable, Hashable {
 /// the provider; cancellation invalidates the attempt before cancelling its work.
 @MainActor
 final class LoginController: ObservableObject {
-    static let providers: [ProviderID] = [.claude, .codex, .copilot, .glm]
+    static let providers: [ProviderID] = [.claude, .codex, .copilot, .glm, .kimi]
 
     /// Which of them sign in by carrying a code rather than by catching a
     /// redirect. Named here rather than asked of the provider, because the
@@ -49,7 +50,7 @@ final class LoginController: ObservableObject {
     /// And which are signed into by handing a key over. A third shape, and the
     /// only one with nothing running in it: until the person types, there is no
     /// attempt in flight, no deadline and nothing to cancel but the waiting.
-    static let keyProviders: Set<ProviderID> = [.glm]
+    static let keyProviders: Set<ProviderID> = [.glm, .kimi]
     @Published private(set) var isRunning = false
     @Published private(set) var isSavingAccount = false
 
@@ -139,7 +140,13 @@ final class LoginController: ObservableObject {
     init(
         store: CredentialStore,
         keyAuthentication: @escaping @Sendable (ProviderID) -> any KeyAuthenticating = {
-            _ in ZaiKeyLogin()
+            // Kimi's rows carry the product name, because its reply says
+            // nothing about whose account it is or what plan it is on. The
+            // name is handed in from here: Core holds one brand name and it is
+            // the short caption, not the name a person chose the service by.
+            $0 == .kimi
+                ? KimiKeyLogin(accountName: ProviderID.kimi.productName)
+                : ZaiKeyLogin() as any KeyAuthenticating
         },
         authentication: @escaping @Sendable (ProviderID) -> any BrowserAuthenticating = {
             $0 == .codex ? CodexOAuthLogin() as any BrowserAuthenticating : OAuthLogin()

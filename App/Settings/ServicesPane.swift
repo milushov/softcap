@@ -37,6 +37,12 @@ struct ServicesPane: View {
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
 
+                Section {
+                    Toggle(ProviderID.kimi.productName, isOn: enabled(.kimi))
+                    Text(loc("Live data from the API."))
+                        .font(.system(size: 11)).foregroundStyle(.secondary)
+                }
+
                 Section(loc("Later")) {
                     ForEach(Self.planned, id: \.self) { provider in
                         HStack {

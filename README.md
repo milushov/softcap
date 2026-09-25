@@ -149,9 +149,9 @@ The App Store copy has eight: it has no Updates.
 History keeps a reading when usage moves by a point, at most every five minutes,
 plus one every half hour regardless while polling; pruned after 35 days.
 Cursor and Gemini CLI appear under **Later**: named, not yet reachable. GitHub
-Copilot and the GLM Coding Plan are implemented — a device grant and a key typed
-in, respectively — and neither has been checked against a live subscription, so
-neither is offered as supported.
+Copilot, the GLM Coding Plan and Kimi Code are implemented — a device grant and
+two keys typed in — and none has been checked against a live subscription, so
+none is offered as supported.
 
 ## Data
 

@@ -520,7 +520,7 @@ import Foundation
 
     /// The services the page says are coming are the ones the app lists.
     ///
-    /// `ProviderID` has six cases; two are read today and four appear in
+    /// `ProviderID` has seven cases; two are read today and five appear in
     /// Settings under "Later". The page names those four in its own words —
     /// "GitHub Copilot", "Gemini CLI", "GLM Coding Plan" — which is right for a
     /// reader and means the two lists agree by memory alone.
@@ -535,8 +535,8 @@ import Foundation
         let built: Set<ProviderID> = [.claude, .codex]
         let planned = ProviderID.allCases.filter { !built.contains($0) }
 
-        #expect(planned.count == 4,
-                "the app now plans \(planned.count) more services; the page names four")
+        #expect(planned.count == 5,
+                "the app now plans \(planned.count) more services; the page names five")
         // The question is asked before `#expect` sees it, and that is the point.
         //
         // `#expect(page.contains(x))` makes `page` an operand, and a failure

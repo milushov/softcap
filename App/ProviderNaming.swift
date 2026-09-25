@@ -25,6 +25,7 @@ extension ProviderID {
         case .cursor:  "Cursor"
         case .gemini:  "Gemini"
         case .glm:     "GLM Coding Plan"
+        case .kimi:    "Kimi Code"
         }
     }
 }

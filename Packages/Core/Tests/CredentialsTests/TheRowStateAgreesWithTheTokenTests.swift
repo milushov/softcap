@@ -60,6 +60,24 @@ private struct RefusingRefresher: TokenRefreshing {
             Shape(name: "a key given by hand and since emptied", account: StoredAccount(
                 id: "glm/def", handle: "def", displayName: "Pro", refreshToken: nil,
                 tokenOrigin: .givenByHand, accessToken: "", accessGoodUntil: nil)),
+            // The shapes the first version of this suite did not vary, and the
+            // divergence it therefore let through: `accessToken(for:)` checks
+            // the stated deadline and `accountStates` did not, so an expired
+            // static credential showed a green badge and no way back in.
+            Shape(name: "a static credential still inside its stated life",
+                  account: StoredAccount(
+                    id: "copilot/dated", handle: "dated", displayName: "sam", refreshToken: nil,
+                    tokenOrigin: .ownGrant, accessToken: "gh-token",
+                    accessGoodUntil: .distantFuture)),
+            Shape(name: "a static credential past its stated life", account: StoredAccount(
+                id: "copilot/expired", handle: "expired", displayName: "sam", refreshToken: nil,
+                tokenOrigin: .ownGrant, accessToken: "gh-token",
+                accessGoodUntil: .distantPast)),
+            Shape(name: "a key given by hand and past its stated life",
+                  account: StoredAccount(
+                    id: "kimi/expired", handle: "coding-abc", displayName: "Kimi Code",
+                    refreshToken: nil, tokenOrigin: .givenByHand, accessToken: "sk-kimi",
+                    accessGoodUntil: .distantPast)),
             Shape(name: "a token copied from a CLI", account: StoredAccount(
                 id: "claude/cli", handle: "cli", displayName: "sam", refreshToken: "rt",
                 tokenOrigin: .copiedFromCLI, accessToken: "held",

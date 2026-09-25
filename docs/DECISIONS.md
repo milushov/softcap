@@ -9956,3 +9956,82 @@ pre-filled the `SecureField` with it — dots, no way to see whose key they were
 and `Done` would have sent the previous attempt's credential.
 
 **Still unchecked against a live subscription**, as Copilot is.
+
+## 2026-09-26 — Kimi Code, and a host that a key does not name
+
+**Decided.** Kimi Code is read from `/usages`, which returns a five-hour and a
+seven-day window as ratios with reset times. Both land on `session` and
+`weekly`, the identifiers this app already has. The key is handed over the way
+the GLM Coding Plan's is, and every row of this service is named after the
+product.
+
+**Why it was next.** It arrived with less to build than anything surveyed: the
+windows are ours already, the sign-in is the shape built last week, and the
+credential is static like the other key. Nothing was named, no catalogue gained
+a key, no column was remeasured. A survey that ranks by what a service will let
+a third party read, rather than by how well known it is, put it ahead of four
+better-known names.
+
+**What the reply does not say, and what that costs.** No identity, and — unlike
+the GLM plan — not even a tier. So every row reads `Kimi Code`, and two
+subscriptions are two rows with the same word on them and no rename anywhere in
+the app. The identifier is a truncated SHA-256 of the key, so at least the same
+key lands on the same row rather than leaving two that cannot be told apart *or*
+removed.
+
+**A host the key does not name.** Two answer `/usages` — the Coding Plan's own
+and the general Moonshot API — and which one a key belongs to is not something
+the key says. Trying both on every poll is a wasted request every five minutes
+for everybody on the second, forever. So it is settled once, at sign-in, by
+trying, and written into the handle: `coding-<digest>` or `moonshot-<digest>`.
+That is what `AccountRef.handle` is documented to be — "whatever the provider
+navigates by" — and there is nowhere else to put it, since what a saved account
+holds is an identifier and a credential.
+
+A host that was unreachable is not a key that is wrong. `needsLogin` is said
+only when every host actually refused the credential; a 503 on both reports the
+network, because sending somebody after a new key when a server was down sends
+them after the one thing that was never the problem.
+
+**Read, and not guessed at.** The same reply carries a monthly envelope and two
+older shapes — string counters under `usage`, and a `limits` array keyed by a
+window duration in minutes. None is read. The monthly one would be a third bar
+in a row built for two, which is the cost recorded for Copilot; the older two
+are known to exist without their field names being known, and a fallback written
+from a description could quietly produce a number. A number this app cannot
+stand behind is worse than a row saying it could not read the reply.
+
+`Bearer` here, and bare at the GLM plan, which refuses the prefix with a 401.
+Two services taking a key and disagreeing about the header is obvious once and
+invisible afterwards, so both are stated where the request is built.
+
+**Cost elsewhere.** Two hosts named in the outbound list. A fifth product name,
+a fifth service on the page in ten languages, and a guard narrowed:
+`everyDateFormatterIsGivenALanguage` matched the substring in
+`ISO8601DateFormatter`, which has no locale to set — the format is fixed by the
+standard — and is used here to read a machine instant rather than to write
+anything anybody sees.
+
+**Three the review caught, and the first is this entry arguing with itself.**
+The failure the sign-in throws when no host takes the key folded "this app could
+not read the reply" in with "the key was refused" — two lines under a comment
+saying `needsLogin` is said only when every host actually refused. A schema
+change would then tell somebody to sign in again, and the new key would fail in
+exactly the same way, forever. An unreadable reply anywhere is `malformed` now;
+`needsLogin` needs every host to have refused.
+
+The limits window had no state for waiting on a person: a key sign-in started
+from a row left it spinning "Signing in to…" while the app did nothing at all.
+The settings screen suppresses exactly that and says why, and this half of the
+fix was missing. `SignInOffer.Progress` gains `waiting` — the same sentence as
+`offered`, which is still true until the key lands, with the cancel button and
+no spinner.
+
+And `accountStates` reproduced `accessToken(for:)`'s static branch without its
+deadline, so a static credential past its stated life showed a green badge and
+no way back in. `TheRowStateAgreesWithTheToken` had eight shapes and none of
+them varied `accessGoodUntil`, which is how a suite written to catch exactly
+this divergence let it through; it has three more now.
+
+**Not checked against a live subscription**, which is now true of three of the
+five services this app can read.

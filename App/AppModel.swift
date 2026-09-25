@@ -8,6 +8,7 @@ import ClaudeProvider
 import CodexProvider
 import CopilotProvider
 import ZaiProvider
+import KimiProvider
 import Credentials
 import Diagnostics
 import Monitoring
@@ -657,6 +658,9 @@ final class AppModel: ObservableObject {
         }
         if !preferences.disabledProviders.contains(.glm) {
             providers.append(ZaiUsageProvider(tokens: store, knownAccounts: refs))
+        }
+        if !preferences.disabledProviders.contains(.kimi) {
+            providers.append(KimiUsageProvider(tokens: store, knownAccounts: refs))
         }
         poller = UsagePoller(providers: providers)
     }

@@ -18,12 +18,16 @@ with tempfile.TemporaryDirectory(prefix="softcap-auth-tests-") as directory:
     (stage / "Core").symlink_to(root / "Packages/Core", target_is_directory=True)
     source = stage / "Tests/BrowserTests"
     source.mkdir(parents=True)
-    for name in ("LoginController.swift", "BrowserCallbackListener.swift", "BrowserSignInPage.swift"):
+    # `ProviderNaming.swift` travels with the controller: its default
+    # key-authentication closure names a service by its product name, which is
+    # the app layer's mapping and not one Core carries.
+    for name in ("LoginController.swift", "BrowserCallbackListener.swift",
+                 "BrowserSignInPage.swift", "ProviderNaming.swift"):
         shutil.copy2(root / "App" / name, source / name)
     for test in (root / "Tests/AuthenticationTests").glob("*.swift"):
         shutil.copy2(test, source / test.name)
     products = ("ProviderKit", "ClaudeProvider", "CodexProvider", "CopilotProvider",
-                "ZaiProvider", "Credentials", "Diagnostics", "StatusUI")
+                "ZaiProvider", "KimiProvider", "Credentials", "Diagnostics", "StatusUI")
     dependencies = ",\n".join(f'.product(name: "{name}", package: "Core")' for name in products)
     (stage / "Package.swift").write_text('''// swift-tools-version: 6.2
 import PackageDescription

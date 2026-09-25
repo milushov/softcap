@@ -18,11 +18,11 @@ import ProviderKit
 /// one would think to open.
 @Suite struct RotationIsAPropertyOfTheService {
 
-    /// Two, and each for its own reason: a device grant for a public GitHub
-    /// client has nothing to rotate, and a coding-plan key is handed over whole
-    /// and never expires on its own.
+    /// Three, and each for its own reason: a device grant for a public GitHub
+    /// client has nothing to rotate, and a coding-plan key — Z.ai's or Kimi's —
+    /// is handed over whole and never expires on its own.
     @Test func theStaticServicesAreNamedAndAreTheOnlyOnes() {
-        #expect(Set(ProviderID.allCases.filter { !$0.rotatesCredentials }) == [.copilot, .glm])
+        #expect(Set(ProviderID.allCases.filter { !$0.rotatesCredentials }) == [.copilot, .glm, .kimi])
     }
 
     /// The services that have a reader written for them. Everything else in
@@ -31,7 +31,7 @@ import ProviderKit
     /// This is the list that has to be edited when a service is *implemented*,
     /// which is the direction that keeps the check honest: a new case joins the
     /// group below by doing nothing, so it is checked the moment it exists.
-    private static let implemented: Set<ProviderID> = [.claude, .codex, .copilot, .glm]
+    private static let implemented: Set<ProviderID> = [.claude, .codex, .copilot, .glm, .kimi]
 
     /// `true` is the answer for anything not yet implemented, because of the
     /// two possible mistakes it is the visible one: a rotating service wrongly

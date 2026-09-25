@@ -1,7 +1,7 @@
 import Foundation
 
 public enum ProviderID: String, Sendable, Hashable, Codable, CaseIterable {
-    case claude, codex, cursor, copilot, gemini, glm
+    case claude, codex, cursor, copilot, gemini, glm, kimi
 
     /// The service caption shown in an account row.
     public var title: String {
@@ -14,6 +14,7 @@ public enum ProviderID: String, Sendable, Hashable, Codable, CaseIterable {
         // The plan is Z.ai's; the thing a person runs is GLM, and every other
         // caption here names what they run rather than who sells it.
         case .glm:     "GLM"
+        case .kimi:    "Kimi"
         }
     }
 
@@ -45,6 +46,9 @@ public enum ProviderID: String, Sendable, Hashable, Codable, CaseIterable {
         // cannot retire it — which is also why a key given by hand is
         // admissible where a refresh token copied from a CLI is not.
         case .glm: false
+        // A Kimi Code subscription key, the same footing: handed over whole,
+        // never rotated, nothing to refresh with.
+        case .kimi: false
         }
     }
 
@@ -62,7 +66,7 @@ public enum ProviderID: String, Sendable, Hashable, Codable, CaseIterable {
     public var credentialIsGivenByHand: Bool {
         switch self {
         case .claude, .codex, .copilot, .cursor, .gemini: false
-        case .glm: true
+        case .glm, .kimi: true
         }
     }
 }

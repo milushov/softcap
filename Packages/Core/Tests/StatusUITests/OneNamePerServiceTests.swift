@@ -24,7 +24,7 @@ import Foundation
 
     /// The product names, as a person choosing between services reads them.
     private static let productNames = [
-        "Claude Code", "OpenAI Codex", "GitHub Copilot", "GLM Coding Plan",
+        "Claude Code", "OpenAI Codex", "GitHub Copilot", "GLM Coding Plan", "Kimi Code",
     ]
 
     @Test func noScreenWritesAProductNameOfItsOwn() throws {

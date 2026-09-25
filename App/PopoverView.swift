@@ -444,6 +444,11 @@ struct PopoverView: View {
             if !login.isRunning { .offered }
             else if !mine { .blocked }
             else if login.isSavingAccount { .saving }
+            // Waiting on a person, not on a service. The settings screen
+            // suppresses its spinner for the same reason and this half of the
+            // fix was missing: the row spun while the field below it asked for
+            // a key and the app did nothing at all.
+            else if login.keyExpected { .waiting }
             else { .running }
 
         return SignInOffer(
