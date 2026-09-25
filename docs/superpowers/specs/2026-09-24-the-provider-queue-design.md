@@ -107,20 +107,34 @@ false, the store serves the stored credential as it is, and nothing is ever sent
 to a refresher. `TokenOrigin` gains a third case rather than stretching
 `ownGrant` to cover something that is not a grant of ours.
 
-## What is still open
+## What the row is called — settled, 25 September
 
-**What the row is called.** Every other service answers who the account belongs
-to — Claude a profile, Codex an ID token, Copilot `api.github.com/user`. This
-endpoint returns a plan level and nothing else, so a row would read `glm/1`
-unless the person is asked to name it, and an unnamed row is the thing
-`AccountRef.lastKnownName` exists to prevent. Asking for a name beside the key
-is the obvious answer and adds a field; taking the plan level is not an answer
-because two accounts on one plan would be one word twice.
+This endpoint returns a plan level and nothing else, where every other service
+answers who the account belongs to: Claude a profile, Codex an ID token, Copilot
+`api.github.com/user`. Two answers were on the table — ask the person to name
+the account beside the key, or take the plan level — and searching for a third
+found none: there is no identity endpoint, and the key management the API
+documents is a web page.
 
-This is the decision the implementation waits on, and it is small enough to make
-at the keyboard but not while nobody is looking.
+**The plan level was chosen**, and the row reads `Lite`, `Pro` or `Max`. The
+cost is two accounts on one plan reading alike, with no rename anywhere in the
+app to recover with. The identifier is a truncated SHA-256 of the key rather
+than anything the service supplies, so at least the same key lands on the same
+row instead of leaving two nobody can tell apart *or* remove.
+`docs/DECISIONS.md` carries the whole of it.
 
-**Nothing here has been checked against a live account**, and neither has
-Copilot. Three services deep in code that no real subscription has answered is
-the standing risk of this whole queue, and the page's own answer about supported
-providers is the standard it will be held to.
+## Where the queue stands
+
+Claude, Codex, Copilot and the GLM Coding Plan are implemented. Copilot and GLM
+have never been answered by a real subscription, which is the standing risk of
+this queue and the reason neither is claimed as supported on the site.
+
+Nothing is left in it that can be finished from here:
+
+- **OpenRouter** needs the app to show spend as well as fullness, which is a
+  change to what the product is.
+- **Gemini** needs an OAuth client of our own, registered and put through
+  Google's verification for a sensitive scope.
+- **Cursor** is closed on the terms above.
+
+Both remaining names wait on a decision or an account that only the author has.

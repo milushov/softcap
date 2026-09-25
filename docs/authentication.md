@@ -1,14 +1,34 @@
-# Browser authentication
+# Signing in
 
-Softcap supports separate grants for Claude Code, OpenAI Codex and GitHub
-Copilot. Choose the provider from **Add account…** in Accounts or the menu bar
-context menu. Codex signs into ChatGPT subscription access, not OpenAI API
-billing. A saved account can be reconnected using its **Sign in…** button.
+Softcap holds a separate credential for Claude Code, OpenAI Codex, GitHub
+Copilot and the GLM Coding Plan. Choose the service from **Add account…** in
+Accounts or the menu bar context menu. Codex signs into ChatGPT subscription
+access, not OpenAI API billing. A saved account can be reconnected using its
+**Sign in…** button.
 
-There are two shapes of sign-in. Claude and Codex catch a redirect on a loopback
-port; Copilot carries a code to a page. Which one a provider uses is named by
-`LoginController.deviceProviders`, and only the controller and the screen know
-the difference — everything downstream receives the same `AuthenticatedAccount`.
+There are three shapes of sign-in, and they differ in what the service does:
+
+- **A redirect caught on a loopback port.** Claude and Codex. The browser is
+  opened, the reply comes back to a socket this app is listening on, and the
+  code is exchanged with PKCE.
+- **A code carried to a page.** Copilot. Nothing comes back to us; the person is
+  shown a short string, sent to a page to type it in, and the service is polled
+  until they have.
+- **A key handed over.** The GLM Coding Plan. There is no flow at all: the
+  person already holds the key their plan issued, and the whole of signing in is
+  typing it into a field. It is checked by being used once.
+
+Which shape a service uses is named by `LoginController.deviceProviders` and
+`LoginController.keyProviders`; anything in neither takes the first. Only the
+controller and the screens know the difference — everything downstream receives
+the same `AuthenticatedAccount`, and all three end at the same `adopt`, so the
+success notice, the counter and the callback have one definition rather than
+three that can drift.
+
+`KeySignIn.everyKeyProviderIsOneTheControllerWillStart` and its neighbour hold
+the two lists inside `providers` and disjoint from each other: a service named
+only in a shape list would have a menu item that does nothing, and one named in
+both would be resolved by whichever branch happens to be written first.
 
 ## Ownership and dependencies
 
@@ -26,6 +46,12 @@ the difference — everything downstream receives the same `AuthenticatedAccount
   `LoginController`, as the browser and the listener already do; both shapes end
   at the same `adopt`, so the success notice, the counter and the callback have
   one definition rather than two that can drift.
+- `KeyAuthenticating` is the third shape, and the smallest: `account(for:)`
+  takes the key, uses it once, and says what the account is called. There is no
+  loop, no deadline and no port, because until somebody types nothing is in
+  flight — which is why `keyExpected` is published beside `isRunning`. A screen
+  reading only `isRunning` would turn a spinner beside an empty field and claim
+  the app is busy with what is in fact the person's typing.
 - `LoginController` owns one attempt, opens the browser and drives the loopback
   listener. Cancelled attempts cannot open a browser, publish success or save a
   delayed exchange result. A timeout includes binding, browser interaction and
@@ -44,6 +70,15 @@ the difference — everything downstream receives the same `AuthenticatedAccount
   single refused request does not discard a static token either: it is not a
   cached copy of anything, and throwing it away over one status would destroy
   the account rather than refresh it.
+
+- Where a credential came from is written down beside it, through
+  `TokenOrigin`, because what may be done with one depends on it. `ownGrant` is
+  a grant this app was issued; `givenByHand` is a key the person typed in, which
+  may be used for the reason the CLI rule exists — that rule is about rotation,
+  and a static key rotates nothing and can sign nothing out. `copiedFromCLI` and
+  a list written before the field existed are both refused. An origin this build
+  does not recognise decodes to `nil` and is refused with them, so a value from
+  a newer build costs one row rather than the whole item.
 
 No credential is imported from any CLI. `SystemKeychain` reads and writes one
 item, `StatusChecker-accounts`, and there is no code path to any other — which is
@@ -99,6 +134,30 @@ the same footing as the two above, and the same obligation when one moves. **The
 have not been checked against a live Copilot subscription.** Every constant is
 from published documentation and every test reply is a recording, which proves
 the adapter reads what it was told to expect and not that the service sends it.
+
+## GLM protocol compatibility
+
+The key goes in `Authorization` bare; the `Bearer` prefix every other service
+here requires is refused with a 401, which reads as a dead key rather than as a
+malformed header. Usage is `api.z.ai/api/monitor/usage/quota/limit`, read-only.
+
+A window is matched by the pair `(unit, number)` — `(3, 5)` is the five-hour
+window, `(6, 1)` the weekly one — and never by `type`, which read `TIME_LIMIT`
+and `TOKENS_LIMIT` until recently and reads `CREDIT_LIMIT` now. Readers that
+keyed on it dropped the new entries and drew zeros. `usage` is the allowance and
+`currentValue` is what has gone, which is the opposite of what the names look
+like. `nextResetTime` is milliseconds.
+
+The same request is what checks a key at sign-in: a 200 whose body cannot be
+read is a key that would produce an unreadable row on every poll afterwards, and
+the moment to say so is while the person is still looking at the field. A
+refusal arrives as a 200 with the reason in `code`; 401 and 403 are `needsLogin`
+rather than `malformed`, because every screen gates the way back in on that one
+kind.
+
+The service answers no identity at all, so the row is named after the plan level
+and the account is filed under a truncated SHA-256 of its key. `docs/DECISIONS.md`
+carries what that costs. **Not checked against a live subscription.**
 
 ## Returning to Softcap
 
