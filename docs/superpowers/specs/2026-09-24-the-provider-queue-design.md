@@ -123,18 +123,70 @@ than anything the service supplies, so at least the same key lands on the same
 row instead of leaving two nobody can tell apart *or* remove.
 `docs/DECISIONS.md` carries the whole of it.
 
+## The second survey, 26 September
+
+The first survey looked at the names everybody knows. This one looked at the
+rest, and it changed the order again: the best-integrating service in the field
+was one nobody would have named first.
+
+**Kimi Code — built.** `/usages` returns a five-hour and a seven-day window as
+ratios with reset times. Both are `session` and `weekly` already; the credential
+is a key, which is a shape this app has; nothing needed naming. It arrived with
+less to build than any service before it. Two hosts answer, and which one a key
+belongs to is settled at sign-in and kept in the handle.
+
+**Factory Droid — the best remaining shape, and not buildable.** Individual
+plans run three rolling windows — five hours, seven days, thirty days — which is
+a better fit than most, and `GET api.factory.ai/api/billing/limits` answers with
+a key in `Bearer` beside an `X-Factory-Client` header. But Factory documents no
+API at all: the pricing page sends a person to `/limits` inside Droid or to a
+settings screen on the web. Every third-party reader of that endpoint derived
+its contract from the CLI binary and the web bundle, and none publishes the
+field names.
+
+That is the line this project does not cross for a *parser*, as distinct from an
+endpoint. Reading an undocumented endpoint is the footing three services here
+already stand on, and it is written down. Writing the reader for one from a
+prose description of what it contains is different: the names might be right,
+and a name that is wrong in the way `usage` and `currentValue` are wrong at the
+GLM plan produces a row that is confident and false. A number this app cannot
+stand behind is worse than a row saying it could not read the reply. Factory
+becomes buildable the day one real reply can be looked at.
+
+**Grok — nothing to read.** Since June 2026 the products share one weekly pool,
+shown as a bar in the account view with no published numbers and no endpoint for
+a subscriber. What the xAI console does expose is developer metering: requests
+per second and tokens per minute, which are rate limits on an API key rather
+than a subscription window, and not what this app draws.
+
+**Qwen and MiniMax — a page, not an endpoint.** Both sell coding plans with
+included quotas and both show the remainder on a dashboard. Neither documents a
+way to ask for it.
+
+**Antigravity — Gemini's blocker, twice.** It reaches the same Code Assist
+family, so it needs the same OAuth client of our own and the same verification,
+and adds a second endpoint family on top.
+
 ## Where the queue stands
 
-Claude, Codex, Copilot and the GLM Coding Plan are implemented. Copilot and GLM
-have never been answered by a real subscription, which is the standing risk of
-this queue and the reason neither is claimed as supported on the site.
+Claude, Codex, Copilot, the GLM Coding Plan and Kimi Code are implemented. The
+last three have never been answered by a real subscription, which is the
+standing risk of this queue and the reason none is claimed as supported on the
+site.
 
-Nothing is left in it that can be finished from here:
+The field is exhausted. Everything left waits on somebody:
 
 - **OpenRouter** needs the app to show spend as well as fullness, which is a
-  change to what the product is.
-- **Gemini** needs an OAuth client of our own, registered and put through
-  Google's verification for a sensitive scope.
-- **Cursor** is closed on the terms above.
+  change to what the product is. Its sign-in is the best any service offers.
+- **Gemini** and **Antigravity** need an OAuth client of our own, registered and
+  put through Google's verification for a sensitive scope.
+- **Factory Droid** needs one real reply from `/api/billing/limits`, which is
+  one sign-in by somebody who has a plan.
+- **Cursor** is closed: its only route for an individual means reproducing a
+  machine-derived checksum, which is an anti-abuse control rather than a public
+  client.
+- **Grok**, **Qwen**, **MiniMax**, **Amp** and **Windsurf** expose no way to ask.
 
-Both remaining names wait on a decision or an account that only the author has.
+Three of the five that are implemented have never been checked against a live
+account. That, rather than the length of this list, is what the queue is
+actually waiting on.
