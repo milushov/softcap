@@ -13,6 +13,7 @@ struct AccountsPane: View {
     @State private var rows: [AccountRow] = []
     @State private var pendingForget: AccountRow?
     @State private var manualCode = ""
+    @State private var pastedKey = ""
     @State private var accountError: String?
     @State private var repairing = false
     @State private var repairNote: String?
@@ -121,6 +122,12 @@ struct AccountsPane: View {
                         ForEach(LoginController.providers, id: \.self) { provider in
                             Button(provider.productName) {
                                 manualCode = ""
+                                // Not carried into the next attempt. Left
+                                // behind it would pre-fill a SecureField
+                                // invisibly — dots, no way to see whose key
+                                // they are — and Done would send the previous
+                                // attempt's credential.
+                                pastedKey = ""
                                 loginController.start(provider: provider, from: .settings)
                             }
                         }
@@ -131,7 +138,22 @@ struct AccountsPane: View {
                     // it" spends a grant to tell somebody what this screen is
                     // already telling them.
                     .disabled(loginController.isRunning || problem != nil)
-                    if loginController.isRunning {
+                    // Not while *this* screen is the one holding the field:
+                    // an attempt is in hand, the menu is shut and cancelling
+                    // works, but nothing is in flight, and a spinner beside an
+                    // empty field says the app is busy with what is in fact the
+                    // person's typing.
+                    //
+                    // Only this screen. A key sign-in begun in the limits
+                    // window leaves the field over there, and suppressing the
+                    // block here as well left this one showing a disabled
+                    // "Add account…" with no spinner, no sentence and no
+                    // Cancel — an attempt that could only be escaped by
+                    // reopening the other window.
+                    if loginController.isRunning,
+                       !(loginController.keyExpected
+                         && loginController.request?.origin == .settings)
+                         || loginController.isSavingAccount {
                         ProgressView().controlSize(.small)
                         if loginController.isSavingAccount {
                             Text(loc("Saving account…"))
@@ -140,8 +162,12 @@ struct AccountsPane: View {
                             Text(String(format: loc("Signing in to %@…"), provider.title))
                                 .font(.system(size: 11)).foregroundStyle(.secondary)
                         }
-                        Button(loc("Cancel")) { loginController.cancel() }
-                            .disabled(loginController.isSavingAccount)
+                        Button(loc("Cancel")) {
+                            loginController.cancel()
+                            manualCode = ""
+                            pastedKey = ""
+                        }
+                        .disabled(loginController.isSavingAccount)
                     }
                     Spacer()
                 }
@@ -165,6 +191,42 @@ struct AccountsPane: View {
                             }
                         }
                         .disabled(manualCode.isEmpty)
+                    }
+                }
+
+                // The third shape: the credential is not granted, it is
+                // handed over. Gated to this screen like the two fields above,
+                // so one attempt is never offered by two screens at once.
+                if loginController.keyExpected,
+                   loginController.request?.origin == .settings {
+                    VStack(alignment: .leading, spacing: 7) {
+                        Text(loc("The key your plan issued — the same one your editor uses."))
+                            .font(.system(size: 11)).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        HStack(spacing: 6) {
+                            // Secure, because it is a credential and this
+                            // screen is shared with whoever is behind the
+                            // person typing. It pastes like any other field.
+                            SecureField(loc("Key from your plan"), text: $pastedKey)
+                                .frame(width: 260)
+                            Button(loc("Done")) {
+                                Task {
+                                    await loginController.submitKey(pastedKey)
+                                    // Emptied only once it has been taken. A
+                                    // mistyped key leaves the field asking
+                                    // again, and a field that wipes itself has
+                                    // thrown away the thing needing correction.
+                                    if !loginController.keyExpected { pastedKey = "" }
+                                    await reload()
+                                }
+                            }
+                            .disabled(pastedKey.isEmpty || loginController.isSavingAccount)
+                            Button(loc("Cancel")) {
+                                loginController.cancel()
+                                pastedKey = ""
+                            }
+                            .disabled(loginController.isSavingAccount)
+                        }
                     }
                 }
 

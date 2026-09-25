@@ -47,6 +47,24 @@ public enum ProviderID: String, Sendable, Hashable, Codable, CaseIterable {
         case .glm: false
         }
     }
+
+    /// Whether the credential is handed over by the person rather than granted
+    /// to this app by the service.
+    ///
+    /// The store writes it down, because what may be done with a credential
+    /// depends on where it came from and a list cannot say so later. A
+    /// `switch` rather than a comparison, so a service added tomorrow has to
+    /// answer rather than inherit an answer.
+    ///
+    /// Anything given by hand is also static: there is nothing to rotate a
+    /// credential with that was never granted. `TheTwoCredentialFlagsAgree`
+    /// holds that, so the pair cannot drift into claiming a key that rotates.
+    public var credentialIsGivenByHand: Bool {
+        switch self {
+        case .claude, .codex, .copilot, .cursor, .gemini: false
+        case .glm: true
+        }
+    }
 }
 
 public enum Severity: Sendable, Hashable, Codable {

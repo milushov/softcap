@@ -114,8 +114,34 @@ private actor StubRefresher: TokenRefreshing {
         #expect(try await store.accessToken(for: ref) == "held")
     }
 
+    /// A key the person typed in is used, and recorded as what it is.
+    ///
+    /// Not a grant of ours — nothing was granted — and not a copy taken from a
+    /// CLI, because nobody's files were read. What makes it usable is the
+    /// reason the CLI rule exists: that rule is about rotation, and spending a
+    /// refresh token copied from a CLI retires the CLI's own. A static key
+    /// rotates nothing, so the person's editor goes on working unchanged.
+    @Test func aKeyGivenByHandIsKeptAsGivenAndServed() async throws {
+        let store = store()
+        await store.load()
+        try await store.addLoggedInAccount(AuthenticatedAccount(
+            account: AccountRef(
+                id: "glm/abcdef0123456789", provider: .glm, handle: "abcdef0123456789",
+                lastKnownName: "Pro"),
+            tokens: RefreshedTokens(accessToken: "plan-key", refreshToken: nil)))
+
+        let ref = AccountRef(
+            id: "glm/abcdef0123456789", provider: .glm, handle: "abcdef0123456789")
+        #expect(try await store.accessToken(for: ref) == "plan-key")
+
+        let recorded = await store.accountStates().first { $0.account.id == ref.id }?.account
+        #expect(recorded?.tokenOrigin == .givenByHand)
+        #expect(recorded?.isOwnGrant == false, "it is not a grant of ours and must not claim to be")
+        #expect(recorded?.isSpendable == true)
+    }
+
     /// A token copied from a CLI is refused at every service. The new path is
-    /// reached only by a grant of this app's own, and that rule has no
+    /// reached only by a credential this app may use, and that rule has no
     /// exceptions to make for a service that does not rotate.
     @Test func aBorrowedTokenIsStillRefused() async throws {
         let keychain = MemoryKeychain()

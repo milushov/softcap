@@ -35,6 +35,7 @@ struct PopoverView: View {
 
     /// The code from the page, when a sign-in has come back asking for one.
     @State private var pastedCode = ""
+    @State private var typedKey = ""
 
     /// Whether the keychain's question is on screen, and whether the last one
     /// came back with nothing changed. Held by the window rather than the model
@@ -110,6 +111,7 @@ struct PopoverView: View {
 
             pastedCodeField
             deviceCodeField
+            keyField
             if model.isDemo {
                 Divider().opacity(0.35)
                 demoNote
@@ -181,6 +183,7 @@ struct PopoverView: View {
 
             pastedCodeField
             deviceCodeField
+            keyField
             if model.isDemo { demoNote }
             quietFooter
         }
@@ -449,12 +452,21 @@ struct PopoverView: View {
             // the instruction for the field, and the same sentence in two
             // places on a window this size reads as two things having gone
             // wrong rather than one thing being explained.
-            note: mine && !login.manualCodeExpected ? login.message : nil,
+            // Suppressed while either field is up, because both print the
+            // sentence themselves. It named only the pasted-code field, so a
+            // wrong key was reported twice — on the row and above the field —
+            // which is the duplication this line exists to prevent.
+            note: mine && !login.manualCodeExpected && !login.keyExpected
+                ? login.message : nil,
             start: {
                 pastedCode = ""
+                typedKey = ""
                 login.start(provider: snapshot.provider, from: .window, for: snapshot.id)
             },
-            cancel: { login.cancel() }
+            cancel: {
+                login.cancel()
+                typedKey = ""
+            }
         )
     }
 
@@ -544,6 +556,49 @@ struct PopoverView: View {
                     .font(.system(size: 11))
                     Link(loc("Open the page"), destination: grant.verificationURL)
                         .font(.system(size: 11))
+                }
+            }
+            .padding(.horizontal, 13)
+            .padding(.top, 4)
+            .padding(.bottom, 8)
+        }
+    }
+
+    /// The key this window's sign-in is waiting for, asked for in this window.
+    ///
+    /// Third time the same argument: a row here offers "Sign in…", and a
+    /// sign-in that can only be finished in Settings is the trip that button
+    /// exists to save. The pasted code and the device code both have a field
+    /// here for it; a key is the one credential that arrives from nowhere else
+    /// at all, so without this the row would start something with no way to
+    /// finish it anywhere the person is looking.
+    @ViewBuilder
+    private var keyField: some View {
+        if login.keyExpected, login.request?.origin == .window {
+            VStack(alignment: .leading, spacing: 5) {
+                Text(loc("The key your plan issued — the same one your editor uses."))
+                    .font(.system(size: 10.5))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if let message = login.message {
+                    Text(message)
+                        .font(.system(size: 10.5))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                HStack(spacing: 6) {
+                    SecureField(loc("Key from your plan"), text: $typedKey)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.system(size: 11))
+                    Button(loc("Done")) {
+                        let key = typedKey
+                        Task {
+                            await login.submitKey(key)
+                            if !login.keyExpected { typedKey = "" }
+                        }
+                    }
+                    .font(.system(size: 11))
+                    .disabled(typedKey.isEmpty)
                 }
             }
             .padding(.horizontal, 13)

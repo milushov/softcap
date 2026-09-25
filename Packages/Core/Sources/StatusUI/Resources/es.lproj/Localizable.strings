@@ -221,3 +221,5 @@
 "Could not open the browser. Open the page below and enter the code." = "No se pudo abrir el navegador. Abre la página de abajo e introduce el código.";
 "Account shown" = "Cuenta mostrada";
 "In use" = "En uso";
+"Key from your plan" = "Clave de tu plan";
+"The key your plan issued — the same one your editor uses." = "La clave que emitió tu plan: la misma que usa tu editor.";

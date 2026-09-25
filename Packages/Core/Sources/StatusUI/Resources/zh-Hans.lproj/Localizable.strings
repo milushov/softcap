@@ -221,3 +221,5 @@
 "Could not open the browser. Open the page below and enter the code." = "无法打开浏览器。请打开下面的页面并输入代码。";
 "Account shown" = "显示的账户";
 "In use" = "使用中";
+"Key from your plan" = "套餐的密钥";
+"The key your plan issued — the same one your editor uses." = "套餐签发的那个密钥 —— 与您的编辑器所用的相同。";

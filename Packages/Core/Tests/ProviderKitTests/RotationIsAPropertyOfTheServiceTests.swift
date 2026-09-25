@@ -55,3 +55,27 @@ import ProviderKit
         }
     }
 }
+
+/// The two flags a credential carries, and the one thing they may not say
+/// together.
+@Suite struct TheTwoCredentialFlagsAgree {
+
+    /// A credential handed over was never granted, so there is nothing to
+    /// rotate it with. Claiming both would have the store looking for a
+    /// refresher that cannot exist and reporting "sign in again" about a key
+    /// that works — which is the failure `rotatesCredentials` was added to
+    /// prevent, arrived at from the other side.
+    @Test func nothingGivenByHandAlsoRotates() {
+        for provider in ProviderID.allCases where provider.credentialIsGivenByHand {
+            #expect(!provider.rotatesCredentials, """
+                \(provider.rawValue) says its credential is handed over and that it \
+                rotates; a credential nobody granted has nothing to rotate with
+                """)
+        }
+    }
+
+    /// And the check is not vacuous: one service does hand its credential over.
+    @Test func atLeastOneServiceIsAskedForItsKey() {
+        #expect(ProviderID.allCases.contains { $0.credentialIsGivenByHand })
+    }
+}

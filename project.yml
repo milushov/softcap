@@ -90,6 +90,8 @@ targets:
       - package: Core
         product: CopilotProvider
       - package: Core
+        product: ZaiProvider
+      - package: Core
         product: Credentials
       - package: Core
         product: Monitoring
@@ -185,6 +187,8 @@ targets:
         product: CodexProvider
       - package: Core
         product: CopilotProvider
+      - package: Core
+        product: ZaiProvider
       - package: Core
         product: Credentials
       - package: Core

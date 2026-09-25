@@ -4,6 +4,7 @@ import ProviderKit
 import ClaudeProvider
 import CodexProvider
 import CopilotProvider
+import ZaiProvider
 import Credentials
 import Monitoring
 import Preferences
@@ -76,6 +77,9 @@ final class PhoneModel: ObservableObject {
         // into, which `docs/authentication.md` explains is not.
         if !preferences.disabledProviders.contains(.copilot) {
             providers.append(CopilotUsageProvider(tokens: store, knownAccounts: refs))
+        }
+        if !preferences.disabledProviders.contains(.glm) {
+            providers.append(ZaiUsageProvider(tokens: store, knownAccounts: refs))
         }
         let poller = UsagePoller(providers: providers)
 

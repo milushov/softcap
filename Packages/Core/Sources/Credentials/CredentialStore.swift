@@ -243,7 +243,7 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
         // a CLI copy — but it is not proof of a grant either, and only one of
         // the two mistakes signs somebody else's tool out. So `nil` is refused
         // and the row asks for the sign-in that settles it.
-        guard accounts[index].isOwnGrant else {
+        guard accounts[index].isSpendable else {
             throw ProviderFailure(
                 kind: .needsLogin,
                 diagnostic: "token was copied from the CLI and must not be spent; sign in"
@@ -376,8 +376,21 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
             // browser sign-in exactly as much as an account holding nothing.
             // Saying `refreshed` because a string is present would promise a
             // reading that can never arrive.
+            // The same question `accessToken(for:)` answers, asked the same
+            // way. It was `isOwnGrant && refreshToken != nil`, which is true
+            // only of a service that rotates — so a device grant and a key
+            // given by hand, both of which hold no refresh token because there
+            // is nothing to rotate, were reported as needing a sign-in while
+            // the poller was reading their limits perfectly well. A red badge
+            // and a `Sign in…` button, forever, on an account that worked.
+            //
+            // `TheRowStateAgreesWithTheToken` holds the two together, because
+            // one of them being updated and not the other is exactly how this
+            // arrived.
+            let holdsSomethingToSpend = account.refreshToken != nil
+                || (!account.provider.rotatesCredentials && !(account.accessToken ?? "").isEmpty)
             let state: AccountState =
-                account.isOwnGrant && account.refreshToken != nil ? .refreshed : .needsLogin
+                account.isSpendable && holdsSomethingToSpend ? .refreshed : .needsLogin
             return (account, state)
         }
     }
@@ -408,7 +421,7 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
     /// The services a sign-in can produce an account for. A provider absent
     /// here is one the app names but cannot yet be signed into, and a grant
     /// claiming to be from one is refused rather than stored unreadably.
-    private static let signInCapable: Set<ProviderID> = [.claude, .codex, .copilot]
+    private static let signInCapable: Set<ProviderID> = [.claude, .codex, .copilot, .glm]
 
     public func addLoggedInAccount(_ result: AuthenticatedAccount) async throws {
         let ref = result.account
@@ -449,7 +462,7 @@ public actor CredentialStore: ClaudeTokenSource, AccountTokenSource {
             $0.append(StoredAccount(
                 id: ref.id, handle: ref.handle,
                 displayName: ref.lastKnownName, refreshToken: refresh,
-                tokenOrigin: .ownGrant,
+                tokenOrigin: ref.provider.credentialIsGivenByHand ? .givenByHand : .ownGrant,
                 accessToken: keepAccess ? result.tokens.accessToken : nil,
                 accessGoodUntil: until
             ))

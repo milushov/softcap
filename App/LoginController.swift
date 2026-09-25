@@ -6,6 +6,7 @@ import ProviderKit
 import ClaudeProvider
 import CodexProvider
 import CopilotProvider
+import ZaiProvider
 import Credentials
 import Diagnostics
 import StatusUI
@@ -37,13 +38,18 @@ struct SignInRequest: Sendable, Hashable {
 /// the provider; cancellation invalidates the attempt before cancelling its work.
 @MainActor
 final class LoginController: ObservableObject {
-    static let providers: [ProviderID] = [.claude, .codex, .copilot]
+    static let providers: [ProviderID] = [.claude, .codex, .copilot, .glm]
 
     /// Which of them sign in by carrying a code rather than by catching a
     /// redirect. Named here rather than asked of the provider, because the
     /// question is "which screen does this need", and the screen is this
     /// layer's to know.
     static let deviceProviders: Set<ProviderID> = [.copilot]
+
+    /// And which are signed into by handing a key over. A third shape, and the
+    /// only one with nothing running in it: until the person types, there is no
+    /// attempt in flight, no deadline and nothing to cancel but the waiting.
+    static let keyProviders: Set<ProviderID> = [.glm]
     @Published private(set) var isRunning = false
     @Published private(set) var isSavingAccount = false
 
@@ -69,6 +75,15 @@ final class LoginController: ObservableObject {
     /// sign-in is waiting on them. `nil` at every other moment, which is what
     /// the screen reads to decide whether to draw it at all.
     @Published private(set) var deviceGrant: DeviceCodeGrant?
+
+    /// Whether a screen should be offering a field for a key.
+    ///
+    /// Read beside `isRunning` rather than instead of it: an attempt is in hand
+    /// — the menu stays shut, cancelling works — but nothing is happening, so
+    /// the screen shows a field and no spinner. A spinner turning while it
+    /// waits for somebody to paste says the app is doing something, and it is
+    /// not.
+    @Published private(set) var keyExpected = false
     @Published private(set) var completedSignIns = 0
     @Published private(set) var successNotice: AccountRef?
 
@@ -79,6 +94,7 @@ final class LoginController: ObservableObject {
 
     private static let log = Logger(subsystem: "app.softcap.Softcap", category: "login")
     private let store: CredentialStore
+    private let keyAuthentication: @Sendable (ProviderID) -> any KeyAuthenticating
     private let authentication: @Sendable (ProviderID) -> any BrowserAuthenticating
     private let deviceAuthentication: @Sendable (ProviderID) -> any DeviceCodeAuthenticating
     private let openURL: @MainActor (URL) -> Bool
@@ -102,6 +118,15 @@ final class LoginController: ObservableObject {
         let request: SignInRequest
     }
 
+    /// The third shape's attempt. It holds nothing but its identity, because
+    /// there is nothing to hold: the credential arrives from the screen.
+    private var keyAttempt: KeyAttempt?
+
+    private struct KeyAttempt {
+        let id = UUID()
+        let request: SignInRequest
+    }
+
     private struct Attempt {
         let id = UUID()
         let authentication: any BrowserAuthenticating
@@ -113,6 +138,9 @@ final class LoginController: ObservableObject {
 
     init(
         store: CredentialStore,
+        keyAuthentication: @escaping @Sendable (ProviderID) -> any KeyAuthenticating = {
+            _ in ZaiKeyLogin()
+        },
         authentication: @escaping @Sendable (ProviderID) -> any BrowserAuthenticating = {
             $0 == .codex ? CodexOAuthLogin() as any BrowserAuthenticating : OAuthLogin()
         },
@@ -124,6 +152,7 @@ final class LoginController: ObservableObject {
         now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.store = store
+        self.keyAuthentication = keyAuthentication
         self.authentication = authentication
         self.deviceAuthentication = deviceAuthentication
         self.openURL = openURL
@@ -148,6 +177,11 @@ final class LoginController: ObservableObject {
         let request = SignInRequest(provider: provider, origin: origin, account: account)
         self.request = request
 
+        if Self.keyProviders.contains(provider) {
+            startKey(request)
+            return
+        }
+
         if Self.deviceProviders.contains(provider) {
             startDevice(request)
             return
@@ -166,6 +200,47 @@ final class LoginController: ObservableObject {
         manualCodeExpected = false
         armTimeout(for: attempt.id)
         operation = Task { await openBrowser(for: attempt) }
+    }
+
+    /// Waiting for a key, which is all this sign-in does until one arrives.
+    ///
+    /// No timeout is armed and no request is made. There is nothing in flight
+    /// to time out, and a deadline on how long somebody may take to find their
+    /// key in another window would be a deadline on them.
+    private func startKey(_ request: SignInRequest) {
+        keyAttempt = KeyAttempt(request: request)
+        keyExpected = true
+        isRunning = true
+        exchanging = false
+        manualCodeExpected = false
+    }
+
+    /// The key, as typed. Checked by being used once.
+    ///
+    /// A refusal leaves the attempt standing. Mistyping a key is the ordinary
+    /// way this goes wrong, and ending the attempt would make the correction a
+    /// fresh sign-in — the same reason the pasted-code field keeps its attempt
+    /// alive when the code does not match.
+    func submitKey(_ raw: String) async {
+        guard let attempt = keyAttempt, !exchanging, !isSavingAccount else { return }
+        exchanging = true
+        message = nil
+        // The field comes down for as long as the key is being used, which is
+        // what lets the screen show that something is happening: while it is up
+        // the app is waiting on a person, and a spinner beside it would be
+        // claiming otherwise. A refusal puts it back, with the key still in it.
+        keyExpected = false
+
+        do {
+            let result = try await keyAuthentication(attempt.request.provider).account(for: raw)
+            guard keyAttempt?.id == attempt.id, !Task.isCancelled else { return }
+            await adopt(result, attempt: attempt.id, origin: attempt.request.origin)
+        } catch {
+            guard keyAttempt?.id == attempt.id, !Task.isCancelled else { return }
+            report(error)
+            exchanging = false
+            keyExpected = true
+        }
     }
 
     /// The other shape, from the same button.
@@ -357,7 +432,7 @@ final class LoginController: ObservableObject {
     /// asking both is the same question as asking the right one, and asking the
     /// right one would mean every caller knowing which shape it is.
     private func stillCurrent(_ id: UUID) -> Bool {
-        attempt?.id == id || deviceAttempt?.id == id
+        attempt?.id == id || deviceAttempt?.id == id || keyAttempt?.id == id
     }
 
     /// Saving the account, and everything that follows from having saved it.
@@ -456,6 +531,8 @@ final class LoginController: ObservableObject {
         attempt = nil
         deviceAttempt = nil
         deviceGrant = nil
+        keyAttempt = nil
+        keyExpected = false
         operation?.cancel()
         operation = nil
         listener?.stop()

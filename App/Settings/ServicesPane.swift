@@ -7,7 +7,7 @@ struct ServicesPane: View {
     @ObservedObject var model: PreferencesModel
     @ObservedObject private var loc = Localization.shared
 
-    private static let planned: [ProviderID] = [.cursor, .gemini, .glm]
+    private static let planned: [ProviderID] = [.cursor, .gemini]
 
     var body: some View {
         Pane(title: loc("Services"),
@@ -27,6 +27,12 @@ struct ServicesPane: View {
 
                 Section {
                     Toggle(ProviderID.copilot.productName, isOn: enabled(.copilot))
+                    Text(loc("Live data from the API."))
+                        .font(.system(size: 11)).foregroundStyle(.secondary)
+                }
+
+                Section {
+                    Toggle(ProviderID.glm.productName, isOn: enabled(.glm))
                     Text(loc("Live data from the API."))
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }

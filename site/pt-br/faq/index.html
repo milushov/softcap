@@ -738,7 +738,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
  {"@type":"Question","name":"O que o Softcap mede, exatamente?","acceptedAnswer":{"@type":"Answer","text":"Para cada conta que você adiciona, ele mostra as duas janelas em que a assinatura roda: o limite de sessão de cinco horas e o limite semanal — o que foi usado, o que resta e quando cada um é redefinido."}},
  {"@type":"Question","name":"Checar meus limites gasta meus limites?","acceptedAnswer":{"@type":"Answer","text":"Não. O Softcap lê endpoints de uso com as suas próprias credenciais; as requisições não carregam prompt e não executam modelo, então a cota que elas descrevem não é tocada por ser descrita."}},
  {"@type":"Question","name":"Quais provedores ele suporta?","acceptedAnswer":{"@type":"Answer","text":"Claude e OpenAI Codex, várias contas de cada ao mesmo tempo. Cursor, GitHub Copilot, Gemini CLI e o GLM Coding Plan ainda não são suportados: um provedor que não pode ser checado contra uma conta real mostraria zero em silêncio, o que é pior do que nada."}},
- {"@type":"Question","name":"Preciso entrar pelo navegador?","acceptedAnswer":{"@type":"Answer","text":"Entrar pelo navegador com OAuth dá ao Softcap uma concessão própria. É o único jeito de adicionar uma conta: nada é captado de uma CLI e nenhuma credencial pertencente a ela é lida."}},
+ {"@type":"Question","name":"Preciso entrar pelo navegador?","acceptedAnswer":{"@type":"Answer","text":"Entrar pelo navegador com OAuth dá ao Softcap uma concessão própria. O GLM Coding Plan não tem esse fluxo, então sua chave é digitada: uma chave estática não rotaciona nada nem desconecta nada, que é do que a regra sobre a CLI protege. De todo modo, nada é captado de uma CLI e nenhuma credencial pertencente a ela é lida."}},
  {"@type":"Question","name":"Isso vai desconectar minha CLI?","acceptedAnswer":{"@type":"Answer","text":"Não. O Softcap nunca lê nem escreve as credenciais da sua CLI — ele guarda apenas as concessões que você deu pelo navegador, e renovar uma não toca em mais nada na máquina."}},
  {"@type":"Question","name":"Onde ficam os meus tokens?","acceptedAnswer":{"@type":"Answer","text":"No chaveiro do macOS, e em nenhum outro lugar — nunca em preferências, logs ou arquivos. Remover uma conta remove as credenciais dela do chaveiro naquele momento."}},
  {"@type":"Question","name":"O que sai do meu Mac?","acceptedAnswer":{"@type":"Answer","text":"Três coisas, e só três: requisições de uso aos seus próprios provedores, relatórios de erro opcionais limpos de caminhos e de qualquer coisa parecida com um token, e uma verificação de atualização, diária e enquanto sua tela estiver aberta, opcional. As duas últimas têm seus próprios interruptores."}},
@@ -834,7 +834,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
     </section>
     <section>
       <h2>Preciso entrar pelo navegador?</h2>
-      <p>Entrar pelo navegador com OAuth dá ao Softcap uma concessão própria. É o único jeito de adicionar uma conta: nada é captado de uma CLI e nenhuma credencial pertencente a ela é lida.</p>
+      <p>Entrar pelo navegador com OAuth dá ao Softcap uma concessão própria. O GLM Coding Plan não tem esse fluxo, então sua chave é digitada: uma chave estática não rotaciona nada nem desconecta nada, que é do que a regra sobre a CLI protege. De todo modo, nada é captado de uma CLI e nenhuma credencial pertencente a ela é lida.</p>
     </section>
     <section>
       <h2>Isso vai desconectar minha CLI?</h2>

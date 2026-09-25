@@ -221,3 +221,5 @@
 "Could not open the browser. Open the page below and enter the code." = "Не удалось открыть браузер. Откройте страницу ниже и введите код.";
 "Account shown" = "Показывать аккаунт";
 "In use" = "Активный";
+"Key from your plan" = "Ключ вашего тарифа";
+"The key your plan issued — the same one your editor uses." = "Ключ, выданный вашим тарифом, — тот же, что использует ваш редактор.";

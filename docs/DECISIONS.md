@@ -9876,3 +9876,83 @@ run has its own log and the disk is no longer the stake, but a failure in any of
 them is still unreadable. Whether to change them all is a question of taste
 about test style rather than a defect, and is left open rather than answered by
 one file quietly disagreeing with seven.
+
+## 2026-09-25 — A key is handed over, and the row is called after the plan
+
+**Decided.** A GLM Coding Plan account is added by typing its key into a field,
+and the row is named after the plan level the service reports — `Lite`, `Pro`,
+`Max`. The credential is recorded as `givenByHand`, a third `TokenOrigin`.
+
+**Why a key at all.** There is no OAuth for this plan; the key is what it
+issues. The rule that no credential is imported from any CLI stands untouched,
+because it is about *rotation*: spending a refresh token copied from Claude Code
+retires the CLI's own and signs it out, which is an app for watching limits
+breaking the tool it watches. A coding-plan key rotates nothing — reading a
+quota with it leaves the person's editor working exactly as before — and a key
+typed into a field is given rather than taken, so no file of anybody's is read.
+`givenByHand` rather than stretching `ownGrant`, because nothing was granted to
+this app and `isOwnGrant` carries weight where it is asked.
+
+**Why the plan level, and what it costs.** The endpoint answers no identity at
+all. Every other service says whose account it is — Claude a profile, Codex an
+ID token, Copilot `api.github.com/user` — and this one says `"level": "lite"`
+and nothing else. Two answers were on the table: ask the person to name the
+account beside the key, or use the plan level. The plan level was chosen.
+
+The cost is two accounts on one plan reading alike, and the app has no way to
+rename an account, so there is no recovery inside it: two rows saying `Pro`,
+telling their owner nothing about which is which. The row also says its plan in
+the line beneath the name, so such a row reads `Pro` over `GLM · Pro`. Both were
+known when the choice was made.
+
+What softens it is the identifier rather than the name. There is none to be had
+from the service, so it is derived from the key — SHA-256, truncated — which
+makes giving the same key twice land on the same account instead of leaving two
+rows nobody can tell apart *or* remove. Hashed because the identifier reaches
+the keychain item, the shared snapshot and the diagnostics, and the key may
+reach none of them.
+
+**Cost elsewhere.** A third shape of sign-in, and the only one with nothing
+running in it: no port, no interval, no deadline. `keyExpected` is published
+beside `isRunning` so the screen can tell "an attempt is in hand" from
+"something is happening" — a spinner turning next to an empty field claims the
+app is busy with what is in fact the person's typing. A refusal leaves the
+attempt standing, because mistyping a key is the ordinary way this goes wrong
+and a correction must not be a fresh sign-in.
+
+The field is a `SecureField`. It holds a credential, and a settings window is
+shared with whoever is behind the person filling it in.
+
+Two new strings in ten catalogues. `ProviderID.credentialIsGivenByHand` is a
+`switch`, so a service added tomorrow answers rather than inherits, and
+`TheTwoCredentialFlagsAgree` holds the one thing the two credential flags may
+not say together: nothing handed over can also rotate.
+
+**A cost the review found, and it is paid by older copies.** A third case in
+`TokenOrigin` is a value no earlier build can decode, and `StoredAccount` used
+the synthesised decoder — so an older copy reading an item that holds a GLM
+account would find the whole list undecodable, treat it as present-but-
+unreadable, refuse every write and offer only starting over. Every account,
+Claude and Codex with them, for one word nobody recognised.
+
+The decoder is lenient from here on: an unknown origin becomes `nil`, which is
+already the most cautious answer the type has — refused for spending, recovered
+by signing that one account in. That contains the next addition and does nothing
+for builds already out. The alternative was to not name the thing accurately,
+and a silent lie in the data is worse than a documented cost. The two release
+channels do not share the keychain item, so the case that remains is a
+same-channel downgrade.
+
+**Two more the review found, both mine and both quiet.** `accountStates` still
+asked `isOwnGrant && refreshToken != nil` while `accessToken(for:)` had moved
+on — true only of a service that rotates, so every device grant and every key
+given by hand was reported as needing a sign-in while the poller read its limits
+perfectly well. Copilot had it too, since the week it landed.
+`TheRowStateAgreesWithTheToken` now holds the two answers together across every
+shape an account can be stored in.
+
+And the typed key outlived its attempt in `@State`: starting another sign-in
+pre-filled the `SecureField` with it — dots, no way to see whose key they were —
+and `Done` would have sent the previous attempt's credential.
+
+**Still unchecked against a live subscription**, as Copilot is.
