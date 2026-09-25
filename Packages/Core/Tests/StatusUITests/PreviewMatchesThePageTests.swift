@@ -152,7 +152,23 @@ import Foundation
               let gt = page.range(of: ">", range: open.upperBound..<page.endIndex),
               let close = page.range(of: "</h1>", range: gt.upperBound..<page.endIndex)
         else { return "" }
-        return squash(String(page[gt.upperBound..<close.lowerBound]))
+
+        // The decorative mark comes out before the words are compared. It is
+        // `aria-hidden` and it is an ornament: a cycling glyph with the name of
+        // whichever service it is showing, which nobody reads as part of the
+        // sentence and which a still picture 1200 points wide has no way to be.
+        //
+        // It cost nothing while it held only glyphs — `squash` drops tags, and
+        // there was no text inside them — and started counting the moment the
+        // names were added, which turned the headline into "Claude Code OpenAI
+        // Codex GitHub Copilot Every subscription limit…" and failed here. That
+        // is this check working: it is the words of the headline it holds the
+        // preview to, and the mark is not one of them.
+        let headline = String(page[gt.upperBound..<close.lowerBound])
+            .replacingOccurrences(
+                of: "<span class=\"cycle\".*?</span></span>",
+                with: "", options: [.regularExpression])
+        return squash(headline)
     }
 
     /// Tags out, entities that matter turned back into spaces, whitespace

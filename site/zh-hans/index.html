@@ -352,11 +352,41 @@ h1 em{display:block;font-style:normal;color:var(--fg-3)}
 @keyframes mark-cycle{
   0%{opacity:0} 3%{opacity:1} 30%{opacity:1} 33%{opacity:0} 100%{opacity:0}
 }
+
+/* The name of whichever service is showing, on hover.
+   The mark stops while it is read. A label on something that keeps moving is a
+   label you finish reading about the next thing — and stopping on hover is the
+   answer this page already gives for the gallery, so it is the same gesture
+   meaning the same thing in both places.
+   Each name carries the same animation as its glyph, so the one that is up is
+   the one that matches. `visibility` does the hovering and `opacity` does the
+   cycling: two properties that do not fight, which is what lets one rule gate
+   the other without either knowing about it.
+   Anchored to the mark's leading edge rather than centred under it, and in
+   logical properties, so it grows into the headline instead of off the side of
+   a 320 px screen — and on the Arabic page it grows the other way. */
+.cycle{position:relative}
+.cycle .tip{
+  position:absolute;top:100%;inset-inline-start:0;margin-block-start:.42em;
+  font-family:var(--mono);font-size:11.5px;line-height:1;letter-spacing:0;
+  font-weight:400;white-space:nowrap;color:var(--fg-2);
+  padding:6px 9px;border:1px solid var(--line);border-radius:8px;
+  background:var(--card);box-shadow:0 6px 18px var(--cast);
+  opacity:0;visibility:hidden;pointer-events:none;
+  animation:mark-cycle 9s infinite;
+}
+.cycle .tip:nth-of-type(2){animation-delay:3s}
+.cycle .tip:nth-of-type(3){animation-delay:6s}
+.cycle:hover .tip{visibility:visible}
+.cycle:hover svg,.cycle:hover .tip{animation-play-state:paused}
+
 /* Asked for less movement: the first mark, and no cycle at all — the same
-   answer the gallery gives. */
+   answer the gallery gives. The name follows it, so hovering a mark that is
+   not cycling still says which one it is. */
 @media (prefers-reduced-motion: reduce){
-  .cycle svg{animation:none}
+  .cycle svg,.cycle .tip{animation:none}
   .cycle svg:nth-of-type(1){opacity:1}
+  .cycle .tip:nth-of-type(1){opacity:1}
 }
 .lede{font-size:clamp(16.5px,2.1vw,19px);color:var(--fg-2);max-width:58ch;margin:0 0 8px;line-height:1.62}
 .note{margin-top:30px;font-family:var(--mono);font-size:12.5px;color:var(--fg-3);letter-spacing:.01em}
@@ -820,7 +850,7 @@ a.lang-row:hover{background:var(--strip);text-decoration:none}
          Decorative, and marked so: the services are named in prose further
          down the page, and a screen reader spelling out three logos before the
          headline would put the list in front of the promise. -->
-    <h1><span class="cycle" aria-hidden="true"><svg viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="5" cy="5" r="4.2"/><circle cx="5" cy="5" r="1.6"/></svg><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 3.1 1.5 5l2.1 1.9M6.4 3.1 8.5 5 6.4 6.9M5.7 2.3 4.3 7.7"/></svg></span>所有订阅额度，<em>都在一个屏幕上。</em></h1>
+    <h1><span class="cycle" aria-hidden="true"><svg viewBox="0 0 10 10" fill="currentColor"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="5" cy="5" r="4.2"/><circle cx="5" cy="5" r="1.6"/></svg><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 3.1 1.5 5l2.1 1.9M6.4 3.1 8.5 5 6.4 6.9M5.7 2.3 4.3 7.7"/></svg><span class="tip">Claude Code</span><span class="tip">OpenAI Codex</span><span class="tip">GitHub Copilot</span></span>所有订阅额度，<em>都在一个屏幕上。</em></h1>
     <p class="lede">
       你买了第二个 Claude 套餐，为了不必停下工作——结果想看看它还有没有余量，得先登录进去。
     </p>
