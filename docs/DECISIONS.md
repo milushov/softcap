@@ -10035,3 +10035,44 @@ this divergence let it through; it has three more now.
 
 **Not checked against a live subscription**, which is now true of three of the
 five services this app can read.
+
+---
+
+## 2026-09-26 — The store's screenshots are photographs of the store's build
+
+**Decision.** `tools/store_screenshots.py` is pointed at a build compiled with
+`APPSTORE` as well as `DEBUG SCREENSHOTS`, so the fifty pictures the App Store
+shows are of the app the App Store installs. The same five feed
+`docs/screenshots/` for the README and, cropped, `site/shots/` for the landing's
+gallery: one set of photographs, not two.
+
+**Why.** The screenshots retaken on 25 September showed an Updates row in the
+settings sidebar and a `Check for updates` button in the footer, in all ten
+languages. Neither exists in the App Store build — they were compiled out the
+day before, under guideline 2.4.5(vii), and the review notes say so in as many
+words. The storefront would have advertised the feature the letter refused, over
+a note claiming its absence, four days after the refusal.
+
+Nothing was wrong with the tool. `make screenshots` builds with `DEBUG
+SCREENSHOTS`, which is the disk image, and every set of store screenshots this
+project has ever uploaded was of that lane. It did not matter while the two
+lanes drew the same settings window. It matters from the moment they stop.
+
+The site and the README take the same pictures rather than a second set of
+their own. The disk image has one section more, so its gallery is now missing a
+row it has — an omission, not a claim, and the smaller of the two mistakes
+available. Two sets would mean two capture runs, six minutes each, and a second
+thing to remember on a day when the first one was forgotten.
+
+**Cost.** The landing shows eight sections where the disk image has nine, and
+the README's table still describes the ninth. Whoever runs `make screenshots`
+gets the disk image and has to know to add `APPSTORE` before photographing for
+the store — the Makefile does not carry it, because the same target is what
+`make run` and a hand check want. The gallery's declared figures moved with the
+files: the cropped windows are 716×498 where the markup said 718×500, and those
+numbers reserve the box.
+
+One trap found on the way and worth writing down: the store numbers its five in
+capture order and the README in reading order, so `03` is notifications there
+and statistics here. Matched on the name, never on the number — by the number,
+the two would have swapped.
