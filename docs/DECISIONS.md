@@ -9731,3 +9731,37 @@ Copilot service, the window that offers accounts back — waits for the next
 submission.
 
 ---
+
+## 2026-09-25 — Softcap is not sold in China, rather than sold there without Codex
+
+**Decision.** China mainland is deselected in App Store Connect availability:
+174 storefronts instead of 175. Nothing in the app changes, and nothing in the
+listing changes — `openai` and `chatgpt` stay in the keywords of all ten
+locales, and the descriptions go on naming OpenAI Codex.
+
+**Why.** The same rejection letter refused 0.1.36 under guideline 5, Legal:
+generative AI services need a licence from the Ministry of Industry and
+Information Technology to operate in mainland China, and App Review reads
+Softcap as associated with ChatGPT — naming `chatgpt`, `openai` and `gpt` in the
+metadata. The letter offers two ways out: deactivate the functionality and strip
+the references for the China storefront, or stop distributing there.
+
+The first is not available to this app in any honest form. Softcap is a Codex
+usage meter: it signs in at `auth.openai.com` and reads
+`chatgpt.com/backend-api/wham/usage`. Arguing compliance would be arguing that
+an app which talks to ChatGPT's backend is not associated with ChatGPT.
+Complying properly means a storefront check at runtime and half the app turned
+off for Chinese buyers — for an audience that cannot buy Claude Code or a Codex
+subscription in that storefront either. The keywords would go from all ten
+locales to satisfy one, and the Chinese listing is the one place where the
+20 September research found that translated keywords actually work.
+
+So the storefront goes. It is the option Apple names first for a developer who
+does not want to make the changes, and it costs this app the least of anything
+on offer.
+
+**Cost.** One storefront, and with it the only listing whose keywords were
+written in the reader's language. `zh-Hans` metadata stays and still serves
+Simplified Chinese readers in the other 174. The app was "available in 175
+countries" in every place that counted them, including the memory of it, and is
+not any more.
