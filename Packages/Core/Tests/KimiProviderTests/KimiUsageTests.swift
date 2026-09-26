@@ -24,7 +24,11 @@ private func windows(_ json: String) throws -> [LimitWindow] {
         // Computed the same way rather than written out: 0.086628 * 100 is not
         // the literal 8.6628 in binary, and a test that spells the answer
         // fails on the arithmetic rather than on the reading.
-        #expect(read.windows.map(\.percent) == [0.086628 * 100, 0.171279 * 100])
+        // Hoisted and annotated, for the reason `ZaiUsageTests` carries: two
+        // products in an array literal inside `#expect` are enough to put the
+        // type checker over its budget on the runner.
+        let expected: [Double] = [0.086628 * 100, 0.171279 * 100]
+        #expect(read.windows.map(\.percent) == expected)
     }
 
     /// `used_ratio` is what has gone, not what is left. The other key-based

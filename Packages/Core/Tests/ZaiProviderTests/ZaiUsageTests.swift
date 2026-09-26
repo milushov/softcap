@@ -32,7 +32,13 @@ private func windows(_ json: String) throws -> [LimitWindow] {
         // `session` and `weekly`: nothing new is named, so no catalogue gains a
         // key and the period column keeps the width it has.
         #expect(read.windows.map(\.id) == ["session", "weekly"])
-        #expect(read.windows.map(\.percent) == [251.0 / 2000 * 100, 251.0 / 10000 * 100])
+        // Hoisted and annotated rather than written inside the macro. `#expect`
+        // re-types the whole comparison, and an array literal holding two
+        // divisions puts the solver over its budget — it compiles on this
+        // machine and fails on the runner with "unable to type-check this
+        // expression in reasonable time", which skips the release.
+        let expected: [Double] = [251.0 / 2000 * 100, 251.0 / 10000 * 100]
+        #expect(read.windows.map(\.percent) == expected)
         #expect(read.planLabel == "Lite")
     }
 
