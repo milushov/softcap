@@ -61,7 +61,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         preferences.$value
             .sink { [model, updates] value in
                 model.preferences = value
+                // The store copy has no updater, so nothing there reads this.
+                // See `UpdateModel`.
+                #if !APPSTORE
                 updates.preferences = value
+                #endif
             }
             .store(in: &cancellables)
 
@@ -106,21 +110,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         Task {
             startReporting()
             await preferences.load()
+            #if !APPSTORE
             updates.recordCheck = { [preferences] moment in
                 preferences.update { $0.lastUpdateCheck = moment }
             }
+            #endif
             statusItem.install()
 
             // The quiet check, now and once a day after. It opens nothing: at
             // most it changes the words on a menu item and in the settings
             // footer.
             //
-            // In both lanes. The App Store build used to skip it — the store
-            // updates that copy, and a binary that replaces itself would fail
-            // review — but the store will not update an app that is running,
-            // and this one always is. So the store copy asks the store, and
-            // says what it found; it still installs nothing. `UpdateModel.Channel`.
+            // The disk image only. The store copy asked too, for four days,
+            // against the App Store's own record rather than GitHub's — and
+            // guideline 2.4.5(vii) is about the asking, not about what is
+            // asked: App Review refused 0.1.36 for it. The store updates that
+            // copy, on its own terms, and the app says nothing about versions.
+            // `docs/DECISIONS.md`, 2026-09-25.
+            #if !APPSTORE
             updates.startChecking()
+            #endif
 
             #if SCREENSHOTS
             stageScreenshot()

@@ -60,13 +60,7 @@ public struct UpdateInstaller: Sendable {
         let work = try scratchDirectory()
         defer { try? FileManager.default.removeItem(at: work) }
 
-        // The App Store's releases carry no files: the store installs them.
-        // One cannot reach this installer through the interface, and the
-        // refusal is here so that it cannot reach it any other way either.
-        guard let download = release.download else {
-            throw UpdateFailure(kind: .malformedRelease,
-                                diagnostic: "release \(release.version) has nothing to download")
-        }
+        let download = release.download
 
         progress(.downloading(0))
         let archive: URL

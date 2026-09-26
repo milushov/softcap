@@ -210,10 +210,6 @@
 "Data not readable" = "无法读取数据";
 "Open Softcap to see your limits." = "打开 Softcap 查看用量上限。";
 "%@ Settings" = "%@ 设置";
-"Version %@ is on the App Store." = "%@ 版已在 App Store 上架。";
-"Open the App Store" = "打开 App Store";
-"The App Store installs it, and asks you to quit Softcap first." = "由 App Store 安装，它会先请你退出 Softcap。";
-"The App Store could not be reached. Check the connection and try again." = "无法连接 App Store。请检查网络后重试。";
 "Your accounts are still here" = "您的账户仍在这里";
 "month" = "每月";
 "Monthly" = "每月";

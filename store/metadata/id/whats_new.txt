@@ -2,4 +2,3 @@
 • Baris di jendela ringkas kini sebuah tombol: klik periodenya dan baris itu menampilkan periode satunya, sampai jendela ditutup.
 • Daftar akun yang dikunci macOS bisa dibuka lagi, bukan ditolak selamanya.
 • Tanggal pada grafik statistik dan judul jendela pengaturan kini mengikuti bahasa yang dipilih di Softcap, bukan bahasa Mac.
-• Salinan dari App Store kini memberi tahu saat versi yang lebih baru ada di App Store — di menu, di bagian bawah pengaturan, dan di layar pembaruan yang membuka toko. Pemasangan tetap dilakukan App Store.

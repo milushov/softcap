@@ -2,4 +2,3 @@
 • A row in the minimal window is a button: click the period and the row shows the other one, until the window closes.
 • An account list macOS has locked can be opened again, rather than being refused for good.
 • The dates on the statistics chart and the settings window's own title now follow the language chosen in Softcap, not the one the Mac is set to.
-• The copy from the App Store now says when a newer version is on the App Store — in the menu, in the settings footer and on the Updates screen, which opens the store. The store still does the installing.

@@ -15,21 +15,15 @@ import Updates
 @MainActor
 final class UpdateModel: ObservableObject {
 
-    /// Where a newer version is looked for, and what is done about one.
-    ///
-    /// The copy from GitHub reads GitHub's release feed and installs what it
-    /// finds. The copy from the App Store reads the store's record and only
-    /// says so: the store installs its own releases — and not while the app is
-    /// running, which for a menu bar app means never, unless somebody is told.
-    /// Decided when the app is built, because the two are different programs
-    /// with one codebase, not one program with a setting.
-    enum Channel { case github, appStore }
-
-    #if APPSTORE
-    static let channel = Channel.appStore
-    #else
-    static let channel = Channel.github
-    #endif
+    // Everything below belongs to the disk image. The copy the App Store
+    // installs has no updater: no check, no screen, no menu item, no host to
+    // ask. It had one for four days — it read the store's own lookup record and
+    // said a newer version was on sale — and App Review refused 0.1.36 for it
+    // under guideline 2.4.5(vii), which forbids the check and not only the
+    // install. Compiled out rather than switched off, so that neither a reader
+    // of the binary nor a reader of this file finds a lane to turn back on.
+    // `docs/DECISIONS.md`, 2026-09-25. `TheStoreCopyHasNoUpdater` holds it.
+    #if !APPSTORE
 
     enum State: Equatable {
         case idle
@@ -79,6 +73,8 @@ final class UpdateModel: ObservableObject {
         self.downloader = downloader
     }
 
+    #endif
+
     // MARK: - what is running
 
     /// The version this build reports. `nil` only if the bundle carries no
@@ -92,12 +88,9 @@ final class UpdateModel: ObservableObject {
 
     var versionText: String { runningVersion?.description ?? "—" }
 
-    var releasePage: URL {
-        switch Self.channel {
-        case .github:   Repository.releases
-        case .appStore: Storefront.inStore
-        }
-    }
+    #if !APPSTORE
+
+    var releasePage: URL { Repository.releases }
 
     /// Where the escape hatch goes: the page of the release that was being
     /// installed, when there is one, and the newest otherwise.
@@ -106,9 +99,6 @@ final class UpdateModel: ObservableObject {
     /// `/releases/latest` — so an install of 0.1.47 that failed could send
     /// somebody to 0.1.48 to download it by hand.
     var pageToOpen: URL {
-        // The store's record names its web page; the Update button is in the
-        // App Store app, so that is where the store copy sends a person.
-        if Self.channel == .appStore { return releasePage }
         if case .available(let release) = state { return release.page }
         if case .installing = state { return releasePage }
         return offered?.page ?? releasePage
@@ -242,28 +232,21 @@ final class UpdateModel: ObservableObject {
         }
 
         do {
-            let found: Release?
-            switch Self.channel {
-            case .github:
-                let url = ReleaseFeed.latestURL(owner: Repository.owner, repository: Repository.name)
-                let (data, status) = try await http.get(url, headers: [
-                    "Accept": "application/vnd.github+json",
-                ])
-                // A 404 carries two answers at once: nothing has been published,
-                // and the repository is not one this caller can see. An
-                // unauthenticated request cannot tell them apart and the screen
-                // says the same thing either way — so the status goes to the
-                // log, where somebody wondering why a check never finds anything
-                // can read it. It was a private repository the first time this
-                // mattered.
-                if status == 404 {
-                    Self.log.info("releases: 404, so nothing published or nothing visible")
-                }
-                found = try ReleaseFeed.update(from: data, status: status, running: running)
-            case .appStore:
-                let (data, status) = try await http.get(Storefront.lookup, headers: [:])
-                found = try StoreListing.update(from: data, status: status, running: running)
+            let url = ReleaseFeed.latestURL(owner: Repository.owner, repository: Repository.name)
+            let (data, status) = try await http.get(url, headers: [
+                "Accept": "application/vnd.github+json",
+            ])
+            // A 404 carries two answers at once: nothing has been published,
+            // and the repository is not one this caller can see. An
+            // unauthenticated request cannot tell them apart and the screen
+            // says the same thing either way — so the status goes to the
+            // log, where somebody wondering why a check never finds anything
+            // can read it. It was a private repository the first time this
+            // mattered.
+            if status == 404 {
+                Self.log.info("releases: 404, so nothing published or nothing visible")
             }
+            let found = try ReleaseFeed.update(from: data, status: status, running: running)
             recordCheck?(now)
             lastChecked = now
             settle(on: found, announcing: announcing)
@@ -346,11 +329,6 @@ final class UpdateModel: ObservableObject {
 
     func install() async {
         guard case .available(let release) = state else { return }
-        // The store copy never shows the button that calls this; the guard is
-        // for the day something else does. `UpdateInstaller` would refuse the
-        // release anyway — it has nothing to download — but "the App Store
-        // installs it" is the sentence to end on, not "no build to download".
-        guard Self.channel == .github else { return }
 
         let bundle = Bundle.main.bundleURL
         let installer = UpdateInstaller(downloader: downloader, http: http)
@@ -387,4 +365,6 @@ final class UpdateModel: ObservableObject {
         Self.log.info("installed \(release.version.description, privacy: .public), restarting")
         NSApp.terminate(nil)
     }
+
+    #endif
 }

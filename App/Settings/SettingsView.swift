@@ -34,12 +34,22 @@ struct SettingsView: View {
         .task { await model.load() }
     }
 
-    /// Every section, in both lanes. The App Store build used to hide Updates
-    /// on the grounds that the store updates it — which is true, and which the
-    /// store does not do while the app is running, so a menu bar app that is
-    /// never quit was never told. The screen is back; what it offers there is
-    /// the store's page rather than an install. See `UpdateModel.Channel`.
-    private var visibleSections: [SettingsSection] { SettingsSection.allCases }
+    /// Every section the lane has. The store copy has no Updates screen,
+    /// because it has no updater: guideline 2.4.5(vii) forbids a Mac App Store
+    /// app to check for its own updates, and a screen whose whole subject is
+    /// whether a newer version exists is that check with a window around it.
+    ///
+    /// It was hidden here once before, put back on 21 September on the grounds
+    /// that the store will not update a running app, and refused by App Review
+    /// on 24 September. The grounds were true and are not a permission.
+    /// `docs/DECISIONS.md`, 2026-09-25.
+    private var visibleSections: [SettingsSection] {
+        #if APPSTORE
+        SettingsSection.allCases.filter { $0 != .updates }
+        #else
+        SettingsSection.allCases
+        #endif
+    }
 
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 1) {
@@ -84,11 +94,16 @@ struct SettingsView: View {
     private var footer: some View {
         HStack(spacing: 6) {
             Spacer()
+            // The store copy keeps the version and loses the offer: there is
+            // nowhere for it to go and nothing for it to check. See
+            // `visibleSections`.
+            #if !APPSTORE
             Button(footerTitle) { appModel.settingsSection = .updates }
                 .buttonStyle(.clickable)
                 .font(.system(size: 11.5))
                 .foregroundStyle(.secondary)
             Text(verbatim: "·").font(.system(size: 11.5)).foregroundStyle(.secondary)
+            #endif
             Text(updates.versionText)
                 .font(.system(size: 11.5))
                 .monospacedDigit()
@@ -98,10 +113,12 @@ struct SettingsView: View {
         .padding(.vertical, 9)
     }
 
+    #if !APPSTORE
     private var footerTitle: String {
         guard let newer = updates.availableVersion else { return loc("Check for updates") }
         return String(format: loc("Update to %@"), newer.description)
     }
+    #endif
 
     private var detail: some View {
         ScrollView {
@@ -112,12 +129,14 @@ struct SettingsView: View {
                 case .appearance:    AppearancePane(model: model, appModel: appModel)
                 case .notifications: NotificationsPane(model: model, appModel: appModel)
                 case .polling:       PollingPane(model: model)
-                // The same pane in both lanes; the pane itself knows which
-                // channel it is on. It was `EmptyView()` in a store build, with
-                // every route to it closed, on the reasoning that the store
-                // installs updates — see the comment on `visibleSections` for
-                // why that reasoning was half of the picture.
-                case .updates:       UpdatesPane(updates: updates, model: model)
+                // The disk image only. `visibleSections` closes every route to
+                // it in the store build; this is the case the enum still needs.
+                case .updates:
+                    #if APPSTORE
+                    EmptyView()
+                    #else
+                    UpdatesPane(updates: updates, model: model)
+                    #endif
                 case .services:      ServicesPane(model: model)
                 case .contribute:    ContributePane()
                 case .about:         AboutPane(model: model, appModel: appModel)

@@ -210,10 +210,6 @@
 "Data not readable" = "Data not readable";
 "Open Softcap to see your limits." = "Open Softcap to see your limits.";
 "%@ Settings" = "%@ Settings";
-"Version %@ is on the App Store." = "Version %@ is on the App Store.";
-"Open the App Store" = "Open the App Store";
-"The App Store installs it, and asks you to quit Softcap first." = "The App Store installs it, and asks you to quit Softcap first.";
-"The App Store could not be reached. Check the connection and try again." = "The App Store could not be reached. Check the connection and try again.";
 "Your accounts are still here" = "Your accounts are still here";
 "month" = "month";
 "Monthly" = "Monthly";

@@ -210,10 +210,6 @@
 "Data not readable" = "تعذّرت قراءة البيانات";
 "Open Softcap to see your limits." = "افتح Softcap لعرض حدودك.";
 "%@ Settings" = "إعدادات %@";
-"Version %@ is on the App Store." = "الإصدار %@ متوفر في App Store.";
-"Open the App Store" = "فتح App Store";
-"The App Store installs it, and asks you to quit Softcap first." = "يُثبّته App Store، ويطلب منك إنهاء Softcap أولًا.";
-"The App Store could not be reached. Check the connection and try again." = "تعذّر الوصول إلى App Store. تحقق من الاتصال وحاول مرة أخرى.";
 "Your accounts are still here" = "حساباتك لا تزال موجودة";
 "month" = "شهر";
 "Monthly" = "شهري";

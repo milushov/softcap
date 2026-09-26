@@ -33,16 +33,16 @@ import Foundation
     @Test func areleaseCarriesItsVersionNotesAndArchive() throws {
         let release = try ReleaseFeed.decode(payload())
         #expect(release.version == ReleaseVersion("0.1.47"))
-        #expect(release.download?.archiveName == "Softcap-0.1.47.zip")
+        #expect(release.download.archiveName == "Softcap-0.1.47.zip")
         #expect(release.notes.contains("something changed"))
-        #expect(release.download?.checksums.lastPathComponent == "SHA256SUMS.txt")
+        #expect(release.download.checksums.lastPathComponent == "SHA256SUMS.txt")
     }
 
     /// The zip, not the disk image. An image has to be mounted and the app
     /// copied out of it; the zip is what `ditto` opens in one step, and it is
     /// published for exactly this.
     @Test func theArchiveIsTheZipAndNotTheImage() throws {
-        #expect(try ReleaseFeed.decode(payload()).download?.archive.pathExtension == "zip")
+        #expect(try ReleaseFeed.decode(payload()).download.archive.pathExtension == "zip")
     }
 
     @Test func areleaseWithNoBuildIsMalformed() {

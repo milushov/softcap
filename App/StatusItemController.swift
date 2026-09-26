@@ -519,8 +519,14 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
         // Reads as an offer once there is one to make. This change, and the
         // same one in the settings footer, is the whole of how loudly a found
-        // update announces itself — in both lanes: the store copy is told the
-        // same way, and opens a screen that sends it to the store.
+        // update announces itself.
+        //
+        // The disk image only. The store copy carried this item too for four
+        // days, against the App Store's own record, and App Review refused
+        // 0.1.36 under guideline 2.4.5(vii): a menu item that asks whether a
+        // newer version exists is a check for updates, however politely it
+        // ends. `UpdateModel`, and `docs/DECISIONS.md` 2026-09-25.
+        #if !APPSTORE
         let update = NSMenuItem(
             title: updates.availableVersion.map {
                 String(format: Localization.shared("Update to %@"), $0.description)
@@ -529,6 +535,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         )
         update.target = self
         menu.addItem(update)
+        #endif
 
         menu.addItem(.separator())
 
@@ -553,6 +560,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         SettingsWindow.open()
     }
 
+    #if !APPSTORE
     @objc private func openUpdates() {
         model.settingsSection = .updates
         SettingsWindow.open()
@@ -562,6 +570,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // second check.
         Task { await updates.checkUnlessSomethingIsAlreadyOffered(now: Date()) }
     }
+    #endif
 
     /// Opens the Accounts section and starts the browser sign-in.
     ///

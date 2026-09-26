@@ -11,15 +11,19 @@ public struct Release: Sendable, Hashable, Identifiable {
     /// which is why it does not break the rule about strings in the core.
     public let notes: String
 
-    /// Where to send somebody: the release page, or the App Store page.
+    /// Where to send somebody when the install cannot finish by itself.
     public let page: URL
 
     /// The files an update is installed from — the archive, its name in the
-    /// checksum list, and the list. `nil` for a release the App Store publishes:
-    /// the store installs those, and this app only says one exists. A release
-    /// with nothing to download cannot be handed to `UpdateInstaller`, and it
-    /// says so rather than downloading its own page.
-    public let download: Download?
+    /// checksum list, and the list.
+    ///
+    /// It was optional for four days, so that the App Store lane could offer a
+    /// release with nothing to download. That lane is gone — guideline
+    /// 2.4.5(vii), `docs/DECISIONS.md` 2026-09-25 — and with it the only way to
+    /// hold a release this app cannot install. `ReleaseFeed` already refuses a
+    /// published release whose assets have not finished uploading, so the
+    /// absence has one meaning again and the type says so.
+    public let download: Download
 
     public struct Download: Sendable, Hashable {
         public let archive: URL
@@ -33,7 +37,7 @@ public struct Release: Sendable, Hashable, Identifiable {
         }
     }
 
-    public init(version: ReleaseVersion, notes: String, page: URL, download: Download?) {
+    public init(version: ReleaseVersion, notes: String, page: URL, download: Download) {
         self.version = version
         self.notes = notes
         self.page = page

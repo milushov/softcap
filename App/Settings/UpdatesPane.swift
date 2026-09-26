@@ -1,3 +1,9 @@
+// The disk image only. The copy the App Store installs has no updater and no
+// screen for one: guideline 2.4.5(vii) forbids a Mac App Store app to check for
+// its own updates, and App Review refused 0.1.36 for exactly this screen.
+// `UpdateModel` holds the rest of the reasoning; `docs/DECISIONS.md`,
+// 2026-09-25, holds why it was ever here.
+#if !APPSTORE
 import SwiftUI
 import AppKit
 import ProviderKit
@@ -16,10 +22,6 @@ struct UpdatesPane: View {
     @ObservedObject var model: PreferencesModel
 
     @ObservedObject private var loc = Localization.shared
-
-    /// The copy the store installs: it is told where the newer version is and
-    /// sent there, and never offered an install. See `UpdateModel.Channel`.
-    private var fromTheStore: Bool { UpdateModel.channel == .appStore }
 
     var body: some View {
         Pane(title: loc("Updates"),
@@ -98,34 +100,14 @@ struct UpdatesPane: View {
         case .available(let release):
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    Text(String(format: loc(fromTheStore ? "Version %@ is on the App Store."
-                                                         : "Version %@ is available."),
+                    Text(String(format: loc("Version %@ is available."),
                                 release.version.description))
                         .font(.system(size: 12.5, weight: .medium))
                     Spacer()
-                    // The store copy cannot install anything: the store does,
-                    // from its own page, and only once the app has been quit.
-                    // So the button goes there, and the line under it says
-                    // what will happen next — a person who opens the store,
-                    // presses Update and is told to close the app should have
-                    // been told here first.
-                    switch UpdateModel.channel {
-                    case .github:
-                        Button(String(format: loc("Update to %@"), release.version.description)) {
-                            Task { await updates.install() }
-                        }
-                        .keyboardShortcut(.defaultAction)
-                    case .appStore:
-                        Button(loc("Open the App Store")) {
-                            NSWorkspace.shared.open(updates.pageToOpen)
-                        }
-                        .keyboardShortcut(.defaultAction)
+                    Button(String(format: loc("Update to %@"), release.version.description)) {
+                        Task { await updates.install() }
                     }
-                }
-                if fromTheStore {
-                    Text(loc("The App Store installs it, and asks you to quit Softcap first."))
-                        .font(.system(size: 11)).foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                    .keyboardShortcut(.defaultAction)
                 }
                 if !release.notes.isEmpty { notes(release.notes) }
                 // Its own row, the way `.failed` carries its two.
@@ -158,7 +140,7 @@ struct UpdatesPane: View {
                 HStack {
                     checkButton
                     // A way out that does not depend on the updater working.
-                    Button(loc(fromTheStore ? "Open the App Store" : "Open the release page")) {
+                    Button(loc("Open the release page")) {
                         NSWorkspace.shared.open(updates.pageToOpen)
                     }
                 }
@@ -224,9 +206,7 @@ struct UpdatesPane: View {
     private func sentence(for kind: UpdateFailure.Kind) -> String {
         switch kind {
         case .network:
-            loc(fromTheStore
-                ? "The App Store could not be reached. Check the connection and try again."
-                : "GitHub could not be reached. Check the connection and try again.")
+            loc("GitHub could not be reached. Check the connection and try again.")
         case .malformedRelease:
             loc("The newest release has no build to download.")
         case .checksumMismatch:
@@ -256,3 +236,4 @@ struct UpdatesPane: View {
             Date.FormatStyle(date: .abbreviated, time: .shortened, locale: loc.activeLocale))
     }
 }
+#endif

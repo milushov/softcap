@@ -9672,3 +9672,62 @@ decide from the same answer, and it now says so.
 rather than the function, because asked of the function a defer moved back out
 reads exactly like one kept in place — checked by moving it and watching the
 scan fail.
+
+---
+
+## 2026-09-25 — The App Store copy has no updater, because the guideline is about asking
+
+**Decision.** The copy the Mac App Store installs no longer looks for a newer
+version of itself, by any route. No check at launch and none daily, no Updates
+section in Settings, no menu item, no button in the settings footer, and no host
+to ask — `Storefront` and `StoreListing` are deleted rather than disabled, and
+what remains of `UpdateModel` in that lane is the version number the menu and
+the footer print. The disk image from GitHub is untouched and keeps the whole
+flow, download and install included. `#if !APPSTORE`, compiled out rather than
+switched off, and `TheStoreCopyHasNoUpdater` reads the sources to keep it so.
+
+This reverses **2026-09-21 — The store copy is told about a newer version, and
+the store installs it**, four days old.
+
+**Why.** App Review refused 0.1.36 on 24 September under guideline 2.4.5(vii),
+*"The app updates itself outside of the Mac App Store"*: the Mac App Store
+notifies about updates and installs them, and an app delivered through it
+"should not provide additional update checks or updates".
+
+The entry from 21 September is not wrong about anything it observed. The store
+will not update an app while it runs; it asks the person to quit first, and its
+automatic updates wait for the same. A menu bar app that starts at login and is
+quit at the next restart is therefore updated weeks late, and the copy that
+could not update itself was the one copy never told an update existed. All of
+that is still true. None of it is a permission, and this is the part the earlier
+entry got wrong: it weighed the inconvenience against the rule and let the
+inconvenience win. The guideline forbids the *check*, not only the install, so
+the careful design — ask the App Store's own lookup record rather than GitHub,
+offer no install, send the person to the store's page — satisfied none of it. A
+menu item reading `Update to 0.1.31` is an update check whatever it does next.
+
+Compiled out rather than put behind a flag, for the reason `startReporting`
+gives about the crash reporter and the reason the last rejection gives about
+entitlements: the refusal before this one came from an automated read of the
+uploaded binary rather than from anybody using the app, and a lane behind an
+`if` is a lane in the binary. The lookup host is gone from the sources
+altogether, which `NothingElseLeavesYourMac` now records — that page named two
+Apple hosts and names none.
+
+The person who installs from the store is worse off than yesterday and there is
+no version of this that fixes it. The store tells them when it tells them.
+
+**Cost.** The inconvenience the earlier entry was written to fix is back, and
+permanently: a store copy that is never quit runs its version until somebody
+quits it. Three strings leave all ten catalogues. Four days of a decision are
+undone, and the second entry costs more than the first — `Release.download` was
+made optional to hold a release with nothing to install, and is required again;
+`UpdateInstaller` loses the refusal that went with it. The two lanes' Updates
+screens are one pane again, and that pane is one lane's.
+
+What was actually paid for the four days is the review queue: 0.1.36 waited
+three days to be refused, and everything in it — ten locales of listing, the
+Copilot service, the window that offers accounts back — waits for the next
+submission.
+
+---

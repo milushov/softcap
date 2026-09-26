@@ -53,10 +53,11 @@ A disk image for macOS 14 and later. Released 24 September 2026 — [all version
 
 Or from the [Mac App Store](https://apps.apple.com/app/id6811539739) — the
 same app, sandboxed and updated by the store instead of by itself. That copy
-still checks for a newer version, against the store's own record, and says so
-in the menu and on the Updates screen; the store does the installing, and asks
-to quit Softcap first. The disk image above is the lane this repository builds,
-and the one that carries the in-app updater.
+does not look for a newer version at all: it has no Updates screen and no menu
+item for one, because guideline 2.4.5(vii) does not allow a Mac App Store app
+to check for its own updates. The store notifies and installs. The disk image
+above is the lane this repository builds, and the only one that carries an
+updater.
 
 ### Opening it the first time
 
@@ -139,10 +140,11 @@ browser once, and then holds a credential of its own.
 | Mac widgets | All four sizes: small, medium, large, extra large; data comes from the app |
 | Demo | Sample accounts with limits filling and resetting, shown until you sign in; switched on the Accounts screen |
 | Statistics | Weekly-limit charts over the last week or month, built from the readings the app has taken |
-| Updates | A daily check by default, and again while Settings → Updates is open — against GitHub's release feed, or the App Store's record in the store copy; the disk-image copy installs from the menu or that screen, the store copy opens the App Store |
+| Updates | Disk image only: a daily check by default, and again while Settings → Updates is open, against GitHub's release feed; it installs from the menu or that screen. The App Store copy has neither the check nor the screen — the store does both |
 
 Settings open with **⌘,**. Nine sections: Accounts, Statistics, Appearance,
 Notifications, Polling and launch, Updates, Services, Contribute, About and data.
+The App Store copy has eight: it has no Updates.
 
 History keeps a reading when usage moves by a point, at most every five minutes,
 plus one every half hour regardless while polling; pruned after 35 days.

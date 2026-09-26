@@ -45,10 +45,13 @@ import Foundation
             "auth.openai.com":     "Codex browser sign-in, code exchange and token refresh",
             "chatgpt.com":         "read-only Codex subscription usage, without inference",
             "localhost":           "the loopback the PKCE redirect comes back to",
-            "api.github.com":      "the release feed, daily and while the update screen is open, switchable off; and the Copilot identity and allowance reads",
+            // Two Apple hosts stood here until 25 September: the store's lookup
+            // record and the store page it sent a person to. The copy the App
+            // Store installs asked the first of them once a day, which is what
+            // guideline 2.4.5(vii) refused — so the lane, the host and the page
+            // are all gone, and the disk image is the only copy with an updater.
+            "api.github.com":      "the release feed, daily and while the update screen is open, switchable off — the disk image only; and the Copilot identity and allowance reads",
             "github.com":          "the release page, the build a release publishes, and the Copilot device sign-in — code, polling and the page a person types it into",
-            "itunes.apple.com":    "the App Store's own record of the newest version — the store copy's release feed, on the same schedule and the same switch",
-            "apps.apple.com":      "the App Store page the store copy sends a person to; nothing is fetched from it",
             "sentry.softcap.app":  "where a failure is described, scrubbed, and switchable off",
         ]
 
