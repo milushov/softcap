@@ -1,3 +1,15 @@
+# The universal make vocabulary: up, down, check, help and the rest, spelled
+# the same way in every project. Source of truth is ~/work/.makestd; run
+# `make help` for the list. STD_OWN names the universal targets this repo
+# defines itself, so common.mk does not define them twice.
+STD_PROJECT  := softcap
+STD_SERVICES := 
+STD_OWN      := build
+# Self-locating: `make -C <dir> -f <this file>` resolves a bare relative
+# include against <dir>, not against this file, and at least one guard runs
+# the Makefile that way from an empty sandbox.
+include $(dir $(lastword $(MAKEFILE_LIST)))make/common.mk
+
 # Without `pipefail` a recipe that pipes xcodebuild reports the exit status of
 # the pipe's last command — so a failed build looks like a successful `make`.
 # `.SHELLFLAGS` would be the tidy place for it, but that arrived in Make 3.82
@@ -176,3 +188,9 @@ run-ios: build-ios
 	open -a Simulator; \
 	xcrun simctl install $$SIM build-ios/Build/Products/Debug-iphonesimulator/SoftcapiOS.app; \
 	xcrun simctl launch $$SIM app.softcap.Softcap.ios
+
+# --- universal vocabulary wiring (see ~/work/.makestd) -----------------
+# softcap had lint and test but no aggregate gate.
+
+## Full gate: lint + tests.
+check: lint test
