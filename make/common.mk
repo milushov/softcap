@@ -57,6 +57,30 @@ STD_OWN      ?=
 # empty, so the no-services case was never at risk.)
 STD_SVC := $(strip $(STD_SERVICES))
 
+# --- passing arguments to a verb ------------------------------------------
+# `make logs web`, `make restart web`, `make db-rollback 2`, `make rake db:version`.
+#
+# make treats every word on the command line as a goal, so the extra words need
+# a rule of their own or make stops. The older projects solve this with an
+# unconditional match-anything rule:
+#
+#     %:
+#     	@:
+#
+# which also swallows mistakes: in those projects `make definitely-not-a-target`
+# exits 0 having done nothing. Measured on 2026-09-30. That is the same failure
+# this file exists to prevent, so the rule is defined only when the FIRST goal
+# is a verb that actually takes arguments. `make logs web` behaves exactly as it
+# does there; `make typoo` still stops with "No rule to make target".
+STD_ARGS_TAKERS := logs restart stop kill rake rails r g be bundle bi rspec \
+                   rubocop rubocop-correct routes migration db-rollback
+STD_ARGS = $(filter-out $@,$(MAKECMDGOALS))
+
+ifneq ($(filter $(firstword $(MAKECMDGOALS)),$(STD_ARGS_TAKERS)),)
+%:
+	@:
+endif
+
 # A bare `make` lists targets. It must never launch a full gate by accident:
 # `check` in the larger repos runs fifteen guards and several test suites, and
 # that is not what an empty command line asks for.
@@ -91,7 +115,7 @@ define std_services
 	elif [ ! -f "$(STD_SVC)/Makefile" ]; then \
 		echo "SKIPPED  $(1) (declared services dir $(STD_SVC)/ has no Makefile)"; \
 	elif awk -v t='$(1)' '/^[^#\t][^:=]*:/ { n = split(substr($$0, 1, index($$0, ":") - 1), a, /[ \t]+/); for (i = 1; i <= n; i++) if (a[i] == t) found = 1 } END { exit !found }' "$(STD_SVC)/Makefile"; then \
-		$(MAKE) --no-print-directory -C "$(STD_SVC)" $(1); \
+		$(MAKE) --no-print-directory -C "$(STD_SVC)" $(1) ARGS="$(STD_ARGS)"; \
 	else \
 		echo "SKIPPED  $(1) ($(STD_SVC)/Makefile has no $(1) target)"; \
 	fi
@@ -238,6 +262,154 @@ ifeq ($(filter db-reset,$(STD_OWN)),)
 db-reset:
 	$(call std_services,db-reset)
 endif
+
+
+# ===========================================================================
+# Adopted from the older projects' vocabulary, so a verb learned in one place
+# works in all of them. Each answers SKIPPED where the component has no such
+# target, which in a repo with no services is all of them.
+# ===========================================================================
+
+ifeq ($(filter rc,$(STD_OWN)),)
+## Open the application console (short for `console`).
+rc:
+	$(call std_services,rc)
+endif
+
+ifeq ($(filter sh,$(STD_OWN)),)
+## Open a shell inside the application container.
+sh:
+	$(call std_services,sh)
+endif
+
+ifeq ($(filter bash,$(STD_OWN)),)
+## Alias for `sh`.
+bash: sh
+endif
+
+ifeq ($(filter dbconsole,$(STD_OWN)),)
+## Open the database console.
+dbconsole:
+	$(call std_services,dbconsole)
+endif
+
+ifeq ($(filter down-all,$(STD_OWN)),)
+## Stop services and delete their volumes. Destroys local data.
+down-all:
+	$(call std_services,down-all)
+endif
+
+ifeq ($(filter pull,$(STD_OWN)),)
+## Pull the latest images for the local stack.
+pull:
+	$(call std_services,pull)
+endif
+
+ifeq ($(filter kill,$(STD_OWN)),)
+## Kill services immediately, with no graceful stop.
+kill:
+	$(call std_services,kill)
+endif
+
+ifeq ($(filter db-create,$(STD_OWN)),)
+## Create the development database.
+db-create:
+	$(call std_services,db-create)
+endif
+
+ifeq ($(filter db-drop,$(STD_OWN)),)
+## Drop the development database. Destroys local data.
+db-drop:
+	$(call std_services,db-drop)
+endif
+
+ifeq ($(filter db-rollback,$(STD_OWN)),)
+## Roll back migrations: make db-rollback 2
+db-rollback:
+	$(call std_services,db-rollback)
+endif
+
+ifeq ($(filter rails,$(STD_OWN)),)
+## Run a rails command: make rails routes
+rails:
+	$(call std_services,rails)
+endif
+
+ifeq ($(filter be,$(STD_OWN)),)
+## Run a command under bundle exec: make be rubocop
+be:
+	$(call std_services,be)
+endif
+
+ifeq ($(filter bundle,$(STD_OWN)),)
+## Run bundler: make bundle outdated
+bundle:
+	$(call std_services,bundle)
+endif
+
+ifeq ($(filter bi,$(STD_OWN)),)
+## Install gems.
+bi:
+	$(call std_services,bi)
+endif
+
+ifeq ($(filter rake,$(STD_OWN)),)
+## Run a rake task: make rake db:version
+rake:
+	$(call std_services,rake)
+endif
+
+ifeq ($(filter r,$(STD_OWN)),)
+## Run code through rails runner: make r 'puts User.count'
+r:
+	$(call std_services,r)
+endif
+
+ifeq ($(filter g,$(STD_OWN)),)
+## Run a rails generator: make g model Thing
+g:
+	$(call std_services,g)
+endif
+
+ifeq ($(filter migration,$(STD_OWN)),)
+## Generate a migration: make migration AddThingToUsers
+migration:
+	$(call std_services,migration)
+endif
+
+ifeq ($(filter routes,$(STD_OWN)),)
+## List routes, optionally filtered: make routes users
+routes:
+	$(call std_services,routes)
+endif
+
+ifeq ($(filter rspec,$(STD_OWN)),)
+## Run rspec, optionally on one path: make rspec spec/models
+rspec:
+	$(call std_services,rspec)
+endif
+
+ifeq ($(filter rubocop,$(STD_OWN)),)
+## Run rubocop, optionally on one path.
+rubocop:
+	$(call std_services,rubocop)
+endif
+
+ifeq ($(filter rubocop-correct,$(STD_OWN)),)
+## Run rubocop with safe autocorrect (same as `fmt`).
+rubocop-correct:
+	$(call std_services,rubocop-correct)
+endif
+
+ifeq ($(filter clean-log,$(STD_OWN)),)
+## Truncate the application logs.
+clean-log:
+	$(call std_services,clean-log)
+endif
+
+.PHONY: rc sh bash dbconsole down-all pull kill db-create db-drop db-rollback \
+        rails be bundle bi rake r g migration routes rspec rubocop \
+        rubocop-correct clean-log
 
 # ===========================================================================
 # help
