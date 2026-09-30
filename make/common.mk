@@ -49,6 +49,14 @@ STD_PROJECT  ?= $(notdir $(CURDIR))
 STD_SERVICES ?=
 STD_OWN      ?=
 
+# $(strip) is not cosmetic here. make keeps trailing whitespace on a `:=`
+# assignment with a value -- `V := backend ` expands to eight characters, not
+# seven -- so a declaration written with a stray space would send every lookup
+# to "backend /Makefile", find nothing, and skip silently while claiming the
+# project has no services at all. (A whitespace-only value does collapse to
+# empty, so the no-services case was never at risk.)
+STD_SVC := $(strip $(STD_SERVICES))
+
 # A bare `make` lists targets. It must never launch a full gate by accident:
 # `check` in the larger repos runs fifteen guards and several test suites, and
 # that is not what an empty command line asks for.
@@ -57,8 +65,9 @@ STD_OWN      ?=
 # --- skip loudly, never silently ------------------------------------------
 # $(call std_services,<target>) runs <target> in the services component.
 #
-# Three outcomes, all exit 0, all of them saying which one happened:
+# Four outcomes, all exit 0, all of them saying which one happened:
 #   no services declared        -> SKIPPED (no local services in <project>)
+#   declared but dir has no mk  -> SKIPPED (declared services dir <dir>/ ...)
 #   declared but lacks <target> -> SKIPPED (<dir> has no <target> target)
 #   present                     -> delegate
 #
@@ -77,12 +86,14 @@ STD_OWN      ?=
 # recipe twice — measured on 2026-09-29 in a backend that did exactly this,
 # which is how this guard came to be written this way.
 define std_services
-	@if [ -z "$(STD_SERVICES)" ] || [ ! -f "$(STD_SERVICES)/Makefile" ]; then \
+	@if [ -z "$(STD_SVC)" ]; then \
 		echo "SKIPPED  $(1) (no local services in $(STD_PROJECT))"; \
-	elif awk -v t='$(1)' '/^[^#\t][^:=]*:/ { n = split(substr($$0, 1, index($$0, ":") - 1), a, /[ \t]+/); for (i = 1; i <= n; i++) if (a[i] == t) found = 1 } END { exit !found }' "$(STD_SERVICES)/Makefile"; then \
-		$(MAKE) --no-print-directory -C "$(STD_SERVICES)" $(1); \
+	elif [ ! -f "$(STD_SVC)/Makefile" ]; then \
+		echo "SKIPPED  $(1) (declared services dir $(STD_SVC)/ has no Makefile)"; \
+	elif awk -v t='$(1)' '/^[^#\t][^:=]*:/ { n = split(substr($$0, 1, index($$0, ":") - 1), a, /[ \t]+/); for (i = 1; i <= n; i++) if (a[i] == t) found = 1 } END { exit !found }' "$(STD_SVC)/Makefile"; then \
+		$(MAKE) --no-print-directory -C "$(STD_SVC)" $(1); \
 	else \
-		echo "SKIPPED  $(1) ($(STD_SERVICES)/Makefile has no $(1) target)"; \
+		echo "SKIPPED  $(1) ($(STD_SVC)/Makefile has no $(1) target)"; \
 	fi
 endef
 

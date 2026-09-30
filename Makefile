@@ -194,3 +194,9 @@ run-ios: build-ios
 
 ## Full gate: lint + tests.
 check: lint test
+
+# These are commands, not files. Without this, a file or directory that
+# happened to be named after one of them would make `make` consider the
+# target already satisfied and do nothing, exiting 0 -- a gate passing
+# having run nothing.
+.PHONY: check
