@@ -1,5 +1,23 @@
 # Softcap — project rules
 
+## Which branch to work in
+
+**This repository has no `staging`, so the working branch is `main`.** Across
+these projects the rule is: work in `staging`; where there is no `staging`,
+work in `main`.
+
+**Work in the local `main`, not `origin/main`.** The source of truth is the
+branch on disk: it can be a dozen commits ahead of the remote — or a hundred —
+and that is a normal state, not a desync to be repaired. It follows that:
+
+- read the state of the work with `git log main`, not `git log origin/main`,
+  and do not treat unpushed commits as lost;
+- never reset or fast-forward onto `origin/main` — that destroys hours of work;
+- `git pull --rebase` before pushing if the remote has moved ahead, but never
+  `git reset --hard origin/main`;
+- pushing is a separate human decision: it is also a deploy, and it publishes
+  the commits of parallel sessions sitting in the same branch.
+
 ## Documentation language: English
 
 All documentation in this repository is written in **English** — README, the
