@@ -80,3 +80,41 @@ says why.
 author's other work is reached by names of its own — `sentry.softcap.app`, not
 the host the same server answers to elsewhere. A hostname committed here is
 published with the repository, and the association is the private part.
+
+## History stays flat
+
+**The working branch carries no merge commits.** A branch lands by
+fast-forward, which means it is rebased onto the current tip first and never
+merged into it:
+
+```bash
+git config rerere.enabled true    # once per clone: remembers a resolution
+git rebase main <branch>
+git switch main && git merge --ff-only <branch>
+```
+
+A refused `--ff-only` means the branch is behind, not that a merge is wanted —
+rebase it again. `rerere` is not decoration: rebasing a long branch raises the
+same conflict once per commit that touches the file, and with it enabled the
+resolution is given once.
+
+**Flat means linear, not collapsed.** A branch arrives as its own commits:
+each one is a reviewable unit, and the sequence is the record of how the work
+was built. Squashing a branch into a single commit destroys that record.
+
+**Verifying is part of the rule, not an afterthought.** A merge node appears
+without being asked for — a plain `git pull` against a remote that has moved
+produces one — and once it is pushed it cannot be removed without rewriting
+history that other sessions and the remote already hold. The only moment it is
+fixable is before the push:
+
+```bash
+make history-check   # fails if a merge commit is waiting to be pushed
+```
+
+Run it before every push. Note that this machine sets `merge.ff = false`
+globally, so a bare `git merge` writes a merge node even where a fast-forward
+was possible — pass `--ff-only` every time and let it refuse. If the check
+reports a node that is already published, say so and stop: rewriting shared
+history is a decision for a human, not a cleanup to perform quietly.
+

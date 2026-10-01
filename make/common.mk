@@ -411,6 +411,44 @@ endif
         rails be bundle bi rake r g migration routes rspec rubocop \
         rubocop-correct clean-log
 
+
+# ===========================================================================
+# History shape
+# ===========================================================================
+# Flat history is a rule nobody can follow by intention alone: a plain
+# `git pull` while the remote has moved forward produces a merge node without
+# asking, and once it is pushed it cannot be removed without rewriting history
+# other sessions and the remote already hold. So the only moment the rule is
+# enforceable is before the push, and that is what this checks.
+#
+# Scoped to the commits that are NOT yet on the remote, deliberately. Those are
+# the ones still yours to rebase. Counting every merge ever made would report a
+# number nobody can act on -- one of these repositories carries 207 of them from
+# before the rule existed -- and a check that always fails is a check nobody
+# runs.
+
+ifeq ($(filter history-check,$(STD_OWN)),)
+## Verify no merge commit is waiting to be pushed.
+history-check:
+	@branch=$$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || { echo "SKIPPED  history-check (not a git repository)"; exit 0; }; \
+	if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then \
+		range="@{u}..HEAD"; scope="waiting to be pushed"; \
+	else \
+		range="HEAD"; scope="in the branch (no upstream configured)"; \
+	fi; \
+	n=$$(git rev-list --count --merges $$range); \
+	total=$$(git rev-list --count --merges HEAD); \
+	if [ "$$n" = "0" ]; then \
+		echo "history  ok - no merge commit $$scope on $$branch ($$total in its full history)"; \
+	else \
+		echo "history  $$n merge commit(s) $$scope on $$branch - rebase them away before pushing:" >&2; \
+		git log --merges --format='  %h %cd %s' --date=short $$range >&2; \
+		exit 1; \
+	fi
+endif
+
+.PHONY: history-check
+
 # ===========================================================================
 # help
 # ===========================================================================
