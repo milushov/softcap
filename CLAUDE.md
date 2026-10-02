@@ -145,6 +145,26 @@ That form commits only the named paths and leaves everything else staged, so a
 peer's in-flight work is preserved exactly as it was. Audit afterwards with
 `git show --name-only --format='' HEAD` and expect only your own files.
 
+**Pathspec and partial staging are mutually exclusive.** `git commit -- <paths>`
+takes the *working tree* content of those paths and disregards the index for
+them. So staging one hunk and then committing with a pathspec commits the whole
+file, the peer's hunk included — measured on 2026-10-02, the hard way, after
+the hunk had been isolated correctly and the pathspec threw that work away.
+
+When the peer's edits are in **other files**, use the pathspec form: it leaves
+those files staged and untouched. When they are in **the same file as yours**,
+stage only your hunks and commit with **no pathspec**, which commits the index
+exactly:
+
+```bash
+git apply --cached my-hunk.patch
+git diff --cached              # must show only your own changes
+git commit -m "..."            # no pathspec, so the index is what lands
+```
+
+Check which case you are in before choosing, because the wrong one fails
+silently: the commit succeeds and simply contains more than you meant.
+
 Leave the tree clean behind you — when a task is done, `git status --porcelain`
 shows nothing of yours.
 
