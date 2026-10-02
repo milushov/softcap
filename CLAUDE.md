@@ -118,3 +118,32 @@ was possible — pass `--ff-only` every time and let it refuse. If the check
 reports a node that is already published, say so and stop: rewriting shared
 history is a decision for a human, not a cleanup to perform quietly.
 
+
+## Committing is part of the work, not the end of it
+
+**Commit each piece as it lands.** Finished a task — commit it, without waiting
+for the end of the session and without asking. Only pushing needs a human.
+
+A tree that accumulates modified files is not tidiness, it is a liability, and
+here it is a shared one. An uncommitted edit lives exactly until another
+session's broad `git add` or `git checkout`, after which it leaves inside
+someone else's commit under someone else's message, or disappears without
+trace. And work that is not in `git log` does not exist for anyone else: there
+is no review of it, no rebase onto it, and no way back to it.
+
+**Commit by pathspec, not merely add by pathspec.** `git commit` commits the
+whole index, so whatever a concurrent session staged before you started travels
+with your change. Measured here: an explicit `git add` of two files followed by
+a plain `git commit` produced a commit carrying four of another session's staged
+files.
+
+```bash
+git commit -m "..." -- path/one path/two
+```
+
+That form commits only the named paths and leaves everything else staged, so a
+peer's in-flight work is preserved exactly as it was. Audit afterwards with
+`git show --name-only --format='' HEAD` and expect only your own files.
+
+Leave the tree clean behind you — when a task is done, `git status --porcelain`
+shows nothing of yours.
