@@ -147,3 +147,19 @@ peer's in-flight work is preserved exactly as it was. Audit afterwards with
 
 Leave the tree clean behind you — when a task is done, `git status --porcelain`
 shows nothing of yours.
+
+## Independent pieces: `/orchestrated-development`
+
+When a task genuinely splits into pieces that can be built without shared state
+— several independent fixes, a feature across disjoint files, plan tasks that do
+not depend on each other — that skill runs them in one session rather than one
+at a time: one agent per independent domain, each in its own worktree, each with
+its own implement → review → fix loop.
+
+It carries the rules above rather than fighting them: branches land by rebase
+and `git merge --ff-only`, each node's worktree and branch are destroyed when it
+finishes, commits go in by pathspec, and pushing is left to a human.
+
+Only for genuinely independent pieces. Dependent work stays sequential and a
+single-file change stays a single edit — the width is a readout of the
+decomposition, never a habit.
