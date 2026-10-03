@@ -421,11 +421,32 @@ endif
 # other sessions and the remote already hold. So the only moment the rule is
 # enforceable is before the push, and that is what this checks.
 #
-# Scoped to the commits that are NOT yet on the remote, deliberately. Those are
+# Scoped to the commits that are NOT yet on a remote, deliberately. Those are
 # the ones still yours to rebase. Counting every merge ever made would report a
 # number nobody can act on -- one of these repositories carries 207 of them from
 # before the rule existed -- and a check that always fails is a check nobody
 # runs.
+#
+# What "not yet on a remote" means depends on what the branch has. It is read
+# from the remote-tracking refs already in the repository -- the check never
+# goes to the network, so it is as fresh as the last fetch:
+#
+#   upstream configured   @{u}..HEAD, what the upstream lacks.
+#   no upstream, but      HEAD --not --remotes, what no remote-tracking ref
+#   a remote exists       has. The scope says so.
+#   no remote at all      HEAD, the whole branch: nothing is published, so all
+#                         of it is still yours. The scope says "no remote".
+#   not a git repository  SKIPPED, exit 0.
+#
+# The second row is the easy one to get wrong. "No upstream" does not mean
+# "nothing is published": a new branch cut from a pushed commit, and a lane
+# worktree made with `git worktree add --detach` (a detached HEAD has no
+# upstream at all), both stand on top of history the remote already has.
+# Counting all of HEAD there puts every old merge on the list of every new
+# branch, so a repository with a single old merge fails on every one of them.
+#
+# ~/work/.makestd/tests/history-check.sh runs all of this against throwaway
+# repositories; run it after any edit to this target.
 
 ifeq ($(filter history-check,$(STD_OWN)),)
 ## Verify no merge commit is waiting to be pushed.
@@ -433,8 +454,10 @@ history-check:
 	@branch=$$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || { echo "SKIPPED  history-check (not a git repository)"; exit 0; }; \
 	if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then \
 		range="@{u}..HEAD"; scope="waiting to be pushed"; \
+	elif [ -n "$$(git remote)" ]; then \
+		range="HEAD --not --remotes"; scope="waiting to be pushed (no upstream; not on any remote)"; \
 	else \
-		range="HEAD"; scope="in the branch (no upstream configured)"; \
+		range="HEAD"; scope="in the branch (no remote)"; \
 	fi; \
 	n=$$(git rev-list --count --merges $$range); \
 	total=$$(git rev-list --count --merges HEAD); \
