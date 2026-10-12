@@ -183,3 +183,28 @@ finishes, commits go in by pathspec, and pushing is left to a human.
 Only for genuinely independent pieces. Dependent work stays sequential and a
 single-file change stays a single edit — the width is a readout of the
 decomposition, never a habit.
+
+## Bottom sheets: the content is glued to the sheet
+
+Roma, 2026-10-12: «на нижней плашке, когда мы её открываем, в ней контент не
+скроллился. Он должен жёстко быть приклеен к самой плашке. Когда я пытаюсь
+двигать контент в плашке, она должна двигать всю саму плашку.» He asked for
+this rule in every project he works on.
+
+- **Nothing scrolls inside a bottom sheet.** A drag that starts on the
+  content moves the whole sheet (resize, dismiss), exactly as a drag on the
+  grabber does. The content behaves as if it were printed on the sheet.
+- **So the sheet is as tall as its content.** Size it to the content (a
+  fit-to-content detent), never a guessed or fixed height; do not make a
+  `ScrollView`/`List`/`LazyColumn` the sheet's root, and switch off the
+  scrolling a system container brings with it (SwiftUI
+  `.scrollDisabled(true)`; Compose: no `verticalScroll`, no nested-scroll
+  connection that eats the drag).
+- **Switching content does not change the height.** Tabs, segmented
+  periods, loading → loaded, empty → filled: every state of one sheet keeps
+  the height of its tallest state, with a placeholder of the same size
+  (a skeleton, never a lone spinner that collapses the sheet). The sheet
+  must not jump when the person switches what it shows.
+- **Content that cannot fit one screen is not a bottom sheet.** Present it
+  full-screen or push it as a screen — and ask Roma before choosing that for
+  an existing sheet.
