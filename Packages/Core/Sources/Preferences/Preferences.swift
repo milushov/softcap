@@ -158,6 +158,11 @@ public struct Preferences: Codable, Sendable, Equatable {
     public var disabledProviders: Set<ProviderID>
     public var hiddenAccounts: Set<String>
 
+    /// The day each account's subscription is paid, keyed by the
+    /// provider-qualified account id. Entered by the person: no provider
+    /// exposes it. An account with no entry has none set.
+    public var billing: [String: BillingSchedule]
+
     /// Whether sample accounts stand in for real ones.
     ///
     /// Three states, because two do not survive an upgrade. `true` and `false`
@@ -202,6 +207,7 @@ public struct Preferences: Codable, Sendable, Equatable {
         lastUpdateCheck: nil,
         disabledProviders: [],
         hiddenAccounts: [],
+        billing: [:],
         demoMode: nil
     )
 
@@ -290,6 +296,7 @@ extension Preferences {
         lastUpdateCheck      = readOptional(.lastUpdateCheck, fallback.lastUpdateCheck)
         disabledProviders    = read(.disabledProviders, fallback.disabledProviders)
         hiddenAccounts       = read(.hiddenAccounts, fallback.hiddenAccounts)
+        billing              = read(.billing, fallback.billing)
         demoMode             = readOptional(.demoMode, fallback.demoMode)
     }
 }

@@ -10127,3 +10127,22 @@ long.
 **Cost.** A reset that the service moved (a plan change, an early reset by the
 provider) is drawn at its old weekday for the weeks before the move. An account
 whose reset is not known gets no markers at all.
+
+---
+
+## 2026-10-17 — The subscription payment day is entered by hand
+
+**Decided.** An account can carry a billing schedule in the preferences
+(`billing`, keyed by the provider-qualified account id): a day of the month,
+monthly or yearly with a month. The statistics strips draw a dot on each
+payment day. A day the month does not have (the 31st in April, the 30th in
+February) falls on the month's last day.
+
+**Why.** None of the usage or profile endpoints the app reads exposes a billing
+date, and the app has no access to a payment provider. The person knows the day.
+Old preference files have no such key and decode to "no billing set".
+
+**Cost.** The date is only as right as what was typed, and goes stale silently
+when a plan is renewed on another day or the card is changed. Nothing in the app
+can check it. It is stored per account id, so a forgotten and re-added account
+starts without one.
