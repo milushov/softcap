@@ -269,7 +269,13 @@ public struct UsageChart: View {
             }
 
             ForEach(resets, id: \.self) { moment in
-                RuleMark(x: .value(loc("Time"), moment))
+                // The rule stops short of the glyph above it: run through the
+                // arrow, the dashes and the loop together read as "$".
+                RuleMark(
+                    x: .value(loc("Time"), moment),
+                    yStart: .value(loc("Used"), 0),
+                    yEnd: .value(loc("Used"), 72)
+                )
                     .foregroundStyle(ChartMarkers.reset)
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
                     .accessibilityLabel(loc("Weekly limit reset"))
@@ -281,9 +287,12 @@ public struct UsageChart: View {
                     x: .value(loc("Time"), moment),
                     y: .value(loc("Used"), 86)
                 )
+                // A drawn arrow, not the "↺" character: at this size the
+                // character's open loop and tick read as "$", which is the
+                // payment's meaning, on the strip that also carries payments.
                 .symbol {
-                    Text("\u{21BA}")
-                        .font(.system(size: 10, weight: .bold))
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.system(size: 8, weight: .bold))
                         .foregroundStyle(ChartMarkers.reset)
                 }
                 .accessibilityLabel(loc("Weekly limit reset"))
