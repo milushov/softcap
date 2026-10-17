@@ -229,3 +229,7 @@
 "Not set" = "সেট করা নেই";
 "Yearly" = "বার্ষিক";
 "Day" = "দিন";
+"Resets in %@" = "%@ পরে রিসেট";
+"Resets today" = "আজ রিসেট";
+"Weekly limit reset" = "সাপ্তাহিক সীমা রিসেট";
+"Subscription payment" = "সাবস্ক্রিপশনের পেমেন্ট";

@@ -3,7 +3,7 @@ import Preferences
 import Monitoring
 import StatusUI
 
-/// Usage over time: one chart, one line per account.
+/// Usage over time: one strip per account on a shared time axis.
 ///
 /// The history is recorded by the app as it polls, so the chart is as long as
 /// the app has been running — it cannot show a week that was never watched. That
@@ -36,11 +36,19 @@ struct StatisticsPane: View {
             if segments.isEmpty {
                 empty
             } else {
-                UsageChart(
-                    segments: segments, accountIDs: accountIDs, names: names,
-                    range: range, now: now, localization: loc
-                )
-                .frame(height: 230)
+                // Vertical scroll only: with many accounts the strips outgrow
+                // the window, and the chart is sized to the width it is given,
+                // so it never needs to scroll sideways.
+                ScrollView(.vertical, showsIndicators: false) {
+                    UsageChart(
+                        segments: segments, accountIDs: accountIDs, names: names,
+                        range: range, now: now,
+                        nextResets: nextWeeklyResets,
+                        currentPercents: currentWeeklyPercents,
+                        billing: appModel.isDemo ? DemoData.billing(now: now) : model.value.billing,
+                        localization: loc
+                    )
+                }
 
                 Text(loc(appModel.isDemo
                          ? "Demo — sample data"
@@ -51,6 +59,31 @@ struct StatisticsPane: View {
             }
         }
         .task(id: range) { await reload() }
+    }
+
+    /// Each account's next weekly reset, from the live snapshots.
+    ///
+    /// The earlier resets are projected from it in whole weeks (see
+    /// `WeeklyResets`); an account whose snapshot carries no weekly reset, or
+    /// has not answered yet, is simply left out and gets no markers.
+    private var nextWeeklyResets: [String: Date] {
+        var out: [String: Date] = [:]
+        for snapshot in appModel.snapshots {
+            if let reset = snapshot.windows.first(where: { $0.id == "weekly" })?.resetsAt {
+                out[snapshot.id] = reset
+            }
+        }
+        return out
+    }
+
+    private var currentWeeklyPercents: [String: Double] {
+        var out: [String: Double] = [:]
+        for snapshot in appModel.snapshots where snapshot.failure == nil {
+            if let window = snapshot.windows.first(where: { $0.id == "weekly" }) {
+                out[snapshot.id] = window.percent
+            }
+        }
+        return out
     }
 
     private var empty: some View {

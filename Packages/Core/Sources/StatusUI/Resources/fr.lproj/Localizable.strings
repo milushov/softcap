@@ -229,3 +229,7 @@
 "Not set" = "Non défini";
 "Yearly" = "Annuel";
 "Day" = "Jour";
+"Resets in %@" = "Réinitialisation dans %@";
+"Resets today" = "Réinitialisation aujourd’hui";
+"Weekly limit reset" = "Réinitialisation de la limite hebdomadaire";
+"Subscription payment" = "Paiement de l’abonnement";

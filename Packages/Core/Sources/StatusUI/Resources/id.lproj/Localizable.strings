@@ -229,3 +229,7 @@
 "Not set" = "Belum diatur";
 "Yearly" = "Tahunan";
 "Day" = "Hari";
+"Resets in %@" = "Reset dalam %@";
+"Resets today" = "Reset hari ini";
+"Weekly limit reset" = "Reset batas mingguan";
+"Subscription payment" = "Pembayaran langganan";

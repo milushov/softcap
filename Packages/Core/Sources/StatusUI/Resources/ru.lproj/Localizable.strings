@@ -229,3 +229,7 @@
 "Not set" = "Не задан";
 "Yearly" = "Ежегодно";
 "Day" = "День";
+"Resets in %@" = "Сброс через %@";
+"Resets today" = "Сброс сегодня";
+"Weekly limit reset" = "Сброс недельного лимита";
+"Subscription payment" = "Платёж за подписку";

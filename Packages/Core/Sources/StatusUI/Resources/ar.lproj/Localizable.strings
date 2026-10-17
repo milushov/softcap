@@ -229,3 +229,7 @@
 "Not set" = "غير محدد";
 "Yearly" = "سنويًا";
 "Day" = "اليوم";
+"Resets in %@" = "يُعاد الضبط بعد %@";
+"Resets today" = "يُعاد الضبط اليوم";
+"Weekly limit reset" = "إعادة ضبط الحد الأسبوعي";
+"Subscription payment" = "دفعة الاشتراك";

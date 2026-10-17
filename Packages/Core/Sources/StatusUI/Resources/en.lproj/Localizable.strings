@@ -229,3 +229,7 @@
 "Not set" = "Not set";
 "Yearly" = "Yearly";
 "Day" = "Day";
+"Resets in %@" = "Resets in %@";
+"Resets today" = "Resets today";
+"Weekly limit reset" = "Weekly limit reset";
+"Subscription payment" = "Subscription payment";

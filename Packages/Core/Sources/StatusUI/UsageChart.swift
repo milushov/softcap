@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 import ProviderKit
 import Monitoring
+import Preferences
 
 /// Colours that stand for *which account*, kept apart from the colours that
 /// stand for *how loaded* one is.
@@ -35,7 +36,7 @@ public enum AccountPalette {
     }
 }
 
-private extension Color {
+extension Color {
     /// `#rrggbb` only — the one form the palette is written in.
     init(hex: String) {
         let digits = hex.dropFirst()
@@ -102,7 +103,28 @@ public enum UsageRange: String, CaseIterable, Identifiable, Sendable {
     public var titleKey: String { self == .week ? "Week" : "Month" }
 }
 
-/// Usage over time: one line per account, on one plot.
+/// Colours for the two kinds of event drawn over a strip.
+///
+/// Each is its own hue, outside `AccountPalette` (cool, identity) and outside
+/// the green-to-red load scale: a reset line in a blue of the palette would read
+/// as one more account, and a payment dot in red as a limit being hit.
+public enum ChartMarkers {
+    /// A weekly reset: a neutral grey, because it is a fact about the clock and
+    /// the same for every account.
+    public static let resetHex = "#9a9fa8"
+    /// A subscription payment: warm orange.
+    public static let paymentHex = "#e8844a"
+
+    public static let reset = Color(hex: resetHex)
+    public static let payment = Color(hex: paymentHex)
+}
+
+/// Usage over time: one strip per account, stacked, on one shared time axis.
+///
+/// One plot with every account's line on it overlapped as soon as two accounts
+/// climbed together, and told the reader which line was whose only through a
+/// legend to be matched by colour. Here each account has a strip of its own,
+/// labelled on the left, with its current figure and next reset on the right.
 ///
 /// The weekly window is drawn, not the five-hour one. Over seven days the short
 /// window resets thirty-three times and over a month a hundred and forty-four —
@@ -115,15 +137,33 @@ public struct UsageChart: View {
     private let names: [String: String]
     private let range: UsageRange
     private let now: Date
+    private let nextResets: [String: Date]
+    private let currentPercents: [String: Double]
+    private let billing: [String: BillingSchedule]
 
     @ObservedObject private var loc: Localization
 
+    static let nameWidth: CGFloat = 104
+    static let figureWidth: CGFloat = 84
+    static let stripHeight: CGFloat = 46
+    static let stripSpacing: CGFloat = 10
+    static let columnSpacing: CGFloat = 10
+
+    /// - Parameters:
+    ///   - nextResets: each account's next weekly reset. An account missing
+    ///     here gets no reset marks and no countdown.
+    ///   - currentPercents: the live weekly figure; an account missing here
+    ///     shows its last recorded reading.
+    ///   - billing: payment schedules by account.
     public init(
         segments: [UsageSegment],
         accountIDs: [String],
         names: [String: String],
         range: UsageRange,
         now: Date,
+        nextResets: [String: Date] = [:],
+        currentPercents: [String: Double] = [:],
+        billing: [String: BillingSchedule] = [:],
         localization: Localization
     ) {
         self.segments = segments
@@ -131,27 +171,86 @@ public struct UsageChart: View {
         self.names = names
         self.range = range
         self.now = now
+        self.nextResets = nextResets
+        self.currentPercents = currentPercents
+        self.billing = billing
         self.loc = localization
     }
 
+    private var domain: ClosedRange<Date> { now.addingTimeInterval(-range.duration)...now }
+
+    private var dayStride: Int { range == .week ? 1 : 5 }
+
     public var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            chart
-            legend
+        VStack(alignment: .leading, spacing: Self.stripSpacing) {
+            ForEach(accountIDs, id: \.self) { id in
+                row(for: id)
+            }
+            axis
         }
     }
 
-    private var chart: some View {
-        Chart {
-            ForEach(Array(segments.enumerated()), id: \.offset) { _, segment in
+    // MARK: Rows
+
+    private func row(for id: String) -> some View {
+        HStack(spacing: Self.columnSpacing) {
+            Text(displayName(for: id))
+                .font(.system(size: 11.5, weight: .medium))
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(width: Self.nameWidth, alignment: .leading)
+
+            strip(for: id)
+                .frame(height: Self.stripHeight)
+
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(figure(for: id))
+                    .font(.system(size: 15, weight: .semibold))
+                    .monospacedDigit()
+                if let text = resetText(for: id) {
+                    Text(text)
+                        .font(.system(size: 10))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+            }
+            .frame(width: Self.figureWidth, alignment: .trailing)
+        }
+    }
+
+    private func strip(for id: String) -> some View {
+        let colour = AccountPalette.colour(for: id, among: accountIDs)
+        let mine = segments.enumerated().filter { $0.element.accountID == id }
+        let resets = nextResets[id].map {
+            WeeklyResets.resets(known: $0, from: domain.lowerBound, to: now)
+        } ?? []
+        let payments = billing[id]?.payments(from: domain.lowerBound, to: now) ?? []
+
+        return Chart {
+            ForEach(mine, id: \.offset) { offset, segment in
+                // Each run is its own series, so a break in recording is a
+                // break in the area and the line rather than a straight guess
+                // across it. The fill first, so the line is drawn over it.
+                ForEach(segment.points, id: \.at) { point in
+                    AreaMark(
+                        x: .value(loc("Time"), point.at),
+                        yStart: .value(loc("Used"), 0),
+                        yEnd: .value(loc("Used"), point.percent),
+                        series: .value(loc("Account"), "area-\(offset)")
+                    )
+                    .foregroundStyle(colour.opacity(0.18))
+                    .interpolationMethod(.monotone)
+                }
+
                 ForEach(segment.points, id: \.at) { point in
                     LineMark(
                         x: .value(loc("Time"), point.at),
-                        y: .value(loc("Used"), point.percent)
+                        y: .value(loc("Used"), point.percent),
+                        series: .value(loc("Account"), "line-\(offset)")
                     )
-                    // Each run is its own series, so a break in recording is a
-                    // break in the line rather than a straight guess across it.
-                    .foregroundStyle(by: .value(loc("Account"), segment.accountID))
+                    .foregroundStyle(colour)
+                    .lineStyle(StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
                 }
 
@@ -164,58 +263,89 @@ public struct UsageChart: View {
                         x: .value(loc("Time"), only.at),
                         y: .value(loc("Used"), only.percent)
                     )
-                    .foregroundStyle(by: .value(loc("Account"), segment.accountID))
+                    .foregroundStyle(colour)
                     .symbolSize(28)
                 }
             }
-        }
-        .chartForegroundStyleScale(domain: accountIDs, range: colours)
-        .chartYScale(domain: 0...100)
-        .chartYAxis {
-            AxisMarks(position: .leading, values: [0, 25, 50, 75, 100]) { value in
-                AxisGridLine()
-                AxisValueLabel {
-                    if let percent = value.as(Int.self) {
-                        Text(loc.percent(Double(percent))).font(.system(size: 9.5))
-                    }
+
+            ForEach(resets, id: \.self) { moment in
+                RuleMark(x: .value(loc("Time"), moment))
+                    .foregroundStyle(ChartMarkers.reset)
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                    .accessibilityLabel(loc("Weekly limit reset"))
+
+                // The glyph is a point with a drawn symbol rather than an
+                // annotation: an annotation on a rule is placed against the
+                // rule's full height and landed outside the clipped strip.
+                PointMark(
+                    x: .value(loc("Time"), moment),
+                    y: .value(loc("Used"), 86)
+                )
+                .symbol {
+                    Text("\u{21BA}")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(ChartMarkers.reset)
                 }
+                .accessibilityLabel(loc("Weekly limit reset"))
+            }
+
+            ForEach(payments, id: \.self) { moment in
+                PointMark(
+                    x: .value(loc("Time"), moment),
+                    y: .value(loc("Used"), 7)
+                )
+                .foregroundStyle(ChartMarkers.payment)
+                .symbol(.circle)
+                .symbolSize(30)
+                .accessibilityLabel(loc("Subscription payment"))
             }
         }
-        .chartXScale(domain: now.addingTimeInterval(-range.duration)...now)
+        .chartYScale(domain: 0...100)
+        .chartYAxis(.hidden)
+        .chartXScale(domain: domain)
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: range == .week ? 7 : 5)) { value in
-                AxisGridLine()
-                AxisValueLabel(format: loc.chartDay)
-                    .font(.system(size: 9.5))
+            // Gridlines only: the labels are drawn once, under the last strip.
+            AxisMarks(values: .stride(by: .day, count: dayStride)) { _ in
+                AxisGridLine().foregroundStyle(.secondary.opacity(0.18))
             }
         }
-        // The built-in legend would print the internal identifier; the legend
-        // below names the account instead.
         .chartLegend(.hidden)
+        .chartPlotStyle { plot in
+            plot
+                .background(Color.secondary.opacity(0.07))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+        }
+        .help(helpText(resets: resets.count, payments: payments))
+        .accessibilityElement(children: .contain)
         // Time runs left to right even in a right-to-left interface: an axis is
         // not text, and mirroring it would make a rising line read as falling.
         .environment(\.layoutDirection, .leftToRight)
     }
 
-    private var legend: some View {
-        HStack(spacing: 14) {
-            ForEach(accountIDs, id: \.self) { id in
-                HStack(spacing: 5) {
-                    Circle()
-                        .fill(AccountPalette.colour(for: id, among: accountIDs))
-                        .frame(width: 7, height: 7)
-                    Text(legendName(for: id))
-                        .font(.system(size: 10.5))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
+    /// The shared axis. An empty chart with the same width and the same scale
+    /// as the strips above it, set between spacers the width of the name and
+    /// figure columns, so its days line up with their gridlines.
+    private var axis: some View {
+        HStack(spacing: Self.columnSpacing) {
+            Color.clear.frame(width: Self.nameWidth, height: 1)
+            Chart {}
+                .chartXScale(domain: domain)
+                .chartYAxis(.hidden)
+                .chartXAxis {
+                    AxisMarks(values: .stride(by: .day, count: dayStride)) { _ in
+                        AxisValueLabel(format: loc.chartDay)
+                            .font(.system(size: 9.5))
+                    }
                 }
-            }
-            Spacer(minLength: 0)
+                .frame(height: 18)
+                .environment(\.layoutDirection, .leftToRight)
+            Color.clear.frame(width: Self.figureWidth, height: 1)
         }
     }
 
-    private func legendName(for id: String) -> String {
+    // MARK: Text
+
+    private func displayName(for id: String) -> String {
         let full = accountIDs.map { LegendNames.label(for: $0, in: names) }
         let short = LegendNames.shorten(full)
         guard let index = accountIDs.firstIndex(of: id)
@@ -223,7 +353,31 @@ public struct UsageChart: View {
         return short[index]
     }
 
-    private var colours: [Color] {
-        accountIDs.map { AccountPalette.colour(for: $0, among: accountIDs) }
+    private func figure(for id: String) -> String {
+        if let live = currentPercents[id] { return loc.percent(live) }
+        let last = segments.last(where: { $0.accountID == id })?.points.last
+        return last.map { loc.percent($0.percent) } ?? "\u{2014}"
+    }
+
+    /// "Resets today" / "Resets in 3d", from the account's next weekly reset;
+    /// nothing when it is unknown or already past.
+    private func resetText(for id: String) -> String? {
+        guard let next = nextResets[id], next > now else { return nil }
+        let calendar = Calendar.current
+        let days = calendar.dateComponents(
+            [.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: next)
+        ).day ?? 0
+        if days <= 0 { return loc("Resets today") }
+        return String(format: loc("Resets in %@"), String(format: loc("%lldd"), days))
+    }
+
+    private func helpText(resets: Int, payments: [Date]) -> String {
+        var lines: [String] = []
+        if resets > 0 { lines.append("\u{21BA} " + loc("Weekly limit reset")) }
+        for moment in payments {
+            lines.append("\u{25CF} " + loc("Subscription payment") + ": "
+                         + moment.formatted(loc.chartDay))
+        }
+        return lines.joined(separator: "\n")
     }
 }

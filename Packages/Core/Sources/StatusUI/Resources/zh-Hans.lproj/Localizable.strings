@@ -229,3 +229,7 @@
 "Not set" = "未设置";
 "Yearly" = "每年";
 "Day" = "日";
+"Resets in %@" = "%@ 后重置";
+"Resets today" = "今天重置";
+"Weekly limit reset" = "每周额度重置";
+"Subscription payment" = "订阅付款";

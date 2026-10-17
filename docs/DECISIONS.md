@@ -10146,3 +10146,22 @@ Old preference files have no such key and decode to "no billing set".
 when a plan is renewed on another day or the card is changed. Nothing in the app
 can check it. It is stored per account id, so a forgotten and re-added account
 starts without one.
+
+---
+
+## 2026-10-17 — Statistics draws a strip per account
+
+**Decided.** The Statistics chart is one horizontal strip per account, stacked,
+on one shared day axis, instead of one plot with every line on it. Each row is
+labelled with the account's name on the left and carries the current weekly
+figure and the time to the next reset on the right. Weekly resets (dashed line
+with a glyph) and payment days (a dot) are drawn on the strip.
+
+**Why.** Lines overlapped as soon as two accounts climbed together, and naming
+whose line was whose took a legend matched by colour. A strip per account needs
+neither.
+
+**Cost.** Height grows with the number of accounts (the pane scrolls
+vertically past what fits; it never scrolls sideways), and comparing two
+accounts' levels at one instant means reading across rows rather than looking
+at one plot.
