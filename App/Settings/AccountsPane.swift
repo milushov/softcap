@@ -351,6 +351,10 @@ struct AccountsPane: View {
     private func forget(_ row: AccountRow) async {
         do {
             try await appModel.forgetAccount(id: row.id)
+            // The payment day goes with the account: left behind, it would
+            // come back on a strip if the same account were added again,
+            // carrying a day nobody remembers entering.
+            model.update { $0.billing[row.id] = nil }
             accountError = nil
         } catch {
             accountError = loc("Could not forget the account. Try again.")

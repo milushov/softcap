@@ -227,9 +227,11 @@
 "No active subscription" = "Sin suscripción activa";
 "Payment day" = "Día de pago";
 "Not set" = "Sin definir";
-"Yearly" = "Anual";
 "Day" = "Día";
 "Resets in %@" = "Se restablece en %@";
 "Resets today" = "Se restablece hoy";
 "Weekly limit reset" = "Reinicio del límite semanal";
 "Subscription payment" = "Pago de la suscripción";
+"Every month" = "Cada mes";
+"Every year" = "Cada año";
+"Repeats" = "Se repite";

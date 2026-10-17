@@ -227,9 +227,11 @@
 "No active subscription" = "No active subscription";
 "Payment day" = "Payment day";
 "Not set" = "Not set";
-"Yearly" = "Yearly";
 "Day" = "Day";
 "Resets in %@" = "Resets in %@";
 "Resets today" = "Resets today";
 "Weekly limit reset" = "Weekly limit reset";
 "Subscription payment" = "Subscription payment";
+"Every month" = "Every month";
+"Every year" = "Every year";
+"Repeats" = "Repeats";

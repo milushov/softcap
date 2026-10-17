@@ -227,9 +227,11 @@
 "No active subscription" = "Нет активной подписки";
 "Payment day" = "День платежа";
 "Not set" = "Не задан";
-"Yearly" = "Ежегодно";
 "Day" = "День";
 "Resets in %@" = "Сброс через %@";
 "Resets today" = "Сброс сегодня";
 "Weekly limit reset" = "Сброс недельного лимита";
 "Subscription payment" = "Платёж за подписку";
+"Every month" = "Каждый месяц";
+"Every year" = "Каждый год";
+"Repeats" = "Повтор";

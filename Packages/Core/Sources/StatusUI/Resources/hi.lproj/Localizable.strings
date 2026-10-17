@@ -227,9 +227,11 @@
 "No active subscription" = "कोई सक्रिय सदस्यता नहीं";
 "Payment day" = "भुगतान का दिन";
 "Not set" = "सेट नहीं";
-"Yearly" = "सालाना";
 "Day" = "दिन";
 "Resets in %@" = "%@ में रीसेट";
 "Resets today" = "आज रीसेट";
 "Weekly limit reset" = "साप्ताहिक सीमा रीसेट";
 "Subscription payment" = "सदस्यता भुगतान";
+"Every month" = "हर महीने";
+"Every year" = "हर साल";
+"Repeats" = "दोहराव";

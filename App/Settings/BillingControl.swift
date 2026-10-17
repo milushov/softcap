@@ -29,9 +29,12 @@ struct BillingControl: View {
             .fixedSize()
 
             if let schedule {
-                Picker(loc("Payment day"), selection: yearly) {
-                    Text(loc("Monthly")).tag(false)
-                    Text(loc("Yearly")).tag(true)
+                // Its own keys: "Monthly" is already the label of a monthly
+                // allowance, and its translations are adjectives agreeing with
+                // that noun ("Месячное"), which read wrong beside a payment.
+                Picker(loc("Repeats"), selection: yearly) {
+                    Text(loc("Every month")).tag(false)
+                    Text(loc("Every year")).tag(true)
                 }
                 .labelsHidden()
                 .fixedSize()

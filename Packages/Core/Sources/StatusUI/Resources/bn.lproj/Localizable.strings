@@ -227,9 +227,11 @@
 "No active subscription" = "কোনো সক্রিয় সাবস্ক্রিপশন নেই";
 "Payment day" = "পেমেন্টের দিন";
 "Not set" = "সেট করা নেই";
-"Yearly" = "বার্ষিক";
 "Day" = "দিন";
 "Resets in %@" = "%@ পরে রিসেট";
 "Resets today" = "আজ রিসেট";
 "Weekly limit reset" = "সাপ্তাহিক সীমা রিসেট";
 "Subscription payment" = "সাবস্ক্রিপশনের পেমেন্ট";
+"Every month" = "প্রতি মাসে";
+"Every year" = "প্রতি বছর";
+"Repeats" = "পুনরাবৃত্তি";
