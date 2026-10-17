@@ -189,31 +189,54 @@ enum DemoData {
         }
     }
 
+    /// Payment days for two of the three accounts, so the strips show a dot.
+    ///
+    /// Taken from dates a little way back from `now` rather than written as
+    /// fixed days of the month: a fixed day is outside the visible week on most
+    /// days of the month, and the demo exists to show the dot.
+    static func billing(now: Date = Date()) -> [String: BillingSchedule] {
+        let calendar = Calendar.current
+        func day(daysAgo: Int) -> Int {
+            calendar.component(.day, from: now.addingTimeInterval(-Double(daysAgo) * 86400))
+        }
+        return [
+            "claude/demo-1": BillingSchedule(dayOfMonth: day(daysAgo: 4)),
+            "codex/demo-1": BillingSchedule(dayOfMonth: day(daysAgo: 17)),
+        ]
+    }
+
     /// A month of weekly readings for the statistics chart.
     ///
     /// Generated rather than written out: the screen draws four weeks, and four
     /// weeks of three-hourly readings is seven hundred numbers. The shape is the
     /// one the real chart has — each account climbs across its week and drops to
-    /// nothing when the allowance resets — with the cycles deliberately out of
-    /// phase, because lines resetting on the same evening read as a drawing
-    /// rather than as a measurement.
+    /// nothing when the allowance resets — with the cycles out of phase,
+    /// because lines resetting on the same evening read as a drawing rather than
+    /// as a measurement.
     ///
     /// Held in memory by the caller. Merging these into the real history file
     /// would overwrite a month of somebody's own readings with invented ones.
     static func samples(now: Date = Date()) -> [UsageSample] {
-        let step: TimeInterval = 3 * 3600
+        // Closer together than `UsageHistory.gapAfter`: at three hours every
+        // reading was its own run, and the chart drew a row of dots.
+        let step: TimeInterval = 90 * 60
         let weeks = 4.0
-        let phases: [Double] = [0, 2.4, 4.1]   // days, so no two resets coincide
 
         var out: [UsageSample] = []
-        for (index, account) in accounts.enumerated() {
+        for account in accounts {
             guard let weekly = account.tracks.first(where: { $0.windowID == "weekly" })
             else { continue }
             let peak = weekly.peak
+            let nextReset = now.addingTimeInterval(weekly.resetsAfter ?? week)
             var moment = now.addingTimeInterval(-weeks * 7 * 86400)
             while moment <= now {
-                let days = moment.timeIntervalSinceReferenceDate / 86400 + phases[index]
-                let throughTheWeek = days.truncatingRemainder(dividingBy: 7) / 7
+                // Counted from the reset the account is about to have, so the
+                // drops in the curve fall where the strips draw their reset
+                // marks (`WeeklyResets` projects them from that same moment).
+                // The three accounts' first resets differ, so no two coincide.
+                let sinceReset = moment.timeIntervalSince(nextReset)
+                let throughTheWeek = ((sinceReset.truncatingRemainder(dividingBy: week) + week)
+                    .truncatingRemainder(dividingBy: week)) / week
                 // A day's rhythm on top of the week's climb: work happens in
                 // bursts, and a perfectly straight ramp is the one shape a real
                 // reading never has.
