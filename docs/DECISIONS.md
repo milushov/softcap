@@ -10109,3 +10109,21 @@ refuses — at the poll interval, against a different endpoint. The lapse rule i
 read from the profile of a paying account and from the one lapsed account it was
 found on; a status value nobody has seen yet counts as lapsed, which is the
 cheaper mistake beside a plan that died behind a word about the network.
+
+---
+
+## 2026-10-17 — Past weekly resets are projected from the next one
+
+**Decided.** The statistics strips mark every weekly reset in the visible range.
+The marks are the account's current weekly `resetsAt` minus whole weeks
+(`WeeklyResets.resets`), not events read out of the stored history.
+
+**Why.** The history keeps percentages only, and a fall in a percentage is
+ambiguous: it can be a reset, or a stretch with no readings that happens to end
+lower. Detecting resets from the curve would mark recording gaps as resets. The
+service's own answer for the next reset is exact, and the window is one week
+long.
+
+**Cost.** A reset that the service moved (a plan change, an early reset by the
+provider) is drawn at its old weekday for the weeks before the move. An account
+whose reset is not known gets no markers at all.
