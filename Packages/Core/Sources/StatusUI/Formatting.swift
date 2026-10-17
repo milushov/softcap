@@ -90,6 +90,8 @@ public extension Localization {
         case .network:         self("Network unavailable")
         case .noData:          self("No data available")
         case .malformed:       self("Unexpected response")
+        case .rateLimited:     self("Rate limited")
+        case .noSubscription:  self("No active subscription")
         }
     }
 

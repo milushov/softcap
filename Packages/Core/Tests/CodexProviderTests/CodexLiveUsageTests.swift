@@ -75,7 +75,7 @@ private actor UsageTokens: AccountTokenSource {
     @Test func temporaryFailureDoesNotAskForLogin() async throws {
         let http = UsageHTTP([(Data(), 429)])
         let result = try await CodexLiveUsageProvider(tokens: UsageTokens(), knownAccounts: [ref], http: http).fetch(ref)
-        #expect(result.failure?.kind == .network)
+        #expect(result.failure?.kind == .rateLimited)
         #expect(await http.headers.count == 1)
     }
 

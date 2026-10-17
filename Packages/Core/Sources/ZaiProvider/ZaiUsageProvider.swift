@@ -51,7 +51,7 @@ public struct ZaiUsageProvider: UsageProvider {
 
             guard answer.1 == 200 else {
                 throw ProviderFailure(
-                    kind: answer.1 == 401 || answer.1 == 403 ? .needsLogin : .network,
+                    kind: .init(usageStatus: answer.1),
                     diagnostic: "glm usage failed, HTTP \(answer.1)")
             }
 

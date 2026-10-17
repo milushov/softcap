@@ -38,7 +38,7 @@ public struct CodexLiveUsageProvider: UsageProvider {
             }
             guard response.1 == 200 else {
                 throw ProviderFailure(
-                    kind: response.1 == 401 || response.1 == 403 ? .needsLogin : .network,
+                    kind: .init(usageStatus: response.1),
                     diagnostic: "codex usage failed, HTTP \(response.1)")
             }
             let usage = try CodexUsageResponse.parse(response.0)

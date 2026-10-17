@@ -223,3 +223,5 @@
 "In use" = "使用中";
 "Key from your plan" = "套餐的密钥";
 "The key your plan issued — the same one your editor uses." = "套餐签发的那个密钥 —— 与您的编辑器所用的相同。";
+"Rate limited" = "请求过于频繁";
+"No active subscription" = "没有有效订阅";

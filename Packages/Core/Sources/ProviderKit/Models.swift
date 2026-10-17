@@ -140,6 +140,22 @@ public struct ProviderFailure: Sendable, Hashable, Codable, Error {
         case network      // the network is unreachable
         case noData       // the source is empty
         case malformed    // the response could not be parsed
+        case rateLimited  // the service answered and asked to be asked less often
+        case noSubscription // the account signs in but its paid plan has ended
+
+        /// What a usage request's status code says about the account.
+        ///
+        /// 429 used to fall in with every other code and read "Network
+        /// unavailable" — on a machine whose network was fine, for an account
+        /// whose sign-in was fine, and which signing in again did nothing for.
+        /// The service answering at all is the one thing that sentence denies.
+        public init(usageStatus code: Int) {
+            switch code {
+            case 401, 403: self = .needsLogin
+            case 429:      self = .rateLimited
+            default:       self = .network
+            }
+        }
     }
 
     public let kind: Kind

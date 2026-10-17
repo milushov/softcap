@@ -106,3 +106,44 @@ private func provider(_ http: StubHTTP, tokens: StubTokens = StubTokens()) -> Cl
     let snapshot = try await provider(http).fetch(ref)
     #expect(snapshot.failure?.diagnostic.contains("SECRET") == false)
 }
+
+/// The service answering 429 is not the network being down: the row said
+/// "Network unavailable" for hours on a machine that was online, about an
+/// account whose sign-in was fine.
+@Test func reportsRateLimitOn429() async throws {
+    let http = StubHTTP(byPath: [
+        "/api/oauth/profile": (profileBody, 200),
+        "/api/oauth/usage": (d("{}"), 429),
+    ])
+    let ref = AccountRef(id: "claude/u-1", provider: .claude, handle: "u-1")
+    let snapshot = try await provider(http).fetch(ref)
+    #expect(snapshot.failure?.kind == .rateLimited)
+    #expect(snapshot.failure?.diagnostic == "http 429")
+}
+
+/// A plan that ran out answers the usage request with the same 429 as a rate
+/// limit. The profile is asked again — the remembered one still names the old
+/// plan — and it is the profile that says which of the two it is.
+@Test func reportsALapsedSubscriptionRatherThanARateLimit() async throws {
+    let lapsed = d("""
+    {"account":{"uuid":"u-1","email":"a@b.c","has_claude_max":false,"has_claude_pro":false},
+     "organization":{"rate_limit_tier":"default_claude_max_20x","subscription_status":"canceled"}}
+    """)
+    let identities = ClaudeIdentityCache()
+    await identities.remember(
+        ClaudeProfile(uuid: "u-1", displayName: "a@b.c", planLabel: "Max 20x"), for: "claude/u-1")
+    let http = StubHTTP(byPath: [
+        "/api/oauth/profile": (lapsed, 200),
+        "/api/oauth/usage": (d("{}"), 429),
+    ])
+    let subject = ClaudeUsageProvider(
+        http: http, tokens: StubTokens(),
+        knownAccounts: [AccountRef(id: "claude/u-1", provider: .claude, handle: "u-1")],
+        identities: identities)
+    let snapshot = try await subject.fetch(
+        AccountRef(id: "claude/u-1", provider: .claude, handle: "u-1"))
+
+    #expect(snapshot.failure?.kind == .noSubscription)
+    #expect(snapshot.planLabel == "—")
+    #expect(await identities.identity(for: "claude/u-1") == nil)
+}

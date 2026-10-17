@@ -52,7 +52,7 @@ public struct CopilotUsageProvider: UsageProvider {
 
             guard answer.1 == 200 else {
                 throw ProviderFailure(
-                    kind: answer.1 == 401 || answer.1 == 403 ? .needsLogin : .network,
+                    kind: .init(usageStatus: answer.1),
                     diagnostic: "copilot usage failed, HTTP \(answer.1)")
             }
 

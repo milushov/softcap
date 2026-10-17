@@ -10076,3 +10076,36 @@ One trap found on the way and worth writing down: the store numbers its five in
 capture order and the README in reading order, so `03` is notifications there
 and statistics here. Matched on the name, never on the number — by the number,
 the two would have swapped.
+
+## 2026-10-17 — A refused usage request says why it was refused
+
+**Decided.** A usage request answered with 429 is no longer reported as
+`network`. It becomes `rateLimited` ("Rate limited"), and for Claude the
+profile is asked again, past the identity cache: when it says the subscription
+is no longer paid for, the row reads "No active subscription" and the plan
+becomes a dash. Every usage provider maps status codes through one
+`ProviderFailure.Kind(usageStatus:)` instead of five copies of
+`401 || 403 ? .needsLogin : .network`.
+
+**Why.** An account whose plan had ended showed "Network unavailable" for hours,
+on a machine that was online. Signing in again in the browser changed nothing,
+because nothing was wrong with the sign-in: the usage endpoint answered 429 on
+every poll, and every code but 200, 401 and 403 was filed as the network. The
+sentence denied the one thing that was certain — that the service had answered.
+
+429 alone cannot tell a lapsed plan from a rate limit; the profile can. Its
+`subscription_status` is read first; when it is absent, `has_claude_max` and
+`has_claude_pro` both false count only on an account with no team seat, since a
+seat is paid for by someone else and leaves the personal flags false on an
+account that works. A field that is missing proves nothing. `past_due` counts as
+paying: the service keeps the plan while it retries the card.
+
+The remembered profile is what had kept saying "Max 20x" over the dead plan. It
+is forgotten when the plan has lapsed, so a renewal shows on the next good
+reading rather than hours later.
+
+**Cost.** One more profile request per poll for an account the usage endpoint
+refuses — at the poll interval, against a different endpoint. The lapse rule is
+read from the profile of a paying account and from the one lapsed account it was
+found on; a status value nobody has seen yet counts as lapsed, which is the
+cheaper mistake beside a plan that died behind a word about the network.

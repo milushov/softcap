@@ -223,3 +223,5 @@
 "In use" = "उपयोग में";
 "Key from your plan" = "आपके प्लान की कुंजी";
 "The key your plan issued — the same one your editor uses." = "वही कुंजी जो आपके प्लान ने जारी की — जिसे आपका एडिटर इस्तेमाल करता है।";
+"Rate limited" = "अनुरोध सीमा पार";
+"No active subscription" = "कोई सक्रिय सदस्यता नहीं";

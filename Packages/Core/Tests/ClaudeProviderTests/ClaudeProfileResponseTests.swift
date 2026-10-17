@@ -48,3 +48,18 @@ private func data(_ s: String) -> Data { s.data(using: .utf8)! }
         try ClaudeProfileResponse.parse(data(#"{"organization":{}}"#))
     }
 }
+
+@Test(arguments: [
+    // Measured shape of a paying account.
+    (#"{"account":{"uuid":"u","has_claude_max":true,"has_claude_pro":false},"organization":{"subscription_status":"active"}}"#, false),
+    (#"{"account":{"uuid":"u"},"organization":{"subscription_status":"canceled"}}"#, true),
+    (#"{"account":{"uuid":"u"},"organization":{"subscription_status":"past_due"}}"#, false),
+    (#"{"account":{"uuid":"u","has_claude_max":false,"has_claude_pro":false},"organization":{}}"#, true),
+    // A team seat is paid by the team; the personal flags say nothing.
+    (#"{"account":{"uuid":"u","has_claude_max":false,"has_claude_pro":false},"organization":{"organization_type":"claude_team","seat_tier":"standard"}}"#, false),
+    // Silence proves nothing.
+    (#"{"account":{"uuid":"u"},"organization":{}}"#, false),
+])
+func tellsALapsedSubscription(body: String, lapsed: Bool) throws {
+    #expect(try ClaudeProfileResponse.parse(data(body)).subscriptionLapsed == lapsed)
+}

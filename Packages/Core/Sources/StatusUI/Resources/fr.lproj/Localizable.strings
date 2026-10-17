@@ -223,3 +223,5 @@
 "In use" = "En cours d'utilisation";
 "Key from your plan" = "Clé de votre forfait";
 "The key your plan issued — the same one your editor uses." = "La clé émise par votre forfait — la même que celle de votre éditeur.";
+"Rate limited" = "Trop de requêtes";
+"No active subscription" = "Aucun abonnement actif";

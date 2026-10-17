@@ -67,6 +67,7 @@ public struct ClaudeUsageProvider: UsageProvider {
         // same one with a hiccup.
         var name = Self.name(for: ref)
         var plan = "—"
+        var fresh: ClaudeProfile?
         if let known = await identities.identity(for: ref.id) {
             name = known.displayName
             plan = known.planLabel
@@ -75,6 +76,7 @@ public struct ClaudeUsageProvider: UsageProvider {
                   let profile = try? ClaudeProfileResponse.parse(data) {
             name = profile.displayName
             plan = profile.planLabel
+            fresh = profile
             await identities.remember(profile, for: ref.id)
         }
 
@@ -92,13 +94,38 @@ public struct ClaudeUsageProvider: UsageProvider {
                     kind: .needsLogin, diagnostic: "token unavailable"
                 ))
             default:
+                // The profile is remembered for hours, so the plan it named
+                // may have ended since. A refusal is the moment to ask again:
+                // a lapsed subscription answers 429 here, the same code as a
+                // rate limit, and only the profile tells the two apart.
+                var kind = ProviderFailure.Kind(usageStatus: code)
+                if fresh == nil { fresh = await currentProfile(headers) }
+                if let profile = fresh {
+                    name = profile.displayName
+                    if profile.subscriptionLapsed {
+                        kind = .noSubscription
+                        plan = "—"
+                        // Not remembered: a renewed plan must show on the
+                        // next good reading, not hours later.
+                        await identities.forget(ref.id)
+                    } else {
+                        plan = profile.planLabel
+                        await identities.remember(profile, for: ref.id)
+                    }
+                }
                 return broken(ref, name: name, plan: plan, failure: ProviderFailure(
-                    kind: .network, diagnostic: "http \(code)"
+                    kind: kind, diagnostic: "http \(code)"
                 ))
             }
         } catch {
             return broken(ref, name: name, plan: plan, failure: failure(from: error))
         }
+    }
+
+    private func currentProfile(_ headers: [String: String]) async -> ClaudeProfile? {
+        guard let (data, code) = try? await http.get(Self.profileURL, headers: headers),
+              code == 200 else { return nil }
+        return try? ClaudeProfileResponse.parse(data)
     }
 
     private func broken(

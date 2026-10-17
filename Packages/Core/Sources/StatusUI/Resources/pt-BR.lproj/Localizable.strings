@@ -223,3 +223,5 @@
 "In use" = "Em uso";
 "Key from your plan" = "Chave do seu plano";
 "The key your plan issued — the same one your editor uses." = "A chave emitida pelo seu plano — a mesma que seu editor usa.";
+"Rate limited" = "Limite de requisições";
+"No active subscription" = "Nenhuma assinatura ativa";
