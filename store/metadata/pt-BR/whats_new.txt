@@ -1,3 +1,6 @@
+• Estatísticas agora mostra uma faixa por conta em uma linha do tempo comum, com quanto do limite semanal já foi usado e quando ele reinicia.
+• Cada faixa marca os reinícios do limite semanal e o dia em que a assinatura é paga. Defina esse dia para cada conta em “Dia do pagamento”, em Contas.
+• Quando um serviço recusa uma consulta de uso, o Softcap agora diz o motivo em vez de culpar a rede.
 • Um widget agora avisa quando o macOS não deixou o Softcap abrir a pasta de onde ele lê, em vez de mostrar a semana vazia que aparece quando realmente não há nada a relatar.
 • Uma linha da janela mínima é um botão: clique no período e a linha mostra o outro, até a janela fechar.
 • Uma lista de contas travada pelo macOS pode ser aberta de novo, em vez de ficar recusada para sempre.

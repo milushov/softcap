@@ -1,3 +1,6 @@
+• Statistics now draws one strip per account on a shared timeline, with how much of the weekly limit is used right now and when it resets.
+• Each strip marks the weekly limit resets and the day the subscription is paid. Set that day for each account under Payment day in Accounts.
+• When a service refuses a usage request, Softcap now says why instead of blaming the network.
 • A widget now says when macOS has not let Softcap open the folder it reads from, instead of showing the empty week it shows when there is genuinely nothing to report.
 • A row in the minimal window is a button: click the period and the row shows the other one, until the window closes.
 • An account list macOS has locked can be opened again, rather than being refused for good.

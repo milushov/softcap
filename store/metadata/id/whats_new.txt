@@ -1,3 +1,6 @@
+• Statistik kini menampilkan satu jalur per akun pada garis waktu bersama, dengan berapa banyak batas mingguan yang sudah terpakai dan kapan batas itu direset.
+• Setiap jalur menandai reset batas mingguan dan hari pembayaran langganan. Atur hari itu untuk setiap akun di “Tanggal pembayaran” pada bagian Akun.
+• Saat layanan menolak permintaan pemakaian, Softcap kini menjelaskan alasannya alih-alih menyalahkan jaringan.
 • Widget kini memberi tahu saat macOS tidak mengizinkan Softcap membuka folder yang dibacanya, alih-alih menampilkan minggu kosong yang muncul ketika memang tidak ada yang bisa dilaporkan.
 • Baris di jendela ringkas kini sebuah tombol: klik periodenya dan baris itu menampilkan periode satunya, sampai jendela ditutup.
 • Daftar akun yang dikunci macOS bisa dibuka lagi, bukan ditolak selamanya.

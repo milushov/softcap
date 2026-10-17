@@ -1,3 +1,6 @@
+• Statistiques affiche désormais une bande par compte sur une frise commune, avec la part de la limite hebdomadaire déjà utilisée et la date de sa réinitialisation.
+• Chaque bande marque les réinitialisations de la limite hebdomadaire et le jour où l’abonnement est payé. Indiquez ce jour pour chaque compte dans « Jour de paiement », sous Comptes.
+• Quand un service refuse une demande d’utilisation, Softcap dit désormais pourquoi au lieu d’accuser le réseau.
 • Un widget indique maintenant que macOS n'a pas laissé Softcap ouvrir le dossier qu'il lit, au lieu d'afficher la semaine vide qu'il montre quand il n'y a vraiment rien à signaler.
 • Une ligne de la fenêtre minimale est un bouton : cliquez sur la période et la ligne affiche l'autre, jusqu'à la fermeture de la fenêtre.
 • Une liste de comptes verrouillée par macOS peut être rouverte, au lieu d'être refusée définitivement.
