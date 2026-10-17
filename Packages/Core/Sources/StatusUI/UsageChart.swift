@@ -314,7 +314,9 @@ public struct UsageChart: View {
         .chartXScale(domain: domain)
         .chartXAxis {
             // Gridlines only: the labels are drawn once, under the last strip.
-            AxisMarks(values: .stride(by: .day, count: dayStride)) { _ in
+            // The same dates the hand-placed labels below use, so a label
+            // and its gridline cannot drift apart.
+            AxisMarks(values: gridDays) { _ in
                 AxisGridLine().foregroundStyle(.secondary.opacity(0.18))
             }
         }
@@ -337,19 +339,67 @@ public struct UsageChart: View {
     private var axis: some View {
         HStack(spacing: Self.columnSpacing) {
             Color.clear.frame(width: Self.nameWidth, height: 1)
-            Chart {}
-                .chartXScale(domain: domain)
-                .chartYAxis(.hidden)
-                .chartXAxis {
-                    AxisMarks(values: .stride(by: .day, count: dayStride)) { _ in
-                        AxisValueLabel(format: loc.chartDay)
-                            .font(.system(size: 9.5))
-                    }
+            // Labels placed by hand at each day's position on the strips' own
+            // scale. An empty `Chart` did this before, and in Arabic it wrote
+            // the days right to left under strips drawn left to right: the
+            // axis said a reset happened on the 14th where the strip drew it on
+            // the 13th, and the last day's label was cut off at the edge.
+            GeometryReader { geometry in
+                ForEach(axisDays, id: \.self) { day in
+                    Text(day, format: loc.chartDay)
+                        .font(.system(size: 9.5))
+                        .foregroundStyle(.secondary)
+                        .fixedSize()
+                        .position(x: axisX(for: day, width: geometry.size.width), y: 9)
                 }
-                .frame(height: 18)
-                .environment(\.layoutDirection, .leftToRight)
+            }
+            .frame(height: 18)
+            .environment(\.layoutDirection, .leftToRight)
             Color.clear.frame(width: Self.figureWidth, height: 1)
         }
+    }
+
+    /// The days the axis names. A week labels every day under the middle of
+    /// its span; a month labels every fifth day boundary, skipping the ones
+    /// too close to an edge for their label to fit.
+    private var axisDays: [Date] {
+        let calendar = Calendar.current
+        var day = calendar.startOfDay(for: domain.lowerBound)
+        var out: [Date] = []
+        while day <= domain.upperBound {
+            if range == .week {
+                let middle = day.addingTimeInterval(12 * 3600)
+                if domain.contains(middle) { out.append(middle) }
+                day = calendar.date(byAdding: .day, value: 1, to: day) ?? domain.upperBound.addingTimeInterval(1)
+            } else {
+                let span = domain.upperBound.timeIntervalSince(domain.lowerBound)
+                let fraction = day.timeIntervalSince(domain.lowerBound) / span
+                if fraction > 0.04, fraction < 0.96 { out.append(day) }
+                day = calendar.date(byAdding: .day, value: dayStride, to: day) ?? domain.upperBound.addingTimeInterval(1)
+            }
+        }
+        return out
+    }
+
+    /// Where the strips draw their vertical lines: every day boundary in a
+    /// week, every labelled day in a month.
+    private var gridDays: [Date] {
+        guard range == .week else { return axisDays }
+        let calendar = Calendar.current
+        var day = calendar.startOfDay(for: domain.lowerBound)
+        var out: [Date] = []
+        while day <= domain.upperBound {
+            if day >= domain.lowerBound { out.append(day) }
+            guard let next = calendar.date(byAdding: .day, value: 1, to: day) else { break }
+            day = next
+        }
+        return out
+    }
+
+    private func axisX(for day: Date, width: CGFloat) -> CGFloat {
+        let span = domain.upperBound.timeIntervalSince(domain.lowerBound)
+        guard span > 0 else { return 0 }
+        return CGFloat(day.timeIntervalSince(domain.lowerBound) / span) * width
     }
 
     // MARK: Text

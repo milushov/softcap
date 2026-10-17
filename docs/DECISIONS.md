@@ -10165,3 +10165,22 @@ neither.
 vertically past what fits; it never scrolls sideways), and comparing two
 accounts' levels at one instant means reading across rows rather than looking
 at one plot.
+
+---
+
+## 2026-10-17 — The strips' day axis is placed by hand
+
+**Decided.** The day labels under the statistics strips are text set at each
+day's position on the strips' own time scale, inside a left-to-right layout,
+rather than the x axis of an empty Swift Charts chart. The strips' gridlines are
+drawn at the same dates the labels use.
+
+**Why.** In Arabic the empty chart wrote the days right to left under strips
+drawn left to right, so the axis put a reset on the wrong day, and the last
+label was cut off at the edge. It was caught on the store screenshot, the one
+place every language is looked at side by side.
+
+**Cost.** The axis no longer picks its own label density: a week labels every
+day and a month every fifth day boundary, and a label too close to an edge is
+dropped rather than moved. A narrower window could crowd the week's seven
+labels, which Swift Charts would have thinned out by itself.
