@@ -225,3 +225,7 @@
 "The key your plan issued — the same one your editor uses." = "المفتاح الذي أصدرته خطتك — نفسه الذي يستخدمه محرّرك.";
 "Rate limited" = "تم تجاوز حد الطلبات";
 "No active subscription" = "لا يوجد اشتراك نشط";
+"Payment day" = "يوم الدفع";
+"Not set" = "غير محدد";
+"Yearly" = "سنويًا";
+"Day" = "اليوم";

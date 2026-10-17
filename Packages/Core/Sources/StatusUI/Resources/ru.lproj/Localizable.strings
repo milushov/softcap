@@ -225,3 +225,7 @@
 "The key your plan issued — the same one your editor uses." = "Ключ, выданный вашим тарифом, — тот же, что использует ваш редактор.";
 "Rate limited" = "Лимит запросов";
 "No active subscription" = "Нет активной подписки";
+"Payment day" = "День платежа";
+"Not set" = "Не задан";
+"Yearly" = "Ежегодно";
+"Day" = "День";

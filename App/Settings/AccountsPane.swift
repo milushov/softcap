@@ -94,6 +94,12 @@ struct AccountsPane: View {
                                     .font(.system(size: 12.5, weight: .medium))
                                 Text(caption(for: row))
                                     .font(.system(size: 11)).foregroundStyle(.secondary)
+                                // Not for the samples: they have no real billing
+                                // day, and the strips draw their own.
+                                if !appModel.isDemo {
+                                    BillingControl(model: model, accountID: row.id)
+                                        .padding(.top, 3)
+                                }
                             }
                             Spacer()
                             Text(badge(for: row.state))

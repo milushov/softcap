@@ -225,3 +225,7 @@
 "The key your plan issued — the same one your editor uses." = "আপনার প্ল্যান যে কী দিয়েছে — আপনার এডিটর যেটি ব্যবহার করে সেটিই।";
 "Rate limited" = "অনুরোধের সীমা পেরিয়েছে";
 "No active subscription" = "কোনো সক্রিয় সাবস্ক্রিপশন নেই";
+"Payment day" = "পেমেন্টের দিন";
+"Not set" = "সেট করা নেই";
+"Yearly" = "বার্ষিক";
+"Day" = "দিন";

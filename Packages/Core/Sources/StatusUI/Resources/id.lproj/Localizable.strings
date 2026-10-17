@@ -225,3 +225,7 @@
 "The key your plan issued — the same one your editor uses." = "Kunci yang diterbitkan paket Anda — yang sama dengan yang dipakai editor Anda.";
 "Rate limited" = "Batas permintaan tercapai";
 "No active subscription" = "Tidak ada langganan aktif";
+"Payment day" = "Tanggal pembayaran";
+"Not set" = "Belum diatur";
+"Yearly" = "Tahunan";
+"Day" = "Hari";

@@ -225,3 +225,7 @@
 "The key your plan issued — the same one your editor uses." = "वही कुंजी जो आपके प्लान ने जारी की — जिसे आपका एडिटर इस्तेमाल करता है।";
 "Rate limited" = "अनुरोध सीमा पार";
 "No active subscription" = "कोई सक्रिय सदस्यता नहीं";
+"Payment day" = "भुगतान का दिन";
+"Not set" = "सेट नहीं";
+"Yearly" = "सालाना";
+"Day" = "दिन";
